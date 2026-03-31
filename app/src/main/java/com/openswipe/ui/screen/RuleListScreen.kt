@@ -217,8 +217,8 @@ fun RuleListScreen(
     if (showAddDialog) {
         AddRuleDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { trigger, action ->
-                viewModel.addRule(trigger, action)
+            onConfirm = { trigger, action, triggerMode ->
+                viewModel.addRule(trigger, action, triggerMode)
                 showAddDialog = false
             },
         )

@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -25,7 +26,10 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,12 +39,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.openswipe.model.GestureType
 import com.openswipe.model.SectionRange
+import com.openswipe.model.TriggerMode
 import com.openswipe.overlay.Edge
 import com.openswipe.ui.component.ActionPickerDialog
 import com.openswipe.ui.viewmodel.RuleConfigViewModel
@@ -49,6 +58,7 @@ import com.openswipe.ui.util.edgeIcon
 import com.openswipe.ui.util.edgeLabel
 import com.openswipe.ui.util.gestureLabel
 import com.openswipe.ui.util.sectionLabel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +75,9 @@ fun RuleDetailScreen(
     var showEdgeMenu by remember { mutableStateOf(false) }
     var showSectionMenu by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -74,8 +87,20 @@ fun RuleDetailScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
+                actions = {
+                    IconButton(onClick = {
+                        viewModel.applyRules()
+                        scope.launch {
+                            snackbarHostState.showSnackbar("已保存")
+                        }
+                        onNavigateBack()
+                    }) {
+                        Icon(Icons.Filled.Check, contentDescription = "保存")
+                    }
+                },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         if (rule == null) {
             Column(
@@ -200,6 +225,62 @@ fun RuleDetailScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                }
+            }
+
+            // ── Trigger Mode ──
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "触发模式",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Column(Modifier.selectableGroup()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = rule.triggerMode == TriggerMode.SWIPE,
+                                    onClick = { viewModel.updateRuleTriggerMode(ruleId, TriggerMode.SWIPE) },
+                                    role = Role.RadioButton,
+                                )
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = rule.triggerMode == TriggerMode.SWIPE, onClick = null)
+                            Column(modifier = Modifier.padding(start = 8.dp)) {
+                                Text("滑动", style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    "仅滑动触发，点击穿透到下层App",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = rule.triggerMode == TriggerMode.TOUCH,
+                                    onClick = { viewModel.updateRuleTriggerMode(ruleId, TriggerMode.TOUCH) },
+                                    role = Role.RadioButton,
+                                )
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = rule.triggerMode == TriggerMode.TOUCH, onClick = null)
+                            Column(modifier = Modifier.padding(start = 8.dp)) {
+                                Text("轻触", style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    "触碰即检测（触碰就响应）",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
                     }
                 }
             }

@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.openswipe.OpenSwipeApp
-import com.openswipe.gesture.BottomTriggerMode
 import com.openswipe.gesture.GestureConfig
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,12 +23,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun setBottomTriggerHeight(dp: Float) {
         viewModelScope.launch {
             app.updateBottomTriggerHeight(dp)
-        }
-    }
-
-    fun setBottomTriggerMode(mode: BottomTriggerMode) {
-        viewModelScope.launch {
-            app.updateBottomTriggerMode(mode)
         }
     }
 }

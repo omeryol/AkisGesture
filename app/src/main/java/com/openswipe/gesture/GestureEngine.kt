@@ -10,6 +10,7 @@ import com.openswipe.action.ActionType
 import com.openswipe.gesture.model.GestureResult
 import com.openswipe.model.ActionNode
 import com.openswipe.model.GestureType
+import com.openswipe.model.TriggerMode
 import com.openswipe.overlay.Edge
 import com.openswipe.overlay.EdgeSensorView
 import com.openswipe.overlay.OverlayManager
@@ -73,9 +74,8 @@ class GestureEngine(
         // If edge width changed, rebuild all side overlays
         val sideNeedsRebuild = old.edgeTriggerWidthDp != new.edgeTriggerWidthDp
 
-        // If bottom height or trigger mode changed, rebuild bottom overlay
-        val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp ||
-                old.bottomTriggerMode != new.bottomTriggerMode
+        // If bottom height changed, rebuild bottom overlay
+        val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp
 
         for (edge in Edge.entries) {
             val hasRules = ruleSet.hasRulesFor(edge)
@@ -166,13 +166,14 @@ class GestureEngine(
     private fun createDetector(edge: Edge, sensorLength: Float): EdgeGestureDetector {
         val configCopy = currentConfig.copy(sensorLength = sensorLength)
         val touchSlop = ViewConfiguration.get(overlayManager.context).scaledTouchSlop
+        val edgeTriggerMode = compiledRuleSetFlow.value.triggerModeFor(edge)
         return EdgeGestureDetector(
             edge = edge,
             config = configCopy,
             scaledTouchSlop = touchSlop,
             onGestureResult = { result -> handleGestureResult(result) },
-            triggerMode = if (edge == Edge.BOTTOM) currentConfig.bottomTriggerMode else BottomTriggerMode.TOUCH,
-            onReplayTap = if (edge == Edge.BOTTOM) { x, y ->
+            triggerMode = edgeTriggerMode,
+            onReplayTap = if (edgeTriggerMode == TriggerMode.SWIPE) { x, y ->
                 GestureAccessibilityService.getInstance()?.dispatchTap(x, y)
             } else null,
         )

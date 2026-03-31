@@ -2,10 +2,12 @@ package com.openswipe.rule
 
 import com.openswipe.model.ActionNode
 import com.openswipe.model.GestureType
+import com.openswipe.model.TriggerMode
 import com.openswipe.overlay.Edge
 
 class CompiledRuleSet(
-    private val table: Map<Edge, Map<GestureType, List<CompiledSection>>>
+    private val table: Map<Edge, Map<GestureType, List<CompiledSection>>>,
+    private val edgeTriggerModes: Map<Edge, TriggerMode> = emptyMap(),
 ) {
     /**
      * Core matching method. Runtime hot path.
@@ -34,6 +36,10 @@ class CompiledRuleSet(
     /** Total number of compiled sections across all edges. */
     fun totalRuleCount(): Int =
         table.values.sumOf { gestures -> gestures.values.sumOf { it.size } }
+
+    /** Aggregated trigger mode for an edge. SWIPE if any enabled rule on this edge uses SWIPE. */
+    fun triggerModeFor(edge: Edge): TriggerMode =
+        edgeTriggerModes[edge] ?: TriggerMode.SWIPE
 
     companion object {
         val EMPTY = CompiledRuleSet(emptyMap())

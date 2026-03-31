@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.openswipe.model.ActionNode
 import com.openswipe.model.GestureType
 import com.openswipe.model.SectionRange
+import com.openswipe.model.TriggerMode
 import com.openswipe.model.TriggerNode
 import com.openswipe.overlay.Edge
 import com.openswipe.ui.theme.OpenSwipePrimary
@@ -41,7 +42,7 @@ import com.openswipe.ui.viewmodel.RuleConfigViewModel
 @Composable
 fun AddRuleDialog(
     onDismiss: () -> Unit,
-    onConfirm: (TriggerNode, ActionNode) -> Unit,
+    onConfirm: (TriggerNode, ActionNode, TriggerMode) -> Unit,
 ) {
     // Wizard state: 0=edge, 1=section, 2=action (gesture step skipped, auto SWIPE)
     var step by remember { mutableIntStateOf(0) }
@@ -49,6 +50,7 @@ fun AddRuleDialog(
     var selectedSection by remember { mutableStateOf<SectionRange?>(null) }
     val selectedGesture = GestureType.SWIPE
     var selectedAction by remember { mutableStateOf<ActionNode?>(null) }
+    var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
 
     val stepTitles = listOf("选择边缘", "选择区段", "选择动作")
 
@@ -81,10 +83,41 @@ fun AddRuleDialog(
                         selected = selectedSection,
                         onSelect = { selectedSection = it },
                     )
-                    2 -> ActionSelector(
-                        selected = selectedAction,
-                        onSelect = { selectedAction = it },
-                    )
+                    2 -> {
+                        ActionSelector(
+                            selected = selectedAction,
+                            onSelect = { selectedAction = it },
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            text = "触发模式",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            FilterChip(
+                                selected = selectedTriggerMode == TriggerMode.SWIPE,
+                                onClick = { selectedTriggerMode = TriggerMode.SWIPE },
+                                label = { Text("滑动（推荐）") },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                                ),
+                                border = if (selectedTriggerMode == TriggerMode.SWIPE) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                            )
+                            FilterChip(
+                                selected = selectedTriggerMode == TriggerMode.TOUCH,
+                                onClick = { selectedTriggerMode = TriggerMode.TOUCH },
+                                label = { Text("轻触") },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                                ),
+                                border = if (selectedTriggerMode == TriggerMode.TOUCH) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -119,6 +152,7 @@ fun AddRuleDialog(
                             onConfirm(
                                 TriggerNode(selectedEdge!!, selectedSection!!, selectedGesture),
                                 selectedAction!!,
+                                selectedTriggerMode,
                             )
                         }
                     },

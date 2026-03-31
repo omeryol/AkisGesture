@@ -65,11 +65,12 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     // ── Mutations ──
 
-    fun addRule(trigger: TriggerNode, action: ActionNode) {
+    fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: com.openswipe.model.TriggerMode = com.openswipe.model.TriggerMode.SWIPE) {
         val newRule = GestureRule(
             id = UUID.randomUUID().toString(),
             trigger = trigger,
             action = action,
+            triggerMode = triggerMode,
         )
         _rules.value = _rules.value + newRule
         _activePresetName.value = null
@@ -105,6 +106,14 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     fun updateRuleTrigger(ruleId: String, newTrigger: TriggerNode) {
         _rules.value = _rules.value.map { rule ->
             if (rule.id == ruleId) rule.copy(trigger = newTrigger) else rule
+        }
+        _activePresetName.value = null
+        revalidate()
+    }
+
+    fun updateRuleTriggerMode(ruleId: String, mode: com.openswipe.model.TriggerMode) {
+        _rules.value = _rules.value.map { rule ->
+            if (rule.id == ruleId) rule.copy(triggerMode = mode) else rule
         }
         _activePresetName.value = null
         revalidate()

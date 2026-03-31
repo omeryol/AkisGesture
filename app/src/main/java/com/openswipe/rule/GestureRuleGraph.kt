@@ -2,6 +2,7 @@ package com.openswipe.rule
 
 import com.openswipe.model.GestureRule
 import com.openswipe.model.GestureType
+import com.openswipe.model.TriggerMode
 
 data class GestureRuleGraph(
     val rules: List<GestureRule>
@@ -35,6 +36,19 @@ data class GestureRuleGraph(
             }
         }
 
-        return CompiledRuleSet(table)
+        // Aggregate trigger mode per edge: if ANY enabled rule uses SWIPE, the edge uses SWIPE
+        val edgeTriggerModes = mutableMapOf<com.openswipe.overlay.Edge, TriggerMode>()
+        for (rule in rules) {
+            if (!rule.enabled) continue
+            val edge = rule.trigger.edge
+            val current = edgeTriggerModes[edge]
+            if (current == null) {
+                edgeTriggerModes[edge] = rule.triggerMode
+            } else if (rule.triggerMode == TriggerMode.SWIPE) {
+                edgeTriggerModes[edge] = TriggerMode.SWIPE
+            }
+        }
+
+        return CompiledRuleSet(table, edgeTriggerModes)
     }
 }

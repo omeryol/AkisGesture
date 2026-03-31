@@ -4,6 +4,7 @@ import android.view.MotionEvent
 import com.openswipe.gesture.model.GestureResult
 import com.openswipe.gesture.model.SwipeDirection
 import com.openswipe.gesture.model.TouchState
+import com.openswipe.model.TriggerMode
 import com.openswipe.overlay.Edge
 import kotlin.math.abs
 
@@ -12,7 +13,7 @@ class EdgeGestureDetector(
     private val config: GestureConfig,
     private val scaledTouchSlop: Int,
     private val onGestureResult: (GestureResult) -> Unit,
-    private val triggerMode: BottomTriggerMode = BottomTriggerMode.TOUCH,
+    private val triggerMode: TriggerMode = TriggerMode.TOUCH,
     private val onReplayTap: ((Float, Float) -> Unit)? = null,
 ) {
     private var state = GestureState.IDLE
@@ -29,7 +30,7 @@ class EdgeGestureDetector(
     }
 
     private fun handleDown(event: MotionEvent) {
-        if (edge == Edge.BOTTOM && triggerMode == BottomTriggerMode.SWIPE) {
+        if (triggerMode == TriggerMode.SWIPE) {
             state = GestureState.AWAITING_DIRECTION
         } else {
             state = GestureState.TRACKING
@@ -50,12 +51,12 @@ class EdgeGestureDetector(
         when (state) {
             GestureState.AWAITING_DIRECTION -> {
                 if (dx * dx + dy * dy > scaledTouchSlop * scaledTouchSlop) {
-                    if (dy < 0 && abs(dy) > abs(dx)) {
-                        // Clear upward swipe — enter normal gesture detection
-                        state = GestureState.DETECTED
-                    } else {
-                        state = GestureState.REJECTED
+                    val isValidSwipe = when (edge) {
+                        Edge.BOTTOM -> dy < 0 && abs(dy) > abs(dx)  // upward
+                        Edge.LEFT -> dx > 0 && abs(dx) > abs(dy)    // rightward
+                        Edge.RIGHT -> dx < 0 && abs(dx) > abs(dy)   // leftward
                     }
+                    state = if (isValidSwipe) GestureState.DETECTED else GestureState.REJECTED
                 }
             }
             GestureState.TRACKING -> {
@@ -75,7 +76,7 @@ class EdgeGestureDetector(
 
     private fun handleUp(event: MotionEvent) {
         // In SWIPE mode: if we never detected an upward swipe, replay the tap
-        if (edge == Edge.BOTTOM && triggerMode == BottomTriggerMode.SWIPE) {
+        if (triggerMode == TriggerMode.SWIPE) {
             if (state == GestureState.AWAITING_DIRECTION || state == GestureState.REJECTED) {
                 onReplayTap?.invoke(touchState.downX, touchState.downY)
                 reset()

@@ -1,6 +1,11 @@
 package com.openswipe.rule
 
-import com.openswipe.model.*
+import com.openswipe.model.ActionNode
+import com.openswipe.model.GestureRule
+import com.openswipe.model.GestureType
+import com.openswipe.model.SectionRange
+import com.openswipe.model.TriggerMode
+import com.openswipe.model.TriggerNode
 import com.openswipe.overlay.Edge
 import org.json.JSONArray
 import org.json.JSONObject
@@ -31,6 +36,7 @@ object RuleSerializer {
             }
             ruleObj.put("action", actionObj)
             ruleObj.put("enabled", rule.enabled)
+            ruleObj.put("triggerMode", rule.triggerMode.name)
 
             rulesArray.put(ruleObj)
         }
@@ -68,8 +74,10 @@ object RuleSerializer {
             }
 
             val enabled = ruleObj.optBoolean("enabled", true)
+            val triggerMode = ruleObj.optString("triggerMode", TriggerMode.SWIPE.name)
+                .let { runCatching { TriggerMode.valueOf(it) }.getOrDefault(TriggerMode.SWIPE) }
 
-            rules.add(GestureRule(id, TriggerNode(edge, section, gestureType), action, enabled))
+            rules.add(GestureRule(id, TriggerNode(edge, section, gestureType), action, enabled, triggerMode))
         }
 
         return GestureRuleGraph(rules)
