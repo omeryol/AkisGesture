@@ -48,7 +48,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.openswipe.model.ActionNode
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import com.openswipe.model.GestureRule
 import com.openswipe.ui.component.ActionPickerDialog
 import com.openswipe.ui.component.AddRuleDialog
@@ -77,19 +82,34 @@ fun RuleListScreen(
     // Rule whose action is being edited
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
 
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("手势规则") },
                 actions = {
-                    IconButton(
-                        onClick = { viewModel.applyRules() },
-                        enabled = hasUnapplied && conflicts.isEmpty(),
+                    val applyEnabled = hasUnapplied && conflicts.isEmpty()
+                    TextButton(
+                        onClick = {
+                            viewModel.applyRules()
+                            Toast.makeText(context, "规则已应用", Toast.LENGTH_SHORT).show()
+                        },
+                        enabled = applyEnabled,
                     ) {
                         Icon(
                             Icons.Filled.Check,
-                            contentDescription = "应用规则",
-                            tint = if (hasUnapplied && conflicts.isEmpty())
+                            contentDescription = null,
+                            tint = if (applyEnabled)
+                                OpenSwipePrimary
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            "应用",
+                            color = if (applyEnabled)
                                 OpenSwipePrimary
                             else
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
@@ -279,7 +299,7 @@ private fun RuleCard(
                         fontWeight = FontWeight.Medium,
                     )
                     Text(
-                        text = " \u00B7 ${sectionLabel(rule.trigger.section)} \u00B7 ${gestureLabel(rule.trigger.gestureType)}",
+                        text = " \u00B7 ${sectionLabel(rule.trigger.section, rule.trigger.edge)} \u00B7 ${gestureLabel(rule.trigger.gestureType)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

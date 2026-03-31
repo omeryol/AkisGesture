@@ -15,14 +15,15 @@ fun gestureLabel(type: GestureType): String = when (type) {
     GestureType.SWIPE -> "滑动"
 }
 
-fun sectionLabel(section: SectionRange): String {
+fun sectionLabel(section: SectionRange, edge: Edge): String {
+    val isVertical = edge == Edge.LEFT || edge == Edge.RIGHT
     return when {
         section.start == 0f && section.end == 1f -> "全段"
-        section.start == 0f && section.end == 1f / 3f -> "左1/3"
+        section.start == 0f && section.end == 1f / 3f -> if (isVertical) "上1/3" else "左1/3"
         section.start == 1f / 3f && section.end == 2f / 3f -> "中1/3"
-        section.start == 2f / 3f && section.end == 1f -> "右1/3"
-        section.start == 0f && section.end == 0.5f -> "前半"
-        section.start == 0.5f && section.end == 1f -> "后半"
+        section.start == 2f / 3f && section.end == 1f -> if (isVertical) "下1/3" else "右1/3"
+        section.start == 0f && section.end == 0.5f -> if (isVertical) "上半" else "左半"
+        section.start == 0.5f && section.end == 1f -> if (isVertical) "下半" else "右半"
         else -> "${(section.start * 100).toInt()}%-${(section.end * 100).toInt()}%"
     }
 }

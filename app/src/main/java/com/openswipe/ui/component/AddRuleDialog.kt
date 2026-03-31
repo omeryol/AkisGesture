@@ -219,7 +219,7 @@ private fun SectionSelector(
     onSelect: (SectionRange) -> Unit,
 ) {
     val options = if (edge == Edge.BOTTOM) {
-        SectionRange.PRESETS
+        SectionRange.presets(edge)
     } else {
         // Left / Right edges: only full section makes sense for Phase 1
         listOf("全段" to SectionRange.ALL)

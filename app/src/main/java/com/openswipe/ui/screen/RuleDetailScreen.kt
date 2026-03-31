@@ -187,10 +187,10 @@ fun RuleDetailScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("区段", modifier = Modifier.weight(1f))
-                        val sectionOptions = SectionRange.PRESETS
+                        val sectionOptions = SectionRange.presets(rule.trigger.edge)
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showSectionMenu = true }) {
-                                Text(sectionLabel(rule.trigger.section))
+                                Text(sectionLabel(rule.trigger.section, rule.trigger.edge))
                             }
                             DropdownMenu(
                                 expanded = showSectionMenu,
