@@ -72,20 +72,11 @@ private fun OpenSwipeApp() {
                             }
                         )
                     },
-                    actions = {
-                        IconButton(onClick = {
-                            navController.navigate("settings") {
-                                launchSingleTop = true
-                            }
-                        }) {
-                            Icon(Icons.Filled.Settings, contentDescription = "设置")
-                        }
-                    },
                 )
             }
         },
         bottomBar = {
-            if (currentRoute in listOf("home", "rules")) {
+            if (currentRoute in listOf("home", "rules", "settings")) {
                 OpenSwipeBottomBar(navController = navController, currentRoute = currentRoute)
             }
         },
@@ -174,6 +165,20 @@ private fun OpenSwipeBottomBar(
             onClick = {
                 if (currentRoute != "rules") {
                     navController.navigate("rules") {
+                        popUpTo("home") { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            },
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.Settings, contentDescription = "设置") },
+            label = { Text("设置") },
+            selected = currentRoute == "settings",
+            onClick = {
+                if (currentRoute != "settings") {
+                    navController.navigate("settings") {
                         popUpTo("home") { saveState = true }
                         launchSingleTop = true
                         restoreState = true
