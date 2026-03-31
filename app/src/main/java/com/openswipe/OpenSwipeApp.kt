@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.openswipe.gesture.BottomTriggerMode
 import com.openswipe.gesture.GestureConfig
 import com.openswipe.overlay.Edge
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +36,10 @@ class OpenSwipeApp : Application() {
                     leftEnabled = prefs[GestureConfig.KEY_LEFT_ENABLED] ?: true,
                     rightEnabled = prefs[GestureConfig.KEY_RIGHT_ENABLED] ?: true,
                     bottomEnabled = prefs[GestureConfig.KEY_BOTTOM_ENABLED] ?: true,
+                    bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 48f,
+                    bottomTriggerMode = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_MODE]
+                        ?.let { runCatching { BottomTriggerMode.valueOf(it) }.getOrNull() }
+                        ?: BottomTriggerMode.TOUCH,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -48,6 +53,18 @@ class OpenSwipeApp : Application() {
         }
         settingsDataStore.edit { prefs ->
             prefs[key] = enabled
+        }
+    }
+
+    suspend fun updateBottomTriggerHeight(dp: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] = dp
+        }
+    }
+
+    suspend fun updateBottomTriggerMode(mode: BottomTriggerMode) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_BOTTOM_TRIGGER_MODE] = mode.name
         }
     }
 

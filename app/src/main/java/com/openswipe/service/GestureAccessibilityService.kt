@@ -2,8 +2,10 @@ package com.openswipe.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.accessibilityservice.GestureDescription
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Path
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import com.openswipe.OpenSwipeApp
@@ -91,6 +93,13 @@ class GestureAccessibilityService : AccessibilityService() {
 
     fun doPerformGlobalAction(actionId: Int): Boolean {
         return performGlobalAction(actionId)
+    }
+
+    fun dispatchTap(x: Float, y: Float) {
+        val path = Path().apply { moveTo(x, y) }
+        val stroke = GestureDescription.StrokeDescription(path, 0, 1)
+        val gesture = GestureDescription.Builder().addStroke(stroke).build()
+        dispatchGesture(gesture, null, null)
     }
 
     enum class ServiceState { DISCONNECTED, CONNECTED }

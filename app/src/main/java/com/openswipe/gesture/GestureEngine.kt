@@ -12,6 +12,7 @@ import com.openswipe.overlay.Edge
 import com.openswipe.overlay.EdgeSensorView
 import com.openswipe.overlay.OverlayManager
 import com.openswipe.overlay.OverlayWindowFactory
+import com.openswipe.service.GestureAccessibilityService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -62,12 +63,19 @@ class GestureEngine(
     }
 
     private fun applyConfigDiff(old: GestureConfig, new: GestureConfig) {
+        // If bottom height or trigger mode changed, rebuild bottom overlay
+        val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp ||
+                old.bottomTriggerMode != new.bottomTriggerMode
+
         for (edge in listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM)) {
             val wasEnabled = isEdgeEnabled(old, edge)
             val nowEnabled = isEdgeEnabled(new, edge)
             if (wasEnabled && !nowEnabled) {
                 removeEdge(edge)
             } else if (!wasEnabled && nowEnabled) {
+                addEdgeOverlay(edge)
+            } else if (edge == Edge.BOTTOM && nowEnabled && bottomNeedsRebuild) {
+                removeEdge(edge)
                 addEdgeOverlay(edge)
             }
         }
@@ -147,7 +155,11 @@ class GestureEngine(
             edge = edge,
             config = configCopy,
             scaledTouchSlop = touchSlop,
-            onGestureResult = { result -> handleGestureResult(result) }
+            onGestureResult = { result -> handleGestureResult(result) },
+            triggerMode = if (edge == Edge.BOTTOM) currentConfig.bottomTriggerMode else BottomTriggerMode.TOUCH,
+            onReplayTap = if (edge == Edge.BOTTOM) { x, y ->
+                GestureAccessibilityService.getInstance()?.dispatchTap(x, y)
+            } else null,
         )
     }
 

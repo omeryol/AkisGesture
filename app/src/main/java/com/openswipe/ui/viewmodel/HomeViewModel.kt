@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.openswipe.OpenSwipeApp
+import com.openswipe.gesture.BottomTriggerMode
 import com.openswipe.gesture.GestureConfig
 import com.openswipe.overlay.Edge
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun setBottomEnabled(enabled: Boolean) {
         viewModelScope.launch {
             app.updateEdgeEnabled(Edge.BOTTOM, enabled)
+        }
+    }
+
+    fun setBottomTriggerHeight(dp: Float) {
+        viewModelScope.launch {
+            app.updateBottomTriggerHeight(dp)
+        }
+    }
+
+    fun setBottomTriggerMode(mode: BottomTriggerMode) {
+        viewModelScope.launch {
+            app.updateBottomTriggerMode(mode)
         }
     }
 }

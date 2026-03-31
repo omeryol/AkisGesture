@@ -6,12 +6,15 @@ import com.openswipe.gesture.model.GestureResult
 import com.openswipe.gesture.model.SwipeDirection
 import com.openswipe.gesture.model.TouchState
 import com.openswipe.overlay.Edge
+import kotlin.math.abs
 
 class EdgeGestureDetector(
     private val edge: Edge,
     private val config: GestureConfig,
     private val scaledTouchSlop: Int,
     private val onGestureResult: (GestureResult) -> Unit,
+    private val triggerMode: BottomTriggerMode = BottomTriggerMode.TOUCH,
+    private val onReplayTap: ((Float, Float) -> Unit)? = null,
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
@@ -30,7 +33,11 @@ class EdgeGestureDetector(
     }
 
     private fun handleDown(event: MotionEvent) {
-        state = GestureState.TRACKING
+        if (edge == Edge.BOTTOM && triggerMode == BottomTriggerMode.SWIPE) {
+            state = GestureState.AWAITING_DIRECTION
+        } else {
+            state = GestureState.TRACKING
+        }
         touchState.apply {
             downX = event.rawX
             downY = event.rawY
@@ -47,13 +54,23 @@ class EdgeGestureDetector(
         val dy = event.rawY - touchState.downY
 
         when (state) {
+            GestureState.AWAITING_DIRECTION -> {
+                if (dx * dx + dy * dy > scaledTouchSlop * scaledTouchSlop) {
+                    if (dy < 0 && abs(dy) > abs(dx)) {
+                        // Clear upward swipe — enter normal gesture detection
+                        state = GestureState.DETECTED
+                    } else {
+                        state = GestureState.REJECTED
+                    }
+                }
+            }
             GestureState.TRACKING -> {
                 if (dx * dx + dy * dy > scaledTouchSlop * scaledTouchSlop) {
                     state = GestureState.DETECTED
                 }
             }
             GestureState.DETECTED -> {
-                // 手势已检测到，继续跟踪（视觉反馈在 Phase 2 中通过 Canvas 层实现）
+                // Gesture detected, continue tracking
             }
             else -> {}
         }
@@ -64,6 +81,15 @@ class EdgeGestureDetector(
 
     private fun handleUp(event: MotionEvent) {
         velocityTracker?.computeCurrentVelocity(1000)
+
+        // In SWIPE mode: if we never detected an upward swipe, replay the tap
+        if (edge == Edge.BOTTOM && triggerMode == BottomTriggerMode.SWIPE) {
+            if (state == GestureState.AWAITING_DIRECTION || state == GestureState.REJECTED) {
+                onReplayTap?.invoke(touchState.downX, touchState.downY)
+                reset()
+                return
+            }
+        }
 
         val dx = event.rawX - touchState.downX
         val dy = event.rawY - touchState.downY
@@ -136,4 +162,6 @@ enum class GestureState {
     TRACKING,
     DETECTED,
     EXECUTING,
+    AWAITING_DIRECTION,
+    REJECTED,
 }
