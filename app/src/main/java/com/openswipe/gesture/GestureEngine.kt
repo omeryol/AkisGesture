@@ -31,12 +31,21 @@ class GestureEngine(
     private val compiledRuleSetFlow: StateFlow<CompiledRuleSet>,
 ) : EdgeSensorView.OnEdgeTouchListener {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val detectors = mutableMapOf<Edge, EdgeGestureDetector>()
     private var currentConfig: GestureConfig = configFlow.value
     private var started = false
 
+    fun stop() {
+        overlayManager.removeAll()
+        detectors.clear()
+        edgeLengths.clear()
+        scope.cancel()
+        started = false
+    }
+
     fun start() {
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         scope.launch {
             combine(configFlow, compiledRuleSetFlow) { config, ruleSet -> config to ruleSet }
                 .collect { (newConfig, ruleSet) ->
@@ -50,13 +59,6 @@ class GestureEngine(
                     }
                 }
         }
-    }
-
-    fun stop() {
-        overlayManager.removeAll()
-        detectors.clear()
-        edgeLengths.clear()
-        scope.cancel()
     }
 
     fun onForegroundAppChanged(packageName: String) {

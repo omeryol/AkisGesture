@@ -54,11 +54,11 @@ import com.openswipe.ui.component.ActionPickerDialog
 import com.openswipe.ui.component.AddRuleDialog
 import com.openswipe.ui.theme.OpenSwipePrimary
 import com.openswipe.ui.viewmodel.RuleConfigViewModel
-import com.openswipe.ui.viewmodel.actionIcon
-import com.openswipe.ui.viewmodel.edgeIcon
-import com.openswipe.ui.viewmodel.edgeLabel
-import com.openswipe.ui.viewmodel.gestureLabel
-import com.openswipe.ui.viewmodel.sectionLabel
+import com.openswipe.ui.util.actionIcon
+import com.openswipe.ui.util.edgeIcon
+import com.openswipe.ui.util.edgeLabel
+import com.openswipe.ui.util.gestureLabel
+import com.openswipe.ui.util.sectionLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

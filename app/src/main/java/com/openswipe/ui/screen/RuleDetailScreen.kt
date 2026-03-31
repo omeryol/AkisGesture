@@ -44,11 +44,11 @@ import com.openswipe.model.SectionRange
 import com.openswipe.overlay.Edge
 import com.openswipe.ui.component.ActionPickerDialog
 import com.openswipe.ui.viewmodel.RuleConfigViewModel
-import com.openswipe.ui.viewmodel.actionIcon
-import com.openswipe.ui.viewmodel.edgeIcon
-import com.openswipe.ui.viewmodel.edgeLabel
-import com.openswipe.ui.viewmodel.gestureLabel
-import com.openswipe.ui.viewmodel.sectionLabel
+import com.openswipe.ui.util.actionIcon
+import com.openswipe.ui.util.edgeIcon
+import com.openswipe.ui.util.edgeLabel
+import com.openswipe.ui.util.gestureLabel
+import com.openswipe.ui.util.sectionLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -163,14 +163,7 @@ fun RuleDetailScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("区段", modifier = Modifier.weight(1f))
-                        val sectionOptions = listOf(
-                            "全段" to SectionRange.ALL,
-                            "左1/3" to SectionRange.thirds(0),
-                            "中1/3" to SectionRange.thirds(1),
-                            "右1/3" to SectionRange.thirds(2),
-                            "前半" to SectionRange.halves(0),
-                            "后半" to SectionRange.halves(1),
-                        )
+                        val sectionOptions = SectionRange.PRESETS
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showSectionMenu = true }) {
                                 Text(sectionLabel(rule.trigger.section))

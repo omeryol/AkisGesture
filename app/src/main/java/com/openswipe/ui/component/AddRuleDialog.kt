@@ -5,13 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -36,8 +33,9 @@ import com.openswipe.model.SectionRange
 import com.openswipe.model.TriggerNode
 import com.openswipe.overlay.Edge
 import com.openswipe.ui.theme.OpenSwipePrimary
+import com.openswipe.ui.util.actionCategories
+import com.openswipe.ui.util.actionIcon
 import com.openswipe.ui.viewmodel.RuleConfigViewModel
-import com.openswipe.ui.viewmodel.actionIcon
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -195,14 +193,7 @@ private fun SectionSelector(
     onSelect: (SectionRange) -> Unit,
 ) {
     val options = if (edge == Edge.BOTTOM) {
-        listOf(
-            "全段" to SectionRange.ALL,
-            "左1/3" to SectionRange.thirds(0),
-            "中1/3" to SectionRange.thirds(1),
-            "右1/3" to SectionRange.thirds(2),
-            "前半" to SectionRange.halves(0),
-            "后半" to SectionRange.halves(1),
-        )
+        SectionRange.PRESETS
     } else {
         // Left / Right edges: only full section makes sense for Phase 1
         listOf("全段" to SectionRange.ALL)
@@ -264,15 +255,7 @@ private fun ActionSelector(
     selected: ActionNode?,
     onSelect: (ActionNode) -> Unit,
 ) {
-    val actions = RuleConfigViewModel.allActions
-    val categories = listOf(
-        "系统导航" to actions.filter { it is ActionNode.Back || it is ActionNode.Home || it is ActionNode.Recents || it is ActionNode.SwitchLastApp },
-        "系统控制" to actions.filter { it is ActionNode.LockScreen || it is ActionNode.Screenshot || it is ActionNode.SplitScreen || it is ActionNode.PowerMenu },
-        "面板" to actions.filter { it is ActionNode.NotificationPanel || it is ActionNode.QuickSettings },
-        "媒体" to actions.filter { it is ActionNode.MediaPlayPause || it is ActionNode.MediaNext || it is ActionNode.MediaPrevious || it is ActionNode.VolumeUp || it is ActionNode.VolumeDown },
-        "硬件" to actions.filter { it is ActionNode.ToggleFlashlight },
-        "其他" to actions.filter { it is ActionNode.NoAction },
-    )
+    val categories = actionCategories()
 
     categories.forEach { (categoryName, items) ->
         Text(

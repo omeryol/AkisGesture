@@ -1,7 +1,6 @@
 package com.openswipe.gesture
 
 import android.view.MotionEvent
-import android.view.VelocityTracker
 import com.openswipe.gesture.model.GestureResult
 import com.openswipe.gesture.model.SwipeDirection
 import com.openswipe.gesture.model.TouchState
@@ -18,11 +17,8 @@ class EdgeGestureDetector(
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
-    private var velocityTracker: VelocityTracker? = null
 
     fun onTouchEvent(event: MotionEvent): Boolean {
-        velocityTracker?.addMovement(event)
-
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> handleDown(event)
             MotionEvent.ACTION_MOVE -> handleMove(event)
@@ -45,8 +41,6 @@ class EdgeGestureDetector(
             prevY = event.rawY
             downTime = System.currentTimeMillis()
         }
-        velocityTracker = VelocityTracker.obtain()
-        velocityTracker?.addMovement(event)
     }
 
     private fun handleMove(event: MotionEvent) {
@@ -80,8 +74,6 @@ class EdgeGestureDetector(
     }
 
     private fun handleUp(event: MotionEvent) {
-        velocityTracker?.computeCurrentVelocity(1000)
-
         // In SWIPE mode: if we never detected an upward swipe, replay the tap
         if (edge == Edge.BOTTOM && triggerMode == BottomTriggerMode.SWIPE) {
             if (state == GestureState.AWAITING_DIRECTION || state == GestureState.REJECTED) {
@@ -154,8 +146,6 @@ class EdgeGestureDetector(
     private fun reset() {
         state = GestureState.IDLE
         touchState.reset()
-        velocityTracker?.recycle()
-        velocityTracker = null
     }
 }
 

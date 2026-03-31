@@ -113,21 +113,30 @@ sealed interface ActionNode {
     }
 
     companion object {
-        fun allFixed(): List<ActionNode> = listOf(
-            Back, Home, Recents, SwitchLastApp,
-            LockScreen, Screenshot, SplitScreen, PowerMenu,
-            NotificationPanel, QuickSettings,
-            MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown,
-            ToggleFlashlight,
-            NoAction,
-        )
+        val allFixed: List<ActionNode> by lazy {
+            listOf(
+                Back, Home, Recents, SwitchLastApp,
+                LockScreen, Screenshot, SplitScreen, PowerMenu,
+                NotificationPanel, QuickSettings,
+                MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown,
+                ToggleFlashlight,
+                NoAction,
+            )
+        }
+
+        /** Keep the function overload for source compatibility. */
+        fun allFixed(): List<ActionNode> = allFixed
+
+        private val fixedById: Map<String, ActionNode> by lazy {
+            allFixed.associateBy { it.id }
+        }
 
         fun fromId(id: String): ActionNode? {
             if (id.startsWith("launch_app:")) {
                 val pkg = id.removePrefix("launch_app:")
                 return LaunchApp(pkg, pkg)
             }
-            return allFixed().find { it.id == id }
+            return fixedById[id]
         }
     }
 }

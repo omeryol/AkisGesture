@@ -29,6 +29,7 @@ import com.openswipe.OpenSwipeApp
 import com.openswipe.service.GestureAccessibilityService
 import com.openswipe.ui.theme.StatusConnected
 import com.openswipe.ui.theme.StatusDisconnected
+import com.openswipe.ui.util.edgeLabel
 import com.openswipe.ui.viewmodel.HomeViewModel
 
 @Composable
@@ -109,13 +110,7 @@ private fun ServiceStatusCard(
 private fun RuleSummaryCard(ruleSet: com.openswipe.rule.CompiledRuleSet) {
     val edges = com.openswipe.overlay.Edge.entries
     val activeEdges = edges.filter { ruleSet.hasRulesFor(it) }
-    val edgeNames = activeEdges.joinToString("、") { edge ->
-        when (edge) {
-            com.openswipe.overlay.Edge.LEFT -> "左侧"
-            com.openswipe.overlay.Edge.RIGHT -> "右侧"
-            com.openswipe.overlay.Edge.BOTTOM -> "底部"
-        }
-    }
+    val edgeNames = activeEdges.joinToString("、") { edgeLabel(it) }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier

@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.openswipe.gesture.BottomTriggerMode
 import com.openswipe.gesture.GestureConfig
-import com.openswipe.overlay.Edge
 import com.openswipe.rule.CompiledRuleSet
 import com.openswipe.rule.GestureRuleGraph
 import com.openswipe.rule.Presets
@@ -76,17 +75,6 @@ class OpenSwipeApp : Application() {
             prefs[KEY_RULES_JSON] = json
         }
         _compiledRuleSet.value = graph.compile()
-    }
-
-    suspend fun updateEdgeEnabled(edge: Edge, enabled: Boolean) {
-        val key = when (edge) {
-            Edge.LEFT -> GestureConfig.KEY_LEFT_ENABLED
-            Edge.RIGHT -> GestureConfig.KEY_RIGHT_ENABLED
-            Edge.BOTTOM -> GestureConfig.KEY_BOTTOM_ENABLED
-        }
-        settingsDataStore.edit { prefs ->
-            prefs[key] = enabled
-        }
     }
 
     suspend fun updateBottomTriggerHeight(dp: Float) {

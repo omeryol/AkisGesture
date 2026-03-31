@@ -29,6 +29,16 @@ data class SectionRange(
         fun thirds(index: Int) = SectionRange(index / 3f, (index + 1) / 3f)
         fun halves(index: Int) = SectionRange(index / 2f, (index + 1) / 2f)
         fun nths(index: Int, n: Int) = SectionRange(index.toFloat() / n, (index + 1).toFloat() / n)
+
+        /** Common presets used by UI pickers. */
+        val PRESETS: List<Pair<String, SectionRange>> = listOf(
+            "全段" to ALL,
+            "左1/3" to thirds(0),
+            "中1/3" to thirds(1),
+            "右1/3" to thirds(2),
+            "前半" to halves(0),
+            "后半" to halves(1),
+        )
     }
 }
 
