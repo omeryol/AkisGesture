@@ -30,6 +30,7 @@ object RuleSerializer {
                 actionObj.put("appName", rule.action.appName)
             }
             ruleObj.put("action", actionObj)
+            ruleObj.put("enabled", rule.enabled)
 
             rulesArray.put(ruleObj)
         }
@@ -62,7 +63,9 @@ object RuleSerializer {
                 ActionNode.fromId(actionId) ?: ActionNode.NoAction
             }
 
-            rules.add(GestureRule(id, TriggerNode(edge, section, gestureType), action))
+            val enabled = ruleObj.optBoolean("enabled", true)
+
+            rules.add(GestureRule(id, TriggerNode(edge, section, gestureType), action, enabled))
         }
 
         return GestureRuleGraph(rules)

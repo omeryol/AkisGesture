@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -179,6 +181,7 @@ fun RuleListScreen(
                             rule = rule,
                             onDelete = { viewModel.removeRule(rule.id) },
                             onChangeAction = { editingActionRuleId = rule.id },
+                            onToggleEnabled = { viewModel.toggleRuleEnabled(rule.id) },
                         )
                     }
                 }
@@ -232,7 +235,9 @@ private fun RuleCard(
     rule: GestureRule,
     onDelete: () -> Unit,
     onChangeAction: () -> Unit,
+    onToggleEnabled: () -> Unit,
 ) {
+    val contentAlpha = if (rule.enabled) 1f else 0.45f
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -245,8 +250,16 @@ private fun RuleCard(
                 .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Enable/disable switch
+            Switch(
+                checked = rule.enabled,
+                onCheckedChange = { onToggleEnabled() },
+                modifier = Modifier.size(36.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+
             // Trigger side
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f).graphicsLayer { alpha = contentAlpha }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = edgeIcon(rule.trigger.edge),

@@ -2,23 +2,23 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportWidth="512"
+    android:viewportHeight="512">
 
-    <!-- 背景色由 adaptive-icon background 提供，这里只画前景 -->
-
-    <!-- 安全区域内居中绘制（adaptive icon 前景 108x108，安全区 66x66 居中） -->
+    <!-- Adaptive icon: 108dp canvas, 安全区 66dp (居中)
+         viewportWidth=512 匹配 SVG 坐标系
+         group 缩小到 66/108=0.611 并居中到安全区 -->
     <group
-        android:pivotX="54"
-        android:pivotY="54"
-        android:scaleX="0.58"
-        android:scaleY="0.58"
-        android:translateX="33"
-        android:translateY="33">
+        android:pivotX="256"
+        android:pivotY="256"
+        android:scaleX="0.55"
+        android:scaleY="0.55"
+        android:translateX="0"
+        android:translateY="0">
 
-        <!-- 手机外框 -->
+        <!-- 手机外框 (居中在 256,268) -->
         <path
-            android:pathData="M-62,-90 h124 a16,16 0 0 1 16,16 v148 a16,16 0 0 1 -16,16 h-124 a16,16 0 0 1 -16,-16 v-148 a16,16 0 0 1 16,-16 z"
+            android:pathData="M194,133 h124 a16,16 0 0 1 16,16 v148 a16,16 0 0 1 -16,16 h-124 a16,16 0 0 1 -16,-16 v-148 a16,16 0 0 1 16,-16 z"
             android:strokeColor="#FFFFFF"
             android:strokeWidth="7"
             android:strokeAlpha="0.85"
@@ -26,62 +26,105 @@
 
         <!-- 屏幕区域 -->
         <path
-            android:pathData="M-52,-76 h104 a6,6 0 0 1 6,6 v136 a6,6 0 0 1 -6,6 h-104 a6,6 0 0 1 -6,-6 v-136 a6,6 0 0 1 6,-6 z"
+            android:pathData="M204,147 h104 a6,6 0 0 1 6,6 v136 a6,6 0 0 1 -6,6 h-104 a6,6 0 0 1 -6,-6 v-136 a6,6 0 0 1 6,-6 z"
             android:fillColor="#FFFFFF"
             android:fillAlpha="0.12"/>
 
         <!-- 左边缘→右箭头 -->
         <path
-            android:pathData="M-52,-10 L-28,-10"
+            android:pathData="M204,258 L228,258"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4"
+            android:strokeWidth="5"
             android:strokeLineCap="round"
-            android:strokeAlpha="0.8"/>
+            android:strokeAlpha="0.9"/>
         <path
-            android:pathData="M-34,-18 L-26,-10 L-34,-2"
+            android:pathData="M222,250 L230,258 L222,266"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4"
+            android:strokeWidth="5"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
             android:fillColor="@android:color/transparent"
-            android:strokeAlpha="0.8"/>
+            android:strokeAlpha="0.9"/>
 
         <!-- 右边缘→左箭头 -->
         <path
-            android:pathData="M52,10 L28,10"
+            android:pathData="M308,278 L284,278"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4"
+            android:strokeWidth="5"
             android:strokeLineCap="round"
-            android:strokeAlpha="0.8"/>
+            android:strokeAlpha="0.9"/>
         <path
-            android:pathData="M34,2 L26,10 L34,18"
+            android:pathData="M290,270 L282,278 L290,286"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4"
+            android:strokeWidth="5"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
             android:fillColor="@android:color/transparent"
-            android:strokeAlpha="0.8"/>
+            android:strokeAlpha="0.9"/>
 
         <!-- 底部→上箭头 -->
         <path
-            android:pathData="M0,72 L0,48"
+            android:pathData="M256,340 L256,316"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4"
+            android:strokeWidth="5"
             android:strokeLineCap="round"
-            android:strokeAlpha="0.8"/>
+            android:strokeAlpha="0.9"/>
         <path
-            android:pathData="M-8,54 L0,46 L8,54"
+            android:pathData="M248,322 L256,314 L264,322"
             android:strokeColor="#FFFFFF"
-            android:strokeWidth="4"
+            android:strokeWidth="5"
             android:strokeLineCap="round"
             android:strokeLineJoin="round"
             android:fillColor="@android:color/transparent"
-            android:strokeAlpha="0.8"/>
+            android:strokeAlpha="0.9"/>
 
         <!-- 底部 pill 条 -->
         <path
-            android:pathData="M-18,80 h36 a2,2 0 0 1 0,4 h-36 a2,2 0 0 1 0,-4 z"
+            android:pathData="M238,348 h36 a2,2 0 0 1 0,4 h-36 a2,2 0 0 1 0,-4 z"
             android:fillColor="#FFFFFF"
             android:fillAlpha="0.6"/>
+
+        <!-- 滑动轨迹弧线（背景） -->
+        <path
+            android:pathData="M436,466 C396,406 336,316 200,241"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="18"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.15"/>
+
+        <!-- 滑动轨迹弧线（前景） -->
+        <path
+            android:pathData="M416,436 C376,376 316,301 190,231"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="12"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.7"/>
+
+        <!-- 左边缘发光弧 -->
+        <path
+            android:pathData="M10,180 Q55,268 10,356"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="5"
+            android:strokeLineCap="round"
+            android:fillColor="@android:color/transparent"
+            android:strokeAlpha="0.3"/>
+
+        <!-- 右边缘发光弧 -->
+        <path
+            android:pathData="M502,180 Q457,268 502,356"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="5"
+            android:strokeLineCap="round"
+            android:fillColor="@android:color/transparent"
+            android:strokeAlpha="0.3"/>
+
+        <!-- 底部发光弧 -->
+        <path
+            android:pathData="M180,502 Q268,457 356,502"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="5"
+            android:strokeLineCap="round"
+            android:fillColor="@android:color/transparent"
+            android:strokeAlpha="0.3"/>
     </group>
 </vector>

@@ -101,6 +101,12 @@ class OpenSwipeApp : Application() {
         }
     }
 
+    suspend fun loadSavedRules(): GestureRuleGraph? {
+        val prefs = settingsDataStore.data.first()
+        val json = prefs[KEY_RULES_JSON] ?: return null
+        return runCatching { json.toGestureRuleGraph() }.getOrNull()
+    }
+
     companion object {
         private val KEY_RULES_JSON = stringPreferencesKey("gesture_rules_json")
         private lateinit var instance: OpenSwipeApp

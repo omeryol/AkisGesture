@@ -12,11 +12,12 @@ object RuleValidator {
     )
 
     fun validate(rules: List<GestureRule>): List<Conflict> {
+        val enabledRules = rules.filter { it.enabled }
         val conflicts = mutableListOf<Conflict>()
-        for (i in rules.indices) {
-            for (j in i + 1 until rules.size) {
-                val a = rules[i]
-                val b = rules[j]
+        for (i in enabledRules.indices) {
+            for (j in i + 1 until enabledRules.size) {
+                val a = enabledRules[i]
+                val b = enabledRules[j]
                 if (a.trigger.edge == b.trigger.edge
                     && a.trigger.gestureType == b.trigger.gestureType
                     && a.trigger.section.overlapsWith(b.trigger.section)

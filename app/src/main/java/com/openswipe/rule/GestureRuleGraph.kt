@@ -12,6 +12,7 @@ data class GestureRuleGraph(
         val table = mutableMapOf<com.openswipe.overlay.Edge, MutableMap<GestureType, MutableList<CompiledSection>>>()
 
         for (rule in rules) {
+            if (!rule.enabled) continue
             val edge = rule.trigger.edge
             val gestureType = rule.trigger.gestureType
 

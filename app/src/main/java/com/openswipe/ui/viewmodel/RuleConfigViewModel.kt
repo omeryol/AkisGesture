@@ -45,8 +45,19 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     val activePresetName: StateFlow<String?> = _activePresetName.asStateFlow()
 
     init {
-        // Load default preset
-        loadPreset("iOS 风格", Presets.IOS_STYLE)
+        viewModelScope.launch {
+            val app = getApplication<Application>() as OpenSwipeApp
+            val savedGraph = app.loadSavedRules()
+            if (savedGraph != null && savedGraph.rules.isNotEmpty()) {
+                _rules.value = savedGraph.rules
+                _appliedRules.value = savedGraph.rules
+                _activePresetName.value = null
+                revalidate()
+            } else {
+                loadPreset("默认", Presets.DEFAULT)
+                applyRules()
+            }
+        }
     }
 
     // ── Mutations ──
@@ -76,6 +87,14 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         revalidate()
     }
 
+    fun toggleRuleEnabled(ruleId: String) {
+        _rules.value = _rules.value.map { rule ->
+            if (rule.id == ruleId) rule.copy(enabled = !rule.enabled) else rule
+        }
+        _activePresetName.value = null
+        revalidate()
+    }
+
     fun applyRules() {
         if (_conflicts.value.isNotEmpty()) return
         val graph = GestureRuleGraph(rules = _rules.value)
@@ -94,7 +113,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     // ── Validation ──
 
     private fun revalidate() {
-        val currentRules = _rules.value
+        val currentRules = _rules.value.filter { it.enabled }
         val found = mutableListOf<Conflict>()
         for (i in currentRules.indices) {
             for (j in i + 1 until currentRules.size) {
