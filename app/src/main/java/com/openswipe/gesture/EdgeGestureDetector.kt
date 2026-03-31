@@ -99,11 +99,12 @@ class EdgeGestureDetector(
             Edge.BOTTOM -> (-dy).coerceAtLeast(0f)
         }
         val dampedDisplacement = rawDisplacement / config.dampingFactor
-        val section = resolveSection(touchCoord(event))
+        val touchAlongEdge = touchCoord(event)
+        val section = resolveSection(touchAlongEdge)
 
         if (state == GestureState.DETECTED) {
             state = GestureState.EXECUTING
-            val result = resolveGestureResult(dampedDisplacement, section, dx, dy)
+            val result = resolveGestureResult(dampedDisplacement, section, dx, dy, touchAlongEdge)
             onGestureResult(result)
         }
 
@@ -115,25 +116,26 @@ class EdgeGestureDetector(
         section: Int,
         rawDx: Float,
         rawDy: Float,
+        touchAlongEdgePx: Float,
     ): GestureResult {
         val minThreshold = config.minSwipeThresholdPx
         val halfPeak = config.peakThreshold / 2f
 
         return when {
             displacement > minThreshold && displacement <= halfPeak ->
-                GestureResult.EdgeSwipe(edge, section, isPrimary = true)
+                GestureResult.EdgeSwipe(edge, section, isPrimary = true, touchAlongEdgePx = touchAlongEdgePx)
             displacement > halfPeak ->
-                GestureResult.EdgeSwipe(edge, section, isPrimary = false)
+                GestureResult.EdgeSwipe(edge, section, isPrimary = false, touchAlongEdgePx = touchAlongEdgePx)
             displacement <= minThreshold && edge != Edge.BOTTOM -> {
                 when {
                     rawDy < -config.minSwipeThresholdPx ->
-                        GestureResult.VerticalSwipe(edge, section, SwipeDirection.UP)
+                        GestureResult.VerticalSwipe(edge, section, SwipeDirection.UP, touchAlongEdgePx = touchAlongEdgePx)
                     rawDy > config.minSwipeThresholdPx ->
-                        GestureResult.VerticalSwipe(edge, section, SwipeDirection.DOWN)
-                    else -> GestureResult.Tap(edge, section)
+                        GestureResult.VerticalSwipe(edge, section, SwipeDirection.DOWN, touchAlongEdgePx = touchAlongEdgePx)
+                    else -> GestureResult.Tap(edge, section, touchAlongEdgePx = touchAlongEdgePx)
                 }
             }
-            else -> GestureResult.Tap(edge, section)
+            else -> GestureResult.Tap(edge, section, touchAlongEdgePx = touchAlongEdgePx)
         }
     }
 

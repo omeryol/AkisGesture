@@ -8,10 +8,13 @@ import android.view.ViewConfiguration
 import com.openswipe.action.ActionDispatcher
 import com.openswipe.action.ActionType
 import com.openswipe.gesture.model.GestureResult
+import com.openswipe.model.ActionNode
+import com.openswipe.model.GestureType
 import com.openswipe.overlay.Edge
 import com.openswipe.overlay.EdgeSensorView
 import com.openswipe.overlay.OverlayManager
 import com.openswipe.overlay.OverlayWindowFactory
+import com.openswipe.rule.CompiledRuleSet
 import com.openswipe.service.GestureAccessibilityService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +27,7 @@ class GestureEngine(
     private val configFlow: StateFlow<GestureConfig>,
     private val actionDispatcher: ActionDispatcher,
     private val overlayManager: OverlayManager,
+    private val compiledRuleSetFlow: StateFlow<CompiledRuleSet>,
 ) : EdgeSensorView.OnEdgeTouchListener {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -49,6 +53,7 @@ class GestureEngine(
     fun stop() {
         overlayManager.removeAll()
         detectors.clear()
+        edgeLengths.clear()
         scope.cancel()
     }
 
@@ -59,6 +64,7 @@ class GestureEngine(
     fun onConfigurationChanged(newConfig: Configuration) {
         overlayManager.removeAll()
         detectors.clear()
+        edgeLengths.clear()
         createOverlayWindows()
     }
 
@@ -93,6 +99,7 @@ class GestureEngine(
         val tag = "sensor_${edge.name.lowercase()}"
         overlayManager.removeWindow(tag)
         detectors.remove(edge)
+        edgeLengths.remove(edge)
     }
 
     private fun addEdgeOverlay(edge: Edge) {
@@ -119,6 +126,7 @@ class GestureEngine(
                     onTouchListener = this
                 )
                 detectors[Edge.LEFT] = detector
+                edgeLengths[Edge.LEFT] = screenHeight.toFloat()
                 overlayManager.addWindow(tag, window)
             }
             Edge.RIGHT -> {
@@ -128,6 +136,7 @@ class GestureEngine(
                     onTouchListener = this
                 )
                 detectors[Edge.RIGHT] = detector
+                edgeLengths[Edge.RIGHT] = screenHeight.toFloat()
                 overlayManager.addWindow(tag, window)
             }
             Edge.BOTTOM -> {
@@ -137,6 +146,7 @@ class GestureEngine(
                     onTouchListener = this
                 )
                 detectors[Edge.BOTTOM] = detector
+                edgeLengths[Edge.BOTTOM] = screenWidth.toFloat()
                 overlayManager.addWindow(tag, window)
             }
         }
@@ -163,13 +173,35 @@ class GestureEngine(
         )
     }
 
+    /** Map of edge → current sensor length in pixels, updated when overlays are created. */
+    private val edgeLengths = mutableMapOf<Edge, Float>()
+
     private fun handleGestureResult(result: GestureResult) {
+        // First try rule-based matching via CompiledRuleSet
+        val actionNode = matchViaRuleSet(result)
+        if (actionNode != null) {
+            scope.launch { actionDispatcher.dispatch(actionNode) }
+            return
+        }
+
+        // Fallback to legacy mapping
         val action = mapResultToAction(result)
         if (action != ActionType.None) {
             scope.launch {
+                @Suppress("DEPRECATION")
                 actionDispatcher.dispatch(action)
             }
         }
+    }
+
+    private fun matchViaRuleSet(result: GestureResult): ActionNode? {
+        if (result !is GestureResult.EdgeSwipe) return null
+        val compiledRuleSet = compiledRuleSetFlow.value
+        val gestureType = if (result.isPrimary) GestureType.SHORT_SWIPE else GestureType.LONG_SWIPE
+        val edgeLength = edgeLengths[result.edge] ?: return null
+        if (edgeLength <= 0f) return null
+        val sectionRatio = (result.touchAlongEdgePx / edgeLength).coerceIn(0f, 1f)
+        return compiledRuleSet.match(result.edge, gestureType, sectionRatio)
     }
 
     private fun mapResultToAction(result: GestureResult): ActionType {

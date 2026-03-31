@@ -5,17 +5,27 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.openswipe.gesture.BottomTriggerMode
 import com.openswipe.gesture.GestureConfig
 import com.openswipe.overlay.Edge
+import com.openswipe.rule.CompiledRuleSet
+import com.openswipe.rule.GestureRuleGraph
+import com.openswipe.rule.Presets
+import com.openswipe.rule.RuleSerializer.toGestureRuleGraph
+import com.openswipe.rule.RuleSerializer.toJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -25,6 +35,9 @@ class OpenSwipeApp : Application() {
 
     lateinit var gestureConfigFlow: StateFlow<GestureConfig>
         private set
+
+    private val _compiledRuleSet = MutableStateFlow(CompiledRuleSet.EMPTY)
+    val compiledRuleSet: StateFlow<CompiledRuleSet> = _compiledRuleSet.asStateFlow()
 
     override fun onCreate() {
         super.onCreate()
@@ -43,6 +56,26 @@ class OpenSwipeApp : Application() {
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
+
+        // Load rules from DataStore on startup
+        appScope.launch(Dispatchers.IO) {
+            val prefs = settingsDataStore.data.first()
+            val json = prefs[KEY_RULES_JSON]
+            val graph = if (json != null) {
+                runCatching { json.toGestureRuleGraph() }.getOrElse { Presets.DEFAULT }
+            } else {
+                Presets.DEFAULT
+            }
+            _compiledRuleSet.value = graph.compile()
+        }
+    }
+
+    suspend fun applyRules(graph: GestureRuleGraph) {
+        val json = graph.toJson()
+        settingsDataStore.edit { prefs ->
+            prefs[KEY_RULES_JSON] = json
+        }
+        _compiledRuleSet.value = graph.compile()
     }
 
     suspend fun updateEdgeEnabled(edge: Edge, enabled: Boolean) {
@@ -69,6 +102,7 @@ class OpenSwipeApp : Application() {
     }
 
     companion object {
+        private val KEY_RULES_JSON = stringPreferencesKey("gesture_rules_json")
         private lateinit var instance: OpenSwipeApp
         fun getInstance(): OpenSwipeApp = instance
     }

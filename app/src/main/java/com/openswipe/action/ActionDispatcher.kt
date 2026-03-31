@@ -7,11 +7,14 @@ import android.media.AudioManager
 import android.os.Build
 import android.view.KeyEvent
 import android.view.ViewConfiguration
+import com.openswipe.model.ActionNode
 import com.openswipe.service.GestureAccessibilityService
 import kotlinx.coroutines.delay
 
 interface ActionDispatcher {
+    @Deprecated("Use dispatch(ActionNode) instead", replaceWith = ReplaceWith("dispatch(actionNode)"))
     suspend fun dispatch(action: ActionType): ActionResult
+    suspend fun dispatch(action: ActionNode): ActionResult
 }
 
 sealed class ActionResult {
@@ -28,6 +31,34 @@ class ActionDispatcherImpl(
         service.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
+    override suspend fun dispatch(action: ActionNode): ActionResult = when (action) {
+        is ActionNode.NoAction -> ActionResult.Success
+        is ActionNode.Back -> globalAction(GLOBAL_ACTION_BACK)
+        is ActionNode.Home -> globalAction(GLOBAL_ACTION_HOME)
+        is ActionNode.Recents -> globalAction(GLOBAL_ACTION_RECENTS)
+        is ActionNode.SwitchLastApp -> switchLastApp()
+        is ActionNode.SplitScreen -> requireApi(24) { globalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN) }
+        is ActionNode.PowerMenu -> globalAction(GLOBAL_ACTION_POWER_DIALOG)
+        is ActionNode.LockScreen -> requireApi(28) { globalAction(GLOBAL_ACTION_LOCK_SCREEN) }
+        is ActionNode.Screenshot -> requireApi(28) { globalAction(GLOBAL_ACTION_TAKE_SCREENSHOT) }
+        is ActionNode.NotificationPanel -> globalAction(4)
+        is ActionNode.QuickSettings -> globalAction(5)
+        is ActionNode.MediaPlayPause -> mediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+        is ActionNode.MediaPrevious -> mediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+        is ActionNode.MediaNext -> mediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+        is ActionNode.VolumeUp -> {
+            audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
+            ActionResult.Success
+        }
+        is ActionNode.VolumeDown -> {
+            audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
+            ActionResult.Success
+        }
+        is ActionNode.ToggleFlashlight -> ActionResult.Failed("Not implemented yet")
+        is ActionNode.LaunchApp -> launchApp(action.packageName, "${action.packageName}.MainActivity")
+    }
+
+    @Deprecated("Use dispatch(ActionNode) instead")
     override suspend fun dispatch(action: ActionType): ActionResult = when (action) {
         is ActionType.None -> ActionResult.Success
 

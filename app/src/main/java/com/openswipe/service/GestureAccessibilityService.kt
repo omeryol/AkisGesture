@@ -46,9 +46,10 @@ class GestureAccessibilityService : AccessibilityService() {
         }
 
         val configFlow = (application as OpenSwipeApp).gestureConfigFlow
+        val compiledRuleSetFlow = (application as OpenSwipeApp).compiledRuleSet
         overlayManager = OverlayManager(this, windowManager)
         actionDispatcher = ActionDispatcherImpl(this)
-        gestureEngine = GestureEngine(configFlow, actionDispatcher, overlayManager)
+        gestureEngine = GestureEngine(configFlow, actionDispatcher, overlayManager, compiledRuleSetFlow)
 
         gestureEngine.start()
         _serviceState.value = ServiceState.CONNECTED

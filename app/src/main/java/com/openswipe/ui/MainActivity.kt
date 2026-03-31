@@ -25,11 +25,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material.icons.filled.Edit
 import com.openswipe.ui.screen.HomeScreen
 import com.openswipe.ui.screen.PermissionGuideScreen
+import com.openswipe.ui.screen.RuleListScreen
 import com.openswipe.ui.screen.SettingsScreen
 import com.openswipe.ui.theme.OpenSwipeTheme
 import com.openswipe.ui.viewmodel.HomeViewModel
+import com.openswipe.ui.viewmodel.RuleConfigViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -60,6 +63,7 @@ private fun OpenSwipeApp() {
                             "home" -> "OpenSwipe"
                             "permissions" -> "权限设置"
                             "settings" -> "设置"
+                            "rules" -> "手势规则"
                             else -> "OpenSwipe"
                         }
                     )
@@ -67,7 +71,7 @@ private fun OpenSwipeApp() {
             )
         },
         bottomBar = {
-            if (currentRoute != "permissions") {
+            if (currentRoute in listOf("home", "settings", "rules")) {
                 OpenSwipeBottomBar(navController = navController, currentRoute = currentRoute)
             }
         },
@@ -97,7 +101,18 @@ private fun OpenSwipeApp() {
             }
             composable("settings") {
                 val homeViewModel: HomeViewModel = viewModel()
-                SettingsScreen(viewModel = homeViewModel)
+                SettingsScreen(
+                    viewModel = homeViewModel,
+                    onNavigateToRules = {
+                        navController.navigate("rules") {
+                            launchSingleTop = true
+                        }
+                    },
+                )
+            }
+            composable("rules") {
+                val ruleConfigViewModel: RuleConfigViewModel = viewModel()
+                RuleListScreen(viewModel = ruleConfigViewModel)
             }
         }
     }
@@ -117,6 +132,20 @@ private fun OpenSwipeBottomBar(
                 if (currentRoute != "home") {
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
+                    }
+                }
+            },
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.Edit, contentDescription = "规则") },
+            label = { Text("规则") },
+            selected = currentRoute == "rules",
+            onClick = {
+                if (currentRoute != "rules") {
+                    navController.navigate("rules") {
+                        popUpTo("home") { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             },
