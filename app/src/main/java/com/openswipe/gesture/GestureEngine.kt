@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.util.TypedValue
 import android.view.MotionEvent
+import android.view.ViewConfiguration
 import com.openswipe.action.ActionDispatcher
 import com.openswipe.action.ActionType
 import com.openswipe.gesture.model.GestureResult
@@ -141,9 +142,11 @@ class GestureEngine(
 
     private fun createDetector(edge: Edge, sensorLength: Float): EdgeGestureDetector {
         val configCopy = currentConfig.copy(sensorLength = sensorLength)
+        val touchSlop = ViewConfiguration.get(overlayManager.context).scaledTouchSlop
         return EdgeGestureDetector(
             edge = edge,
             config = configCopy,
+            scaledTouchSlop = touchSlop,
             onGestureResult = { result -> handleGestureResult(result) }
         )
     }

@@ -10,12 +10,12 @@ import com.openswipe.overlay.Edge
 class EdgeGestureDetector(
     private val edge: Edge,
     private val config: GestureConfig,
+    private val scaledTouchSlop: Int,
     private val onGestureResult: (GestureResult) -> Unit,
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
     private var velocityTracker: VelocityTracker? = null
-    private val scaledTouchSlop = 24  // reasonable default, ~8dp at mdpi
 
     fun onTouchEvent(event: MotionEvent): Boolean {
         velocityTracker?.addMovement(event)

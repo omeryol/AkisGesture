@@ -11,9 +11,9 @@ data class GestureConfig(
     val bottomEnabled: Boolean = true,
 
     // 灵敏度
-    val dampingFactor: Float = 5.0f,
-    val peakThreshold: Float = 100f,
-    val minSwipeThresholdPx: Float = 15f,   // ~5dp at mdpi
+    val dampingFactor: Float = 2.0f,
+    val peakThreshold: Float = 200f,
+    val minSwipeThresholdPx: Float = 30f,
 
     // 分区
     val sectionCount: Int = 1,

@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.openswipe.ui.screen.HomeScreen
 import com.openswipe.ui.screen.PermissionGuideScreen
+import com.openswipe.ui.screen.SettingsScreen
 import com.openswipe.ui.theme.OpenSwipeTheme
 import com.openswipe.ui.viewmodel.HomeViewModel
 
@@ -58,6 +59,7 @@ private fun OpenSwipeApp() {
                         text = when (currentRoute) {
                             "home" -> "OpenSwipe"
                             "permissions" -> "权限设置"
+                            "settings" -> "设置"
                             else -> "OpenSwipe"
                         }
                     )
@@ -93,6 +95,10 @@ private fun OpenSwipeApp() {
                     },
                 )
             }
+            composable("settings") {
+                val homeViewModel: HomeViewModel = viewModel()
+                SettingsScreen(viewModel = homeViewModel)
+            }
         }
     }
 }
@@ -120,7 +126,13 @@ private fun OpenSwipeBottomBar(
             label = { Text("设置") },
             selected = currentRoute == "settings",
             onClick = {
-                // Phase 2: 设置页面
+                if (currentRoute != "settings") {
+                    navController.navigate("settings") {
+                        popUpTo("home") { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
             },
         )
     }
