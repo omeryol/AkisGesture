@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenSwipe</string>
+    <string name="accessibility_service_description">OpenSwipe 手势服务：检测屏幕边缘滑动手势，执行返回、主页等导航操作。不会读取或收集任何屏幕内容。</string>
+    <string name="notification_channel_name">手势服务保活</string>
+    <string name="notification_title">OpenSwipe 运行中</string>
+</resources>
