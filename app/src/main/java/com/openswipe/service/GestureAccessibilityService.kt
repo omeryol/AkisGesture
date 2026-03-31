@@ -43,10 +43,10 @@ class GestureAccessibilityService : AccessibilityService() {
             notificationTimeout = 200L
         }
 
-        val config = (application as OpenSwipeApp).gestureConfig
+        val configFlow = (application as OpenSwipeApp).gestureConfigFlow
         overlayManager = OverlayManager(this, windowManager)
         actionDispatcher = ActionDispatcherImpl(this)
-        gestureEngine = GestureEngine(config, actionDispatcher, overlayManager)
+        gestureEngine = GestureEngine(configFlow, actionDispatcher, overlayManager)
 
         gestureEngine.start()
         _serviceState.value = ServiceState.CONNECTED

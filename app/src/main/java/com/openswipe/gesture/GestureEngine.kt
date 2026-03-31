@@ -15,19 +15,33 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class GestureEngine(
-    private val config: GestureConfig,
+    private val configFlow: StateFlow<GestureConfig>,
     private val actionDispatcher: ActionDispatcher,
     private val overlayManager: OverlayManager,
 ) : EdgeSensorView.OnEdgeTouchListener {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val detectors = mutableMapOf<Edge, EdgeGestureDetector>()
+    private var currentConfig: GestureConfig = configFlow.value
+    private var started = false
 
     fun start() {
-        createOverlayWindows()
+        scope.launch {
+            configFlow.collect { newConfig ->
+                val old = currentConfig
+                currentConfig = newConfig
+                if (!started) {
+                    started = true
+                    createOverlayWindows()
+                } else {
+                    applyConfigDiff(old, newConfig)
+                }
+            }
+        }
     }
 
     fun stop() {
@@ -46,53 +60,87 @@ class GestureEngine(
         createOverlayWindows()
     }
 
-    private fun createOverlayWindows() {
+    private fun applyConfigDiff(old: GestureConfig, new: GestureConfig) {
+        for (edge in listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM)) {
+            val wasEnabled = isEdgeEnabled(old, edge)
+            val nowEnabled = isEdgeEnabled(new, edge)
+            if (wasEnabled && !nowEnabled) {
+                removeEdge(edge)
+            } else if (!wasEnabled && nowEnabled) {
+                addEdgeOverlay(edge)
+            }
+        }
+    }
+
+    private fun isEdgeEnabled(config: GestureConfig, edge: Edge): Boolean {
+        return when (edge) {
+            Edge.LEFT -> config.leftEnabled
+            Edge.RIGHT -> config.rightEnabled
+            Edge.BOTTOM -> config.bottomEnabled
+        }
+    }
+
+    private fun removeEdge(edge: Edge) {
+        val tag = "sensor_${edge.name.lowercase()}"
+        overlayManager.removeWindow(tag)
+        detectors.remove(edge)
+    }
+
+    private fun addEdgeOverlay(edge: Edge) {
         val resources = Resources.getSystem()
         val displayMetrics = resources.displayMetrics
         val screenHeight = displayMetrics.heightPixels
         val screenWidth = displayMetrics.widthPixels
 
         val edgeWidthPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, config.edgeTriggerWidthDp, displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP, currentConfig.edgeTriggerWidthDp, displayMetrics
         ).toInt()
 
         val bottomHeightPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, config.bottomTriggerHeightDp, displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP, currentConfig.bottomTriggerHeightDp, displayMetrics
         ).toInt()
 
-        if (config.leftEnabled) {
-            val detector = createDetector(Edge.LEFT, screenHeight.toFloat())
-            val window = OverlayWindowFactory.createEdgeSensor(
-                overlayManager.context, Edge.LEFT, edgeWidthPx, screenHeight,
-                onTouchListener = this
-            )
-            detectors[Edge.LEFT] = detector
-            overlayManager.addWindow("sensor_left", window)
-        }
+        val tag = "sensor_${edge.name.lowercase()}"
 
-        if (config.rightEnabled) {
-            val detector = createDetector(Edge.RIGHT, screenHeight.toFloat())
-            val window = OverlayWindowFactory.createEdgeSensor(
-                overlayManager.context, Edge.RIGHT, edgeWidthPx, screenHeight,
-                onTouchListener = this
-            )
-            detectors[Edge.RIGHT] = detector
-            overlayManager.addWindow("sensor_right", window)
-        }
-
-        if (config.bottomEnabled) {
-            val detector = createDetector(Edge.BOTTOM, screenWidth.toFloat())
-            val window = OverlayWindowFactory.createEdgeSensor(
-                overlayManager.context, Edge.BOTTOM, screenWidth, bottomHeightPx,
-                onTouchListener = this
-            )
-            detectors[Edge.BOTTOM] = detector
-            overlayManager.addWindow("sensor_bottom", window)
+        when (edge) {
+            Edge.LEFT -> {
+                val detector = createDetector(Edge.LEFT, screenHeight.toFloat())
+                val window = OverlayWindowFactory.createEdgeSensor(
+                    overlayManager.context, Edge.LEFT, edgeWidthPx, screenHeight,
+                    onTouchListener = this
+                )
+                detectors[Edge.LEFT] = detector
+                overlayManager.addWindow(tag, window)
+            }
+            Edge.RIGHT -> {
+                val detector = createDetector(Edge.RIGHT, screenHeight.toFloat())
+                val window = OverlayWindowFactory.createEdgeSensor(
+                    overlayManager.context, Edge.RIGHT, edgeWidthPx, screenHeight,
+                    onTouchListener = this
+                )
+                detectors[Edge.RIGHT] = detector
+                overlayManager.addWindow(tag, window)
+            }
+            Edge.BOTTOM -> {
+                val detector = createDetector(Edge.BOTTOM, screenWidth.toFloat())
+                val window = OverlayWindowFactory.createEdgeSensor(
+                    overlayManager.context, Edge.BOTTOM, screenWidth, bottomHeightPx,
+                    onTouchListener = this
+                )
+                detectors[Edge.BOTTOM] = detector
+                overlayManager.addWindow(tag, window)
+            }
         }
     }
 
+    private fun createOverlayWindows() {
+        if (currentConfig.leftEnabled) addEdgeOverlay(Edge.LEFT)
+        if (currentConfig.rightEnabled) addEdgeOverlay(Edge.RIGHT)
+        if (currentConfig.bottomEnabled) addEdgeOverlay(Edge.BOTTOM)
+    }
+
     private fun createDetector(edge: Edge, sensorLength: Float): EdgeGestureDetector {
-        val configCopy = config.copy(sensorLength = sensorLength)
+        val configCopy = currentConfig.copy(sensorLength = sensorLength)
         return EdgeGestureDetector(
             edge = edge,
             config = configCopy,
@@ -132,4 +180,3 @@ class GestureEngine(
         return detectors[edge]?.onTouchEvent(event) ?: false
     }
 }
-

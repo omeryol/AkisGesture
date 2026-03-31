@@ -24,9 +24,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.openswipe.ui.screen.HomeScreen
 import com.openswipe.ui.screen.PermissionGuideScreen
 import com.openswipe.ui.theme.OpenSwipeTheme
+import com.openswipe.ui.viewmodel.HomeViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -76,7 +78,9 @@ private fun OpenSwipeApp() {
                 .padding(innerPadding),
         ) {
             composable("home") {
+                val homeViewModel: HomeViewModel = viewModel()
                 HomeScreen(
+                    viewModel = homeViewModel,
                     onNavigateToPermissions = {
                         navController.navigate("permissions")
                     },

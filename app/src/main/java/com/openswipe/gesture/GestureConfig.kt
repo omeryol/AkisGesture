@@ -1,5 +1,7 @@
 package com.openswipe.gesture
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
+
 data class GestureConfig(
     // 触发区域
     val edgeTriggerWidthDp: Float = 20f,
@@ -22,4 +24,10 @@ data class GestureConfig(
 
     // 长按
     val holdTimeMs: Long = 500L,
-)
+) {
+    companion object {
+        val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")
+        val KEY_RIGHT_ENABLED = booleanPreferencesKey("edge_right_enabled")
+        val KEY_BOTTOM_ENABLED = booleanPreferencesKey("edge_bottom_enabled")
+    }
+}

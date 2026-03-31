@@ -18,35 +18,28 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.openswipe.service.GestureAccessibilityService
 import com.openswipe.ui.theme.StatusConnected
 import com.openswipe.ui.theme.StatusDisconnected
+import com.openswipe.ui.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel,
     onNavigateToPermissions: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
     val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
-
-    var gestureEnabled by remember { mutableStateOf(true) }
-    var leftSensitivity by remember { mutableFloatStateOf(0.5f) }
-    var rightSensitivity by remember { mutableFloatStateOf(0.5f) }
-    var bottomGestureEnabled by remember { mutableStateOf(true) }
+    val config by viewModel.configState.collectAsState()
 
     Column(
         modifier = modifier
@@ -63,34 +56,28 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 手势总开关
+        // 左边缘手势开关
         SettingSwitch(
-            title = "启用手势",
-            subtitle = "启用或禁用所有手势操作",
-            checked = gestureEnabled,
-            onCheckedChange = { gestureEnabled = it },
+            title = "左边缘手势",
+            subtitle = "从左边缘向右滑动触发返回",
+            checked = config.leftEnabled,
+            onCheckedChange = { viewModel.setLeftEnabled(it) },
         )
 
-        // 左边缘灵敏度
-        SettingSlider(
-            title = "左边缘灵敏度",
-            value = leftSensitivity,
-            onValueChange = { leftSensitivity = it },
-        )
-
-        // 右边缘灵敏度
-        SettingSlider(
-            title = "右边缘灵敏度",
-            value = rightSensitivity,
-            onValueChange = { rightSensitivity = it },
+        // 右边缘手势开关
+        SettingSwitch(
+            title = "右边缘手势",
+            subtitle = "从右边缘向左滑动触发返回",
+            checked = config.rightEnabled,
+            onCheckedChange = { viewModel.setRightEnabled(it) },
         )
 
         // 底部手势开关
         SettingSwitch(
             title = "底部手势",
-            subtitle = "从底部上滑回到主页",
-            checked = bottomGestureEnabled,
-            onCheckedChange = { bottomGestureEnabled = it },
+            subtitle = "从底部上滑回到主页/最近任务",
+            checked = config.bottomEnabled,
+            onCheckedChange = { viewModel.setBottomEnabled(it) },
         )
     }
 }
@@ -164,40 +151,6 @@ private fun SettingSwitch(
                 )
             }
             Switch(checked = checked, onCheckedChange = onCheckedChange)
-        }
-    }
-}
-
-@Composable
-private fun SettingSlider(
-    title: String,
-    value: Float,
-    onValueChange: (Float) -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = "${(value * 100).toInt()}%",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Slider(
-                value = value,
-                onValueChange = onValueChange,
-                valueRange = 0f..1f,
-            )
         }
     }
 }
