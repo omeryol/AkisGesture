@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,6 +64,7 @@ import com.openswipe.ui.viewmodel.sectionLabel
 @Composable
 fun RuleListScreen(
     viewModel: RuleConfigViewModel,
+    onRuleClick: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val rules by viewModel.rules.collectAsState()
@@ -76,6 +78,26 @@ fun RuleListScreen(
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("手势规则") },
+                actions = {
+                    IconButton(
+                        onClick = { viewModel.applyRules() },
+                        enabled = hasUnapplied && conflicts.isEmpty(),
+                    ) {
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = "应用规则",
+                            tint = if (hasUnapplied && conflicts.isEmpty())
+                                OpenSwipePrimary
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                        )
+                    }
+                },
+            )
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
@@ -179,30 +201,13 @@ fun RuleListScreen(
                     items(rules, key = { it.id }) { rule ->
                         RuleCard(
                             rule = rule,
+                            onClick = { onRuleClick(rule.id) },
                             onDelete = { viewModel.removeRule(rule.id) },
                             onChangeAction = { editingActionRuleId = rule.id },
                             onToggleEnabled = { viewModel.toggleRuleEnabled(rule.id) },
                         )
                     }
                 }
-            }
-
-            // ── Apply button ──
-            Button(
-                onClick = { viewModel.applyRules() },
-                enabled = hasUnapplied && conflicts.isEmpty(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (hasUnapplied) OpenSwipePrimary
-                    else MaterialTheme.colorScheme.surfaceVariant,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .height(48.dp),
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("应用规则")
             }
         }
     }
@@ -233,12 +238,14 @@ fun RuleListScreen(
 @Composable
 private fun RuleCard(
     rule: GestureRule,
+    onClick: () -> Unit,
     onDelete: () -> Unit,
     onChangeAction: () -> Unit,
     onToggleEnabled: () -> Unit,
 ) {
     val contentAlpha = if (rule.enabled) 1f else 0.45f
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,

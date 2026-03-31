@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -20,14 +21,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.filled.Edit
 import com.openswipe.ui.screen.HomeScreen
 import com.openswipe.ui.screen.PermissionGuideScreen
+import com.openswipe.ui.screen.RuleDetailScreen
 import com.openswipe.ui.screen.RuleListScreen
 import com.openswipe.ui.screen.SettingsScreen
 import com.openswipe.ui.theme.OpenSwipeTheme
@@ -56,22 +60,32 @@ private fun OpenSwipeApp() {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = when (currentRoute) {
-                            "home" -> "OpenSwipe"
-                            "permissions" -> "权限设置"
-                            "settings" -> "设置"
-                            "rules" -> "手势规则"
-                            else -> "OpenSwipe"
+            if (currentRoute != "rules" && !currentRoute.startsWith("rule_detail")) {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = when {
+                                currentRoute == "home" -> "OpenSwipe"
+                                currentRoute == "permissions" -> "权限设置"
+                                currentRoute == "settings" -> "设置"
+                                else -> "OpenSwipe"
+                            }
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            navController.navigate("settings") {
+                                launchSingleTop = true
+                            }
+                        }) {
+                            Icon(Icons.Filled.Settings, contentDescription = "设置")
                         }
-                    )
-                },
-            )
+                    },
+                )
+            }
         },
         bottomBar = {
-            if (currentRoute in listOf("home", "settings", "rules")) {
+            if (currentRoute in listOf("home", "rules")) {
                 OpenSwipeBottomBar(navController = navController, currentRoute = currentRoute)
             }
         },
@@ -112,7 +126,24 @@ private fun OpenSwipeApp() {
             }
             composable("rules") {
                 val ruleConfigViewModel: RuleConfigViewModel = viewModel()
-                RuleListScreen(viewModel = ruleConfigViewModel)
+                RuleListScreen(
+                    viewModel = ruleConfigViewModel,
+                    onRuleClick = { ruleId ->
+                        navController.navigate("rule_detail/$ruleId")
+                    },
+                )
+            }
+            composable(
+                "rule_detail/{ruleId}",
+                arguments = listOf(navArgument("ruleId") { type = NavType.StringType }),
+            ) { backStackEntry ->
+                val ruleId = backStackEntry.arguments?.getString("ruleId") ?: return@composable
+                val ruleConfigViewModel: RuleConfigViewModel = viewModel()
+                RuleDetailScreen(
+                    ruleId = ruleId,
+                    viewModel = ruleConfigViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                )
             }
         }
     }
@@ -143,20 +174,6 @@ private fun OpenSwipeBottomBar(
             onClick = {
                 if (currentRoute != "rules") {
                     navController.navigate("rules") {
-                        popUpTo("home") { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            },
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Settings, contentDescription = "设置") },
-            label = { Text("设置") },
-            selected = currentRoute == "settings",
-            onClick = {
-                if (currentRoute != "settings") {
-                    navController.navigate("settings") {
                         popUpTo("home") { saveState = true }
                         launchSingleTop = true
                         restoreState = true

@@ -95,6 +95,18 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         revalidate()
     }
 
+    fun getRuleById(ruleId: String): GestureRule? {
+        return _rules.value.find { it.id == ruleId }
+    }
+
+    fun updateRuleTrigger(ruleId: String, newTrigger: TriggerNode) {
+        _rules.value = _rules.value.map { rule ->
+            if (rule.id == ruleId) rule.copy(trigger = newTrigger) else rule
+        }
+        _activePresetName.value = null
+        revalidate()
+    }
+
     fun applyRules() {
         if (_conflicts.value.isNotEmpty()) return
         val graph = GestureRuleGraph(rules = _rules.value)
