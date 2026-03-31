@@ -175,50 +175,33 @@ class GestureEngine(
     private val edgeLengths = mutableMapOf<Edge, Float>()
 
     private fun handleGestureResult(result: GestureResult) {
-        // First try rule-based matching via CompiledRuleSet
-        val actionNode = matchViaRuleSet(result)
-        if (actionNode != null) {
-            scope.launch { actionDispatcher.dispatch(actionNode) }
-            return
-        }
-
-        // Fallback to legacy mapping
-        val action = mapResultToAction(result)
-        if (action != ActionType.None) {
-            scope.launch {
-                @Suppress("DEPRECATION")
-                actionDispatcher.dispatch(action)
-            }
-        }
+        val actionNode = matchViaRuleSet(result) ?: return
+        scope.launch { actionDispatcher.dispatch(actionNode) }
     }
 
     private fun matchViaRuleSet(result: GestureResult): ActionNode? {
-        if (result !is GestureResult.EdgeSwipe) return null
-        val compiledRuleSet = compiledRuleSetFlow.value
-        val gestureType = if (result.isPrimary) GestureType.SHORT_SWIPE else GestureType.LONG_SWIPE
-        val edgeLength = edgeLengths[result.edge] ?: return null
-        if (edgeLength <= 0f) return null
-        val sectionRatio = (result.touchAlongEdgePx / edgeLength).coerceIn(0f, 1f)
-        return compiledRuleSet.match(result.edge, gestureType, sectionRatio)
-    }
-
-    private fun mapResultToAction(result: GestureResult): ActionType {
-        return when (result) {
-            is GestureResult.EdgeSwipe -> {
-                when (result.edge) {
-                    Edge.LEFT, Edge.RIGHT -> {
-                        if (result.isPrimary) ActionType.Navigation.Back
-                        else ActionType.Navigation.SwitchLastApp
-                    }
-                    Edge.BOTTOM -> {
-                        if (result.isPrimary) ActionType.Navigation.Home
-                        else ActionType.Navigation.Recents
-                    }
-                }
-            }
-            is GestureResult.VerticalSwipe -> ActionType.None
-            is GestureResult.Tap -> ActionType.None
+        val (edge, gestureType, touchPx) = when (result) {
+            is GestureResult.EdgeSwipe -> Triple(
+                result.edge,
+                if (result.isPrimary) GestureType.SHORT_SWIPE else GestureType.LONG_SWIPE,
+                result.touchAlongEdgePx
+            )
+            is GestureResult.VerticalSwipe -> Triple(
+                result.edge,
+                GestureType.SHORT_SWIPE,
+                result.touchAlongEdgePx
+            )
+            is GestureResult.Tap -> Triple(
+                result.edge,
+                GestureType.SHORT_SWIPE,
+                result.touchAlongEdgePx
+            )
         }
+        val compiledRuleSet = compiledRuleSetFlow.value
+        val edgeLength = edgeLengths[edge] ?: return null
+        if (edgeLength <= 0f) return null
+        val sectionRatio = (touchPx / edgeLength).coerceIn(0f, 1f)
+        return compiledRuleSet.match(edge, gestureType, sectionRatio)
     }
 
     override fun onEdgeTouch(edge: Edge, event: MotionEvent): Boolean {
