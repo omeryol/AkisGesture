@@ -48,7 +48,8 @@ class OpenSwipeApp : Application() {
                     leftEnabled = prefs[GestureConfig.KEY_LEFT_ENABLED] ?: true,
                     rightEnabled = prefs[GestureConfig.KEY_RIGHT_ENABLED] ?: true,
                     bottomEnabled = prefs[GestureConfig.KEY_BOTTOM_ENABLED] ?: true,
-                    bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 48f,
+                    edgeTriggerWidthDp = prefs[GestureConfig.KEY_EDGE_TRIGGER_WIDTH] ?: 20f,
+                    bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 40f,
                     bottomTriggerMode = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_MODE]
                         ?.let { runCatching { BottomTriggerMode.valueOf(it) }.getOrNull() }
                         ?: BottomTriggerMode.TOUCH,
@@ -75,6 +76,12 @@ class OpenSwipeApp : Application() {
             prefs[KEY_RULES_JSON] = json
         }
         _compiledRuleSet.value = graph.compile()
+    }
+
+    suspend fun updateEdgeTriggerWidth(dp: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_EDGE_TRIGGER_WIDTH] = dp
+        }
     }
 
     suspend fun updateBottomTriggerHeight(dp: Float) {

@@ -70,6 +70,9 @@ class GestureEngine(
     }
 
     private fun applyConfigDiff(old: GestureConfig, new: GestureConfig, ruleSet: CompiledRuleSet) {
+        // If edge width changed, rebuild all side overlays
+        val sideNeedsRebuild = old.edgeTriggerWidthDp != new.edgeTriggerWidthDp
+
         // If bottom height or trigger mode changed, rebuild bottom overlay
         val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp ||
                 old.bottomTriggerMode != new.bottomTriggerMode
@@ -77,11 +80,15 @@ class GestureEngine(
         for (edge in Edge.entries) {
             val hasRules = ruleSet.hasRulesFor(edge)
             val hadOverlay = detectors.containsKey(edge)
+            val needsRebuild = when (edge) {
+                Edge.LEFT, Edge.RIGHT -> sideNeedsRebuild
+                Edge.BOTTOM -> bottomNeedsRebuild
+            }
             if (hadOverlay && !hasRules) {
                 removeEdge(edge)
             } else if (!hadOverlay && hasRules) {
                 addEdgeOverlay(edge)
-            } else if (edge == Edge.BOTTOM && hasRules && bottomNeedsRebuild) {
+            } else if (hasRules && needsRebuild) {
                 removeEdge(edge)
                 addEdgeOverlay(edge)
             }
@@ -183,17 +190,17 @@ class GestureEngine(
         val (edge, gestureType, touchPx) = when (result) {
             is GestureResult.EdgeSwipe -> Triple(
                 result.edge,
-                if (result.isPrimary) GestureType.SHORT_SWIPE else GestureType.LONG_SWIPE,
+                GestureType.SWIPE,
                 result.touchAlongEdgePx
             )
             is GestureResult.VerticalSwipe -> Triple(
                 result.edge,
-                GestureType.SHORT_SWIPE,
+                GestureType.SWIPE,
                 result.touchAlongEdgePx
             )
             is GestureResult.Tap -> Triple(
                 result.edge,
-                GestureType.SHORT_SWIPE,
+                GestureType.SWIPE,
                 result.touchAlongEdgePx
             )
         }

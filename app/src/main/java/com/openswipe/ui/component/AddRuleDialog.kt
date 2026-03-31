@@ -43,14 +43,14 @@ fun AddRuleDialog(
     onDismiss: () -> Unit,
     onConfirm: (TriggerNode, ActionNode) -> Unit,
 ) {
-    // Wizard state: 0=edge, 1=section, 2=gesture, 3=action
+    // Wizard state: 0=edge, 1=section, 2=action (gesture step skipped, auto SWIPE)
     var step by remember { mutableIntStateOf(0) }
     var selectedEdge by remember { mutableStateOf<Edge?>(null) }
     var selectedSection by remember { mutableStateOf<SectionRange?>(null) }
-    var selectedGesture by remember { mutableStateOf<GestureType?>(null) }
+    val selectedGesture = GestureType.SWIPE
     var selectedAction by remember { mutableStateOf<ActionNode?>(null) }
 
-    val stepTitles = listOf("选择边缘", "选择区段", "选择手势", "选择动作")
+    val stepTitles = listOf("选择边缘", "选择区段", "选择动作")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -65,7 +65,7 @@ fun AddRuleDialog(
             ) {
                 // Step indicator
                 Text(
-                    text = "步骤 ${step + 1} / 4",
+                    text = "步骤 ${step + 1} / 3",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -81,11 +81,7 @@ fun AddRuleDialog(
                         selected = selectedSection,
                         onSelect = { selectedSection = it },
                     )
-                    2 -> GestureSelector(
-                        selected = selectedGesture,
-                        onSelect = { selectedGesture = it },
-                    )
-                    3 -> ActionSelector(
+                    2 -> ActionSelector(
                         selected = selectedAction,
                         onSelect = { selectedAction = it },
                     )
@@ -93,26 +89,22 @@ fun AddRuleDialog(
             }
         },
         confirmButton = {
-            if (step < 3) {
+            if (step < 2) {
                 Button(
                     onClick = {
-                        // Auto-fill defaults on skip
                         when (step) {
                             0 -> if (selectedEdge != null) {
-                                // For left/right, default section to ALL
                                 if (selectedEdge != Edge.BOTTOM && selectedSection == null) {
                                     selectedSection = SectionRange.ALL
                                 }
                                 step++
                             }
                             1 -> if (selectedSection != null) step++
-                            2 -> if (selectedGesture != null) step++
                         }
                     },
                     enabled = when (step) {
                         0 -> selectedEdge != null
                         1 -> selectedSection != null
-                        2 -> selectedGesture != null
                         else -> false
                     },
                 ) {
@@ -122,10 +114,10 @@ fun AddRuleDialog(
                 Button(
                     onClick = {
                         if (selectedEdge != null && selectedSection != null &&
-                            selectedGesture != null && selectedAction != null
+                            selectedAction != null
                         ) {
                             onConfirm(
-                                TriggerNode(selectedEdge!!, selectedSection!!, selectedGesture!!),
+                                TriggerNode(selectedEdge!!, selectedSection!!, selectedGesture),
                                 selectedAction!!,
                             )
                         }
@@ -217,33 +209,6 @@ private fun SectionSelector(
                     selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
                 ),
                 border = if (selected == section) BorderStroke(1.dp, OpenSwipePrimary) else null,
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun GestureSelector(
-    selected: GestureType?,
-    onSelect: (GestureType) -> Unit,
-) {
-    val gestures = listOf(
-        "短滑" to GestureType.SHORT_SWIPE,
-        "长滑" to GestureType.LONG_SWIPE,
-    )
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        gestures.forEach { (label, type) ->
-            FilterChip(
-                selected = selected == type,
-                onClick = { onSelect(type) },
-                label = { Text(label) },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
-                ),
-                border = if (selected == type) BorderStroke(1.dp, OpenSwipePrimary) else null,
             )
         }
     }

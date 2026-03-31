@@ -110,7 +110,10 @@ private fun ServiceStatusCard(
 private fun RuleSummaryCard(ruleSet: com.openswipe.rule.CompiledRuleSet) {
     val edges = com.openswipe.overlay.Edge.entries
     val activeEdges = edges.filter { ruleSet.hasRulesFor(it) }
-    val edgeNames = activeEdges.joinToString("、") { edgeLabel(it) }
+    val totalRules = ruleSet.totalRuleCount()
+    val edgeDetails = activeEdges.joinToString("、") { edge ->
+        "${edgeLabel(edge)}(${ruleSet.ruleCountFor(edge)})"
+    }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
@@ -118,13 +121,13 @@ private fun RuleSummaryCard(ruleSet: com.openswipe.rule.CompiledRuleSet) {
                 .padding(16.dp),
         ) {
             Text(
-                text = if (activeEdges.isNotEmpty()) "${activeEdges.size} 条边缘规则生效中"
+                text = if (totalRules > 0) "${totalRules} 条手势规则生效中"
                        else "无生效规则",
                 style = MaterialTheme.typography.titleMedium,
             )
             if (activeEdges.isNotEmpty()) {
                 Text(
-                    text = "活跃边缘：$edgeNames",
+                    text = "活跃边缘：$edgeDetails",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

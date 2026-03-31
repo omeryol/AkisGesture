@@ -90,6 +90,47 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(8.dp))
 
+        // ── Edge trigger width settings ──
+        Text(
+            text = "左右边缘触发宽度",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(text = "触发区域宽度", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(text = "10", style = MaterialTheme.typography.bodySmall)
+                    Slider(
+                        value = config.edgeTriggerWidthDp,
+                        onValueChange = { viewModel.setEdgeTriggerWidth(it) },
+                        valueRange = 10f..50f,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 8.dp),
+                    )
+                    Text(text = "50", style = MaterialTheme.typography.bodySmall)
+                }
+                Text(
+                    text = "${config.edgeTriggerWidthDp.roundToInt()}dp",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
         // ── Bottom trigger settings (kept) ──
         Text(
             text = "底部触发区域",

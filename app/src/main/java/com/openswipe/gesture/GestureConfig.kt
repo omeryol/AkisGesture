@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 data class GestureConfig(
     // 触发区域
     val edgeTriggerWidthDp: Float = 20f,
-    val bottomTriggerHeightDp: Float = 48f,
+    val bottomTriggerHeightDp: Float = 40f,
     val bottomTriggerMode: BottomTriggerMode = BottomTriggerMode.TOUCH,
     val leftEnabled: Boolean = true,
     val rightEnabled: Boolean = true,
@@ -32,6 +32,7 @@ data class GestureConfig(
         val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")
         val KEY_RIGHT_ENABLED = booleanPreferencesKey("edge_right_enabled")
         val KEY_BOTTOM_ENABLED = booleanPreferencesKey("edge_bottom_enabled")
+        val KEY_EDGE_TRIGGER_WIDTH = floatPreferencesKey("edge_trigger_width_dp")
         val KEY_BOTTOM_TRIGGER_HEIGHT = floatPreferencesKey("bottom_trigger_height_dp")
         val KEY_BOTTOM_TRIGGER_MODE = stringPreferencesKey("bottom_trigger_mode")
     }

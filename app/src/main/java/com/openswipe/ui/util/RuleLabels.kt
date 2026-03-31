@@ -12,8 +12,7 @@ fun edgeLabel(edge: Edge): String = when (edge) {
 }
 
 fun gestureLabel(type: GestureType): String = when (type) {
-    GestureType.SHORT_SWIPE -> "短滑"
-    GestureType.LONG_SWIPE -> "长滑"
+    GestureType.SWIPE -> "滑动"
 }
 
 fun sectionLabel(section: SectionRange): String {

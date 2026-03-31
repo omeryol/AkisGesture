@@ -111,13 +111,10 @@ class EdgeGestureDetector(
         touchAlongEdgePx: Float,
     ): GestureResult {
         val minThreshold = config.minSwipeThresholdPx
-        val halfPeak = config.peakThreshold / 2f
 
         return when {
-            displacement > minThreshold && displacement <= halfPeak ->
-                GestureResult.EdgeSwipe(edge, section, isPrimary = true, touchAlongEdgePx = touchAlongEdgePx)
-            displacement > halfPeak ->
-                GestureResult.EdgeSwipe(edge, section, isPrimary = false, touchAlongEdgePx = touchAlongEdgePx)
+            displacement > minThreshold ->
+                GestureResult.EdgeSwipe(edge, section, touchAlongEdgePx = touchAlongEdgePx)
             displacement <= minThreshold && edge != Edge.BOTTOM -> {
                 when {
                     rawDy < -config.minSwipeThresholdPx ->

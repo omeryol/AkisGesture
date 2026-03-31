@@ -9,7 +9,6 @@ sealed class GestureResult {
     data class EdgeSwipe(
         val edge: Edge,
         val section: Int,
-        val isPrimary: Boolean,
         override val touchAlongEdgePx: Float = 0f,
     ) : GestureResult()
 

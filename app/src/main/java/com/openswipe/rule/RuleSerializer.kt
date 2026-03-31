@@ -51,7 +51,11 @@ object RuleSerializer {
             val edge = Edge.valueOf(triggerObj.getString("edge"))
             val sectionArr = triggerObj.getJSONArray("section")
             val section = SectionRange(sectionArr.getDouble(0).toFloat(), sectionArr.getDouble(1).toFloat())
-            val gestureType = GestureType.valueOf(triggerObj.getString("gesture"))
+            val gestureRaw = triggerObj.getString("gesture")
+            val gestureType = when (gestureRaw) {
+                "SHORT_SWIPE", "LONG_SWIPE" -> GestureType.SWIPE
+                else -> GestureType.valueOf(gestureRaw)
+            }
 
             val actionObj = ruleObj.getJSONObject("action")
             val actionId = actionObj.getString("id")

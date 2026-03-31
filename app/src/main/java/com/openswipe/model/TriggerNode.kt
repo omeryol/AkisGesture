@@ -43,6 +43,5 @@ data class SectionRange(
 }
 
 enum class GestureType {
-    SHORT_SWIPE,
-    LONG_SWIPE,
+    SWIPE,
 }

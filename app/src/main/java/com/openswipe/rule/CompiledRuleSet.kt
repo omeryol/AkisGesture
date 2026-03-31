@@ -27,6 +27,14 @@ class CompiledRuleSet(
     /** Whether any rules exist for the given edge (any gesture type). */
     fun hasRulesFor(edge: Edge): Boolean = table.containsKey(edge)
 
+    /** Total number of compiled sections (actions) for a given edge across all gesture types. */
+    fun ruleCountFor(edge: Edge): Int =
+        table[edge]?.values?.sumOf { it.size } ?: 0
+
+    /** Total number of compiled sections across all edges. */
+    fun totalRuleCount(): Int =
+        table.values.sumOf { gestures -> gestures.values.sumOf { it.size } }
+
     companion object {
         val EMPTY = CompiledRuleSet(emptyMap())
     }

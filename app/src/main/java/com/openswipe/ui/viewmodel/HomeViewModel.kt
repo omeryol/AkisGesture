@@ -15,6 +15,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     val configState: StateFlow<GestureConfig> = app.gestureConfigFlow
 
+    fun setEdgeTriggerWidth(dp: Float) {
+        viewModelScope.launch {
+            app.updateEdgeTriggerWidth(dp)
+        }
+    }
+
     fun setBottomTriggerHeight(dp: Float) {
         viewModelScope.launch {
             app.updateBottomTriggerHeight(dp)

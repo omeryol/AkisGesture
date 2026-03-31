@@ -64,7 +64,6 @@ fun RuleDetailScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showEdgeMenu by remember { mutableStateOf(false) }
     var showSectionMenu by remember { mutableStateOf(false) }
-    var showGestureMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -190,34 +189,17 @@ fun RuleDetailScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Gesture type
+                    // Gesture type (read-only, always SWIPE)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("手势类型", modifier = Modifier.weight(1f))
-                        androidx.compose.foundation.layout.Box {
-                            OutlinedButton(onClick = { showGestureMenu = true }) {
-                                Text(gestureLabel(rule.trigger.gestureType))
-                            }
-                            DropdownMenu(
-                                expanded = showGestureMenu,
-                                onDismissRequest = { showGestureMenu = false },
-                            ) {
-                                GestureType.entries.forEach { gestureType ->
-                                    DropdownMenuItem(
-                                        text = { Text(gestureLabel(gestureType)) },
-                                        onClick = {
-                                            viewModel.updateRuleTrigger(
-                                                ruleId,
-                                                rule.trigger.copy(gestureType = gestureType),
-                                            )
-                                            showGestureMenu = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
+                        Text(
+                            text = gestureLabel(rule.trigger.gestureType),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
