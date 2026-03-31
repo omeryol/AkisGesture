@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import com.openswipe.OpenSwipeApp
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 data class Conflict(
@@ -76,8 +78,11 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     fun applyRules() {
         if (_conflicts.value.isNotEmpty()) return
+        val graph = GestureRuleGraph(rules = _rules.value)
         _appliedRules.value = _rules.value.toList()
-        // TODO: compile and push to AccessibilityService via GestureRuleGraph.compile()
+        viewModelScope.launch {
+            (getApplication<Application>() as OpenSwipeApp).applyRules(graph)
+        }
     }
 
     fun loadPreset(name: String, preset: GestureRuleGraph) {

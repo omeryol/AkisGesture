@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class GestureEngine(
@@ -37,16 +38,17 @@ class GestureEngine(
 
     fun start() {
         scope.launch {
-            configFlow.collect { newConfig ->
-                val old = currentConfig
-                currentConfig = newConfig
-                if (!started) {
-                    started = true
-                    createOverlayWindows()
-                } else {
-                    applyConfigDiff(old, newConfig)
+            combine(configFlow, compiledRuleSetFlow) { config, ruleSet -> config to ruleSet }
+                .collect { (newConfig, ruleSet) ->
+                    val old = currentConfig
+                    currentConfig = newConfig
+                    if (!started) {
+                        started = true
+                        rebuildOverlays(ruleSet)
+                    } else {
+                        applyConfigDiff(old, newConfig, ruleSet)
+                    }
                 }
-            }
         }
     }
 
@@ -62,36 +64,36 @@ class GestureEngine(
     }
 
     fun onConfigurationChanged(newConfig: Configuration) {
-        overlayManager.removeAll()
-        detectors.clear()
-        edgeLengths.clear()
-        createOverlayWindows()
+        rebuildOverlays(compiledRuleSetFlow.value)
     }
 
-    private fun applyConfigDiff(old: GestureConfig, new: GestureConfig) {
+    private fun applyConfigDiff(old: GestureConfig, new: GestureConfig, ruleSet: CompiledRuleSet) {
         // If bottom height or trigger mode changed, rebuild bottom overlay
         val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp ||
                 old.bottomTriggerMode != new.bottomTriggerMode
 
-        for (edge in listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM)) {
-            val wasEnabled = isEdgeEnabled(old, edge)
-            val nowEnabled = isEdgeEnabled(new, edge)
-            if (wasEnabled && !nowEnabled) {
+        for (edge in Edge.entries) {
+            val hasRules = ruleSet.hasRulesFor(edge)
+            val hadOverlay = detectors.containsKey(edge)
+            if (hadOverlay && !hasRules) {
                 removeEdge(edge)
-            } else if (!wasEnabled && nowEnabled) {
+            } else if (!hadOverlay && hasRules) {
                 addEdgeOverlay(edge)
-            } else if (edge == Edge.BOTTOM && nowEnabled && bottomNeedsRebuild) {
+            } else if (edge == Edge.BOTTOM && hasRules && bottomNeedsRebuild) {
                 removeEdge(edge)
                 addEdgeOverlay(edge)
             }
         }
     }
 
-    private fun isEdgeEnabled(config: GestureConfig, edge: Edge): Boolean {
-        return when (edge) {
-            Edge.LEFT -> config.leftEnabled
-            Edge.RIGHT -> config.rightEnabled
-            Edge.BOTTOM -> config.bottomEnabled
+    private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
+        overlayManager.removeAll()
+        detectors.clear()
+        edgeLengths.clear()
+        for (edge in Edge.entries) {
+            if (ruleSet.hasRulesFor(edge)) {
+                addEdgeOverlay(edge)
+            }
         }
     }
 
@@ -150,12 +152,6 @@ class GestureEngine(
                 overlayManager.addWindow(tag, window)
             }
         }
-    }
-
-    private fun createOverlayWindows() {
-        if (currentConfig.leftEnabled) addEdgeOverlay(Edge.LEFT)
-        if (currentConfig.rightEnabled) addEdgeOverlay(Edge.RIGHT)
-        if (currentConfig.bottomEnabled) addEdgeOverlay(Edge.BOTTOM)
     }
 
     private fun createDetector(edge: Edge, sensorLength: Float): EdgeGestureDetector {

@@ -18,7 +18,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.openswipe.OpenSwipeApp
 import com.openswipe.service.GestureAccessibilityService
 import com.openswipe.ui.theme.StatusConnected
 import com.openswipe.ui.theme.StatusDisconnected
@@ -39,7 +39,7 @@ fun HomeScreen(
 ) {
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
     val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
-    val config by viewModel.configState.collectAsState()
+    val ruleSet by OpenSwipeApp.getInstance().compiledRuleSet.collectAsState()
 
     Column(
         modifier = modifier
@@ -56,29 +56,8 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 左边缘手势开关
-        SettingSwitch(
-            title = "左边缘手势",
-            subtitle = "从左边缘向右滑动触发返回",
-            checked = config.leftEnabled,
-            onCheckedChange = { viewModel.setLeftEnabled(it) },
-        )
-
-        // 右边缘手势开关
-        SettingSwitch(
-            title = "右边缘手势",
-            subtitle = "从右边缘向左滑动触发返回",
-            checked = config.rightEnabled,
-            onCheckedChange = { viewModel.setRightEnabled(it) },
-        )
-
-        // 底部手势开关
-        SettingSwitch(
-            title = "底部手势",
-            subtitle = "从底部上滑回到主页/最近任务",
-            checked = config.bottomEnabled,
-            onCheckedChange = { viewModel.setBottomEnabled(it) },
-        )
+        // 规则摘要卡片
+        RuleSummaryCard(ruleSet = ruleSet)
     }
 }
 
@@ -127,30 +106,39 @@ private fun ServiceStatusCard(
 }
 
 @Composable
-private fun SettingSwitch(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
+private fun RuleSummaryCard(ruleSet: com.openswipe.rule.CompiledRuleSet) {
+    val edges = com.openswipe.overlay.Edge.entries
+    val activeEdges = edges.filter { ruleSet.hasRulesFor(it) }
+    val edgeNames = activeEdges.joinToString("、") { edge ->
+        when (edge) {
+            com.openswipe.overlay.Edge.LEFT -> "左侧"
+            com.openswipe.overlay.Edge.RIGHT -> "右侧"
+            com.openswipe.overlay.Edge.BOTTOM -> "底部"
+        }
+    }
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = if (activeEdges.isNotEmpty()) "${activeEdges.size} 条边缘规则生效中"
+                       else "无生效规则",
+                style = MaterialTheme.typography.titleMedium,
+            )
+            if (activeEdges.isNotEmpty()) {
                 Text(
-                    text = subtitle,
+                    text = "活跃边缘：$edgeNames",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
+            Text(
+                text = "前往「规则配置」编辑手势规则",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

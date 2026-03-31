@@ -24,6 +24,9 @@ class CompiledRuleSet(
         return null
     }
 
+    /** Whether any rules exist for the given edge (any gesture type). */
+    fun hasRulesFor(edge: Edge): Boolean = table.containsKey(edge)
+
     companion object {
         val EMPTY = CompiledRuleSet(emptyMap())
     }
