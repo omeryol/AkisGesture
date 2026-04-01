@@ -6,8 +6,10 @@ import android.accessibilityservice.GestureDescription
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Path
+import android.os.Build
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import androidx.core.content.ContextCompat
 import com.openswipe.OpenSwipeApp
 import com.openswipe.action.ActionDispatcher
 import com.openswipe.action.ActionDispatcherImpl
@@ -53,6 +55,13 @@ class GestureAccessibilityService : AccessibilityService() {
 
         gestureEngine.start()
         _serviceState.value = ServiceState.CONNECTED
+
+        // 启动前台保活服务 — 关键：防止进程被杀后不恢复
+        try {
+            ContextCompat.startForegroundService(
+                this, Intent(this, KeepAliveService::class.java)
+            )
+        } catch (_: Exception) { /* 静默处理，不阻塞核心功能 */ }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {

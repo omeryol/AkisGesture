@@ -18,12 +18,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.openswipe.OpenSwipeApp
 import com.openswipe.service.GestureAccessibilityService
@@ -31,6 +33,7 @@ import com.openswipe.ui.theme.StatusConnected
 import com.openswipe.ui.theme.StatusDisconnected
 import com.openswipe.ui.util.edgeLabel
 import com.openswipe.ui.viewmodel.HomeViewModel
+import com.openswipe.util.PermissionHelper
 
 @Composable
 fun HomeScreen(
@@ -41,6 +44,8 @@ fun HomeScreen(
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
     val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
     val ruleSet by OpenSwipeApp.getInstance().compiledRuleSet.collectAsState()
+    val context = LocalContext.current
+    val batteryOptimized = !PermissionHelper.isBatteryOptimizationIgnored(context)
 
     Column(
         modifier = modifier
@@ -55,7 +60,34 @@ fun HomeScreen(
             onSetupClick = onNavigateToPermissions,
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // 电池优化警告
+        if (batteryOptimized) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                ),
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "⚠️ 建议关闭电池优化",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                    Text(
+                        text = "未关闭电池优化可能导致手势在后台失效",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(onClick = {
+                        PermissionHelper.requestIgnoreBatteryOptimization(context)
+                    }) {
+                        Text("去设置")
+                    }
+                }
+            }
+        }
 
         // 规则摘要卡片
         RuleSummaryCard(ruleSet = ruleSet)
