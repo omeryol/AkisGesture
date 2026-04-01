@@ -92,6 +92,32 @@ class OpenSwipeApp : Application() {
         return runCatching { json.toGestureRuleGraph() }.getOrNull()
     }
 
+    /**
+     * 同步加载规则 — 在 onServiceConnected 中调用，确保 Service 启动时规则立即可用。
+     * 学习 STB 策略：不依赖异步 flow，在 Service 绑定时同步完成初始化。
+     */
+    fun ensureRulesLoadedSync() {
+        if (_compiledRuleSet.value !== CompiledRuleSet.EMPTY) return
+        try {
+            val prefs = getSharedPreferences("settings_sync", Context.MODE_PRIVATE)
+            // DataStore 的底层文件也可以通过 SharedPreferences 的方式同步读取
+            // 但更可靠的方式是用 runBlocking 读取 DataStore
+            kotlinx.coroutines.runBlocking {
+                val dataStorePrefs = settingsDataStore.data.first()
+                val json = dataStorePrefs[KEY_RULES_JSON]
+                val graph = if (json != null) {
+                    runCatching { json.toGestureRuleGraph() }.getOrElse { Presets.DEFAULT }
+                } else {
+                    Presets.DEFAULT
+                }
+                _compiledRuleSet.value = graph.compile()
+            }
+        } catch (e: Exception) {
+            // 兜底：使用默认预设
+            _compiledRuleSet.value = Presets.DEFAULT.compile()
+        }
+    }
+
     companion object {
         private val KEY_RULES_JSON = stringPreferencesKey("gesture_rules_json")
         private lateinit var instance: OpenSwipeApp

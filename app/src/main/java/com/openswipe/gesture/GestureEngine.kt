@@ -52,8 +52,6 @@ class GestureEngine(
                 .collect { (newConfig, ruleSet) ->
                     val old = currentConfig
                     currentConfig = newConfig
-                    // 跳过 EMPTY 规则集 — 等异步加载完成后 flow 会再次触发
-                    if (ruleSet === CompiledRuleSet.EMPTY) return@collect
                     if (!started) {
                         started = true
                         rebuildOverlays(ruleSet)

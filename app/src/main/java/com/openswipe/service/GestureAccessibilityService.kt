@@ -55,8 +55,16 @@ class GestureAccessibilityService : AccessibilityService() {
             notificationTimeout = 200L
         }
 
-        val configFlow = (application as OpenSwipeApp).gestureConfigFlow
-        val compiledRuleSetFlow = (application as OpenSwipeApp).compiledRuleSet
+        val app = application as OpenSwipeApp
+
+        // 关键：如果规则尚未加载（EMPTY），在此同步加载
+        // 学习 STB 的策略：onServiceConnected 必须是完整的自包含初始化
+        if (app.compiledRuleSet.value === com.openswipe.rule.CompiledRuleSet.EMPTY) {
+            app.ensureRulesLoadedSync()
+        }
+
+        val configFlow = app.gestureConfigFlow
+        val compiledRuleSetFlow = app.compiledRuleSet
         overlayManager = OverlayManager(this, windowManager)
         actionDispatcher = ActionDispatcherImpl(this)
         gestureEngine = GestureEngine(configFlow, actionDispatcher, overlayManager, compiledRuleSetFlow)
