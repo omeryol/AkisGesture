@@ -108,11 +108,6 @@ private fun OpenSwipeApp() {
                 val homeViewModel: HomeViewModel = viewModel()
                 SettingsScreen(
                     viewModel = homeViewModel,
-                    onNavigateToRules = {
-                        navController.navigate("rules") {
-                            launchSingleTop = true
-                        }
-                    },
                 )
             }
             composable("rules") {
