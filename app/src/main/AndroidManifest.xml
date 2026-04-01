@@ -33,10 +33,6 @@
             android:name=".service.KeepAliveService"
             android:exported="false"
             android:foregroundServiceType="specialUse">
-            <!-- Android 14+ 要求声明 specialUse 前台服务的具体用途 -->
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Keep gesture accessibility service alive for edge gesture detection" />
         </service>
 
         <receiver
