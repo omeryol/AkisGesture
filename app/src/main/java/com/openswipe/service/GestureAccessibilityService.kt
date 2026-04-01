@@ -5,8 +5,12 @@ import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.GestureDescription
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.graphics.Path
+import android.graphics.PixelFormat
 import android.os.Build
+import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
@@ -35,6 +39,10 @@ class GestureAccessibilityService : AccessibilityService() {
     private lateinit var actionDispatcher: ActionDispatcher
     private var currentForegroundPackage: String? = null
 
+    // Phase 1 保活增强: 1x1px 透明 overlay 窗口，提高进程优先级
+    // 参考 GKD A11yService.useAliveOverlayView() 策略
+    private var keepAliveView: View? = null
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
@@ -62,6 +70,27 @@ class GestureAccessibilityService : AccessibilityService() {
                 this, Intent(this, KeepAliveService::class.java)
             )
         } catch (_: Exception) { /* 静默处理，不阻塞核心功能 */ }
+
+        // Phase 1 保活增强: 添加 1x1px 透明 overlay 窗口
+        // 持有 TYPE_ACCESSIBILITY_OVERLAY 窗口使系统对进程有更高保护优先级
+        // Issue #5: 保活策略持续改进中
+        try {
+            keepAliveView = View(this).apply {
+                setBackgroundColor(Color.TRANSPARENT)
+            }
+            val keepAliveParams = WindowManager.LayoutParams(
+                1, 1,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT
+            ).apply {
+                gravity = Gravity.START or Gravity.TOP
+                x = 0; y = 0
+            }
+            windowManager.addView(keepAliveView, keepAliveParams)
+        } catch (_: Exception) { /* overlay 添加失败不影响核心功能 */ }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -97,8 +126,19 @@ class GestureAccessibilityService : AccessibilityService() {
     private fun cleanup() {
         if (::gestureEngine.isInitialized) gestureEngine.stop()
         if (::overlayManager.isInitialized) overlayManager.removeAll()
+
+        // 移除 1x1 保活 overlay 窗口
+        keepAliveView?.let { view ->
+            try {
+                if (view.windowToken != null) windowManager.removeView(view)
+            } catch (_: Exception) {}
+            keepAliveView = null
+        }
+
         instance = null
         _serviceState.value = ServiceState.DISCONNECTED
+        // 注意: 不主动停止 KeepAliveService，让系统自动重启 AccessibilityService
+        // 时能重新走 onServiceConnected 流程 (Phase 1 改进 3)
     }
 
     fun doPerformGlobalAction(actionId: Int): Boolean {
