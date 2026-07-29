@@ -187,14 +187,14 @@ fun SettingsScreen(
                 title = "Yan kenar genişliği",
                 valueText = "${config.edgeTriggerWidthDp.roundToInt()} dp",
                 value = config.edgeTriggerWidthDp,
-                range = 10f..50f,
+                range = 0f..50f,
                 onValueChange = viewModel::setEdgeTriggerWidth,
             )
             ValueSlider(
                 title = "Alt kenar yüksekliği",
                 valueText = "${config.bottomTriggerHeightDp.roundToInt()} dp",
                 value = config.bottomTriggerHeightDp,
-                range = 20f..80f,
+                range = 0f..80f,
                 onValueChange = viewModel::setBottomTriggerHeight,
             )
             ValueSlider(
