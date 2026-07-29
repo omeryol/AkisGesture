@@ -6,6 +6,8 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Eklendi
 
+- FNG'nin hareket mantığı, eylemleri, root işlevleri, görsel seçenekleri ve
+  sistem uyumluluğu incelenerek `FNG_PARITY_TARGET.md` hedef belgesi oluşturuldu.
 - Proje adı ve hedefleri Akış Gesture olarak belirlendi.
 - Türkçe README ve ilk ürün yol haritası oluşturuldu.
 - Sürdürülebilir geliştirme kuralları eklendi.
