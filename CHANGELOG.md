@@ -29,6 +29,10 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Ayarlar ekranındaki boşluklar ve kart içleri daha kompakt hale getirildi.
 - Hızlı çekme ve çekip bekletme simgelerine `<`, `>`, `<<` ve `>>`
   seçenekleri eklendi.
+- Kurallar ekranına gerçek bölge oranlarını gösteren, renkli kenarlarına
+  dokunularak doğrudan düzenlenebilen telefon biçimli hareket haritası eklendi.
+- Haritadaki bir alana dokunulduğunda hızlı çekme ve çekip bekletme eylemleri
+  artık aynı pencerede atanabiliyor; tek tek sayfalar arasında dönmek gerekmiyor.
 - Eşiğe ulaşan hareket parmak yeniden kenara kadar geri götürüldüğünde iptal
   ediliyor; görsel başlangıç durumuna dönüyor ve parmak bırakıldığında eylem çalışmıyor.
 - `Uygulama aç` eylemi artık tahmini ekran adı kullanmıyor; Android'in ilgili
