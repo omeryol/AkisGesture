@@ -1,6 +1,7 @@
 package com.omer.akisgesture.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -62,7 +65,7 @@ import com.omer.akisgesture.ui.component.AddRuleDialog
 import com.omer.akisgesture.ui.component.GestureMapCard
 import com.omer.akisgesture.ui.theme.AkisGesturePrimary
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
-import com.omer.akisgesture.ui.util.actionIcon
+import com.omer.akisgesture.ui.util.actionImageVector
 import com.omer.akisgesture.ui.util.edgeIcon
 import com.omer.akisgesture.ui.util.edgeLabel
 import com.omer.akisgesture.ui.util.gestureLabel
@@ -392,13 +395,21 @@ private fun GestureSlotButton(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
     ) {
+        rule?.let {
+            Icon(
+                actionImageVector(it.action),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.width(12.dp))
+        }
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
         ) {
             Text(title, style = MaterialTheme.typography.labelMedium)
             Text(
-                text = rule?.let { "${actionIcon(it.action)} ${it.action.label}" }
+                text = rule?.action?.label
                     ?: "Eylem ata",
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (rule == null) {
@@ -424,88 +435,69 @@ private fun RuleGroupCard(
     val enabled = listOfNotNull(group.quick, group.hold).any { it.enabled }
     val contentAlpha = if (enabled) 1f else 0.45f
     Card(
-        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // Enable/disable switch
-            Switch(
-                checked = enabled,
-                onCheckedChange = onToggleEnabled,
-                modifier = Modifier.size(36.dp),
+        Column(modifier = Modifier.graphicsLayer { alpha = contentAlpha }) {
+            ListItem(
+                headlineContent = {
+                    Text(edgeLabel(rule.trigger.edge), fontWeight = FontWeight.SemiBold)
+                },
+                supportingContent = {
+                    Text(sectionLabel(rule.trigger.section, rule.trigger.edge))
+                },
+                leadingContent = {
+                    Text(edgeIcon(rule.trigger.edge), style = MaterialTheme.typography.titleLarge)
+                },
+                trailingContent = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(checked = enabled, onCheckedChange = onToggleEnabled)
+                        IconButton(onClick = onDelete) {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = "Kuralı sil",
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    }
+                },
+                modifier = Modifier.clickable(onClick = onClick),
             )
-            Spacer(Modifier.width(8.dp))
-
-            // Trigger side
-            Column(modifier = Modifier.weight(1f).graphicsLayer { alpha = contentAlpha }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = edgeIcon(rule.trigger.edge),
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = edgeLabel(rule.trigger.edge),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        text = " \u00B7 ${sectionLabel(rule.trigger.section, rule.trigger.edge)}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
+            group.quick?.let { quick ->
+                CompactActionRow("Hızlı çekme", quick) { onChangeAction(quick) }
             }
-
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(3.dp),
-            ) {
-                group.quick?.let { quick ->
-                    OutlinedButton(
-                        onClick = { onChangeAction(quick) },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
-                    ) {
-                        Text(
-                            "Hızlı · ${actionIcon(quick.action)} ${quick.action.label}",
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-                group.hold?.let { hold ->
-                    OutlinedButton(
-                        onClick = { onChangeAction(hold) },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
-                    ) {
-                        Text(
-                            "Beklet · ${actionIcon(hold.action)} ${hold.action.label}",
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
-
-            // Delete
-            IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
-                Icon(
-                    Icons.Filled.Close,
-                    contentDescription = "Kuralı sil",
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            group.hold?.let { hold ->
+                CompactActionRow("Çekip bekletme", hold) { onChangeAction(hold) }
             }
         }
     }
+}
+
+@Composable
+private fun CompactActionRow(
+    gesture: String,
+    rule: GestureRule,
+    onClick: () -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(rule.action.label) },
+        supportingContent = { Text(gesture) },
+        leadingContent = {
+            Icon(
+                actionImageVector(rule.action),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        },
+        trailingContent = {
+            Text("Değiştir", color = MaterialTheme.colorScheme.primary)
+        },
+        modifier = Modifier.clickable(onClick = onClick),
+    )
 }

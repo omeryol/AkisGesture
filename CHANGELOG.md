@@ -21,6 +21,27 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Eklendi
 
+- Hızlı Ayarlar'a Akış hareketlerini açıp kapatan ve gerçek hizmet durumunu
+  gösteren `Akış` kutucuğu eklendi.
+- MacroDroid ve diğer otomasyonların kullanabilmesi için yalnızca Akış'ın kendi
+  hizmetini yöneten `START`, `STOP` ve `TOGGLE` yayın intentleri eklendi.
+- HyperOS erişilebilirlik kaydını beklenmedik biçimde düşürdüğünde, ekran
+  açılışı veya kullanıcı kilit açma olayında root üzerinden yalnızca Akış
+  bileşenini geri ekleyen koruma eklendi. Kullanıcı kutucuktan veya `STOP`
+  intentiyle kapattığında otomatik onarım yapılmıyor.
+- Hareket kuralı kartları yatay sıkışan düğmeler yerine alan başlığı ve her
+  harekete ait ayrı, simgeli işlem satırlarıyla yeniden tasarlandı.
+- Eylem seçimleri emoji metinleri yerine her işlemin anlamını gösteren gerçek
+  vektör simgelerle yenilendi. Gezinme, sistem, panel, medya, donanım ve root
+  eylemlerinin her biri kendi simgesini kullanıyor.
+- Uzun eylem seçenekleri kategori kategori açılan listelere, kural oluşturma
+  ekranındaki eylem seçimi ise tek satırlık açılır alana dönüştürüldü.
+- Ayarlar ekranı `Hareket hissi`, `Görünüm`, `Uygulama davranışı` ve `Gelişmiş`
+  başlıklarında toplanan açılır bölümlere dönüştürüldü.
+- Hareket alanı haritası varsayılan olarak kompakt özet gösteriyor; düzenleme
+  veya canlı deneme gerektiğinde tek dokunuşla açılıyor.
+- Açık ve koyu temanın yüzeyleri, köşe yapısı ve vurgu renkleri daha modern,
+  sakin ve tutarlı bir görsel sistemle yenilendi.
 - Telefon haritasına, gerçek hareket motoruyla aynı mesafe, sönümleme ve bekleme
   değerlerini kullanan canlı `Dene` görünümü eklendi.
 - Hareket motoru için eşik hesabını tek yerde tutan ortak model ve birim testleri

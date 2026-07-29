@@ -38,6 +38,27 @@
                 android:value="Keeps the user-enabled edge gesture navigation service available." />
         </service>
 
+        <service
+            android:name=".service.GestureTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_gesture_24"
+            android:label="Akış hareketleri"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".service.GestureCommandReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.omer.akisgesture.action.START" />
+                <action android:name="com.omer.akisgesture.action.STOP" />
+                <action android:name="com.omer.akisgesture.action.TOGGLE" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".service.BootReceiver"
             android:enabled="true"

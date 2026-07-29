@@ -5,6 +5,9 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -12,6 +15,15 @@ import com.omer.akisgesture.R
 import com.omer.akisgesture.ui.MainActivity
 
 class KeepAliveService : Service() {
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == Intent.ACTION_SCREEN_ON ||
+                intent.action == Intent.ACTION_USER_PRESENT
+            ) {
+                Thread { AccessibilityControl.repairIfNeeded(context) }.start()
+            }
+        }
+    }
 
     companion object {
         private const val CHANNEL_ID = "openswipe_keepalive"
@@ -22,6 +34,15 @@ class KeepAliveService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_USER_PRESENT)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(screenReceiver, filter)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID, "Hareket hizmeti",
@@ -55,6 +76,12 @@ class KeepAliveService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Thread { AccessibilityControl.repairIfNeeded(this) }.start()
         return START_STICKY
+    }
+
+    override fun onDestroy() {
+        runCatching { unregisterReceiver(screenReceiver) }
+        super.onDestroy()
     }
 }

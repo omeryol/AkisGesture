@@ -37,7 +37,9 @@ varsayılan olarak 280 ms'de hazır olur ve eylem parmak bırakılınca devreye
 girer. Parmak kenara geri götürülerek hareket iptal edilebilir. Akış Gesture
 içindeyken geri hareketi uygulamanın kendi sayfalarında
 gezinir. Telefon biçimli kural haritası alanları taşıma, boyutlandırma, birlikte
-eylem atama ve hareketi canlı deneme olanağı sunar.
+eylem atama ve hareketi canlı deneme olanağı sunar. Arayüzde uzun seçenek
+yığınları yerine açılır bölümler ve listeler; eylemlerde ise işleve özel
+vektör simgeler kullanılır.
 
 ## Derleme
 
@@ -64,6 +66,21 @@ adb install --user 0 -r app\build\outputs\apk\debug\app-debug.apk
 
 Genel `adb install -r` kullanılmaz; aktif bir Island iş profili varsa uygulamayı
 o profile de kaydedebilir.
+
+## Otomasyon intentleri
+
+Akış'ın kendi erişilebilirlik hizmetini başlatmak, durdurmak veya durumunu
+değiştirmek için:
+
+```text
+com.omer.akisgesture.action.START
+com.omer.akisgesture.action.STOP
+com.omer.akisgesture.action.TOGGLE
+```
+
+Intentler yayın (`Broadcast`) olarak `com.omer.akisgesture` paketine gönderilir.
+Bu komutlar diğer erişilebilirlik hizmetlerini değiştirmez. Root varsa Hızlı
+Ayarlar'daki `Akış` kutucuğu da aynı güvenli denetleyiciyi kullanır.
 
 ## Yol haritası
 

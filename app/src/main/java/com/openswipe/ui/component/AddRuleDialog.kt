@@ -35,8 +35,6 @@ import com.omer.akisgesture.model.TriggerMode
 import com.omer.akisgesture.model.TriggerNode
 import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.theme.AkisGesturePrimary
-import com.omer.akisgesture.ui.util.actionCategories
-import com.omer.akisgesture.ui.util.actionIcon
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -325,32 +323,9 @@ private fun ActionSelector(
     selected: ActionNode?,
     onSelect: (ActionNode) -> Unit,
 ) {
-    val categories = actionCategories()
-
-    categories.forEach { (categoryName, items) ->
-        Text(
-            text = categoryName,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            items.forEach { action ->
-                val available = RuleConfigViewModel.isActionAvailable(action)
-                FilterChip(
-                    selected = selected == action,
-                    onClick = { if (available) onSelect(action) },
-                    label = { Text("${actionIcon(action)} ${action.label}", maxLines = 1) },
-                    enabled = available,
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
-                    ),
-                    border = if (selected == action) BorderStroke(1.dp, AkisGesturePrimary) else null,
-                )
-            }
-        }
-    }
+    ActionDropdownField(
+        label = "Bu hareket ne yapsın?",
+        selected = selected,
+        onSelect = onSelect,
+    )
 }
