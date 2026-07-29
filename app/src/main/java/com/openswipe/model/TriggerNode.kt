@@ -24,6 +24,8 @@ data class SectionRange(
         return start < other.end && other.start < end
     }
 
+    val length: Float get() = end - start
+
     companion object {
         val ALL = SectionRange(0f, 1f)
         fun thirds(index: Int) = SectionRange(index / 3f, (index + 1) / 3f)

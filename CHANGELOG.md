@@ -15,6 +15,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Kullanıcının seçtiği uygulamalar öne geldiğinde hareketleri olay tabanlı olarak
   duraklatan uygulama listesi eklendi. Uygulamadan çıkınca hareket alanları
   kendiliğinden geri gelir; sürekli sorgulama yapılmaz.
+- Sol, sağ ve alt kenar alanları hazır bölümlerin yanında yüzde tabanlı başlangıç
+  ve bitiş sınırlarıyla ayarlanabilir hâle getirildi. En küçük alan yüzde 10'dur.
+- Hareket animasyonu için renk paleti ve yüzde 10–100 saydamlık ayarı eklendi.
+- Eşiğe ulaşan hareket parmak yeniden kenara kadar geri götürüldüğünde iptal
+  ediliyor; görsel başlangıç durumuna dönüyor ve parmak bırakıldığında eylem çalışmıyor.
 - `Uygulama aç` eylemi artık tahmini ekran adı kullanmıyor; Android'in ilgili
   uygulama için bildirdiği gerçek açılış ekranını kullanıyor.
 - Aynı tetikleme alanına ayrı `Hızlı çekme` ve `Çekip bekletme` eylemleri
