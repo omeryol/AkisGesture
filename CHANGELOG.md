@@ -24,6 +24,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Akış, baloncuk, damla, sade simge ve kapalı animasyon biçimleri eklendi.
 - Hızlı çekme ile çekip bekletme için birbirinden bağımsız görsel simge seçimi
   eklendi; ikinci eşik hazır olduğunda görsel ikinci simgeye geçiyor.
+- Renk seçicinin parlaklık alt sınırı gerçek siyah için yüzde sıfıra indirildi;
+  siyah, beyaz ve varsayılan mavi kısa yolları eklendi.
+- Ayarlar ekranındaki boşluklar ve kart içleri daha kompakt hale getirildi.
+- Hızlı çekme ve çekip bekletme simgelerine `<`, `>`, `<<` ve `>>`
+  seçenekleri eklendi.
 - Eşiğe ulaşan hareket parmak yeniden kenara kadar geri götürüldüğünde iptal
   ediliyor; görsel başlangıç durumuna dönüyor ve parmak bırakıldığında eylem çalışmıyor.
 - `Uygulama aç` eylemi artık tahmini ekran adı kullanmıyor; Android'in ilgili
