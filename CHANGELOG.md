@@ -21,6 +21,15 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Eklendi
 
+- Görsel tasarım AI konsepti temel alınarak Hareketler ekranı `Alt / Sol / Sağ`
+  sekmelerine ayrılan kompakt tablo düzenine dönüştürüldü. Alan, hızlı eylem ve
+  bekletme eylemi aynı satırda görülüyor; silme ve etkinlik seçenekleri üç nokta
+  menüsüne taşındı.
+- Telefon haritası ana kural listesinden çıkarılarak gerektiğinde açılan ikincil
+  `Harita` görünümüne taşındı.
+- Ayarlar ekranındaki büyük açılır kartlar kaldırıldı. Ana görünüm kısa bölüm
+  başlıkları ve ince ayırıcılı satırlardan oluşuyor; kaydırma çubukları, renk ve
+  simge ayrıntıları odaklanmış ayar pencerelerinde açılıyor.
 - Ayarlara FNG benzeri `Çalışmayacağı yerler` menüsü eklendi. Hareketler kilit
   ekranında, klavye açıkken, yatay ekranda ve kullanıcının seçtiği uygulamalarda
   ayrı ayrı duraklatılabiliyor; koşul bittiğinde kendiliğinden geri geliyor.

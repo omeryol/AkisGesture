@@ -41,6 +41,9 @@ eylem atama ve hareketi canlı deneme olanağı sunar. Arayüzde uzun seçenek
 yığınları yerine açılır bölümler ve listeler; eylemlerde ise işleve özel
 vektör simgeler kullanılır. `Çalışmayacağı yerler` menüsünden kilit ekranı,
 klavye, yatay ekran ve uygulamaya özel duraklatma koşulları seçilebilir.
+Hareketler ekranında kenarlar sekmelerle ayrılır; her alanın hızlı ve bekletme
+eylemi aynı kompakt satırda düzenlenir. Ayrıntılı görünüm ayarları ana sayfayı
+kalabalıklaştırmadan ayrı pencerelerde açılır.
 
 ## Derleme
 

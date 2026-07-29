@@ -34,6 +34,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -68,27 +69,120 @@ fun SettingsScreen(
     val pausedPackages by viewModel.pausedPackages.collectAsState()
     val selectableApps by viewModel.selectableApps.collectAsState()
     var showAppPicker by remember { mutableStateOf(false) }
+    var detail by remember { mutableStateOf<SettingsDetail?>(null) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            horizontal = 18.dp,
+            vertical = 10.dp,
+        ),
     ) {
-        Text(
-            "Hareketlerin hissini ve görünümünü buradan ayarla.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
-        )
+        item { SectionTitle("HAREKET") }
+        item {
+            SettingsNavRow(
+                title = "Kenar alanları",
+                summary = "${config.edgeTriggerWidthDp.roundToInt()} dp yan · " +
+                    "${config.bottomTriggerHeightDp.roundToInt()} dp alt",
+                icon = Icons.Filled.Swipe,
+                onClick = { detail = SettingsDetail.MOTION },
+            )
+        }
+        item {
+            SettingsNavRow(
+                title = "Bekleme",
+                summary = "${config.holdTimeMs} ms",
+                icon = Icons.Filled.ExpandMore,
+                onClick = { detail = SettingsDetail.MOTION },
+            )
+        }
+        item { SectionTitle("GÖRÜNÜM") }
+        item {
+            SettingsNavRow(
+                title = "Animasyon",
+                summary = "${config.feedbackAnimation.label} · " +
+                    "%${(config.feedbackOpacity * 100).roundToInt()} görünürlük",
+                icon = Icons.Filled.Palette,
+                onClick = { detail = SettingsDetail.APPEARANCE },
+            )
+        }
+        item {
+            SettingsNavRow(
+                title = "Renk ve simgeler",
+                summary = "${iconLabel(config.quickFeedbackIcon)} · " +
+                    iconLabel(config.holdFeedbackIcon),
+                icon = Icons.Filled.Palette,
+                onClick = { detail = SettingsDetail.APPEARANCE },
+            )
+        }
+        item { SectionTitle("ÇALIŞMAYACAĞI YERLER") }
+        item {
+            SwitchSetting(
+                title = "Kilit ekranı",
+                description = "Telefon kilitliyken hareketleri kapat",
+                checked = config.pauseOnLockScreen,
+                onCheckedChange = viewModel::setPauseOnLockScreen,
+            )
+        }
+        item {
+            SwitchSetting(
+                title = "Klavye açıkken",
+                description = "Yazı yazarken yanlış dokunmaları önle",
+                checked = config.pauseWhenKeyboardVisible,
+                onCheckedChange = viewModel::setPauseWhenKeyboardVisible,
+            )
+        }
+        item {
+            SwitchSetting(
+                title = "Yatay ekran",
+                description = "Oyun ve videolarda hareketleri kapat",
+                checked = config.pauseInLandscape,
+                onCheckedChange = viewModel::setPauseInLandscape,
+            )
+        }
+        item {
+            SettingsNavRow(
+                title = "Uygulamalar",
+                summary = if (pausedPackages.isEmpty()) "Uygulamaya özel engel yok"
+                else "${pausedPackages.size} uygulamada kapalı",
+                icon = Icons.Filled.Apps,
+                onClick = { showAppPicker = true },
+            )
+        }
+        item { SectionTitle("SİSTEM") }
+        item {
+            SettingsNavRow(
+                title = "Sistem",
+                summary = when (rootAccess) {
+                    RootAccessState.CHECKING -> "Root denetleniyor"
+                    RootAccessState.AVAILABLE -> "Root hazır"
+                    RootAccessState.UNAVAILABLE -> "Root kullanılamıyor"
+                },
+                icon = Icons.Filled.Security,
+                onClick = { detail = SettingsDetail.SYSTEM },
+            )
+        }
+    }
 
-        SettingsSection(
-            title = "Hareket hissi",
-            summary = "Kenar genişliği, alt alan ve bekleme süresi",
-            icon = Icons.Filled.Swipe,
-            initiallyExpanded = true,
-        ) {
+    detail?.let { selected ->
+        AlertDialog(
+            onDismissRequest = { detail = null },
+            title = {
+                Text(
+                    when (selected) {
+                        SettingsDetail.MOTION -> "Hareket"
+                        SettingsDetail.APPEARANCE -> "Görünüm"
+                        SettingsDetail.SYSTEM -> "Sistem"
+                    },
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    when (selected) {
+                        SettingsDetail.MOTION -> {
             ValueSlider(
                 title = "Yan kenar genişliği",
                 valueText = "${config.edgeTriggerWidthDp.roundToInt()} dp",
@@ -110,13 +204,8 @@ fun SettingsScreen(
                 range = 150f..700f,
                 onValueChange = { viewModel.setHoldTime(it.roundToInt().toLong()) },
             )
-        }
-
-        SettingsSection(
-            title = "Görünüm",
-            summary = "${config.feedbackAnimation.label} · %${(config.feedbackOpacity * 100).roundToInt()} görünürlük",
-            icon = Icons.Filled.Palette,
-        ) {
+                        }
+                        SettingsDetail.APPEARANCE -> {
             ChoiceDropdown(
                 title = "Animasyon",
                 selected = config.feedbackAnimation,
@@ -149,60 +238,8 @@ fun SettingsScreen(
                 argb = config.feedbackColorArgb,
                 onColorChange = viewModel::setFeedbackColor,
             )
-        }
-
-        SettingsSection(
-            title = "Çalışmayacağı yerler",
-            summary = buildList {
-                if (config.pauseOnLockScreen) add("kilit ekranı")
-                if (config.pauseWhenKeyboardVisible) add("klavye")
-                if (config.pauseInLandscape) add("yatay ekran")
-                if (pausedPackages.isNotEmpty()) add("${pausedPackages.size} uygulama")
-            }.joinToString(" · ").ifEmpty { "Her yerde etkin" },
-            icon = Icons.Filled.Block,
-        ) {
-            SwitchSetting(
-                title = "Kilit ekranında",
-                description = "Telefon kilitliyken kenar hareketlerini kapat",
-                checked = config.pauseOnLockScreen,
-                onCheckedChange = viewModel::setPauseOnLockScreen,
-            )
-            SwitchSetting(
-                title = "Klavye açıkken",
-                description = "Yazı yazarken yanlış dokunmaları önle",
-                checked = config.pauseWhenKeyboardVisible,
-                onCheckedChange = viewModel::setPauseWhenKeyboardVisible,
-            )
-            SwitchSetting(
-                title = "Yatay ekranda",
-                description = "Oyun ve video görünümünde hareketleri kapat",
-                checked = config.pauseInLandscape,
-                onCheckedChange = viewModel::setPauseInLandscape,
-            )
-            Text(
-                if (pausedPackages.isEmpty()) {
-                    "Uygulamaya özel bir engel yok."
-                } else {
-                    "${pausedPackages.size} uygulamada hareketler çalışmayacak."
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            OutlinedButton(onClick = { showAppPicker = true }) {
-                Icon(Icons.Filled.Apps, contentDescription = null)
-                Text("  Uygulamaları seç")
-            }
-        }
-
-        SettingsSection(
-            title = "Gelişmiş",
-            summary = when (rootAccess) {
-                RootAccessState.CHECKING -> "Root denetleniyor"
-                RootAccessState.AVAILABLE -> "Root hazır"
-                RootAccessState.UNAVAILABLE -> "Root kullanılamıyor"
-            },
-            icon = Icons.Filled.Security,
-        ) {
+                        }
+                        SettingsDetail.SYSTEM -> {
             Text(
                 "Zorla durdurma yalnızca kişisel profilde çalışır. Sistem uygulamaları korunur.",
                 style = MaterialTheme.typography.bodySmall,
@@ -211,13 +248,20 @@ fun SettingsScreen(
             OutlinedButton(onClick = viewModel::checkRootAccess) {
                 Text("Root durumunu yenile")
             }
-        }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { detail = null }) { Text("Bitti") }
+            },
+        )
     }
 
     if (showAppPicker) {
         AlertDialog(
             onDismissRequest = { showAppPicker = false },
-            title = { Text("Duraklatılacak uygulamalar") },
+            title = { Text("Çalışmayacağı uygulamalar") },
             text = {
                 LazyColumn(Modifier.fillMaxWidth().heightIn(max = 520.dp)) {
                     items(selectableApps, key = { it.packageName }) { app ->
@@ -247,6 +291,42 @@ fun SettingsScreen(
             },
         )
     }
+}
+
+private enum class SettingsDetail { MOTION, APPEARANCE, SYSTEM }
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 12.dp, top = 18.dp, bottom = 6.dp),
+    )
+}
+
+@Composable
+private fun SettingsNavRow(
+    title: String,
+    summary: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(summary, maxLines = 1) },
+        leadingContent = {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        },
+        trailingContent = {
+            Icon(Icons.Filled.ExpandMore, contentDescription = null)
+        },
+        modifier = Modifier.clickable(onClick = onClick),
+    )
+    HorizontalDivider(
+        modifier = Modifier.padding(start = 56.dp),
+        color = MaterialTheme.colorScheme.outlineVariant,
+    )
 }
 
 @Composable
