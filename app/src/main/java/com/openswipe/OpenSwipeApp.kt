@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.feedback.FeedbackAnimation
+import com.omer.akisgesture.feedback.FeedbackIcon
 import com.omer.akisgesture.rule.CompiledRuleSet
 import com.omer.akisgesture.rule.GestureRuleGraph
 import com.omer.akisgesture.rule.Presets
@@ -57,6 +59,15 @@ class AkisGestureApp : Application() {
                     feedbackColorArgb = prefs[GestureConfig.KEY_FEEDBACK_COLOR]
                         ?: 0xFF3D5AFE.toInt(),
                     feedbackOpacity = prefs[GestureConfig.KEY_FEEDBACK_OPACITY] ?: 0.57f,
+                    feedbackAnimation = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION]
+                        ?.let { runCatching { FeedbackAnimation.valueOf(it) }.getOrNull() }
+                        ?: FeedbackAnimation.FLUID,
+                    quickFeedbackIcon = prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON]
+                        ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
+                        ?: FeedbackIcon.CHEVRON,
+                    holdFeedbackIcon = prefs[GestureConfig.KEY_HOLD_FEEDBACK_ICON]
+                        ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
+                        ?: FeedbackIcon.STAR,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -141,6 +152,24 @@ class AkisGestureApp : Application() {
     suspend fun updateFeedbackOpacity(opacity: Float) {
         settingsDataStore.edit { prefs ->
             prefs[GestureConfig.KEY_FEEDBACK_OPACITY] = opacity.coerceIn(0.1f, 1f)
+        }
+    }
+
+    suspend fun updateFeedbackAnimation(animation: FeedbackAnimation) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_ANIMATION] = animation.name
+        }
+    }
+
+    suspend fun updateQuickFeedbackIcon(icon: FeedbackIcon) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON] = icon.name
+        }
+    }
+
+    suspend fun updateHoldFeedbackIcon(icon: FeedbackIcon) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_HOLD_FEEDBACK_ICON] = icon.name
         }
     }
 

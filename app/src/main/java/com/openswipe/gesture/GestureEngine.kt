@@ -243,6 +243,9 @@ class GestureEngine(
         view.peakThreshold = currentConfig.minSwipeThresholdPx
         view.feedbackColor = currentConfig.feedbackColorArgb
         view.feedbackOpacity = currentConfig.feedbackOpacity
+        view.feedbackAnimation = currentConfig.feedbackAnimation
+        view.quickIcon = currentConfig.quickFeedbackIcon
+        view.holdIcon = currentConfig.holdFeedbackIcon
         view.updateGestureState(
             edge = progress.edge,
             stretch = progress.stretch,

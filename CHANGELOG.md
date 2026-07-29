@@ -17,7 +17,13 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
   kendiliğinden geri gelir; sürekli sorgulama yapılmaz.
 - Sol, sağ ve alt kenar alanları hazır bölümlerin yanında yüzde tabanlı başlangıç
   ve bitiş sınırlarıyla ayarlanabilir hâle getirildi. En küçük alan yüzde 10'dur.
-- Hareket animasyonu için renk paleti ve yüzde 10–100 saydamlık ayarı eklendi.
+- Hareket animasyonu için tüm renk tonlarını kapsayan renk tonu, canlılık ve
+  parlaklık seçicisi ile yüzde 10–100 saydamlık ayarı eklendi.
+- Başlangıç, genel kullanım, tek el, ileri seviye, üretkenlik, medya ve açıkça
+  işaretlenmiş root kullanımını kapsayan dokuz hazır hareket düzeni eklendi.
+- Akış, baloncuk, damla, sade simge ve kapalı animasyon biçimleri eklendi.
+- Hızlı çekme ile çekip bekletme için birbirinden bağımsız görsel simge seçimi
+  eklendi; ikinci eşik hazır olduğunda görsel ikinci simgeye geçiyor.
 - Eşiğe ulaşan hareket parmak yeniden kenara kadar geri götürüldüğünde iptal
   ediliyor; görsel başlangıç durumuna dönüyor ve parmak bırakıldığında eylem çalışmıyor.
 - `Uygulama aç` eylemi artık tahmini ekran adı kullanmıyor; Android'in ilgili

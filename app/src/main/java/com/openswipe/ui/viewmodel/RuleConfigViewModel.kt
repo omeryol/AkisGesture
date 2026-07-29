@@ -61,7 +61,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 _activePresetName.value = null
                 revalidate()
             } else {
-                loadPreset("Varsayılan", Presets.DEFAULT)
+                loadPreset("Genel · Dengeli", Presets.DEFAULT)
                 applyRules()
             }
         }
@@ -205,10 +205,6 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
             return Build.VERSION.SDK_INT >= action.minApi
         }
 
-        val presets: List<Pair<String, GestureRuleGraph>> = listOf(
-            "iOS tarzı" to Presets.IOS_STYLE,
-            "Android klasik" to Presets.ANDROID_CLASSIC,
-            "Medya kontrolü" to Presets.MEDIA_CONTROL,
-        )
+        val presets: List<Pair<String, GestureRuleGraph>> = Presets.ALL
     }
 }

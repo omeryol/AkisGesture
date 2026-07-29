@@ -75,6 +75,7 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [ ] Uygulamaya özel profilleri ekle (uygulamaya göre duraklatma tamamlandı)
 - [x] Tüm kenarlarda ayarlanabilir alan konumu ve uzunluğu ekle
 - [x] Animasyon rengi, saydamlığı ve kenara geri dönerek iptal davranışını ekle
+- [x] Beş animasyon biçimi ve iki harekete ayrı simge seçimi ekle
 - [ ] HyperOS sağlık durumunu olay tabanlı izle
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle
