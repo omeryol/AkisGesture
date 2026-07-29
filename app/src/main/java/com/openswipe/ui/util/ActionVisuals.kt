@@ -32,6 +32,7 @@ fun actionImageVector(action: ActionNode): ImageVector = when (action) {
     is ActionNode.Home -> Icons.Filled.Home
     is ActionNode.Recents -> Icons.Filled.Apps
     is ActionNode.SwitchLastApp -> Icons.Filled.SwapHoriz
+    is ActionNode.SwitchNextApp -> Icons.Filled.SwapHoriz
     is ActionNode.LockScreen -> Icons.Filled.Lock
     is ActionNode.Screenshot -> Icons.Filled.CameraAlt
     is ActionNode.SplitScreen -> Icons.Filled.VerticalSplit

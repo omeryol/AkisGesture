@@ -93,7 +93,8 @@ class EdgeGestureDetector(
             GestureState.AWAITING_DIRECTION -> {
                 if (dx * dx + dy * dy > scaledTouchSlop * scaledTouchSlop) {
                     val isValidSwipe = when (edge) {
-                        Edge.BOTTOM -> dy < 0 && abs(dy) > abs(dx)  // upward
+                        Edge.BOTTOM ->
+                            (dy < 0 && abs(dy) > abs(dx)) || abs(dx) > abs(dy)
                         Edge.LEFT -> dx > 0 && abs(dx) > abs(dy)    // rightward
                         Edge.RIGHT -> dx < 0 && abs(dx) > abs(dy)   // leftward
                     }
@@ -238,6 +239,13 @@ class EdgeGestureDetector(
         val minThreshold = config.minSwipeThresholdPx
 
         return when {
+            edge == Edge.BOTTOM &&
+                abs(rawDx) > minThreshold &&
+                abs(rawDx) > abs(rawDy) ->
+                GestureResult.BottomHorizontalSwipe(
+                    direction = if (rawDx < 0) SwipeDirection.LEFT else SwipeDirection.RIGHT,
+                    touchAlongEdgePx = touchAlongEdgePx,
+                )
             displacement > minThreshold ->
                 GestureResult.EdgeSwipe(
                     edge = edge,
