@@ -12,6 +12,9 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Kural listesi aynı alana ait iki hareketi tek kartta gösteriyor. Liste ve ayrıntı
   ekranları aynı kayıt durumunu kullandığı için yeni kurala dokununca görülen
   geçici `Kural bulunamadı` hatası giderildi.
+- Kullanıcının seçtiği uygulamalar öne geldiğinde hareketleri olay tabanlı olarak
+  duraklatan uygulama listesi eklendi. Uygulamadan çıkınca hareket alanları
+  kendiliğinden geri gelir; sürekli sorgulama yapılmaz.
 - `Uygulama aç` eylemi artık tahmini ekran adı kullanmıyor; Android'in ilgili
   uygulama için bildirdiği gerçek açılış ekranını kullanıyor.
 - Aynı tetikleme alanına ayrı `Hızlı çekme` ve `Çekip bekletme` eylemleri
