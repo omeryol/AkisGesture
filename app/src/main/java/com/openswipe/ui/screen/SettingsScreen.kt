@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -15,9 +16,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -32,6 +41,9 @@ fun SettingsScreen(
 ) {
     val config by viewModel.configState.collectAsState()
     val rootAccess by viewModel.rootAccess.collectAsState()
+    val pausedPackages by viewModel.pausedPackages.collectAsState()
+    val selectableApps by viewModel.selectableApps.collectAsState()
+    var showAppPicker by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -122,6 +134,34 @@ fun SettingsScreen(
         }
 
         Text(
+            text = "Uygulamaya göre davranış",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = "Hareketlerin duracağı uygulamalar",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Text(
+                    text = if (pausedPackages.isEmpty())
+                        "Hiçbir uygulamada duraklatılmıyor."
+                    else
+                        "${pausedPackages.size} uygulamada otomatik duraklatılıyor.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedButton(onClick = { showAppPicker = true }) {
+                    Text("Uygulamaları seç")
+                }
+            }
+        }
+
+        Text(
             text = "Çekip bekletme",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
@@ -190,5 +230,42 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+
+    if (showAppPicker) {
+        AlertDialog(
+            onDismissRequest = { showAppPicker = false },
+            title = { Text("Hareketlerin duracağı uygulamalar") },
+            text = {
+                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 520.dp)) {
+                    items(selectableApps, key = { it.packageName }) { app ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = app.packageName in pausedPackages,
+                                onCheckedChange = {
+                                    viewModel.setPackagePaused(app.packageName, it)
+                                },
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(app.label, style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    app.packageName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showAppPicker = false }) {
+                    Text("Tamam")
+                }
+            },
+        )
     }
 }

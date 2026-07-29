@@ -67,7 +67,13 @@ class GestureAccessibilityService : AccessibilityService() {
         val compiledRuleSetFlow = app.compiledRuleSet
         overlayManager = OverlayManager(this, windowManager)
         actionDispatcher = ActionDispatcherImpl(this)
-        gestureEngine = GestureEngine(configFlow, actionDispatcher, overlayManager, compiledRuleSetFlow)
+        gestureEngine = GestureEngine(
+            configFlow,
+            actionDispatcher,
+            overlayManager,
+            compiledRuleSetFlow,
+            app.pausedPackagesFlow,
+        )
 
         gestureEngine.start()
         _serviceState.value = ServiceState.CONNECTED

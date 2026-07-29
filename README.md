@@ -72,7 +72,7 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Hızlı çekme ve çekip bekletme kural motoru için birim testleri ekle
 - [ ] Gerçek cihazda kenar gecikmesi ve yanlış tetikleme ölçümü yap
 - [x] Hızlı çekme ve çekip bekletmeyi tek durum makinesinde birleştir
-- [ ] Uygulamaya özel profilleri ekle
+- [ ] Uygulamaya özel profilleri ekle (uygulamaya göre duraklatma tamamlandı)
 - [ ] HyperOS sağlık durumunu olay tabanlı izle
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle

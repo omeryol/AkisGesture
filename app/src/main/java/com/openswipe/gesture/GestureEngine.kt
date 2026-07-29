@@ -32,6 +32,7 @@ class GestureEngine(
     private val actionDispatcher: ActionDispatcher,
     private val overlayManager: OverlayManager,
     private val compiledRuleSetFlow: StateFlow<CompiledRuleSet>,
+    private val pausedPackagesFlow: StateFlow<Set<String>>,
 ) : EdgeSensorView.OnEdgeTouchListener {
 
     private var scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -42,6 +43,9 @@ class GestureEngine(
     private var lastArmed = false
     private var lastProgressActive = false
     private var lastHoldArmed = false
+    private var foregroundPackage: String? = null
+    private var pausedPackages: Set<String> = pausedPackagesFlow.value
+    private var pausedForForegroundApp = false
 
     fun stop() {
         overlayManager.removeAll()
@@ -58,10 +62,31 @@ class GestureEngine(
     fun start() {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
         scope.launch {
-            combine(configFlow, compiledRuleSetFlow) { config, ruleSet -> config to ruleSet }
-                .collect { (newConfig, ruleSet) ->
+            combine(
+                configFlow,
+                compiledRuleSetFlow,
+                pausedPackagesFlow,
+            ) { config, ruleSet, packages -> Triple(config, ruleSet, packages) }
+                .collect { (newConfig, ruleSet, packages) ->
                     val old = currentConfig
                     currentConfig = newConfig
+                    pausedPackages = packages
+                    val shouldPause = AppPausePolicy.shouldPause(foregroundPackage, packages)
+                    if (shouldPause) {
+                        pausedForForegroundApp = true
+                        overlayManager.removeAll()
+                        detectors.clear()
+                        edgeLengths.clear()
+                        feedbackView = null
+                        started = true
+                        return@collect
+                    }
+                    if (pausedForForegroundApp) {
+                        pausedForForegroundApp = false
+                        started = true
+                        rebuildOverlays(ruleSet)
+                        return@collect
+                    }
                     if (!started) {
                         started = true
                         rebuildOverlays(ruleSet)
@@ -73,7 +98,18 @@ class GestureEngine(
     }
 
     fun onForegroundAppChanged(packageName: String) {
-        // Phase 2: 黑名单/白名单检测
+        foregroundPackage = packageName
+        val shouldPause = AppPausePolicy.shouldPause(packageName, pausedPackages)
+        if (shouldPause == pausedForForegroundApp) return
+        pausedForForegroundApp = shouldPause
+        if (shouldPause) {
+            overlayManager.removeAll()
+            detectors.clear()
+            edgeLengths.clear()
+            feedbackView = null
+        } else {
+            rebuildOverlays(compiledRuleSetFlow.value)
+        }
     }
 
     fun onConfigurationChanged(newConfig: Configuration) {
@@ -264,6 +300,7 @@ class GestureEngine(
     }
 
     override fun onEdgeTouch(edge: Edge, event: MotionEvent): Boolean {
+        if (pausedForForegroundApp) return false
         return detectors[edge]?.onTouchEvent(event) ?: false
     }
 }

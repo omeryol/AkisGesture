@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.omer.akisgesture.gesture.GestureConfig
 import com.omer.akisgesture.rule.CompiledRuleSet
@@ -37,6 +38,9 @@ class AkisGestureApp : Application() {
     private val _compiledRuleSet = MutableStateFlow(CompiledRuleSet.EMPTY)
     val compiledRuleSet: StateFlow<CompiledRuleSet> = _compiledRuleSet.asStateFlow()
 
+    lateinit var pausedPackagesFlow: StateFlow<Set<String>>
+        private set
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -53,6 +57,10 @@ class AkisGestureApp : Application() {
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
+
+        pausedPackagesFlow = settingsDataStore.data
+            .map { prefs -> prefs[KEY_PAUSED_PACKAGES] ?: emptySet() }
+            .stateIn(appScope, SharingStarted.Eagerly, emptySet())
 
         // Load rules from DataStore on startup
         appScope.launch(Dispatchers.IO) {
@@ -112,8 +120,18 @@ class AkisGestureApp : Application() {
         }
     }
 
+    suspend fun setPackagePaused(packageName: String, paused: Boolean) {
+        if (packageName == this.packageName) return
+        settingsDataStore.edit { prefs ->
+            val current = prefs[KEY_PAUSED_PACKAGES].orEmpty()
+            prefs[KEY_PAUSED_PACKAGES] =
+                if (paused) current + packageName else current - packageName
+        }
+    }
+
     companion object {
         private val KEY_RULES_JSON = stringPreferencesKey("gesture_rules_json")
+        private val KEY_PAUSED_PACKAGES = stringSetPreferencesKey("paused_packages")
         private lateinit var instance: AkisGestureApp
         fun getInstance(): AkisGestureApp = instance
     }
