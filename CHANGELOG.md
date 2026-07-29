@@ -13,8 +13,9 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Akış Gesture açıkken `Geri` hareketi doğrudan uygulamanın kendi sayfa
   geçmişinde çalışacak şekilde düzeltildi; ana sayfadayken normal çıkış
   davranışı korunur.
-- Çekip bekletme hareketi yalnızca o alana ikincil eylem atanmışsa hazırlanıyor,
-  eşik dolduğu anda bir kez çalışıyor ve parmak bırakıldığında yinelenmiyor.
+- Çekip bekletme hareketi yalnızca o alana ikincil eylem atanmışsa hazırlanıyor.
+  Eşik dolduğunda yalnızca hazır duruma geçiyor; eylem parmak bırakılınca bir
+  kez çalışıyor. Parmak kenara geri götürülürse hareket tamamen iptal ediliyor.
 - `Önceki uygulama` eylemi güvenilmez çift son-uygulamalar çağrısı yerine gerçek
   uygulama geçmişini kullanacak şekilde düzeltildi.
 

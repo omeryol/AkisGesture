@@ -30,7 +30,6 @@ class EdgeGestureDetector(
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
     private var wasArmed = false
-    private var holdExecuted = false
     private val holdRunnable = Runnable {
         holdScheduled = false
         if (state == GestureState.DETECTED &&
@@ -43,15 +42,6 @@ class EdgeGestureDetector(
                 "hold_armed edge=$edge stretch=$lastStretch threshold=${config.minSwipeThresholdPx}",
             )
             publishProgress(active = true)
-            holdExecuted = true
-            onGestureResult(
-                GestureResult.EdgeSwipe(
-                    edge = edge,
-                    section = resolveSection(lastTouchAlongEdge),
-                    gestureType = GestureType.SWIPE_HOLD,
-                    touchAlongEdgePx = lastTouchAlongEdge,
-                ),
-            )
         }
     }
 
@@ -185,16 +175,14 @@ class EdgeGestureDetector(
 
         if (state == GestureState.DETECTED) {
             state = GestureState.EXECUTING
-            if (!holdExecuted) {
-                val result = resolveGestureResult(dampedDisplacement, section, dx, dy, touchAlongEdge)
-                Log.d(
-                    LOG_TAG,
-                    "gesture_result edge=$edge result=${result::class.simpleName} " +
-                        "type=${(result as? GestureResult.EdgeSwipe)?.gestureType} " +
-                        "stretch=$dampedDisplacement holdArmed=$holdArmed",
-                )
-                onGestureResult(result)
-            }
+            val result = resolveGestureResult(dampedDisplacement, section, dx, dy, touchAlongEdge)
+            Log.d(
+                LOG_TAG,
+                "gesture_result edge=$edge result=${result::class.simpleName} " +
+                    "type=${(result as? GestureResult.EdgeSwipe)?.gestureType} " +
+                    "stretch=$dampedDisplacement holdArmed=$holdArmed",
+            )
+            onGestureResult(result)
         }
 
         finishProgress(event)
@@ -291,7 +279,6 @@ class EdgeGestureDetector(
         lastStretch = 0f
         lastTouchAlongEdge = 0f
         wasArmed = false
-        holdExecuted = false
         state = GestureState.IDLE
         touchState.reset()
     }

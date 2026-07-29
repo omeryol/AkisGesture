@@ -33,8 +33,9 @@ kritik sistem uygulamalarını korur.
 
 Sol, sağ ve alt kenar hareketleri HyperOS/Android 15 cihazda çalışmaktadır.
 Hızlı çekme ve çekip bekletme aynı alanda bağımsız eylemler çalıştırır; bekletme
-varsayılan olarak 280 ms'de, parmak bırakılmadan ve yalnızca bir kez devreye
-girer. Akış Gesture içindeyken geri hareketi uygulamanın kendi sayfalarında
+varsayılan olarak 280 ms'de hazır olur ve eylem parmak bırakılınca devreye
+girer. Parmak kenara geri götürülerek hareket iptal edilebilir. Akış Gesture
+içindeyken geri hareketi uygulamanın kendi sayfalarında
 gezinir. Telefon biçimli kural haritası alanları taşıma, boyutlandırma, birlikte
 eylem atama ve hareketi canlı deneme olanağı sunar.
 
