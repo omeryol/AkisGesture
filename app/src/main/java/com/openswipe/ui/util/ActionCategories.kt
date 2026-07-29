@@ -11,5 +11,6 @@ fun actionCategories(actions: List<ActionNode> = ActionNode.allFixed()): List<Pa
     "Paneller" to actions.filter { it is ActionNode.NotificationPanel || it is ActionNode.QuickSettings },
     "Medya" to actions.filter { it is ActionNode.MediaPlayPause || it is ActionNode.MediaNext || it is ActionNode.MediaPrevious || it is ActionNode.VolumeUp || it is ActionNode.VolumeDown },
     "Donanım" to actions.filter { it is ActionNode.ToggleFlashlight },
+    "Root" to actions.filter { it is ActionNode.ForceStopForeground },
     "Diğer" to actions.filter { it is ActionNode.NoAction },
 )

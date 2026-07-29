@@ -49,6 +49,7 @@ class AkisGestureApp : Application() {
                     bottomEnabled = prefs[GestureConfig.KEY_BOTTOM_ENABLED] ?: true,
                     edgeTriggerWidthDp = prefs[GestureConfig.KEY_EDGE_TRIGGER_WIDTH] ?: 20f,
                     bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 40f,
+                    holdTimeMs = prefs[GestureConfig.KEY_HOLD_TIME] ?: 280L,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -103,6 +104,12 @@ class AkisGestureApp : Application() {
         // Safe defaults are available immediately; onCreate replaces them
         // asynchronously with persisted rules.
         _compiledRuleSet.value = Presets.DEFAULT.compile()
+    }
+
+    suspend fun updateHoldTime(milliseconds: Long) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_HOLD_TIME] = milliseconds.coerceIn(150L, 700L)
+        }
     }
 
     companion object {

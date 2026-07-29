@@ -29,6 +29,7 @@ class BezierStretchRenderer {
 
     var halfSpan: Float = 180f
     var armed: Boolean = false
+    var holdArmed: Boolean = false
 
     fun draw(
         canvas: Canvas,
@@ -43,7 +44,11 @@ class BezierStretchRenderer {
         if (stretch < 0.5f) return
 
         val progress = (stretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.35f)
-        curvePaint.color = if (armed) Color.rgb(0, 191, 165) else Color.rgb(61, 90, 254)
+        curvePaint.color = when {
+            holdArmed -> Color.rgb(255, 179, 0)
+            armed -> Color.rgb(0, 191, 165)
+            else -> Color.rgb(61, 90, 254)
+        }
         curvePaint.alpha = (50 + progress * 75).toInt().coerceIn(0, 145)
         drawCurve(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight)
         drawGlow(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress)
@@ -105,7 +110,9 @@ class BezierStretchRenderer {
             Edge.LEFT, Edge.RIGHT -> touchPos
             Edge.BOTTOM -> h - inset
         }
-        glowPaint.color = if (armed) {
+        glowPaint.color = if (holdArmed) {
+            Color.argb(100, 255, 193, 7)
+        } else if (armed) {
             Color.argb(85, 0, 229, 190)
         } else {
             Color.argb(58, 130, 150, 255)

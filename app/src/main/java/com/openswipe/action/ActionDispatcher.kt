@@ -9,7 +9,11 @@ import android.view.KeyEvent
 import android.view.ViewConfiguration
 import com.omer.akisgesture.model.ActionNode
 import com.omer.akisgesture.service.GestureAccessibilityService
+import com.omer.akisgesture.root.RootCommandExecutor
+import com.omer.akisgesture.root.RootResult
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 interface ActionDispatcher {
     @Deprecated("Use dispatch(ActionNode) instead", replaceWith = ReplaceWith("dispatch(actionNode)"))
@@ -30,6 +34,7 @@ class ActionDispatcherImpl(
     private val audioManager by lazy {
         service.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
+    private val rootCommands by lazy { RootCommandExecutor(service) }
 
     override suspend fun dispatch(action: ActionNode): ActionResult = when (action) {
         is ActionNode.NoAction -> ActionResult.Success
@@ -56,6 +61,7 @@ class ActionDispatcherImpl(
         }
         is ActionNode.ToggleFlashlight -> ActionResult.Failed("Not implemented yet")
         is ActionNode.LaunchApp -> launchApp(action.packageName, "${action.packageName}.MainActivity")
+        is ActionNode.ForceStopForeground -> forceStopForeground()
     }
 
     @Deprecated("Use dispatch(ActionNode) instead")
@@ -134,6 +140,15 @@ class ActionDispatcherImpl(
         ActionResult.Success
     } catch (e: Exception) {
         ActionResult.Failed(e.message ?: "Launch failed")
+    }
+
+    private suspend fun forceStopForeground(): ActionResult = withContext(Dispatchers.IO) {
+        val packageName = service.foregroundPackage()
+            ?: return@withContext ActionResult.Failed("Öndeki uygulama belirlenemedi")
+        when (val result = rootCommands.forceStopPersonalProfile(packageName)) {
+            RootResult.Success -> ActionResult.Success
+            is RootResult.Failure -> ActionResult.Failed(result.reason)
+        }
     }
 
     companion object {

@@ -95,6 +95,12 @@ sealed interface ActionNode {
         override val minApi = 23
     }
 
+    data object ForceStopForeground : ActionNode {
+        override val id = "force_stop_foreground"
+        override val label = "Öndeki uygulamayı kapat"
+        override val minApi = 26
+    }
+
     // ═══ Uygula启动 ═══
     data class LaunchApp(
         val packageName: String,
@@ -120,6 +126,7 @@ sealed interface ActionNode {
                 NotificationPanel, QuickSettings,
                 MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown,
                 ToggleFlashlight,
+                ForceStopForeground,
                 NoAction,
             )
         }

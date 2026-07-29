@@ -10,12 +10,15 @@ OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
 ## Hedef
 
 - Sol, sağ ve alt kenarda gecikmesiz hareket algılama
-- Kısa kaydırma, uzun kaydırma ve kaydırıp bekletme
+- Hızlı çekme ve çekip bekletme için bağımsız eylemler
 - Geri, ana ekran, son uygulamalar ve kullanıcı eylemleri
 - Uygulamaya ve ekran yönüne göre farklı profiller
 - Kullanıcıyı teknik ayrıntılarla yormayan sade Türkçe arayüz
 - HyperOS tarafından durdurulduğunda güvenli toparlanma
 - Root/APatch desteğini ana uygulamadan ayrılmış yardımcı katmanda tutma
+
+Root ile öndeki uygulamayı kapatma eylemi yalnızca kişisel profili hedefler ve
+kritik sistem uygulamalarını korur.
 
 ## Mimari ilkeler
 

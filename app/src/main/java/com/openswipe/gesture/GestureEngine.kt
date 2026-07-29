@@ -41,6 +41,7 @@ class GestureEngine(
     private var feedbackView: FeedbackView? = null
     private var lastArmed = false
     private var lastProgressActive = false
+    private var lastHoldArmed = false
 
     fun stop() {
         overlayManager.removeAll()
@@ -49,6 +50,7 @@ class GestureEngine(
         feedbackView = null
         lastArmed = false
         lastProgressActive = false
+        lastHoldArmed = false
         scope.cancel()
         started = false
     }
@@ -84,11 +86,16 @@ class GestureEngine(
 
         // If bottom height changed, rebuild bottom overlay
         val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp
+        val behaviorNeedsRebuild =
+            old.dampingFactor != new.dampingFactor ||
+            old.minSwipeThresholdPx != new.minSwipeThresholdPx ||
+            old.holdTimeMs != new.holdTimeMs ||
+            old.sectionCount != new.sectionCount
 
         for (edge in Edge.entries) {
             val hasRules = ruleSet.hasRulesFor(edge)
             val hadOverlay = detectors.containsKey(edge)
-            val needsRebuild = when (edge) {
+            val needsRebuild = behaviorNeedsRebuild || when (edge) {
                 Edge.LEFT, Edge.RIGHT -> sideNeedsRebuild
                 Edge.BOTTOM -> bottomNeedsRebuild
             }
@@ -204,6 +211,7 @@ class GestureEngine(
             touchPos = progress.touchAlongEdgePx,
             active = progress.active,
             armed = progress.armed,
+            holdArmed = progress.holdArmed,
         )
 
         if (currentConfig.hapticEnabled) {
@@ -211,11 +219,14 @@ class GestureEngine(
                 HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
             } else if (progress.armed && !lastArmed) {
                 HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
-            } else if (!progress.active && lastArmed) {
+            } else if (progress.holdArmed && !lastHoldArmed) {
                 HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
+            } else if (!progress.active && lastArmed) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
             }
         }
         lastArmed = progress.armed
+        lastHoldArmed = progress.holdArmed
         lastProgressActive = progress.active
     }
 
@@ -231,17 +242,17 @@ class GestureEngine(
         val (edge, gestureType, touchPx) = when (result) {
             is GestureResult.EdgeSwipe -> Triple(
                 result.edge,
-                GestureType.SWIPE,
+                result.gestureType,
                 result.touchAlongEdgePx
             )
             is GestureResult.VerticalSwipe -> Triple(
                 result.edge,
-                GestureType.SWIPE,
+                GestureType.QUICK_SWIPE,
                 result.touchAlongEdgePx
             )
             is GestureResult.Tap -> Triple(
                 result.edge,
-                GestureType.SWIPE,
+                GestureType.QUICK_SWIPE,
                 result.touchAlongEdgePx
             )
         }

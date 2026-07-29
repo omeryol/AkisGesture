@@ -14,7 +14,7 @@ object RuleSerializer {
 
     fun GestureRuleGraph.toJson(): String {
         val root = JSONObject()
-        root.put("version", 1)
+        root.put("version", 2)
         val rulesArray = JSONArray()
         for (rule in rules) {
             val ruleObj = JSONObject()
@@ -59,7 +59,8 @@ object RuleSerializer {
             val section = SectionRange(sectionArr.getDouble(0).toFloat(), sectionArr.getDouble(1).toFloat())
             val gestureRaw = triggerObj.getString("gesture")
             val gestureType = when (gestureRaw) {
-                "SHORT_SWIPE", "LONG_SWIPE" -> GestureType.SWIPE
+                "SWIPE", "SHORT_SWIPE" -> GestureType.QUICK_SWIPE
+                "LONG_SWIPE" -> GestureType.SWIPE_HOLD
                 else -> GestureType.valueOf(gestureRaw)
             }
 

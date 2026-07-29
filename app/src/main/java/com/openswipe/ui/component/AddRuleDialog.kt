@@ -44,15 +44,15 @@ fun AddRuleDialog(
     onDismiss: () -> Unit,
     onConfirm: (TriggerNode, ActionNode, TriggerMode) -> Unit,
 ) {
-    // Wizard state: 0=edge, 1=section, 2=action (gesture step skipped, auto SWIPE)
+    // Wizard state: 0=edge, 1=section, 2=gesture, 3=action
     var step by remember { mutableIntStateOf(0) }
     var selectedEdge by remember { mutableStateOf<Edge?>(null) }
     var selectedSection by remember { mutableStateOf<SectionRange?>(null) }
-    val selectedGesture = GestureType.SWIPE
+    var selectedGesture by remember { mutableStateOf<GestureType?>(null) }
     var selectedAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
 
-    val stepTitles = listOf("Kenar seç", "Alan seç", "Eylem seç")
+    val stepTitles = listOf("Kenar seç", "Alan seç", "Hareket seç", "Eylem seç")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -67,7 +67,7 @@ fun AddRuleDialog(
             ) {
                 // Step indicator
                 Text(
-                    text = "Adım ${step + 1} / 3",
+                    text = "Adım ${step + 1} / 4",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -84,6 +84,39 @@ fun AddRuleDialog(
                         onSelect = { selectedSection = it },
                     )
                     2 -> {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            FilterChip(
+                                selected = selectedGesture == GestureType.QUICK_SWIPE,
+                                onClick = { selectedGesture = GestureType.QUICK_SWIPE },
+                                label = {
+                                    Column {
+                                        Text("Hızlı çekme")
+                                        Text(
+                                            "Çekip hemen bırak",
+                                            style = MaterialTheme.typography.labelSmall,
+                                        )
+                                    }
+                                },
+                            )
+                            FilterChip(
+                                selected = selectedGesture == GestureType.SWIPE_HOLD,
+                                onClick = { selectedGesture = GestureType.SWIPE_HOLD },
+                                label = {
+                                    Column {
+                                        Text("Çekip bekletme")
+                                        Text(
+                                            "Çek, kısa süre tut ve bırak",
+                                            style = MaterialTheme.typography.labelSmall,
+                                        )
+                                    }
+                                },
+                            )
+                        }
+                    }
+                    3 -> {
                         ActionSelector(
                             selected = selectedAction,
                             onSelect = { selectedAction = it },
@@ -122,7 +155,7 @@ fun AddRuleDialog(
             }
         },
         confirmButton = {
-            if (step < 2) {
+            if (step < 3) {
                 Button(
                     onClick = {
                         when (step) {
@@ -133,11 +166,13 @@ fun AddRuleDialog(
                                 step++
                             }
                             1 -> if (selectedSection != null) step++
+                            2 -> if (selectedGesture != null) step++
                         }
                     },
                     enabled = when (step) {
                         0 -> selectedEdge != null
                         1 -> selectedSection != null
+                        2 -> selectedGesture != null
                         else -> false
                     },
                 ) {
@@ -150,7 +185,7 @@ fun AddRuleDialog(
                             selectedAction != null
                         ) {
                             onConfirm(
-                                TriggerNode(selectedEdge!!, selectedSection!!, selectedGesture),
+                                TriggerNode(selectedEdge!!, selectedSection!!, selectedGesture!!),
                                 selectedAction!!,
                                 selectedTriggerMode,
                             )
