@@ -4,6 +4,8 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Kenar alanlarının yan genişlik ve alt yükseklik ölçekleri artık 0 dp'den başlıyor.
+
 ### Düzeltildi
 
 - HyperOS/Android 15 üzerinde erişilebilirlik hizmeti bağlanırken hareket
