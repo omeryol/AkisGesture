@@ -60,6 +60,21 @@ sealed interface ActionNode {
         override val label = "Hızlı ayarlar"
         override val minApi = 17
     }
+    data object InputMethodPicker : ActionNode {
+        override val id = "input_method_picker"
+        override val label = "Klavye seçici"
+        override val minApi = 26
+    }
+    data object VolumePanel : ActionNode {
+        override val id = "volume_panel"
+        override val label = "Ses paneli"
+        override val minApi = 26
+    }
+    data object Assistant : ActionNode {
+        override val id = "assistant"
+        override val label = "Sistem asistanı"
+        override val minApi = 26
+    }
 
     // ═══ Medya控制 ═══
     data object MediaPlayPause : ActionNode {
@@ -86,6 +101,11 @@ sealed interface ActionNode {
         override val id = "volume_down"
         override val label = "Sesi azalt"
         override val minApi = 16
+    }
+    data object ToggleMute : ActionNode {
+        override val id = "toggle_mute"
+        override val label = "Sesi kapat / aç"
+        override val minApi = 23
     }
 
     // ═══ Donanım ═══
@@ -123,8 +143,8 @@ sealed interface ActionNode {
             listOf(
                 Back, Home, Recents, SwitchLastApp,
                 LockScreen, Screenshot, SplitScreen, PowerMenu,
-                NotificationPanel, QuickSettings,
-                MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown,
+                NotificationPanel, QuickSettings, InputMethodPicker, VolumePanel, Assistant,
+                MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown, ToggleMute,
                 ToggleFlashlight,
                 ForceStopForeground,
                 NoAction,

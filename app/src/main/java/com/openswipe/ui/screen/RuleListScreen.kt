@@ -55,6 +55,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.model.GestureType
 import com.omer.akisgesture.ui.component.ActionPickerDialog
 import com.omer.akisgesture.ui.component.AddRuleDialog
 import com.omer.akisgesture.ui.theme.AkisGesturePrimary
@@ -83,6 +84,18 @@ fun RuleListScreen(
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
 
     val context = LocalContext.current
+    val ruleGroups = rules
+        .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
+        .map { (_, groupedRules) ->
+            RuleGroup(
+                quick = groupedRules.firstOrNull {
+                    it.trigger.gestureType == GestureType.QUICK_SWIPE
+                },
+                hold = groupedRules.firstOrNull {
+                    it.trigger.gestureType == GestureType.SWIPE_HOLD
+                },
+            )
+        }
 
     Scaffold(
         topBar = {
@@ -218,13 +231,17 @@ fun RuleListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(rules, key = { it.id }) { rule ->
-                        RuleCard(
-                            rule = rule,
-                            onClick = { onRuleClick(rule.id) },
-                            onDelete = { viewModel.removeRule(rule.id) },
-                            onChangeAction = { editingActionRuleId = rule.id },
-                            onToggleEnabled = { viewModel.toggleRuleEnabled(rule.id) },
+                    items(ruleGroups, key = { it.key }) { group ->
+                        RuleGroupCard(
+                            group = group,
+                            onClick = {
+                                (group.quick ?: group.hold)?.let { onRuleClick(it.id) }
+                            },
+                            onDelete = { viewModel.removeRules(group.ids) },
+                            onChangeAction = { editingActionRuleId = it.id },
+                            onToggleEnabled = {
+                                viewModel.setRulesEnabled(group.ids, it)
+                            },
                         )
                     }
                 }
@@ -237,8 +254,14 @@ fun RuleListScreen(
     if (showAddDialog) {
         AddRuleDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { trigger, action, triggerMode ->
-                viewModel.addRule(trigger, action, triggerMode)
+            onConfirm = { edge, section, quickAction, holdAction, triggerMode ->
+                viewModel.addGesturePair(
+                    edge = edge,
+                    section = section,
+                    quickAction = quickAction,
+                    holdAction = holdAction,
+                    triggerMode = triggerMode,
+                )
                 showAddDialog = false
             },
         )
@@ -255,15 +278,29 @@ fun RuleListScreen(
     }
 }
 
+private data class RuleGroup(
+    val quick: GestureRule?,
+    val hold: GestureRule?,
+) {
+    val representative: GestureRule get() = quick ?: requireNotNull(hold)
+    val ids: Set<String> get() = listOfNotNull(quick?.id, hold?.id).toSet()
+    val key: String
+        get() = "${representative.trigger.edge}:" +
+            "${representative.trigger.section.start}:${representative.trigger.section.end}:" +
+            representative.triggerMode
+}
+
 @Composable
-private fun RuleCard(
-    rule: GestureRule,
+private fun RuleGroupCard(
+    group: RuleGroup,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    onChangeAction: () -> Unit,
-    onToggleEnabled: () -> Unit,
+    onChangeAction: (GestureRule) -> Unit,
+    onToggleEnabled: (Boolean) -> Unit,
 ) {
-    val contentAlpha = if (rule.enabled) 1f else 0.45f
+    val rule = group.representative
+    val enabled = listOfNotNull(group.quick, group.hold).any { it.enabled }
+    val contentAlpha = if (enabled) 1f else 0.45f
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -279,8 +316,8 @@ private fun RuleCard(
         ) {
             // Enable/disable switch
             Switch(
-                checked = rule.enabled,
-                onCheckedChange = { onToggleEnabled() },
+                checked = enabled,
+                onCheckedChange = onToggleEnabled,
                 modifier = Modifier.size(36.dp),
             )
             Spacer(Modifier.width(8.dp))
@@ -299,31 +336,43 @@ private fun RuleCard(
                         fontWeight = FontWeight.Medium,
                     )
                     Text(
-                        text = " \u00B7 ${sectionLabel(rule.trigger.section, rule.trigger.edge)} \u00B7 ${gestureLabel(rule.trigger.gestureType)}",
+                        text = " \u00B7 ${sectionLabel(rule.trigger.section, rule.trigger.edge)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
 
-            // Arrow
-            Text(
-                text = " \u2192 ",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            // Action side — clickable to change
-            OutlinedButton(
-                onClick = onChangeAction,
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
-                Text(
-                    text = "${actionIcon(rule.action)} ${rule.action.label}",
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                group.quick?.let { quick ->
+                    OutlinedButton(
+                        onClick = { onChangeAction(quick) },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                    ) {
+                        Text(
+                            "Hızlı · ${actionIcon(quick.action)} ${quick.action.label}",
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                group.hold?.let { hold ->
+                    OutlinedButton(
+                        onClick = { onChangeAction(hold) },
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                    ) {
+                        Text(
+                            "Beklet · ${actionIcon(hold.action)} ${hold.action.label}",
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
             }
 
             // Delete

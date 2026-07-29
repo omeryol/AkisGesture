@@ -55,6 +55,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun AkisGestureApp() {
     val navController = rememberNavController()
+    // Rules and detail pages must share one state holder. Route-scoped instances
+    // can briefly show an empty list while a newly added rule is being opened.
+    val ruleConfigViewModel: RuleConfigViewModel = viewModel()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: "home"
 
@@ -111,7 +114,6 @@ private fun AkisGestureApp() {
                 )
             }
             composable("rules") {
-                val ruleConfigViewModel: RuleConfigViewModel = viewModel()
                 RuleListScreen(
                     viewModel = ruleConfigViewModel,
                     onRuleClick = { ruleId ->
@@ -124,7 +126,6 @@ private fun AkisGestureApp() {
                 arguments = listOf(navArgument("ruleId") { type = NavType.StringType }),
             ) { backStackEntry ->
                 val ruleId = backStackEntry.arguments?.getString("ruleId") ?: return@composable
-                val ruleConfigViewModel: RuleConfigViewModel = viewModel()
                 RuleDetailScreen(
                     ruleId = ruleId,
                     viewModel = ruleConfigViewModel,
