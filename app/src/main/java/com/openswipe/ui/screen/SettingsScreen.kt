@@ -4,13 +4,11 @@ import android.graphics.Color as AndroidColor
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Security
@@ -35,7 +32,6 @@ import androidx.compose.material.icons.filled.Swipe
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
@@ -82,6 +78,7 @@ fun SettingsScreen(
     val selectableApps by viewModel.selectableApps.collectAsState()
     var showAppPicker by remember { mutableStateOf(false) }
     var detail by remember { mutableStateOf<SettingsDetail?>(null) }
+    var pendingImportJson by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
     val scope = rememberCoroutineScope()
@@ -115,9 +112,7 @@ fun SettingsScreen(
                         it.readText()
                     } ?: error("Dosya açılamadı")
                 }
-                SettingsBackupManager.import(app, json)
-            }.onSuccess {
-                Toast.makeText(context, "Ayarlar ve hareketler yüklendi", Toast.LENGTH_LONG).show()
+                pendingImportJson = json
             }.onFailure {
                 Toast.makeText(context, it.message ?: "Yedek yüklenemedi", Toast.LENGTH_LONG).show()
             }
@@ -232,6 +227,50 @@ fun SettingsScreen(
                 onClick = { importBackup.launch(arrayOf("application/json", "text/plain")) },
             )
         }
+    }
+
+    pendingImportJson?.let { json ->
+        AlertDialog(
+            onDismissRequest = { pendingImportJson = null },
+            title = { Text("Yedeği yükle?") },
+            text = {
+                Text(
+                    "Mevcut hareketler, görünüm ayarları ve uygulama engelleri " +
+                        "yedekteki değerlerle değiştirilecek.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingImportJson = null
+                        scope.launch {
+                            runCatching { SettingsBackupManager.import(app, json) }
+                                .onSuccess {
+                                    Toast.makeText(
+                                        context,
+                                        "Ayarlar ve hareketler yüklendi",
+                                        Toast.LENGTH_LONG,
+                                    ).show()
+                                }
+                                .onFailure {
+                                    Toast.makeText(
+                                        context,
+                                        it.message ?: "Yedek yüklenemedi",
+                                        Toast.LENGTH_LONG,
+                                    ).show()
+                                }
+                        }
+                    },
+                ) {
+                    Text("Yükle")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingImportJson = null }) {
+                    Text("Vazgeç")
+                }
+            },
+        )
     }
 
     detail?.let { selected ->
@@ -414,40 +453,6 @@ private fun SwitchSetting(
         },
         modifier = Modifier.clickable { onCheckedChange(!checked) },
     )
-}
-
-@Composable
-private fun SettingsSection(
-    title: String,
-    summary: String,
-    icon: ImageVector,
-    initiallyExpanded: Boolean = false,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    var expanded by remember { mutableStateOf(initiallyExpanded) }
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        ListItem(
-            headlineContent = { Text(title, style = MaterialTheme.typography.titleMedium) },
-            supportingContent = { Text(summary, maxLines = 1) },
-            leadingContent = {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            },
-            trailingContent = {
-                Icon(
-                    if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (expanded) "Daralt" else "Aç",
-                )
-            },
-            modifier = Modifier.clickable { expanded = !expanded },
-        )
-        AnimatedVisibility(expanded) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                content = content,
-            )
-        }
-    }
 }
 
 @Composable
