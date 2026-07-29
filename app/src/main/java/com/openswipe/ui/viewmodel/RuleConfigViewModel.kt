@@ -34,6 +34,8 @@ data class Conflict(
 
 class RuleConfigViewModel(application: Application) : AndroidViewModel(application) {
 
+    val gestureConfig = (application as AkisGestureApp).gestureConfigFlow
+
     private val _rules = MutableStateFlow<List<GestureRule>>(emptyList())
     val rules: StateFlow<List<GestureRule>> = _rules.asStateFlow()
 

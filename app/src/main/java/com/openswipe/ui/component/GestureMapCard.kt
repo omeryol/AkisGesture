@@ -1,5 +1,6 @@
 package com.omer.akisgesture.ui.component
 
+import android.os.SystemClock
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,9 +26,12 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.gesture.GestureThresholds
 import com.omer.akisgesture.model.GestureRule
 import com.omer.akisgesture.model.GestureType
 import com.omer.akisgesture.model.SectionRange
@@ -36,10 +41,13 @@ import kotlin.math.abs
 @Composable
 fun GestureMapCard(
     rules: List<GestureRule>,
+    config: GestureConfig,
     onZoneClick: (GestureRule) -> Unit,
     onZoneRangeChange: (Set<String>, SectionRange) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var mode by remember { mutableStateOf(GestureMapMode.EDIT) }
+    var rehearsalStatus by remember { mutableStateOf("Bir alanı kenardan içeri çek") }
     val zones = rules
         .filter { it.enabled }
         .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
@@ -68,16 +76,38 @@ fun GestureMapCard(
         ) {
             Text("Hareket alanların", style = MaterialTheme.typography.titleMedium)
             Text(
-                "Dokunarak düzenle · sürükleyerek taşı veya boyutlandır",
+                if (mode == GestureMapMode.EDIT) {
+                    "Dokunarak düzenle · sürükleyerek taşı veya boyutlandır"
+                } else {
+                    rehearsalStatus
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = mode == GestureMapMode.EDIT,
+                    onClick = { mode = GestureMapMode.EDIT },
+                    label = { Text("Düzenle") },
+                )
+                FilterChip(
+                    selected = mode == GestureMapMode.REHEARSE,
+                    onClick = {
+                        mode = GestureMapMode.REHEARSE
+                        rehearsalStatus = "Bir alanı kenardan içeri çek"
+                    },
+                    label = { Text("Dene") },
+                )
+            }
             GestureMapCanvas(
                 zones = zones,
+                config = config,
+                mode = mode,
                 onZoneClick = { onZoneClick(it.representative) },
                 onZoneRangeChange = { zone, range ->
                     onZoneRangeChange(zone.ruleIds, range)
                 },
+                onRehearsalStatus = { rehearsalStatus = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp)
@@ -107,16 +137,20 @@ private fun MapLegend(color: Color, text: String) {
 @Composable
 private fun GestureMapCanvas(
     zones: List<GestureMapZone>,
+    config: GestureConfig,
+    mode: GestureMapMode,
     onZoneClick: (GestureMapZone) -> Unit,
     onZoneRangeChange: (GestureMapZone, SectionRange) -> Unit,
+    onRehearsalStatus: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val outline = MaterialTheme.colorScheme.outline
     val screen = MaterialTheme.colorScheme.surfaceContainerHighest
     var dragPreview by remember { mutableStateOf<DragPreview?>(null) }
+    var gesturePreview by remember { mutableStateOf<GesturePreview?>(null) }
 
     Canvas(
-        modifier = modifier.pointerInput(zones) {
+        modifier = modifier.pointerInput(zones, mode, config) {
             awaitEachGesture {
                 val down = awaitFirstDown(requireUnconsumed = false)
                 val downPosition = normalizedPosition(
@@ -129,6 +163,62 @@ private fun GestureMapCanvas(
                     hitRect(it).contains(downPosition.x, downPosition.y)
                 } ?: return@awaitEachGesture
                 val edge = zone.representative.trigger.edge
+                if (mode == GestureMapMode.REHEARSE) {
+                    val startedAt = SystemClock.uptimeMillis()
+                    var latestQuick = false
+                    var latestHold = false
+                    var pressed: Boolean
+                    onRehearsalStatus("İçeri doğru çek")
+                    do {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        pressed = change.pressed
+                        val rawInward = when (edge) {
+                            Edge.LEFT -> change.position.x - down.position.x
+                            Edge.RIGHT -> down.position.x - change.position.x
+                            Edge.BOTTOM -> down.position.y - change.position.y
+                        }.coerceAtLeast(0f)
+                        val stretch = GestureThresholds.dampedDisplacement(
+                            rawInward,
+                            config.dampingFactor,
+                        )
+                        latestQuick = GestureThresholds.isQuickArmed(
+                            stretch,
+                            config.minSwipeThresholdPx,
+                        )
+                        latestHold = GestureThresholds.isHoldArmed(
+                            dampedDisplacement = stretch,
+                            threshold = config.minSwipeThresholdPx,
+                            elapsedMs = SystemClock.uptimeMillis() - startedAt,
+                            holdTimeMs = config.holdTimeMs,
+                        )
+                        gesturePreview = GesturePreview(
+                            edge = edge,
+                            touchAlongEdge = if (edge == Edge.BOTTOM) downPosition.x else downPosition.y,
+                            stretch = stretch,
+                            quickArmed = latestQuick,
+                            holdArmed = latestHold,
+                        )
+                        onRehearsalStatus(
+                            when {
+                                latestHold -> "Bekletme hazır · bırakınca önizleme biter"
+                                latestQuick -> "Hızlı çekme hazır · bekletirsen ikinci hareket"
+                                else -> "Biraz daha çek"
+                            },
+                        )
+                        change.consume()
+                    } while (pressed)
+                    gesturePreview = null
+                    onRehearsalStatus(
+                        when {
+                            latestHold -> "Bekletmeli hareket algılandı"
+                            latestQuick -> "Hızlı çekme algılandı"
+                            else -> "Hareket eşiğe ulaşmadı"
+                        },
+                    )
+                    return@awaitEachGesture
+                }
+
                 val original = zone.representative.trigger.section
                 val contentAxisPosition = if (edge == Edge.BOTTOM) {
                     downPosition.x
@@ -224,6 +314,47 @@ private fun GestureMapCanvas(
                 cornerRadius = CornerRadius(12f, 12f),
             )
         }
+
+        gesturePreview?.let { preview ->
+            val touchX = phoneRect.left + preview.touchAlongEdge * phoneRect.width
+            val touchY = preview.touchAlongEdge * phoneRect.height
+            val stretch = preview.stretch.coerceIn(0f, phoneRect.width * 0.42f)
+            val span = 46f + stretch * 0.35f
+            val path = Path()
+            val tip: Offset
+            when (preview.edge) {
+                Edge.LEFT -> {
+                    tip = Offset(phoneRect.left + stretch, touchY)
+                    path.moveTo(phoneRect.left, touchY - span)
+                    path.cubicTo(tip.x, touchY, tip.x, touchY, phoneRect.left, touchY + span)
+                }
+                Edge.RIGHT -> {
+                    tip = Offset(phoneRect.right - stretch, touchY)
+                    path.moveTo(phoneRect.right, touchY - span)
+                    path.cubicTo(tip.x, touchY, tip.x, touchY, phoneRect.right, touchY + span)
+                }
+                Edge.BOTTOM -> {
+                    tip = Offset(touchX, phoneRect.bottom - stretch)
+                    path.moveTo(touchX - span, phoneRect.bottom)
+                    path.cubicTo(touchX, tip.y, touchX, tip.y, touchX + span, phoneRect.bottom)
+                }
+            }
+            path.close()
+            val feedbackColor = when {
+                preview.holdArmed -> Color(0xFF8B5CF6)
+                preview.quickArmed -> Color(0xFF5B8CFF)
+                else -> Color(config.feedbackColorArgb)
+            }
+            drawPath(
+                path = path,
+                color = feedbackColor.copy(alpha = config.feedbackOpacity),
+            )
+            drawCircle(
+                color = feedbackColor,
+                radius = if (preview.holdArmed) 16f else 12f,
+                center = tip,
+            )
+        }
     }
 }
 
@@ -270,3 +401,16 @@ private data class DragPreview(
     val zone: GestureMapZone,
     val section: SectionRange,
 )
+
+private data class GesturePreview(
+    val edge: Edge,
+    val touchAlongEdge: Float,
+    val stretch: Float,
+    val quickArmed: Boolean,
+    val holdArmed: Boolean,
+)
+
+private enum class GestureMapMode {
+    EDIT,
+    REHEARSE,
+}

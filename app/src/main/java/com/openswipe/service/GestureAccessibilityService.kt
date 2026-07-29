@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -38,6 +40,7 @@ class GestureAccessibilityService : AccessibilityService() {
     private lateinit var gestureEngine: GestureEngine
     private lateinit var actionDispatcher: ActionDispatcher
     private var currentForegroundPackage: String? = null
+    private var previousForegroundPackage: String? = null
 
     // Phase 1 保活增强: 1x1px 透明 overlay 窗口，提高进程优先级
     // 参考 GKD A11yService.useAliveOverlayView() 策略
@@ -75,7 +78,6 @@ class GestureAccessibilityService : AccessibilityService() {
             app.pausedPackagesFlow,
         )
 
-        gestureEngine.start()
         _serviceState.value = ServiceState.CONNECTED
 
         // 启动前台保活服务 — 关键：防止进程被杀后不恢复
@@ -105,6 +107,15 @@ class GestureAccessibilityService : AccessibilityService() {
             }
             windowManager.addView(keepAliveView, keepAliveParams)
         } catch (_: Exception) { /* overlay 添加失败不影响核心功能 */ }
+
+        // HyperOS/Android 15 can call onServiceConnected before the accessibility
+        // overlay token is fully registered. Starting on the next main-loop turn
+        // prevents all sensor windows from failing with BadTokenException.
+        Handler(Looper.getMainLooper()).post {
+            if (instance === this && ::gestureEngine.isInitialized) {
+                gestureEngine.start()
+            }
+        }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -112,6 +123,9 @@ class GestureAccessibilityService : AccessibilityService() {
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val pkg = event.packageName?.toString() ?: return
             if (pkg != currentForegroundPackage) {
+                currentForegroundPackage
+                    ?.takeIf(::isAppHistoryCandidate)
+                    ?.let { previousForegroundPackage = it }
                 currentForegroundPackage = pkg
                 gestureEngine.onForegroundAppChanged(pkg)
             }
@@ -160,6 +174,14 @@ class GestureAccessibilityService : AccessibilityService() {
     }
 
     fun foregroundPackage(): String? = currentForegroundPackage
+
+    fun previousForegroundPackage(): String? =
+        previousForegroundPackage?.takeIf { it != currentForegroundPackage }
+
+    private fun isAppHistoryCandidate(packageName: String): Boolean =
+        packageName != this.packageName &&
+            packageName != "com.android.systemui" &&
+            packageManager.getLaunchIntentForPackage(packageName) != null
 
     fun dispatchTap(x: Float, y: Float) {
         val path = Path().apply { moveTo(x, y) }

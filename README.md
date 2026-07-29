@@ -31,10 +31,12 @@ kritik sistem uygulamalarını korur.
 
 ## Mevcut durum
 
-Temel sol, sağ ve alt kenar hareketleri gerçek cihazda çalışmaktadır. Türkçe
-arayüz, erişilebilirlik hizmeti, dokunsal geri bildirim ve parmağı izleyen
-kenar animasyonu geliştirme sürümünde aktiftir. Uzun hareketler ve uygulama
-profilleri tamamlanana kadar sürüm cihaz üzerinde denenerek geliştirilmektedir.
+Sol, sağ ve alt kenar hareketleri HyperOS/Android 15 cihazda çalışmaktadır.
+Hızlı çekme ve çekip bekletme aynı alanda bağımsız eylemler çalıştırır; bekletme
+varsayılan olarak 280 ms'de, parmak bırakılmadan ve yalnızca bir kez devreye
+girer. Akış Gesture içindeyken geri hareketi uygulamanın kendi sayfalarında
+gezinir. Telefon biçimli kural haritası alanları taşıma, boyutlandırma, birlikte
+eylem atama ve hareketi canlı deneme olanağı sunar.
 
 ## Derleme
 
@@ -78,6 +80,9 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Beş animasyon biçimi ve iki harekete ayrı simge seçimi ekle
 - [x] Kuralları telefon üzerinde gösteren dokunulabilir hareket alanı haritası ekle
 - [x] Harita üzerinde alan taşıma ve uçlarından boyutlandırma ekle
+- [x] Haritada gerçek eşiklerle canlı hızlı çekme/bekletme denemesi ekle
+- [x] HyperOS erişilebilirlik katmanı başlatma yarışını gider
+- [x] Uygulama içi geri ve güvenilir önceki uygulama davranışını ekle
 - [ ] HyperOS sağlık durumunu olay tabanlı izle
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle

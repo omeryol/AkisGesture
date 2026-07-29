@@ -2,6 +2,7 @@ package com.omer.akisgesture.gesture
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.MotionEvent
 import com.omer.akisgesture.gesture.model.GestureResult
 import com.omer.akisgesture.gesture.model.SwipeDirection
@@ -19,6 +20,7 @@ class EdgeGestureDetector(
     private val triggerMode: TriggerMode = TriggerMode.TOUCH,
     private val onReplayTap: ((Float, Float) -> Unit)? = null,
     private val onProgress: (GestureProgress) -> Unit = {},
+    private val hasHoldActionAt: (Float) -> Boolean = { true },
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
@@ -28,13 +30,28 @@ class EdgeGestureDetector(
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
     private var wasArmed = false
+    private var holdExecuted = false
     private val holdRunnable = Runnable {
         holdScheduled = false
         if (state == GestureState.DETECTED &&
-            lastStretch >= config.minSwipeThresholdPx
+            lastStretch >= config.minSwipeThresholdPx &&
+            hasHoldActionAt(lastTouchAlongEdge)
         ) {
             holdArmed = true
+            Log.d(
+                LOG_TAG,
+                "hold_armed edge=$edge stretch=$lastStretch threshold=${config.minSwipeThresholdPx}",
+            )
             publishProgress(active = true)
+            holdExecuted = true
+            onGestureResult(
+                GestureResult.EdgeSwipe(
+                    edge = edge,
+                    section = resolveSection(lastTouchAlongEdge),
+                    gestureType = GestureType.SWIPE_HOLD,
+                    touchAlongEdgePx = lastTouchAlongEdge,
+                ),
+            )
         }
     }
 
@@ -107,14 +124,20 @@ class EdgeGestureDetector(
         touchState.prevX = event.rawX
         touchState.prevY = event.rawY
 
-        val dampedDisplacement = inwardDisplacement(dx, dy) / config.dampingFactor
+        val dampedDisplacement = GestureThresholds.dampedDisplacement(
+            inwardDisplacement(dx, dy),
+            config.dampingFactor,
+        )
         lastStretch = dampedDisplacement
         lastTouchAlongEdge = touchCoord(event)
         val visuallyActive = state == GestureState.DETECTED ||
             state == GestureState.TRACKING ||
             state == GestureState.AWAITING_DIRECTION
         val quickArmed = state == GestureState.DETECTED &&
-            dampedDisplacement >= config.minSwipeThresholdPx
+            GestureThresholds.isQuickArmed(
+                dampedDisplacement,
+                config.minSwipeThresholdPx,
+            )
         if (quickArmed) wasArmed = true
         if (state == GestureState.DETECTED &&
             GestureCancelPolicy.shouldCancel(
@@ -153,14 +176,25 @@ class EdgeGestureDetector(
         val dx = event.rawX - touchState.downX
         val dy = event.rawY - touchState.downY
         val rawDisplacement = inwardDisplacement(dx, dy)
-        val dampedDisplacement = rawDisplacement / config.dampingFactor
+        val dampedDisplacement = GestureThresholds.dampedDisplacement(
+            rawDisplacement,
+            config.dampingFactor,
+        )
         val touchAlongEdge = touchCoord(event)
         val section = resolveSection(touchAlongEdge)
 
         if (state == GestureState.DETECTED) {
             state = GestureState.EXECUTING
-            val result = resolveGestureResult(dampedDisplacement, section, dx, dy, touchAlongEdge)
-            onGestureResult(result)
+            if (!holdExecuted) {
+                val result = resolveGestureResult(dampedDisplacement, section, dx, dy, touchAlongEdge)
+                Log.d(
+                    LOG_TAG,
+                    "gesture_result edge=$edge result=${result::class.simpleName} " +
+                        "type=${(result as? GestureResult.EdgeSwipe)?.gestureType} " +
+                        "stretch=$dampedDisplacement holdArmed=$holdArmed",
+                )
+                onGestureResult(result)
+            }
         }
 
         finishProgress(event)
@@ -257,12 +291,14 @@ class EdgeGestureDetector(
         lastStretch = 0f
         lastTouchAlongEdge = 0f
         wasArmed = false
+        holdExecuted = false
         state = GestureState.IDLE
         touchState.reset()
     }
 
     companion object {
         private const val HOLD_HYSTERESIS = 0.72f
+        private const val LOG_TAG = "AkisGesture"
     }
 }
 

@@ -34,7 +34,7 @@ data class GestureConfig(
     val holdFeedbackIcon: FeedbackIcon = FeedbackIcon.STAR,
 
     // 长按
-    val holdTimeMs: Long = 500L,
+    val holdTimeMs: Long = 280L,
 ) {
     companion object {
         val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")

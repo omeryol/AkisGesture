@@ -4,8 +4,26 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+### Düzeltildi
+
+- HyperOS/Android 15 üzerinde erişilebilirlik hizmeti bağlanırken hareket
+  katmanlarının bazen sistem pencere anahtarı hazır olmadan oluşturulması
+  giderildi. Sol, sağ ve alt hareket alanları artık hizmet hazır olduktan sonra
+  güvenli biçimde başlatılıyor.
+- Akış Gesture açıkken `Geri` hareketi doğrudan uygulamanın kendi sayfa
+  geçmişinde çalışacak şekilde düzeltildi; ana sayfadayken normal çıkış
+  davranışı korunur.
+- Çekip bekletme hareketi yalnızca o alana ikincil eylem atanmışsa hazırlanıyor,
+  eşik dolduğu anda bir kez çalışıyor ve parmak bırakıldığında yinelenmiyor.
+- `Önceki uygulama` eylemi güvenilmez çift son-uygulamalar çağrısı yerine gerçek
+  uygulama geçmişini kullanacak şekilde düzeltildi.
+
 ### Eklendi
 
+- Telefon haritasına, gerçek hareket motoruyla aynı mesafe, sönümleme ve bekleme
+  değerlerini kullanan canlı `Dene` görünümü eklendi.
+- Hareket motoru için eşik hesabını tek yerde tutan ortak model ve birim testleri
+  eklendi.
 - Klavye seçici, ses paneli, sistem asistanı ve sesi kapat/aç eylemleri eklendi.
 - Aynı kenar alanının hızlı çekme ve çekip bekletme eylemleri artık tek ekranda
   birlikte atanabiliyor; ikinci eylem için sihirbazdan çıkıp geri dönmek gerekmiyor.

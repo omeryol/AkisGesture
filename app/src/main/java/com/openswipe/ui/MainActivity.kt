@@ -19,6 +19,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,6 +39,8 @@ import com.omer.akisgesture.ui.screen.SettingsScreen
 import com.omer.akisgesture.ui.theme.AkisGestureTheme
 import com.omer.akisgesture.ui.viewmodel.HomeViewModel
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
+import com.omer.akisgesture.navigation.InternalNavigationBus
+import android.app.Activity
 
 class MainActivity : ComponentActivity() {
 
@@ -60,6 +64,15 @@ private fun AkisGestureApp() {
     val ruleConfigViewModel: RuleConfigViewModel = viewModel()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: "home"
+    val activity = LocalContext.current as? Activity
+
+    LaunchedEffect(navController, activity) {
+        InternalNavigationBus.backRequests.collect {
+            if (!navController.popBackStack()) {
+                activity?.finish()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {

@@ -5,13 +5,12 @@ import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.view.KeyEvent
-import android.view.ViewConfiguration
 import android.view.inputmethod.InputMethodManager
 import com.omer.akisgesture.model.ActionNode
 import com.omer.akisgesture.service.GestureAccessibilityService
 import com.omer.akisgesture.root.RootCommandExecutor
 import com.omer.akisgesture.root.RootResult
-import kotlinx.coroutines.delay
+import com.omer.akisgesture.navigation.InternalNavigationBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -38,7 +37,14 @@ class ActionDispatcherImpl(
 
     override suspend fun dispatch(action: ActionNode): ActionResult = when (action) {
         is ActionNode.NoAction -> ActionResult.Success
-        is ActionNode.Back -> globalAction(GLOBAL_ACTION_BACK)
+        is ActionNode.Back -> {
+            if (service.foregroundPackage() == service.packageName) {
+                if (InternalNavigationBus.requestBack()) ActionResult.Success
+                else ActionResult.Failed("Uygulama içi geri isteği iletilemedi")
+            } else {
+                globalAction(GLOBAL_ACTION_BACK)
+            }
+        }
         is ActionNode.Home -> globalAction(GLOBAL_ACTION_HOME)
         is ActionNode.Recents -> globalAction(GLOBAL_ACTION_RECENTS)
         is ActionNode.SwitchLastApp -> switchLastApp()
@@ -131,11 +137,9 @@ class ActionDispatcherImpl(
     }
 
     private suspend fun switchLastApp(): ActionResult {
-        return requireApi(24) {
-            service.doPerformGlobalAction(GLOBAL_ACTION_RECENTS)
-            delay(ViewConfiguration.getDoubleTapTimeout().toLong())
-            globalAction(GLOBAL_ACTION_RECENTS)
-        }
+        val previousPackage = service.previousForegroundPackage()
+            ?: return ActionResult.Failed("Önceki uygulama henüz belirlenemedi")
+        return launchApp(previousPackage)
     }
 
     private fun launchApp(pkg: String, legacyActivity: String? = null): ActionResult = try {
