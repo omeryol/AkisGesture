@@ -42,17 +42,18 @@ import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 @Composable
 fun AddRuleDialog(
     onDismiss: () -> Unit,
-    onConfirm: (TriggerNode, ActionNode, TriggerMode) -> Unit,
+    onConfirm: (Edge, SectionRange, ActionNode?, ActionNode?, TriggerMode) -> Unit,
 ) {
-    // Wizard state: 0=edge, 1=section, 2=gesture, 3=action
+    // Compact flow: edge -> section -> both actions on one screen.
     var step by remember { mutableIntStateOf(0) }
     var selectedEdge by remember { mutableStateOf<Edge?>(null) }
     var selectedSection by remember { mutableStateOf<SectionRange?>(null) }
-    var selectedGesture by remember { mutableStateOf<GestureType?>(null) }
-    var selectedAction by remember { mutableStateOf<ActionNode?>(null) }
+    var activeGesture by remember { mutableStateOf(GestureType.QUICK_SWIPE) }
+    var quickAction by remember { mutableStateOf<ActionNode?>(null) }
+    var holdAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
 
-    val stepTitles = listOf("Kenar seç", "Alan seç", "Hareket seç", "Eylem seç")
+    val stepTitles = listOf("Kenar seç", "Alan seç", "İki hareketi ayarla")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -67,7 +68,7 @@ fun AddRuleDialog(
             ) {
                 // Step indicator
                 Text(
-                    text = "Adım ${step + 1} / 4",
+                    text = "Adım ${step + 1} / 3",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -84,42 +85,57 @@ fun AddRuleDialog(
                         onSelect = { selectedSection = it },
                     )
                     2 -> {
+                        Text(
+                            "Bu alanın iki hareketini buradan birlikte ayarla.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Spacer(Modifier.height(10.dp))
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             FilterChip(
-                                selected = selectedGesture == GestureType.QUICK_SWIPE,
-                                onClick = { selectedGesture = GestureType.QUICK_SWIPE },
+                                selected = activeGesture == GestureType.QUICK_SWIPE,
+                                onClick = { activeGesture = GestureType.QUICK_SWIPE },
                                 label = {
                                     Column {
                                         Text("Hızlı çekme")
                                         Text(
-                                            "Çekip hemen bırak",
+                                            quickAction?.let { "✓ ${it.label}" } ?: "Eylem seç",
                                             style = MaterialTheme.typography.labelSmall,
                                         )
                                     }
                                 },
                             )
                             FilterChip(
-                                selected = selectedGesture == GestureType.SWIPE_HOLD,
-                                onClick = { selectedGesture = GestureType.SWIPE_HOLD },
+                                selected = activeGesture == GestureType.SWIPE_HOLD,
+                                onClick = { activeGesture = GestureType.SWIPE_HOLD },
                                 label = {
                                     Column {
                                         Text("Çekip bekletme")
                                         Text(
-                                            "Çek, kısa süre tut ve bırak",
+                                            holdAction?.let { "✓ ${it.label}" } ?: "Eylem seç",
                                             style = MaterialTheme.typography.labelSmall,
                                         )
                                     }
                                 },
                             )
                         }
-                    }
-                    3 -> {
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            if (activeGesture == GestureType.QUICK_SWIPE)
+                                "Hızlı çekme ne yapsın?"
+                            else
+                                "Çekip bekletme ne yapsın?",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
                         ActionSelector(
-                            selected = selectedAction,
-                            onSelect = { selectedAction = it },
+                            selected = if (activeGesture == GestureType.QUICK_SWIPE) quickAction else holdAction,
+                            onSelect = {
+                                if (activeGesture == GestureType.QUICK_SWIPE) quickAction = it
+                                else holdAction = it
+                            },
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
@@ -155,7 +171,7 @@ fun AddRuleDialog(
             }
         },
         confirmButton = {
-            if (step < 3) {
+            if (step < 2) {
                 Button(
                     onClick = {
                         when (step) {
@@ -166,13 +182,11 @@ fun AddRuleDialog(
                                 step++
                             }
                             1 -> if (selectedSection != null) step++
-                            2 -> if (selectedGesture != null) step++
                         }
                     },
                     enabled = when (step) {
                         0 -> selectedEdge != null
                         1 -> selectedSection != null
-                        2 -> selectedGesture != null
                         else -> false
                     },
                 ) {
@@ -182,18 +196,20 @@ fun AddRuleDialog(
                 Button(
                     onClick = {
                         if (selectedEdge != null && selectedSection != null &&
-                            selectedAction != null
+                            (quickAction != null || holdAction != null)
                         ) {
                             onConfirm(
-                                TriggerNode(selectedEdge!!, selectedSection!!, selectedGesture!!),
-                                selectedAction!!,
+                                selectedEdge!!,
+                                selectedSection!!,
+                                quickAction,
+                                holdAction,
                                 selectedTriggerMode,
                             )
                         }
                     },
-                    enabled = selectedAction != null,
+                    enabled = quickAction != null || holdAction != null,
                 ) {
-                    Text("Onayla")
+                    Text("İki hareketi kaydet")
                 }
             }
         },

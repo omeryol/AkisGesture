@@ -69,12 +69,12 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Temel projeyi temiz biçimde derle
 - [x] Akış kimliği, adı ve görsel sistemini ayır
 - [x] Akıcı kenar animasyonu ve dokunsal eşik geri bildirimi ekle
-- [ ] Hareket motoru için birim testleri ekle
+- [x] Hızlı çekme ve çekip bekletme kural motoru için birim testleri ekle
 - [ ] Gerçek cihazda kenar gecikmesi ve yanlış tetikleme ölçümü yap
-- [ ] Kısa, uzun ve bekletmeli hareketleri tek durum makinesinde birleştir
+- [x] Hızlı çekme ve çekip bekletmeyi tek durum makinesinde birleştir
 - [ ] Uygulamaya özel profilleri ekle
 - [ ] HyperOS sağlık durumunu olay tabanlı izle
-- [ ] Ayrı ve isteğe bağlı root/APatch yardımcısını geliştir
+- [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle
 
 ## Lisans

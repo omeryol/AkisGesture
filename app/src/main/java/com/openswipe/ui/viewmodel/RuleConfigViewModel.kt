@@ -6,7 +6,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.omer.akisgesture.model.ActionNode
 import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.SectionRange
+import com.omer.akisgesture.model.TriggerMode
 import com.omer.akisgesture.model.TriggerNode
+import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.rule.GestureRuleGraph
 import com.omer.akisgesture.rule.Presets
 import com.omer.akisgesture.rule.RuleValidator
@@ -77,8 +81,57 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         revalidate()
     }
 
+    fun addGesturePair(
+        edge: Edge,
+        section: SectionRange,
+        quickAction: ActionNode?,
+        holdAction: ActionNode?,
+        triggerMode: TriggerMode = TriggerMode.SWIPE,
+    ) {
+        val additions = buildList {
+            quickAction?.let { action ->
+                add(
+                    GestureRule(
+                        id = UUID.randomUUID().toString(),
+                        trigger = TriggerNode(edge, section, GestureType.QUICK_SWIPE),
+                        action = action,
+                        triggerMode = triggerMode,
+                    ),
+                )
+            }
+            holdAction?.let { action ->
+                add(
+                    GestureRule(
+                        id = UUID.randomUUID().toString(),
+                        trigger = TriggerNode(edge, section, GestureType.SWIPE_HOLD),
+                        action = action,
+                        triggerMode = triggerMode,
+                    ),
+                )
+            }
+        }
+        if (additions.isEmpty()) return
+        _rules.value = _rules.value + additions
+        _activePresetName.value = null
+        revalidate()
+    }
+
     fun removeRule(ruleId: String) {
         _rules.value = _rules.value.filter { it.id != ruleId }
+        _activePresetName.value = null
+        revalidate()
+    }
+
+    fun removeRules(ruleIds: Set<String>) {
+        _rules.value = _rules.value.filterNot { it.id in ruleIds }
+        _activePresetName.value = null
+        revalidate()
+    }
+
+    fun setRulesEnabled(ruleIds: Set<String>, enabled: Boolean) {
+        _rules.value = _rules.value.map { rule ->
+            if (rule.id in ruleIds) rule.copy(enabled = enabled) else rule
+        }
         _activePresetName.value = null
         revalidate()
     }

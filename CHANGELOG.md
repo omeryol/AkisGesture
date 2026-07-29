@@ -6,6 +6,14 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Eklendi
 
+- Klavye seçici, ses paneli, sistem asistanı ve sesi kapat/aç eylemleri eklendi.
+- Aynı kenar alanının hızlı çekme ve çekip bekletme eylemleri artık tek ekranda
+  birlikte atanabiliyor; ikinci eylem için sihirbazdan çıkıp geri dönmek gerekmiyor.
+- Kural listesi aynı alana ait iki hareketi tek kartta gösteriyor. Liste ve ayrıntı
+  ekranları aynı kayıt durumunu kullandığı için yeni kurala dokununca görülen
+  geçici `Kural bulunamadı` hatası giderildi.
+- `Uygulama aç` eylemi artık tahmini ekran adı kullanmıyor; Android'in ilgili
+  uygulama için bildirdiği gerçek açılış ekranını kullanıyor.
 - Aynı tetikleme alanına ayrı `Hızlı çekme` ve `Çekip bekletme` eylemleri
   atanabilen iki aşamalı hareket modeli eklendi.
 - Eski `SWIPE`, `SHORT_SWIPE` ve `LONG_SWIPE` kayıtları yeni modele kayıpsız
@@ -45,9 +53,9 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Bilinen durumlar
 
-- Uzun kaydırma ve kaydırıp bekletme hareketleri henüz tamamlanmadı.
-- Root/APatch yardımcısı henüz eklenmedi.
-- Uygulama profilleri henüz eklenmedi.
+- Uygulama profilleri, ayrıntılı alan geometrisi, alternatif animasyon biçimleri
+  ve ayar yedekleme/geri yükleme henüz eklenmedi.
+- Fener eylemi kamera izni gerektiren güvenli akış tamamlanana kadar devre dışıdır.
 
 ## [0.1.0-foundation] - 2026-07-30
 

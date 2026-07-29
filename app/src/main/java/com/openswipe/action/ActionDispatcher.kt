@@ -1,12 +1,12 @@
 package com.omer.akisgesture.action
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.view.KeyEvent
 import android.view.ViewConfiguration
+import android.view.inputmethod.InputMethodManager
 import com.omer.akisgesture.model.ActionNode
 import com.omer.akisgesture.service.GestureAccessibilityService
 import com.omer.akisgesture.root.RootCommandExecutor
@@ -48,6 +48,9 @@ class ActionDispatcherImpl(
         is ActionNode.Screenshot -> requireApi(28) { globalAction(GLOBAL_ACTION_TAKE_SCREENSHOT) }
         is ActionNode.NotificationPanel -> globalAction(4)
         is ActionNode.QuickSettings -> globalAction(5)
+        is ActionNode.InputMethodPicker -> showInputMethodPicker()
+        is ActionNode.VolumePanel -> showVolumePanel()
+        is ActionNode.Assistant -> launchAssistant()
         is ActionNode.MediaPlayPause -> mediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
         is ActionNode.MediaPrevious -> mediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
         is ActionNode.MediaNext -> mediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
@@ -59,8 +62,12 @@ class ActionDispatcherImpl(
             audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
             ActionResult.Success
         }
+        is ActionNode.ToggleMute -> {
+            audioManager.adjustVolume(AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
+            ActionResult.Success
+        }
         is ActionNode.ToggleFlashlight -> ActionResult.Failed("Not implemented yet")
-        is ActionNode.LaunchApp -> launchApp(action.packageName, "${action.packageName}.MainActivity")
+        is ActionNode.LaunchApp -> launchApp(action.packageName)
         is ActionNode.ForceStopForeground -> forceStopForeground()
     }
 
@@ -131,15 +138,46 @@ class ActionDispatcherImpl(
         }
     }
 
-    private fun launchApp(pkg: String, activity: String): ActionResult = try {
-        service.startActivity(Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            component = ComponentName(pkg, activity)
+    private fun launchApp(pkg: String, legacyActivity: String? = null): ActionResult = try {
+        val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
+            ?: legacyActivity?.let { activity ->
+                Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                    setClassName(pkg, activity)
+                }
+            }
+            ?: return ActionResult.Failed("Uygulamanın açılış ekranı bulunamadı")
+        service.startActivity(launchIntent.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         })
         ActionResult.Success
     } catch (e: Exception) {
-        ActionResult.Failed(e.message ?: "Launch failed")
+        ActionResult.Failed(e.message ?: "Uygulama açılamadı")
+    }
+
+    private fun showInputMethodPicker(): ActionResult = try {
+        val inputMethodManager =
+            service.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showInputMethodPicker()
+        ActionResult.Success
+    } catch (e: Exception) {
+        ActionResult.Failed(e.message ?: "Klavye seçici açılamadı")
+    }
+
+    private fun showVolumePanel(): ActionResult = try {
+        audioManager.adjustVolume(AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
+        ActionResult.Success
+    } catch (e: Exception) {
+        ActionResult.Failed(e.message ?: "Ses paneli açılamadı")
+    }
+
+    private fun launchAssistant(): ActionResult = try {
+        service.startActivity(Intent(Intent.ACTION_ASSIST).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+        ActionResult.Success
+    } catch (e: Exception) {
+        ActionResult.Failed(e.message ?: "Sistem asistanı açılamadı")
     }
 
     private suspend fun forceStopForeground(): ActionResult = withContext(Dispatchers.IO) {
