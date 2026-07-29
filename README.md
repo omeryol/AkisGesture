@@ -1,99 +1,67 @@
-# <img src="docs/icon.svg" width="48" align="center"/> OpenSwipe
+# Akış Gesture
 
-**开源安卓手势导航** — 通过无障碍权限（AccessibilityService）实现自定义手势导航，无需 Root。
+Akış Gesture, Android ve özellikle HyperOS cihazlarda doğal kenar hareketleri
+sunmak için geliştirilen kişisel, açık kaynaklı bir navigasyon uygulamasıdır.
 
-无广告 · 无追踪 · 完全开源 · 永久免费
+Proje, MIT lisanslı
+[OpenSwipe](https://github.com/ARCJ137442/OpenSwipe) tabanından başlamıştır.
+OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
 
-[English](README-en.md) | **中文**
+## Hedef
 
----
+- Sol, sağ ve alt kenarda gecikmesiz hareket algılama
+- Kısa kaydırma, uzun kaydırma ve kaydırıp bekletme
+- Geri, ana ekran, son uygulamalar ve kullanıcı eylemleri
+- Uygulamaya ve ekran yönüne göre farklı profiller
+- Kullanıcıyı teknik ayrıntılarla yormayan sade Türkçe arayüz
+- HyperOS tarafından durdurulduğunda güvenli toparlanma
+- Root/APatch desteğini ana uygulamadan ayrılmış yardımcı katmanda tutma
 
-### 功能
+## Mimari ilkeler
 
-| 分类 | 功能 | 状态 |
-|------|------|------|
-| **规则引擎** | 二部图手势规则引擎（触发→动作的可配置映射） | ✅ |
-| **规则控制** | 每条规则独立启用/禁用 | ✅ |
-| **触发模式** | 每条规则独立配置触发模式（轻触/滑动，点击穿透） | ✅ |
-| **持久化** | 规则持久化（DataStore） | ✅ |
-| **预设方案** | 内置预设（iOS 风格 / Android 经典 / 媒体控制） | ✅ |
-| **底部分段** | 底部边缘三段区域（左1/3、中1/3、右1/3）各配不同动作 | ✅ |
-| **系统动作** | 18 种系统动作可选 | ✅ |
-| **边缘配置** | 边缘触发宽度/高度可调 | ✅ |
-| **规则编辑** | 规则详情编辑页（保存+删除） | ✅ |
-| **现代 UI** | Jetpack Compose Material3 | ✅ |
-| **品牌标识** | 品牌矢量图标 | ✅ |
+1. Hareket motorunun tek bir doğruluk kaynağı vardır.
+2. Root, normal Android yolları başarısız olduğunda kullanılan yardımcıdır.
+3. Uygulama sistem uygulamasına dönüştürülmez.
+4. Island ve diğer çalışma profilleri kendiliğinden hedeflenmez.
+5. Sürekli süreç öldürme, görünür uygulama açma veya sık aralıklı sorgulama yapılmaz.
+6. Her davranış değişikliği test ve CHANGELOG kaydıyla birlikte gelir.
 
-### 🛡️ 隐私承诺
+## Mevcut durum
 
-- ❌ **零广告** — 没有 AdMob、AppLovin、Facebook Ads
-- ❌ **零追踪** — 没有 Firebase Analytics、Crashlytics
-- ❌ **零网络** — App 不联网，不发送任何数据
-- ✅ **完全开源** — 每一行代码都可审计
+İlk aşama OpenSwipe tabanının korunması ve doğrulanmasıdır. Uygulama henüz
+günlük kullanım için hazır değildir ve mevcut FNG kurulumu kaldırılmamalıdır.
 
-### 📱 安装
+## Derleme
 
-1. 从 [Releases](https://github.com/ARCJ137442/OpenSwipe/releases) 下载 APK
-2. 安装到手机
-3. 打开 App → 跟随权限引导开启无障碍服务
-4. 从屏幕边缘滑动，开始使用！
+Gereksinimler:
 
-### 🔧 技术架构
+- JDK 21
+- Android SDK 35
 
-```
-com.openswipe/
-├── service/     → AccessibilityService + 保活 + 开机自启
-├── overlay/     → TYPE_ACCESSIBILITY_OVERLAY 窗口管理
-├── gesture/     → 状态机手势检测引擎
-├── rule/        → 二部图规则引擎（触发 ↔ 动作映射）
-├── action/      → sealed class 动作分发（18 种系统动作）
-├── feedback/    → 贝塞尔曲线拉伸 + 振动反馈
-└── ui/          → Jetpack Compose Material3
+Windows:
+
+```powershell
+.\gradlew.bat assembleDebug
 ```
 
-**技术栈**: Kotlin 2.1 · Jetpack Compose · Material3 · DataStore · Coroutines
+APK:
 
-**核心原理**:
-```kotlin
-// 通过无障碍服务执行系统级操作，无需 Root
-performGlobalAction(GLOBAL_ACTION_BACK)     // 返回
-performGlobalAction(GLOBAL_ACTION_HOME)     // 主页
-performGlobalAction(GLOBAL_ACTION_RECENTS)  // 最近任务
-```
+`app/build/outputs/apk/debug/app-debug.apk`
 
-### 🏗️ 构建
+## Yol haritası
 
-```bash
-git clone https://github.com/ARCJ137442/OpenSwipe.git
-cd OpenSwipe
-./gradlew assembleDebug
-# APK 输出: app/build/outputs/apk/debug/app-debug.apk
-```
+- [ ] Temel projeyi temiz biçimde derle
+- [ ] Akış kimliği, adı ve görsel sistemini ayır
+- [ ] Hareket motoru için birim testleri ekle
+- [ ] Gerçek cihazda kenar gecikmesi ve yanlış tetikleme ölçümü yap
+- [ ] Kısa, uzun ve bekletmeli hareketleri tek durum makinesinde birleştir
+- [ ] Uygulamaya özel profilleri ekle
+- [ ] HyperOS sağlık durumunu olay tabanlı izle
+- [ ] Ayrı ve isteğe bağlı root/APatch yardımcısını geliştir
+- [ ] FNG ile yan yana kullanım ve güvenli geçiş testi yap
 
-要求: Android Studio 2024.2+ · JDK 21 · Android SDK 35
+## Lisans
 
-### 📋 路线图
-
-- [x] MVP: 左/右/底手势导航
-- [x] 独立开关 + 实时生效
-- [x] 底部高度可调 + 轻触/滑动模式
-- [x] 二部图手势规则引擎 + 可配置映射
-- [x] 规则持久化 + 每条规则独立启用/禁用
-- [x] 预设方案（iOS 风格 / Android 经典 / 媒体控制）
-- [x] 底部三段区域各配不同动作
-- [x] 18 种系统动作
-- [x] 规则详情编辑页（保存+删除）
-- [x] 品牌矢量图标
-- [ ] 贝塞尔曲线视觉反馈 ([#3](https://github.com/ARCJ137442/OpenSwipe/issues/3))
-- [ ] 按应用配置
-- [ ] F-Droid 上架
-
-### 📄 许可证
-
-[MIT](LICENSE)
-
----
-
-> 最后更新: 2026-03-31
-
-> ✨ *人人可DIY的手势导航 — 开源拯救世界* 🚀
+Projenin OpenSwipe kaynaklı bölümleri MIT lisansı altındadır. Yeni kodların
+lisans durumu değiştirilmedikçe aynı lisans uygulanır. Ayrıntılar `LICENSE`
+dosyasındadır.

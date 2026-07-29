@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "OpenSwipe"
+rootProject.name = "AkisGesture"
 include(":app")
