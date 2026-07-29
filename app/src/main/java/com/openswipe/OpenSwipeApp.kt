@@ -98,24 +98,11 @@ class OpenSwipeApp : Application() {
      */
     fun ensureRulesLoadedSync() {
         if (_compiledRuleSet.value !== CompiledRuleSet.EMPTY) return
-        try {
-            val prefs = getSharedPreferences("settings_sync", Context.MODE_PRIVATE)
-            // DataStore 的底层文件也可以通过 SharedPreferences 的方式同步读取
-            // 但更可靠的方式是用 runBlocking 读取 DataStore
-            kotlinx.coroutines.runBlocking {
-                val dataStorePrefs = settingsDataStore.data.first()
-                val json = dataStorePrefs[KEY_RULES_JSON]
-                val graph = if (json != null) {
-                    runCatching { json.toGestureRuleGraph() }.getOrElse { Presets.DEFAULT }
-                } else {
-                    Presets.DEFAULT
-                }
-                _compiledRuleSet.value = graph.compile()
-            }
-        } catch (e: Exception) {
-            // 兜底：使用默认预设
-            _compiledRuleSet.value = Presets.DEFAULT.compile()
-        }
+        // AccessibilityService connects on the main thread. Blocking for
+        // DataStore here can deadlock initialization and produce an ANR.
+        // Safe defaults are available immediately; onCreate replaces them
+        // asynchronously with persisted rules.
+        _compiledRuleSet.value = Presets.DEFAULT.compile()
     }
 
     companion object {
