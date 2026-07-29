@@ -74,6 +74,7 @@ fun RuleDetailScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showEdgeMenu by remember { mutableStateOf(false) }
     var showSectionMenu by remember { mutableStateOf(false) }
+    var showGestureMenu by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -214,17 +215,33 @@ fun RuleDetailScreen(
 
                     Spacer(Modifier.height(8.dp))
 
-                    // Gesture type (read-only, always SWIPE)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("Hareket türü", modifier = Modifier.weight(1f))
-                        Text(
-                            text = gestureLabel(rule.trigger.gestureType),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        androidx.compose.foundation.layout.Box {
+                            OutlinedButton(onClick = { showGestureMenu = true }) {
+                                Text(gestureLabel(rule.trigger.gestureType))
+                            }
+                            DropdownMenu(
+                                expanded = showGestureMenu,
+                                onDismissRequest = { showGestureMenu = false },
+                            ) {
+                                GestureType.entries.forEach { gestureType ->
+                                    DropdownMenuItem(
+                                        text = { Text(gestureLabel(gestureType)) },
+                                        onClick = {
+                                            viewModel.updateRuleTrigger(
+                                                ruleId,
+                                                rule.trigger.copy(gestureType = gestureType),
+                                            )
+                                            showGestureMenu = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

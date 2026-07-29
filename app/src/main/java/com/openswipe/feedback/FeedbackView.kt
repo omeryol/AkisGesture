@@ -43,6 +43,13 @@ class FeedbackView(context: Context) : View(context) {
             invalidate()
         }
 
+    var isHoldArmed: Boolean = false
+        set(value) {
+            field = value
+            renderer.holdArmed = value
+            invalidate()
+        }
+
     private val arrowAlpha: Float
         get() = if (peakThreshold > 0f) {
             (stretchDistance / peakThreshold).coerceIn(0f, 1f)
@@ -77,10 +84,12 @@ class FeedbackView(context: Context) : View(context) {
         touchPos: Float,
         active: Boolean,
         armed: Boolean,
+        holdArmed: Boolean,
     ) {
         this.edge = edge
         this.touchPosition = touchPos
         this.isArmed = armed
+        this.isHoldArmed = holdArmed
         if (active) {
             releaseAnimator?.cancel()
             isActive = true

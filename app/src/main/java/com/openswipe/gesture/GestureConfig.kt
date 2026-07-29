@@ -2,6 +2,7 @@ package com.omer.akisgesture.gesture
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 
 data class GestureConfig(
     // 触发区域
@@ -32,5 +33,6 @@ data class GestureConfig(
         val KEY_BOTTOM_ENABLED = booleanPreferencesKey("edge_bottom_enabled")
         val KEY_EDGE_TRIGGER_WIDTH = floatPreferencesKey("edge_trigger_width_dp")
         val KEY_BOTTOM_TRIGGER_HEIGHT = floatPreferencesKey("bottom_trigger_height_dp")
+        val KEY_HOLD_TIME = longPreferencesKey("gesture_hold_time_ms")
     }
 }

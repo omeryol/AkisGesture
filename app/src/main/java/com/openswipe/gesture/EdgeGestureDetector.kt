@@ -1,10 +1,13 @@
 package com.omer.akisgesture.gesture
 
+import android.os.Handler
+import android.os.Looper
 import android.view.MotionEvent
 import com.omer.akisgesture.gesture.model.GestureResult
 import com.omer.akisgesture.gesture.model.SwipeDirection
 import com.omer.akisgesture.gesture.model.TouchState
 import com.omer.akisgesture.model.TriggerMode
+import com.omer.akisgesture.model.GestureType
 import com.omer.akisgesture.overlay.Edge
 import kotlin.math.abs
 
@@ -19,13 +22,30 @@ class EdgeGestureDetector(
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
+    private val handler = Handler(Looper.getMainLooper())
+    private var holdScheduled = false
+    private var holdArmed = false
+    private var lastStretch = 0f
+    private var lastTouchAlongEdge = 0f
+    private val holdRunnable = Runnable {
+        holdScheduled = false
+        if (state == GestureState.DETECTED &&
+            lastStretch >= config.minSwipeThresholdPx
+        ) {
+            holdArmed = true
+            publishProgress(active = true)
+        }
+    }
 
     fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> handleDown(event)
             MotionEvent.ACTION_MOVE -> handleMove(event)
             MotionEvent.ACTION_UP -> handleUp(event)
-            MotionEvent.ACTION_CANCEL -> reset()
+            MotionEvent.ACTION_CANCEL -> {
+                finishProgress(event)
+                reset()
+            }
         }
         return true
     }
@@ -43,7 +63,18 @@ class EdgeGestureDetector(
             prevY = event.rawY
             downTime = System.currentTimeMillis()
         }
-        onProgress(GestureProgress(edge, 0f, touchCoord(event), active = true, armed = false))
+        lastTouchAlongEdge = touchCoord(event)
+        lastStretch = 0f
+        onProgress(
+            GestureProgress(
+                edge,
+                0f,
+                lastTouchAlongEdge,
+                active = true,
+                armed = false,
+                holdArmed = false,
+            )
+        )
     }
 
     private fun handleMove(event: MotionEvent) {
@@ -76,19 +107,22 @@ class EdgeGestureDetector(
         touchState.prevY = event.rawY
 
         val dampedDisplacement = inwardDisplacement(dx, dy) / config.dampingFactor
+        lastStretch = dampedDisplacement
+        lastTouchAlongEdge = touchCoord(event)
         val visuallyActive = state == GestureState.DETECTED ||
             state == GestureState.TRACKING ||
             state == GestureState.AWAITING_DIRECTION
-        onProgress(
-            GestureProgress(
-                edge,
-                dampedDisplacement,
-                touchCoord(event),
-                active = visuallyActive,
-                armed = state == GestureState.DETECTED &&
-                    dampedDisplacement > config.minSwipeThresholdPx,
-            )
-        )
+        val quickArmed = state == GestureState.DETECTED &&
+            dampedDisplacement >= config.minSwipeThresholdPx
+        if (quickArmed && !holdScheduled && !holdArmed) {
+            holdScheduled = true
+            handler.postDelayed(holdRunnable, config.holdTimeMs)
+        } else if (!quickArmed &&
+            dampedDisplacement < config.minSwipeThresholdPx * HOLD_HYSTERESIS
+        ) {
+            cancelHold()
+        }
+        publishProgress(active = visuallyActive)
     }
 
     private fun handleUp(event: MotionEvent) {
@@ -126,7 +160,36 @@ class EdgeGestureDetector(
     }
 
     private fun finishProgress(event: MotionEvent) {
-        onProgress(GestureProgress(edge, 0f, touchCoord(event), active = false, armed = false))
+        onProgress(
+            GestureProgress(
+                edge,
+                0f,
+                touchCoord(event),
+                active = false,
+                armed = false,
+                holdArmed = false,
+            )
+        )
+    }
+
+    private fun publishProgress(active: Boolean) {
+        onProgress(
+            GestureProgress(
+                edge = edge,
+                stretch = lastStretch,
+                touchAlongEdgePx = lastTouchAlongEdge,
+                active = active,
+                armed = state == GestureState.DETECTED &&
+                    lastStretch >= config.minSwipeThresholdPx,
+                holdArmed = holdArmed,
+            )
+        )
+    }
+
+    private fun cancelHold() {
+        handler.removeCallbacks(holdRunnable)
+        holdScheduled = false
+        holdArmed = false
     }
 
     private fun resolveGestureResult(
@@ -140,7 +203,16 @@ class EdgeGestureDetector(
 
         return when {
             displacement > minThreshold ->
-                GestureResult.EdgeSwipe(edge, section, touchAlongEdgePx = touchAlongEdgePx)
+                GestureResult.EdgeSwipe(
+                    edge = edge,
+                    section = section,
+                    gestureType = if (holdArmed) {
+                        GestureType.SWIPE_HOLD
+                    } else {
+                        GestureType.QUICK_SWIPE
+                    },
+                    touchAlongEdgePx = touchAlongEdgePx,
+                )
             displacement <= minThreshold && edge != Edge.BOTTOM -> {
                 when {
                     rawDy < -config.minSwipeThresholdPx ->
@@ -167,8 +239,15 @@ class EdgeGestureDetector(
     }
 
     private fun reset() {
+        cancelHold()
+        lastStretch = 0f
+        lastTouchAlongEdge = 0f
         state = GestureState.IDLE
         touchState.reset()
+    }
+
+    companion object {
+        private const val HOLD_HYSTERESIS = 0.72f
     }
 }
 
@@ -178,6 +257,7 @@ data class GestureProgress(
     val touchAlongEdgePx: Float,
     val active: Boolean,
     val armed: Boolean,
+    val holdArmed: Boolean,
 )
 
 enum class GestureState {

@@ -153,6 +153,8 @@ class GestureAccessibilityService : AccessibilityService() {
         return performGlobalAction(actionId)
     }
 
+    fun foregroundPackage(): String? = currentForegroundPackage
+
     fun dispatchTap(x: Float, y: Float) {
         val path = Path().apply { moveTo(x, y) }
         val stroke = GestureDescription.StrokeDescription(path, 0, 1)

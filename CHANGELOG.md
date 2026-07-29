@@ -6,6 +6,20 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Eklendi
 
+- Aynı tetikleme alanına ayrı `Hızlı çekme` ve `Çekip bekletme` eylemleri
+  atanabilen iki aşamalı hareket modeli eklendi.
+- Eski `SWIPE`, `SHORT_SWIPE` ve `LONG_SWIPE` kayıtları yeni modele kayıpsız
+  taşınıyor.
+- Çekip bekletme süresi Ayarlar ekranında `150–700 ms` arasında değiştirilebilir.
+- Bekletme eşiği için sarı görsel durum, ayrı titreşim ve parmak titremesine
+  dayanıklı geri dönüş toleransı eklendi.
+- Root ile öndeki uygulamayı kişisel profilde zorla durdurma eylemi eklendi.
+  Akış Gesture, Android sistemi, System UI, Ayarlar ve kullanılan launcher
+  güvenlik nedeniyle korunur.
+- Ayarlar ekranına APatch/root erişimini gerçek uygulama sürecinden sınayan
+  `Root hazır` durum kartı eklendi.
+- Hızlı çekme ve bekletme kurallarının aynı alanda çakışmadan derlendiğini
+  doğrulayan birim testleri eklendi.
 - FNG'nin hareket mantığı, eylemleri, root işlevleri, görsel seçenekleri ve
   sistem uyumluluğu incelenerek `FNG_PARITY_TARGET.md` hedef belgesi oluşturuldu.
 - Proje adı ve hedefleri Akış Gesture olarak belirlendi.

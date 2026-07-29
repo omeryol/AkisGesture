@@ -12,7 +12,8 @@ fun edgeLabel(edge: Edge): String = when (edge) {
 }
 
 fun gestureLabel(type: GestureType): String = when (type) {
-    GestureType.SWIPE -> "Kaydırma"
+    GestureType.QUICK_SWIPE -> "Hızlı çekme"
+    GestureType.SWIPE_HOLD -> "Çekip bekletme"
 }
 
 fun sectionLabel(section: SectionRange, edge: Edge): String {
@@ -53,5 +54,6 @@ fun actionIcon(action: ActionNode): String = when (action) {
     is ActionNode.ToggleFlashlight -> "\uD83D\uDD26"
     is ActionNode.NoAction -> "\u26D4"
     is ActionNode.LaunchApp -> "\uD83D\uDCF1"
+    is ActionNode.ForceStopForeground -> "\u26D4"
     else -> "\u2753"
 }
