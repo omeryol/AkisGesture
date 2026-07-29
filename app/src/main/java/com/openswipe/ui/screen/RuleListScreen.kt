@@ -21,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +33,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.HorizontalDivider
@@ -40,6 +43,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -60,6 +65,7 @@ import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.omer.akisgesture.model.GestureRule
 import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.component.ActionPickerDialog
 import com.omer.akisgesture.ui.component.AddRuleDialog
 import com.omer.akisgesture.ui.component.GestureMapCard
@@ -90,6 +96,8 @@ fun RuleListScreen(
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
     var selectedGroupKey by remember { mutableStateOf<String?>(null) }
     var addingGestureType by remember { mutableStateOf<GestureType?>(null) }
+    var selectedEdge by remember { mutableStateOf(Edge.BOTTOM) }
+    var showMap by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val ruleGroups = rules
@@ -104,12 +112,32 @@ fun RuleListScreen(
                 },
             )
         }
+    val visibleGroups = ruleGroups.filter { it.representative.trigger.edge == selectedEdge }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Hareket kuralları") },
+                title = { Text("Hareketler") },
                 actions = {
+                    Box {
+                        TextButton(onClick = { showPresetMenu = true }) {
+                            Text(activePreset ?: "Düzen")
+                        }
+                        DropdownMenu(
+                            expanded = showPresetMenu,
+                            onDismissRequest = { showPresetMenu = false },
+                        ) {
+                            RuleConfigViewModel.presets.forEach { (name, graph) ->
+                                DropdownMenuItem(
+                                    text = { Text(name) },
+                                    onClick = {
+                                        viewModel.loadPreset(name, graph)
+                                        showPresetMenu = false
+                                    },
+                                )
+                            }
+                        }
+                    }
                     val applyEnabled = hasUnapplied && conflicts.isEmpty()
                     TextButton(
                         onClick = {
@@ -140,13 +168,13 @@ fun RuleListScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = { showAddDialog = true },
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Kural ekle") },
                 containerColor = AkisGesturePrimary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-            )
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Kural ekle")
+            }
         },
         modifier = modifier,
     ) { innerPadding ->
@@ -155,37 +183,23 @@ fun RuleListScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            // ── Preset selector ──
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Hazır düzen",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.width(12.dp))
-                Box {
-                    OutlinedButton(onClick = { showPresetMenu = true }) {
-                        Text(activePreset ?: "Özel")
-                    }
-                    DropdownMenu(
-                        expanded = showPresetMenu,
-                        onDismissRequest = { showPresetMenu = false },
-                    ) {
-                        RuleConfigViewModel.presets.forEach { (name, graph) ->
-                            DropdownMenuItem(
-                                text = { Text(name) },
-                                onClick = {
-                                    viewModel.loadPreset(name, graph)
-                                    showPresetMenu = false
+            val edges = listOf(Edge.BOTTOM, Edge.LEFT, Edge.RIGHT)
+            TabRow(selectedTabIndex = edges.indexOf(selectedEdge)) {
+                edges.forEach { edge ->
+                    val count = ruleGroups.count { it.representative.trigger.edge == edge }
+                    Tab(
+                        selected = selectedEdge == edge,
+                        onClick = { selectedEdge = edge },
+                        text = {
+                            Text(
+                                when (edge) {
+                                    Edge.BOTTOM -> "Alt · $count"
+                                    Edge.LEFT -> "Sol · $count"
+                                    Edge.RIGHT -> "Sağ · $count"
                                 },
                             )
-                        }
-                    }
+                        },
+                    )
                 }
             }
 
@@ -236,27 +250,63 @@ fun RuleListScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                 ) {
-                    item(key = "gesture-map") {
-                        GestureMapCard(
-                            rules = rules,
-                            config = gestureConfig,
-                            onZoneClick = { tappedRule ->
-                                selectedGroupKey = ruleGroups
-                                    .firstOrNull { tappedRule.id in it.ids }
-                                    ?.key
-                            },
-                            onZoneRangeChange = viewModel::updateRulesSection,
-                        )
+                    item(key = "edge-header") {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                "Alanlar",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Text(
+                                "${visibleGroups.size}",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            TextButton(onClick = { showMap = true }) {
+                                Icon(Icons.Filled.Map, contentDescription = null)
+                                Spacer(Modifier.width(6.dp))
+                                Text("Harita")
+                            }
+                        }
                     }
-                    items(ruleGroups, key = { it.key }) { group ->
-                        RuleGroupCard(
+                    item(key = "column-header") {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                "Bölge",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(0.9f).padding(start = 8.dp),
+                            )
+                            Text(
+                                "Hızlı",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1.05f).padding(start = 8.dp),
+                            )
+                            Text(
+                                "Beklet",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1.05f).padding(start = 8.dp),
+                            )
+                            Spacer(Modifier.width(48.dp))
+                        }
+                    }
+                    items(visibleGroups, key = { it.key }) { group ->
+                        RuleTableRow(
                             group = group,
-                            onClick = {
-                                (group.quick ?: group.hold)?.let { onRuleClick(it.id) }
-                            },
+                            onClick = { selectedGroupKey = group.key },
                             onDelete = { viewModel.removeRules(group.ids) },
                             onChangeAction = { editingActionRuleId = it.id },
                             onToggleEnabled = {
@@ -283,6 +333,29 @@ fun RuleListScreen(
                     triggerMode = triggerMode,
                 )
                 showAddDialog = false
+            },
+        )
+    }
+
+    if (showMap) {
+        AlertDialog(
+            onDismissRequest = { showMap = false },
+            title = { Text("Hareket alanları") },
+            text = {
+                GestureMapCard(
+                    rules = rules,
+                    config = gestureConfig,
+                    onZoneClick = { tappedRule ->
+                        selectedGroupKey = ruleGroups
+                            .firstOrNull { tappedRule.id in it.ids }
+                            ?.key
+                        showMap = false
+                    },
+                    onZoneRangeChange = viewModel::updateRulesSection,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showMap = false }) { Text("Bitti") }
             },
         )
     }
@@ -424,7 +497,7 @@ private fun GestureSlotButton(
 }
 
 @Composable
-private fun RuleGroupCard(
+private fun RuleTableRow(
     group: RuleGroup,
     onClick: () -> Unit,
     onDelete: () -> Unit,
@@ -434,70 +507,119 @@ private fun RuleGroupCard(
     val rule = group.representative
     val enabled = listOfNotNull(group.quick, group.hold).any { it.enabled }
     val contentAlpha = if (enabled) 1f else 0.45f
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
-    ) {
-        Column(modifier = Modifier.graphicsLayer { alpha = contentAlpha }) {
-            ListItem(
-                headlineContent = {
-                    Text(edgeLabel(rule.trigger.edge), fontWeight = FontWeight.SemiBold)
-                },
-                supportingContent = {
-                    Text(sectionLabel(rule.trigger.section, rule.trigger.edge))
-                },
-                leadingContent = {
-                    Text(edgeIcon(rule.trigger.edge), style = MaterialTheme.typography.titleLarge)
-                },
-                trailingContent = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Switch(checked = enabled, onCheckedChange = onToggleEnabled)
-                        IconButton(onClick = onDelete) {
-                            Icon(
-                                Icons.Filled.Close,
-                                contentDescription = "Kuralı sil",
-                                modifier = Modifier.size(18.dp),
-                            )
-                        }
-                    }
-                },
-                modifier = Modifier.clickable(onClick = onClick),
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = MaterialTheme.colorScheme.outlineVariant,
-            )
-            group.quick?.let { quick ->
-                CompactActionRow("Hızlı çekme", quick) { onChangeAction(quick) }
+    var menuOpen by remember { mutableStateOf(false) }
+    Column(modifier = Modifier.graphicsLayer { alpha = contentAlpha }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(92.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(0.9f)
+                    .clickable(onClick = onClick)
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
+            ) {
+                Text(
+                    sectionLabel(rule.trigger.section, rule.trigger.edge),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    if (enabled) "Etkin" else "Kapalı",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (enabled) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-            group.hold?.let { hold ->
-                CompactActionRow("Çekip bekletme", hold) { onChangeAction(hold) }
+            ActionCell(
+                label = "Hızlı",
+                rule = group.quick,
+                modifier = Modifier.weight(1.05f),
+                onClick = {
+                    group.quick?.let(onChangeAction)
+                        ?: onClick()
+                },
+            )
+            ActionCell(
+                label = "Beklet",
+                rule = group.hold,
+                modifier = Modifier.weight(1.05f),
+                onClick = {
+                    group.hold?.let(onChangeAction)
+                        ?: onClick()
+                },
+            )
+            Box {
+                IconButton(onClick = { menuOpen = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Alan seçenekleri")
+                }
+                DropdownMenu(
+                    expanded = menuOpen,
+                    onDismissRequest = { menuOpen = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(if (enabled) "Devre dışı bırak" else "Etkinleştir") },
+                        onClick = {
+                            onToggleEnabled(!enabled)
+                            menuOpen = false
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("İnce ayarlar") },
+                        onClick = {
+                            menuOpen = false
+                            onClick()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Sil") },
+                        onClick = {
+                            menuOpen = false
+                            onDelete()
+                        },
+                    )
+                }
             }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
 @Composable
-private fun CompactActionRow(
-    gesture: String,
-    rule: GestureRule,
+private fun ActionCell(
+    label: String,
+    rule: GestureRule?,
+    modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    ListItem(
-        headlineContent = { Text(rule.action.label) },
-        supportingContent = { Text(gesture) },
-        leadingContent = {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        if (rule != null) {
             Icon(
                 actionImageVector(rule.action),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp),
             )
-        },
-        trailingContent = {
-            Text("Değiştir", color = MaterialTheme.colorScheme.primary)
-        },
-        modifier = Modifier.clickable(onClick = onClick),
-    )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                rule.action.label,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        } else {
+            Icon(Icons.Filled.Add, contentDescription = null)
+            Text(label, style = MaterialTheme.typography.labelSmall)
+        }
+    }
 }

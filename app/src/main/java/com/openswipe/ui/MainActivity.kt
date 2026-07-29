@@ -30,7 +30,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.TouchApp
 import com.omer.akisgesture.ui.screen.HomeScreen
 import com.omer.akisgesture.ui.screen.PermissionGuideScreen
 import com.omer.akisgesture.ui.screen.RuleDetailScreen
@@ -168,8 +168,8 @@ private fun AkisGestureBottomBar(
             },
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Edit, contentDescription = "Kurallar") },
-            label = { Text("Kurallar") },
+            icon = { Icon(Icons.Filled.TouchApp, contentDescription = "Hareketler") },
+            label = { Text("Hareketler") },
             selected = currentRoute == "rules",
             onClick = {
                 if (currentRoute != "rules") {
