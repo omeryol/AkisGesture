@@ -4,6 +4,12 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Ayarlar ekranına tüm hareket kurallarını, görünümü ve uygulama engellerini
+  JSON dosyasına yedekleme ve geri yükleme eklendi.
+- MacroDroid için başlat, durdur ve durum değiştir işlemleri hem anlaşılır
+  uygulama etkinlikleri hem de Locale/Tasker uyumlu eklenti olarak eklendi.
+- Erişilebilirlik hizmetinin kısa ve tam bileşen adlarının çift kayıt
+  oluşturması önlendi.
 - Alt kenarda sağa veya sola sürükleyerek açık uygulamalar arasında iki yönde
   geçiş eklendi. Önceki/sonraki uygulama işlemleri artık kararlı bir uygulama
   sırası üzerinden çalışıyor.

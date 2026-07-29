@@ -86,6 +86,16 @@ Intentler yayın (`Broadcast`) olarak `com.omer.akisgesture` paketine gönderili
 Bu komutlar diğer erişilebilirlik hizmetlerini değiştirmez. Root varsa Hızlı
 Ayarlar'daki `Akış` kutucuğu da aynı güvenli denetleyiciyi kullanır.
 
+MacroDroid içinde iki kolay yol vardır:
+
+- `Eylemler > Uygulamalar > Eklenti > Akış Gesture` yolundan başlat, durdur
+  veya durum değiştir seçilir.
+- `Uygulamayı başlat > Etkinlik seç` bölümünde `Akış · Hareketleri başlat`,
+  `Akış · Hareketleri durdur` ve `Akış · Durumu değiştir` ayrı görünür.
+
+Ayarlar ekranındaki `YEDEK` bölümünden kurallar ve uygulama ayarları tek JSON
+dosyasına kaydedilip geri yüklenebilir.
+
 ## Yol haritası
 
 Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md)
