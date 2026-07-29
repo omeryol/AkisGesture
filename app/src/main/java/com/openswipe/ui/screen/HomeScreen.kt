@@ -1,135 +1,178 @@
 package com.omer.akisgesture.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.omer.akisgesture.AkisGestureApp
 import com.omer.akisgesture.service.GestureAccessibilityService
 import com.omer.akisgesture.ui.theme.StatusConnected
 import com.omer.akisgesture.ui.theme.StatusDisconnected
-import com.omer.akisgesture.ui.util.edgeLabel
-import com.omer.akisgesture.ui.viewmodel.HomeViewModel
 import com.omer.akisgesture.util.PermissionHelper
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
+    viewModel: com.omer.akisgesture.ui.viewmodel.HomeViewModel,
     onNavigateToPermissions: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
-    val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
     val ruleSet by AkisGestureApp.getInstance().compiledRuleSet.collectAsState()
     val context = LocalContext.current
+    val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
     val batteryOptimized = !PermissionHelper.isBatteryOptimizationIgnored(context)
+    val activeEdges = com.omer.akisgesture.overlay.Edge.entries.count(ruleSet::hasRulesFor)
+    val totalRules = ruleSet.totalRuleCount()
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        // 服务状态卡片
-        ServiceStatusCard(
+        StatusHero(
             isConnected = isConnected,
-            onSetupClick = onNavigateToPermissions,
+            onClick = { if (!isConnected) onNavigateToPermissions() },
         )
 
-        // 电池优化警告
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            MetricCard(
+                value = totalRules.toString(),
+                label = "Etkin hareket",
+                modifier = Modifier.weight(1f),
+            )
+            MetricCard(
+                value = "$activeEdges/3",
+                label = "Etkin kenar",
+                modifier = Modifier.weight(1f),
+            )
+            MetricCard(
+                value = if (isConnected) "Açık" else "Kapalı",
+                label = "Koruma",
+                modifier = Modifier.weight(1f),
+            )
+        }
+
         if (batteryOptimized) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                ),
+            BatteryNotice {
+                PermissionHelper.requestIgnoreBatteryOptimization(context)
+            }
+        }
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Icon(
+                    Icons.Filled.TouchApp,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Column {
+                    Text("Hareketlerini kişiselleştir", fontWeight = FontWeight.SemiBold)
                     Text(
-                        text = "Pil kısıtlamasını kapatın",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                    )
-                    Text(
-                        text = "Pil kısıtlaması hareketlerin arka planda durmasına neden olabilir.",
+                        "Alt menüdeki Hareketler bölümünden kısa ve bekletmeli işlemleri birlikte düzenleyebilirsin.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedButton(onClick = {
-                        PermissionHelper.requestIgnoreBatteryOptimization(context)
-                    }) {
-                        Text("Ayarlara git")
-                    }
                 }
             }
         }
-
-        // Kurallar摘要卡片
-        RuleSummaryCard(ruleSet = ruleSet)
     }
 }
 
 @Composable
-private fun ServiceStatusCard(
+private fun StatusHero(
     isConnected: Boolean,
-    onSetupClick: () -> Unit,
+    onClick: () -> Unit,
 ) {
+    val accent = if (isConnected) StatusConnected else StatusDisconnected
     Card(
-        onClick = { if (!isConnected) onSetupClick() },
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isConnected) {
-                StatusConnected.copy(alpha = 0.12f)
-            } else {
-                StatusDisconnected.copy(alpha = 0.12f)
-            },
-        ),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
     ) {
         Row(
             modifier = Modifier
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            MaterialTheme.colorScheme.surfaceVariant,
+                        ),
+                    ),
+                )
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(horizontal = 20.dp, vertical = 22.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Icon(
-                imageVector = if (isConnected) Icons.Filled.Check else Icons.Filled.Close,
-                contentDescription = null,
-                tint = if (isConnected) StatusConnected else StatusDisconnected,
-                modifier = Modifier.size(32.dp),
-            )
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .background(accent.copy(alpha = 0.16f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    if (isConnected) Icons.Filled.Check else Icons.Filled.Security,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (isConnected) "Hareketler hazır" else "Hareketler kapalı",
-                    style = MaterialTheme.typography.titleMedium,
+                    if (isConnected) "Akış hazır" else "Kurulum gerekiyor",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = if (isConnected) "Sol, sağ ve alt kenar etkin" else "Kurulumu tamamlamak için dokunun",
+                    if (isConnected) {
+                        "Kenar hareketleri etkin ve arka planda korunuyor"
+                    } else {
+                        "Hareketleri açmak için dokun"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -139,36 +182,63 @@ private fun ServiceStatusCard(
 }
 
 @Composable
-private fun RuleSummaryCard(ruleSet: com.omer.akisgesture.rule.CompiledRuleSet) {
-    val edges = com.omer.akisgesture.overlay.Edge.entries
-    val activeEdges = edges.filter { ruleSet.hasRulesFor(it) }
-    val totalRules = ruleSet.totalRuleCount()
-    val edgeDetails = activeEdges.joinToString(", ") { edge ->
-        "${edgeLabel(edge)} (${ruleSet.ruleCountFor(edge)})"
-    }
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun MetricCard(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = if (totalRules > 0) "${totalRules}  hareket kuralı etkin"
-                       else "Etkin kural yok",
-                style = MaterialTheme.typography.titleMedium,
+                value,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
             )
-            if (activeEdges.isNotEmpty()) {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
+private fun BatteryNotice(onOpenSettings: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.errorContainer,
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                Icons.Filled.BatteryAlert,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onErrorContainer,
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Pil korumasını kapat", fontWeight = FontWeight.SemiBold)
                 Text(
-                    text = "Etkin kenarlar: $edgeDetails",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    "HyperOS hareket hizmetini durdurabilir.",
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
-            Text(
-                text = "Hareketleri değiştirmek için Kurallar bölümünü açın.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            OutlinedButton(onClick = onOpenSettings) {
+                Text("Aç")
+            }
         }
     }
 }

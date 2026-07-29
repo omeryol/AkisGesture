@@ -4,6 +4,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Ana ekran; hizmet durumu, etkin hareketler, kullanılan kenarlar ve koruma
+  bilgisini tek bakışta gösteren kompakt bir gösterge paneline dönüştürüldü.
+- Yedek yükleme işlemine, mevcut ayarların değiştirileceğini açıkça gösteren
+  son onay adımı eklendi.
+- Ayarlar ekranında artık kullanılmayan eski geniş kart bileşenleri temizlendi.
 - Ayarlar ekranına tüm hareket kurallarını, görünümü ve uygulama engellerini
   JSON dosyasına yedekleme ve geri yükleme eklendi.
 - MacroDroid için başlat, durdur ve durum değiştir işlemleri hem anlaşılır
