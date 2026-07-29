@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -58,6 +59,7 @@ import com.omer.akisgesture.model.GestureRule
 import com.omer.akisgesture.model.GestureType
 import com.omer.akisgesture.ui.component.ActionPickerDialog
 import com.omer.akisgesture.ui.component.AddRuleDialog
+import com.omer.akisgesture.ui.component.GestureMapCard
 import com.omer.akisgesture.ui.theme.AkisGesturePrimary
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 import com.omer.akisgesture.ui.util.actionIcon
@@ -82,6 +84,8 @@ fun RuleListScreen(
     var showPresetMenu by remember { mutableStateOf(false) }
     // Rule whose action is being edited
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
+    var selectedGroupKey by remember { mutableStateOf<String?>(null) }
+    var addingGestureType by remember { mutableStateOf<GestureType?>(null) }
 
     val context = LocalContext.current
     val ruleGroups = rules
@@ -231,6 +235,16 @@ fun RuleListScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    item(key = "gesture-map") {
+                        GestureMapCard(
+                            rules = rules,
+                            onZoneClick = { tappedRule ->
+                                selectedGroupKey = ruleGroups
+                                    .firstOrNull { tappedRule.id in it.ids }
+                                    ?.key
+                            },
+                        )
+                    }
                     items(ruleGroups, key = { it.key }) { group ->
                         RuleGroupCard(
                             group = group,
@@ -267,6 +281,62 @@ fun RuleListScreen(
         )
     }
 
+    val selectedGroup = ruleGroups.firstOrNull { it.key == selectedGroupKey }
+    if (selectedGroup != null) {
+        AlertDialog(
+            onDismissRequest = { selectedGroupKey = null },
+            title = {
+                Text(
+                    "${edgeLabel(selectedGroup.representative.trigger.edge)} · " +
+                        sectionLabel(
+                            selectedGroup.representative.trigger.section,
+                            selectedGroup.representative.trigger.edge,
+                        ),
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "İki hareketi aynı alandan düzenle",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    GestureSlotButton(
+                        title = "Hızlı çekme",
+                        rule = selectedGroup.quick,
+                        onClick = {
+                            selectedGroup.quick?.let { editingActionRuleId = it.id }
+                                ?: run { addingGestureType = GestureType.QUICK_SWIPE }
+                        },
+                    )
+                    GestureSlotButton(
+                        title = "Çekip bekletme",
+                        rule = selectedGroup.hold,
+                        onClick = {
+                            selectedGroup.hold?.let { editingActionRuleId = it.id }
+                                ?: run { addingGestureType = GestureType.SWIPE_HOLD }
+                        },
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        selectedGroupKey = null
+                        onRuleClick(selectedGroup.representative.id)
+                    },
+                ) {
+                    Text("İnce ayarlar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { selectedGroupKey = null }) {
+                    Text("Bitti")
+                }
+            },
+        )
+    }
+
     editingActionRuleId?.let { ruleId ->
         ActionPickerDialog(
             onDismiss = { editingActionRuleId = null },
@@ -275,6 +345,24 @@ fun RuleListScreen(
                 editingActionRuleId = null
             },
         )
+    }
+
+    addingGestureType?.let { gestureType ->
+        val group = selectedGroup
+        if (group != null) {
+            ActionPickerDialog(
+                onDismiss = { addingGestureType = null },
+                onSelect = { action ->
+                    val trigger = group.representative.trigger.copy(gestureType = gestureType)
+                    viewModel.addRule(
+                        trigger = trigger,
+                        action = action,
+                        triggerMode = group.representative.triggerMode,
+                    )
+                    addingGestureType = null
+                },
+            )
+        }
     }
 }
 
@@ -288,6 +376,37 @@ private data class RuleGroup(
         get() = "${representative.trigger.edge}:" +
             "${representative.trigger.section.start}:${representative.trigger.section.end}:" +
             representative.triggerMode
+}
+
+@Composable
+private fun GestureSlotButton(
+    title: String,
+    rule: GestureRule?,
+    onClick: () -> Unit,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Text(title, style = MaterialTheme.typography.labelMedium)
+            Text(
+                text = rule?.let { "${actionIcon(it.action)} ${it.action.label}" }
+                    ?: "Eylem ata",
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (rule == null) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
+        }
+        Text(if (rule == null) "+" else "Değiştir")
+    }
 }
 
 @Composable
