@@ -6,6 +6,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.omer.akisgesture.AkisGestureApp
 import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.feedback.FeedbackAnimation
+import com.omer.akisgesture.feedback.FeedbackIcon
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,6 +79,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFeedbackOpacity(opacity: Float) {
         viewModelScope.launch { app.updateFeedbackOpacity(opacity) }
+    }
+
+    fun setFeedbackAnimation(animation: FeedbackAnimation) {
+        viewModelScope.launch { app.updateFeedbackAnimation(animation) }
+    }
+
+    fun setQuickFeedbackIcon(icon: FeedbackIcon) {
+        viewModelScope.launch { app.updateQuickFeedbackIcon(icon) }
+    }
+
+    fun setHoldFeedbackIcon(icon: FeedbackIcon) {
+        viewModelScope.launch { app.updateHoldFeedbackIcon(icon) }
     }
 
     private fun loadSelectableApps() {

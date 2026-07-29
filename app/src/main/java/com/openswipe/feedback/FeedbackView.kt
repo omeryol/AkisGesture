@@ -42,6 +42,24 @@ class FeedbackView(context: Context) : View(context) {
             renderer.opacity = value.coerceIn(0.1f, 1f)
             invalidate()
         }
+    var feedbackAnimation: FeedbackAnimation
+        get() = renderer.animation
+        set(value) {
+            renderer.animation = value
+            invalidate()
+        }
+    var quickIcon: FeedbackIcon
+        get() = renderer.quickIcon
+        set(value) {
+            renderer.quickIcon = value
+            invalidate()
+        }
+    var holdIcon: FeedbackIcon
+        get() = renderer.holdIcon
+        set(value) {
+            renderer.holdIcon = value
+            invalidate()
+        }
     var isActive: Boolean = false
         set(value) {
             field = value

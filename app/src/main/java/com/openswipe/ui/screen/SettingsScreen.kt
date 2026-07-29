@@ -38,8 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import android.graphics.Color as AndroidColor
 import com.omer.akisgesture.ui.viewmodel.HomeViewModel
 import com.omer.akisgesture.ui.viewmodel.RootAccessState
+import com.omer.akisgesture.feedback.FeedbackAnimation
+import com.omer.akisgesture.feedback.FeedbackIcon
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -181,33 +184,38 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text("Animasyon rengi", style = MaterialTheme.typography.titleMedium)
-                val colors = listOf(
-                    "Mavi" to 0xFF3D5AFE.toInt(),
-                    "Turkuaz" to 0xFF00BFA5.toInt(),
-                    "Mor" to 0xFF7C4DFF.toInt(),
-                    "Pembe" to 0xFFFF4081.toInt(),
-                    "Turuncu" to 0xFFFF6D00.toInt(),
-                    "Beyaz" to 0xFFFFFFFF.toInt(),
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    colors.forEach { (name, argb) ->
-                        FilterChip(
-                            selected = config.feedbackColorArgb == argb,
-                            onClick = { viewModel.setFeedbackColor(argb) },
-                            leadingIcon = {
-                                Box(
-                                    Modifier
-                                        .size(16.dp)
-                                        .background(Color(argb), CircleShape),
-                                )
-                            },
-                            label = { Text(name) },
-                        )
-                    }
+                val hsv = FloatArray(3).also {
+                    AndroidColor.colorToHSV(config.feedbackColorArgb, it)
                 }
+                fun updateColor(hue: Float = hsv[0], saturation: Float = hsv[1], value: Float = hsv[2]) {
+                    viewModel.setFeedbackColor(
+                        AndroidColor.HSVToColor(floatArrayOf(hue, saturation, value)),
+                    )
+                }
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(Color(config.feedbackColorArgb), CircleShape),
+                )
+                Text("Renk tonu · ${hsv[0].roundToInt()}°")
+                Slider(
+                    value = hsv[0],
+                    onValueChange = { updateColor(hue = it) },
+                    valueRange = 0f..360f,
+                )
+                Text("Canlılık · %${(hsv[1] * 100).roundToInt()}")
+                Slider(
+                    value = hsv[1],
+                    onValueChange = { updateColor(saturation = it) },
+                    valueRange = 0f..1f,
+                )
+                Text("Parlaklık · %${(hsv[2] * 100).roundToInt()}")
+                Slider(
+                    value = hsv[2],
+                    onValueChange = { updateColor(value = it) },
+                    valueRange = 0.1f..1f,
+                )
                 Text("Saydamlık", style = MaterialTheme.typography.titleMedium)
                 Slider(
                     value = config.feedbackOpacity,
@@ -221,6 +229,55 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
+                Text("Animasyon biçimi", style = MaterialTheme.typography.titleMedium)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    FeedbackAnimation.entries.forEach { animation ->
+                        FilterChip(
+                            selected = config.feedbackAnimation == animation,
+                            onClick = { viewModel.setFeedbackAnimation(animation) },
+                            label = { Text(animation.label) },
+                        )
+                    }
+                }
+                Text("Hızlı çekme simgesi", style = MaterialTheme.typography.titleMedium)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    FeedbackIcon.entries.forEach { icon ->
+                        FilterChip(
+                            selected = config.quickFeedbackIcon == icon,
+                            onClick = { viewModel.setQuickFeedbackIcon(icon) },
+                            label = {
+                                Text(
+                                    if (icon.symbol.isBlank()) icon.label
+                                    else "${icon.symbol} ${icon.label}",
+                                )
+                            },
+                        )
+                    }
+                }
+                Text("Çekip bekletme simgesi", style = MaterialTheme.typography.titleMedium)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    FeedbackIcon.entries.forEach { icon ->
+                        FilterChip(
+                            selected = config.holdFeedbackIcon == icon,
+                            onClick = { viewModel.setHoldFeedbackIcon(icon) },
+                            label = {
+                                Text(
+                                    if (icon.symbol.isBlank()) icon.label
+                                    else "${icon.symbol} ${icon.label}",
+                                )
+                            },
+                        )
+                    }
+                }
             }
         }
 
