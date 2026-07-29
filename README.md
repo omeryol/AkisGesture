@@ -77,6 +77,7 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Animasyon rengi, saydamlığı ve kenara geri dönerek iptal davranışını ekle
 - [x] Beş animasyon biçimi ve iki harekete ayrı simge seçimi ekle
 - [x] Kuralları telefon üzerinde gösteren dokunulabilir hareket alanı haritası ekle
+- [x] Harita üzerinde alan taşıma ve uçlarından boyutlandırma ekle
 - [ ] HyperOS sağlık durumunu olay tabanlı izle
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle

@@ -243,6 +243,7 @@ fun RuleListScreen(
                                     .firstOrNull { tappedRule.id in it.ids }
                                     ?.key
                             },
+                            onZoneRangeChange = viewModel::updateRulesSection,
                         )
                     }
                     items(ruleGroups, key = { it.key }) { group ->

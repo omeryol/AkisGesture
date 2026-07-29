@@ -3,6 +3,9 @@ package com.omer.akisgesture.ui
 import com.omer.akisgesture.model.SectionRange
 import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.component.GestureMapGeometry
+import com.omer.akisgesture.ui.component.RangeDragHandle
+import com.omer.akisgesture.ui.component.SectionRangeEditor
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,5 +27,43 @@ class GestureMapGeometryTest {
         assertTrue(rect.contains(0.80f, 0.90f))
         assertFalse(rect.contains(0.20f, 0.90f))
         assertFalse(rect.contains(0.80f, 0.50f))
+    }
+
+    @Test
+    fun centerDragKeepsLengthAndClampsAtScreenEnd() {
+        val moved = SectionRangeEditor.drag(
+            original = SectionRange(0.60f, 0.90f),
+            handle = RangeDragHandle.CENTER,
+            delta = 0.40f,
+        )
+
+        assertEquals(0.70f, moved.start, 0.0001f)
+        assertEquals(1.00f, moved.end, 0.0001f)
+    }
+
+    @Test
+    fun edgeDragCannotCollapseZone() {
+        val resized = SectionRangeEditor.drag(
+            original = SectionRange(0.20f, 0.60f),
+            handle = RangeDragHandle.START,
+            delta = 0.39f,
+        )
+
+        assertEquals(0.48f, resized.start, 0.0001f)
+        assertEquals(0.60f, resized.end, 0.0001f)
+    }
+
+    @Test
+    fun visualContentCoordinateMapsBackToSectionCoordinate() {
+        assertEquals(
+            0.50f,
+            GestureMapGeometry.toSectionPosition(0.50f),
+            0.0001f,
+        )
+        assertEquals(
+            0.25f,
+            GestureMapGeometry.toSectionDelta(0.21f),
+            0.0001f,
+        )
     }
 }

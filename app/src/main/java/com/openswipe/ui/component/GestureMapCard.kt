@@ -1,7 +1,8 @@
 package com.omer.akisgesture.ui.component
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -24,21 +29,26 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.omer.akisgesture.model.GestureRule
 import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.SectionRange
+import com.omer.akisgesture.overlay.Edge
+import kotlin.math.abs
 
 @Composable
 fun GestureMapCard(
     rules: List<GestureRule>,
     onZoneClick: (GestureRule) -> Unit,
+    onZoneRangeChange: (Set<String>, SectionRange) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val activeRules = rules.filter { it.enabled }
-    val zones = activeRules
+    val zones = rules
+        .filter { it.enabled }
         .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
         .values
         .mapNotNull { group ->
             group.firstOrNull()?.let { representative ->
                 GestureMapZone(
                     representative = representative,
+                    ruleIds = group.map { it.id }.toSet(),
                     hasQuick = group.any { it.trigger.gestureType == GestureType.QUICK_SWIPE },
                     hasHold = group.any { it.trigger.gestureType == GestureType.SWIPE_HOLD },
                 )
@@ -58,13 +68,16 @@ fun GestureMapCard(
         ) {
             Text("Hareket alanların", style = MaterialTheme.typography.titleMedium)
             Text(
-                "Düzenlemek için renkli bir kenara dokun",
+                "Dokunarak düzenle · sürükleyerek taşı veya boyutlandır",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             GestureMapCanvas(
                 zones = zones,
                 onZoneClick = { onZoneClick(it.representative) },
+                onZoneRangeChange = { zone, range ->
+                    onZoneRangeChange(zone.ruleIds, range)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp)
@@ -95,24 +108,74 @@ private fun MapLegend(color: Color, text: String) {
 private fun GestureMapCanvas(
     zones: List<GestureMapZone>,
     onZoneClick: (GestureMapZone) -> Unit,
+    onZoneRangeChange: (GestureMapZone, SectionRange) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val outline = MaterialTheme.colorScheme.outline
     val screen = MaterialTheme.colorScheme.surfaceContainerHighest
+    var dragPreview by remember { mutableStateOf<DragPreview?>(null) }
+
     Canvas(
         modifier = modifier.pointerInput(zones) {
-            detectTapGestures { tap ->
-                val normalizedX = ((tap.x / size.width) - 0.27f) / 0.46f
-                val normalizedY = tap.y / size.height
-                zones
-                    .asReversed()
-                    .firstOrNull {
-                        GestureMapGeometry.rect(
-                            it.representative.trigger.edge,
-                            it.representative.trigger.section,
-                        ).contains(normalizedX, normalizedY)
+            awaitEachGesture {
+                val down = awaitFirstDown(requireUnconsumed = false)
+                val downPosition = normalizedPosition(
+                    down.position.x,
+                    down.position.y,
+                    size.width,
+                    size.height,
+                )
+                val zone = zones.asReversed().firstOrNull {
+                    hitRect(it).contains(downPosition.x, downPosition.y)
+                } ?: return@awaitEachGesture
+                val edge = zone.representative.trigger.edge
+                val original = zone.representative.trigger.section
+                val contentAxisPosition = if (edge == Edge.BOTTOM) {
+                    downPosition.x
+                } else {
+                    downPosition.y
+                }
+                val sectionAxisPosition =
+                    GestureMapGeometry.toSectionPosition(contentAxisPosition)
+                val handle = SectionRangeEditor.handleFor(sectionAxisPosition, original)
+                var dragging = false
+                var latestRange = original
+                var pressed: Boolean
+
+                do {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                    pressed = change.pressed
+                    if (pressed) {
+                        val rawDelta = if (edge == Edge.BOTTOM) {
+                            change.position.x - down.position.x
+                        } else {
+                            change.position.y - down.position.y
+                        }
+                        val axisSize = if (edge == Edge.BOTTOM) {
+                            size.width.toFloat() * 0.46f
+                        } else {
+                            size.height.toFloat()
+                        }
+                        if (abs(rawDelta) > viewConfiguration.touchSlop) dragging = true
+                        if (dragging) {
+                            latestRange = SectionRangeEditor.drag(
+                                original = original,
+                                handle = handle,
+                                delta = GestureMapGeometry.toSectionDelta(rawDelta / axisSize),
+                            )
+                            dragPreview = DragPreview(zone, latestRange)
+                            change.consume()
+                        }
                     }
-                    ?.let(onZoneClick)
+                } while (pressed)
+
+                if (dragging) {
+                    dragPreview = null
+                    onZoneRangeChange(zone, latestRange)
+                } else {
+                    onZoneClick(zone)
+                }
             }
         },
     ) {
@@ -140,9 +203,13 @@ private fun GestureMapCanvas(
         )
 
         zones.forEach { zone ->
+            val section = dragPreview
+                ?.takeIf { it.zone.ruleIds == zone.ruleIds }
+                ?.section
+                ?: zone.representative.trigger.section
             val normalized = GestureMapGeometry.rect(
                 zone.representative.trigger.edge,
-                zone.representative.trigger.section,
+                section,
             )
             val mapped = mapToPhone(normalized, phoneRect)
             val color = when {
@@ -168,8 +235,38 @@ private fun mapToPhone(rect: NormalizedRect, phone: Rect): Rect =
         bottom = phone.top + rect.bottom * phone.height,
     )
 
+private fun normalizedPosition(
+    x: Float,
+    y: Float,
+    width: Int,
+    height: Int,
+): Offset = Offset(
+    x = ((x / width) - 0.27f) / 0.46f,
+    y = y / height,
+)
+
+private fun hitRect(zone: GestureMapZone): NormalizedRect {
+    val rect = GestureMapGeometry.rect(
+        zone.representative.trigger.edge,
+        zone.representative.trigger.section,
+    )
+    val expansion = 0.05f
+    return NormalizedRect(
+        left = (rect.left - expansion).coerceAtLeast(0f),
+        top = (rect.top - expansion).coerceAtLeast(0f),
+        right = (rect.right + expansion).coerceAtMost(1f),
+        bottom = (rect.bottom + expansion).coerceAtMost(1f),
+    )
+}
+
 private data class GestureMapZone(
     val representative: GestureRule,
+    val ruleIds: Set<String>,
     val hasQuick: Boolean,
     val hasHold: Boolean,
+)
+
+private data class DragPreview(
+    val zone: GestureMapZone,
+    val section: SectionRange,
 )

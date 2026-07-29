@@ -164,6 +164,18 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         revalidate()
     }
 
+    fun updateRulesSection(ruleIds: Set<String>, section: SectionRange) {
+        _rules.value = _rules.value.map { rule ->
+            if (rule.id in ruleIds) {
+                rule.copy(trigger = rule.trigger.copy(section = section))
+            } else {
+                rule
+            }
+        }
+        _activePresetName.value = null
+        revalidate()
+    }
+
     fun updateRuleTriggerMode(ruleId: String, mode: com.omer.akisgesture.model.TriggerMode) {
         _rules.value = _rules.value.map { rule ->
             if (rule.id == ruleId) rule.copy(triggerMode = mode) else rule
