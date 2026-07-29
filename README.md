@@ -61,6 +61,8 @@ o profile de kaydedebilir.
 
 ## Yol haritası
 
+Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md)
+
 - [x] Temel projeyi temiz biçimde derle
 - [x] Akış kimliği, adı ve görsel sistemini ayır
 - [x] Akıcı kenar animasyonu ve dokunsal eşik geri bildirimi ekle
