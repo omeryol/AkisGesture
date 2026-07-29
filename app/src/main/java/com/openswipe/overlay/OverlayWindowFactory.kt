@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.WindowManager.LayoutParams
+import com.omer.akisgesture.feedback.FeedbackView
 
 object OverlayWindowFactory {
 
@@ -12,7 +13,7 @@ object OverlayWindowFactory {
         LayoutParams.FLAG_LAYOUT_IN_SCREEN
 
     /**
-     * 创建边缘触摸传感器窗口（Sensor 层）
+     * 创建Kenar触摸传感器窗口（Sensor 层）
      */
     fun createEdgeSensor(
         context: Context,
@@ -52,5 +53,21 @@ object OverlayWindowFactory {
             this.onEdgeTouchListener = onTouchListener
         }
         return OverlayWindow(view, params)
+    }
+
+    fun createFeedbackOverlay(context: Context): OverlayWindow {
+        val params = LayoutParams(
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            BASE_FLAGS or
+                LayoutParams.FLAG_NOT_TOUCHABLE or
+                LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+        }
+        return OverlayWindow(FeedbackView(context), params)
     }
 }

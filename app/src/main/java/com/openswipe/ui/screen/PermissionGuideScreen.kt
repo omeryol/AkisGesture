@@ -49,7 +49,7 @@ fun PermissionGuideScreen(
         mutableStateOf(PermissionHelper.isBatteryOptimizationIgnored(context))
     }
 
-    // 从系统设置返回时刷新权限状态
+    // 从系统AyarlarGeri时刷新权限状态
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         isAccessibilityEnabled = PermissionHelper.isAccessibilityServiceEnabled(context)
         isBatteryOptimized = PermissionHelper.isBatteryOptimizationIgnored(context)
@@ -62,32 +62,32 @@ fun PermissionGuideScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "权限设置",
+            text = "İzinler",
             style = MaterialTheme.typography.headlineMedium,
         )
         Text(
-            text = "OpenSwipe 需要以下权限才能正常工作",
+            text = "Akış Gesture düzgün çalışmak için aşağıdaki izinlere ihtiyaç duyar.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 步骤 1：无障碍服务（必需）
+        // Adım 1：Erişilebilirlik hizmeti（Gerekli）
         PermissionCard(
             step = 1,
-            title = "无障碍服务",
-            description = "用于检测触摸手势和执行导航操作。\n请在设置中找到 OpenSwipe 并启用。",
+            title = "Erişilebilirlik hizmeti",
+            description = "Kenar hareketlerini algılar ve seçilen işlemleri uygular.\nAyarlar içinde Akış Gesture hizmetini etkinleştirin.",
             isGranted = isAccessibilityEnabled,
             required = true,
             onRequest = { PermissionHelper.openAccessibilitySettings(context) },
         )
 
-        // 步骤 2：电池优化白名单（推荐）
+        // Adım 2：电池优化白名单（推荐）
         PermissionCard(
             step = 2,
-            title = "忽略电池优化",
-            description = "防止系统在后台杀死手势服务，保持手势持续可用。",
+            title = "Pil kısıtlamasını kaldır",
+            description = "HyperOS sisteminin hareket hizmetini arka planda durdurmasını önler.",
             isGranted = isBatteryOptimized,
             required = false,
             onRequest = { PermissionHelper.requestIgnoreBatteryOptimization(context) },
@@ -101,7 +101,7 @@ fun PermissionGuideScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
-                text = if (isAccessibilityEnabled) "开始使用" else "请先启用无障碍服务",
+                text = if (isAccessibilityEnabled) "Kullanmaya başla" else "Önce erişilebilirlik hizmetini açın",
             )
         }
     }
@@ -148,12 +148,12 @@ private fun PermissionCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "步骤 $step: $title",
+                            text = "Adım $step: $title",
                             style = MaterialTheme.typography.titleMedium,
                         )
                         if (required) {
                             Text(
-                                text = "必需",
+                                text = "Gerekli",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = StatusDisconnected,
                             )
@@ -174,14 +174,14 @@ private fun PermissionCard(
                         onClick = onRequest,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("前往设置")
+                        Text("Ayarları aç")
                     }
                 } else {
                     OutlinedButton(
                         onClick = onRequest,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("前往设置")
+                        Text("Ayarları aç")
                     }
                 }
             }

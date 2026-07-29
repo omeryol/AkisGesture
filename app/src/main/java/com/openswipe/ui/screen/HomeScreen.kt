@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.omer.akisgesture.OpenSwipeApp
+import com.omer.akisgesture.AkisGestureApp
 import com.omer.akisgesture.service.GestureAccessibilityService
 import com.omer.akisgesture.ui.theme.StatusConnected
 import com.omer.akisgesture.ui.theme.StatusDisconnected
@@ -43,7 +43,7 @@ fun HomeScreen(
 ) {
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
     val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
-    val ruleSet by OpenSwipeApp.getInstance().compiledRuleSet.collectAsState()
+    val ruleSet by AkisGestureApp.getInstance().compiledRuleSet.collectAsState()
     val context = LocalContext.current
     val batteryOptimized = !PermissionHelper.isBatteryOptimizationIgnored(context)
 
@@ -70,12 +70,12 @@ fun HomeScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "⚠️ 建议关闭电池优化",
+                        text = "Pil kısıtlamasını kapatın",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                     )
                     Text(
-                        text = "未关闭电池优化可能导致手势在后台失效",
+                        text = "Pil kısıtlaması hareketlerin arka planda durmasına neden olabilir.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
                     )
@@ -83,13 +83,13 @@ fun HomeScreen(
                     OutlinedButton(onClick = {
                         PermissionHelper.requestIgnoreBatteryOptimization(context)
                     }) {
-                        Text("去设置")
+                        Text("Ayarlara git")
                     }
                 }
             }
         }
 
-        // 规则摘要卡片
+        // Kurallar摘要卡片
         RuleSummaryCard(ruleSet = ruleSet)
     }
 }
@@ -125,11 +125,11 @@ private fun ServiceStatusCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (isConnected) "手势服务已连接" else "手势服务未连接",
+                    text = if (isConnected) "Hareketler hazır" else "Hareketler kapalı",
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = if (isConnected) "手势功能正常运行中" else "点击进行权限设置",
+                    text = if (isConnected) "Sol, sağ ve alt kenar etkin" else "Kurulumu tamamlamak için dokunun",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -143,8 +143,8 @@ private fun RuleSummaryCard(ruleSet: com.omer.akisgesture.rule.CompiledRuleSet) 
     val edges = com.omer.akisgesture.overlay.Edge.entries
     val activeEdges = edges.filter { ruleSet.hasRulesFor(it) }
     val totalRules = ruleSet.totalRuleCount()
-    val edgeDetails = activeEdges.joinToString("、") { edge ->
-        "${edgeLabel(edge)}(${ruleSet.ruleCountFor(edge)})"
+    val edgeDetails = activeEdges.joinToString(", ") { edge ->
+        "${edgeLabel(edge)} (${ruleSet.ruleCountFor(edge)})"
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -153,19 +153,19 @@ private fun RuleSummaryCard(ruleSet: com.omer.akisgesture.rule.CompiledRuleSet) 
                 .padding(16.dp),
         ) {
             Text(
-                text = if (totalRules > 0) "${totalRules} 条手势规则生效中"
-                       else "无生效规则",
+                text = if (totalRules > 0) "${totalRules}  hareket kuralı etkin"
+                       else "Etkin kural yok",
                 style = MaterialTheme.typography.titleMedium,
             )
             if (activeEdges.isNotEmpty()) {
                 Text(
-                    text = "活跃边缘：$edgeDetails",
+                    text = "Etkin kenarlar: $edgeDetails",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Text(
-                text = "前往「规则配置」编辑手势规则",
+                text = "Hareketleri değiştirmek için Kurallar bölümünü açın.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

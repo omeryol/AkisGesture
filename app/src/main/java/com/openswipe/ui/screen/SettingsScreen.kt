@@ -39,7 +39,7 @@ fun SettingsScreen(
     ) {
         // ── Edge trigger width settings ──
         Text(
-            text = "左右边缘触发宽度",
+            text = "Yan kenar genişliği",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -51,7 +51,7 @@ fun SettingsScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(text = "触发区域宽度", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Algılama genişliği", style = MaterialTheme.typography.titleMedium)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -80,7 +80,7 @@ fun SettingsScreen(
 
         // ── Bottom trigger settings (kept) ──
         Text(
-            text = "底部触发区域",
+            text = "Alt kenar alanı",
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -93,7 +93,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 // Height slider
-                Text(text = "触发区域高度", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Algılama yüksekliği", style = MaterialTheme.typography.titleMedium)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,

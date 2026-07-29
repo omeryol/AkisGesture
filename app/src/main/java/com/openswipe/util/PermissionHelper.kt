@@ -16,8 +16,8 @@ import com.omer.akisgesture.service.GestureAccessibilityService
 object PermissionHelper {
 
     /**
-     * 检查无障碍服务是否已启用。
-     * 通过 AccessibilityManager 查询已启用的服务列表，匹配自身包名和类名。
+     * 检查Erişilebilirlik hizmeti是否Etkin。
+     * 通过 AccessibilityManager 查询Etkin的服务列表，匹配自身包名和类名。
      */
     fun isAccessibilityServiceEnabled(context: Context): Boolean {
         val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
@@ -35,7 +35,7 @@ object PermissionHelper {
     }
 
     /**
-     * 跳转到系统无障碍设置页面。
+     * 跳转到系统无障碍Ayarlar页面。
      */
     fun openAccessibilitySettings(context: Context) {
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
@@ -45,7 +45,7 @@ object PermissionHelper {
     }
 
     /**
-     * 检查应用是否已被加入电池优化白名单。
+     * 检查Uygula是否已被加入电池优化白名单。
      */
     fun isBatteryOptimizationIgnored(context: Context): Boolean {
         val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
@@ -54,8 +54,8 @@ object PermissionHelper {
     }
 
     /**
-     * 请求忽略电池优化。
-     * 弹出系统对话框让用户确认。
+     * 请求Pil kısıtlamasını kaldır。
+     * 弹出系统对话框让用户Onayla。
      */
     fun requestIgnoreBatteryOptimization(context: Context) {
         if (isBatteryOptimizationIgnored(context)) return

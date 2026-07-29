@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import com.omer.akisgesture.OpenSwipeApp
+import com.omer.akisgesture.AkisGestureApp
 import com.omer.akisgesture.ui.util.edgeLabel
 import com.omer.akisgesture.ui.util.gestureLabel
 import kotlinx.coroutines.launch
@@ -49,7 +49,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     init {
         viewModelScope.launch {
-            val app = getApplication<Application>() as OpenSwipeApp
+            val app = getApplication<Application>() as AkisGestureApp
             val savedGraph = app.loadSavedRules()
             if (savedGraph != null && savedGraph.rules.isNotEmpty()) {
                 _rules.value = savedGraph.rules
@@ -57,7 +57,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 _activePresetName.value = null
                 revalidate()
             } else {
-                loadPreset("默认", Presets.DEFAULT)
+                loadPreset("Varsayılan", Presets.DEFAULT)
                 applyRules()
             }
         }
@@ -124,7 +124,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         val graph = GestureRuleGraph(rules = _rules.value)
         _appliedRules.value = _rules.value.toList()
         viewModelScope.launch {
-            (getApplication<Application>() as OpenSwipeApp).applyRules(graph)
+            (getApplication<Application>() as AkisGestureApp).applyRules(graph)
         }
     }
 
@@ -142,7 +142,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
             Conflict(
                 ruleA = c.ruleA,
                 ruleB = c.ruleB,
-                message = "${edgeLabel(c.ruleA.trigger.edge)} ${gestureLabel(c.ruleA.trigger.gestureType)} 区段冲突",
+                message = "${edgeLabel(c.ruleA.trigger.edge)} ${gestureLabel(c.ruleA.trigger.gestureType)} alanı çakışıyor",
             )
         }
     }
@@ -153,9 +153,9 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         val presets: List<Pair<String, GestureRuleGraph>> = listOf(
-            "iOS 风格" to Presets.IOS_STYLE,
-            "Android 经典" to Presets.ANDROID_CLASSIC,
-            "媒体控制" to Presets.MEDIA_CONTROL,
+            "iOS tarzı" to Presets.IOS_STYLE,
+            "Android klasik" to Presets.ANDROID_CLASSIC,
+            "Medya kontrolü" to Presets.MEDIA_CONTROL,
         )
     }
 }
