@@ -21,6 +21,11 @@ sealed class GestureResult {
         override val touchAlongEdgePx: Float = 0f,
     ) : GestureResult()
 
+    data class BottomHorizontalSwipe(
+        val direction: SwipeDirection,
+        override val touchAlongEdgePx: Float = 0f,
+    ) : GestureResult()
+
     data class Tap(
         val edge: Edge,
         val section: Int,

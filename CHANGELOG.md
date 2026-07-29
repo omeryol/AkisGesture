@@ -4,6 +4,9 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Alt kenarda sağa veya sola sürükleyerek açık uygulamalar arasında iki yönde
+  geçiş eklendi. Önceki/sonraki uygulama işlemleri artık kararlı bir uygulama
+  sırası üzerinden çalışıyor.
 - Kenar alanlarının yan genişlik ve alt yükseklik ölçekleri artık 0 dp'den başlıyor.
 
 ### Düzeltildi

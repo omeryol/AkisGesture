@@ -40,6 +40,7 @@ fun actionIcon(action: ActionNode): String = when (action) {
     is ActionNode.Home -> "\uD83C\uDFE0"
     is ActionNode.Recents -> "\uD83D\uDDC2"
     is ActionNode.SwitchLastApp -> "\uD83D\uDD04"
+    is ActionNode.SwitchNextApp -> "\uD83D\uDD04"
     is ActionNode.LockScreen -> "\uD83D\uDD12"
     is ActionNode.Screenshot -> "\uD83D\uDCF7"
     is ActionNode.SplitScreen -> "\u2B1C"

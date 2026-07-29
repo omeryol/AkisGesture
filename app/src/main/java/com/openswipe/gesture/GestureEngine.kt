@@ -322,6 +322,23 @@ class GestureEngine(
     private val edgeLengths = mutableMapOf<Edge, Float>()
 
     private fun handleGestureResult(result: GestureResult) {
+        if (result is GestureResult.BottomHorizontalSwipe) {
+            val action = when (result.direction) {
+                com.omer.akisgesture.gesture.model.SwipeDirection.RIGHT ->
+                    ActionNode.SwitchLastApp
+                com.omer.akisgesture.gesture.model.SwipeDirection.LEFT ->
+                    ActionNode.SwitchNextApp
+                else -> return
+            }
+            scope.launch {
+                val dispatchResult = actionDispatcher.dispatch(action)
+                Log.d(
+                    "AkisGesture",
+                    "bottom_app_switch direction=${result.direction} result=$dispatchResult",
+                )
+            }
+            return
+        }
         val actionNode = matchViaRuleSet(result)
         Log.d("AkisGesture", "matched_result result=$result action=$actionNode")
         if (actionNode == null) return
@@ -348,6 +365,7 @@ class GestureEngine(
                 GestureType.QUICK_SWIPE,
                 result.touchAlongEdgePx
             )
+            is GestureResult.BottomHorizontalSwipe -> return null
         }
         val compiledRuleSet = compiledRuleSetFlow.value
         val edgeLength = edgeLengths[edge] ?: return null

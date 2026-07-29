@@ -60,6 +60,11 @@ sealed interface ActionNode {
         override val label = "Hızlı ayarlar"
         override val minApi = 17
     }
+    data object SwitchNextApp : ActionNode {
+        override val id = "switch_next_app"
+        override val label = "Sonraki uygulama"
+        override val minApi = 16
+    }
     data object InputMethodPicker : ActionNode {
         override val id = "input_method_picker"
         override val label = "Klavye seçici"
@@ -141,7 +146,7 @@ sealed interface ActionNode {
     companion object {
         val allFixed: List<ActionNode> by lazy {
             listOf(
-                Back, Home, Recents, SwitchLastApp,
+                Back, Home, Recents, SwitchLastApp, SwitchNextApp,
                 LockScreen, Screenshot, SplitScreen, PowerMenu,
                 NotificationPanel, QuickSettings, InputMethodPicker, VolumePanel, Assistant,
                 MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown, ToggleMute,

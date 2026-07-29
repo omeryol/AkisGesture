@@ -48,6 +48,7 @@ class ActionDispatcherImpl(
         is ActionNode.Home -> globalAction(GLOBAL_ACTION_HOME)
         is ActionNode.Recents -> globalAction(GLOBAL_ACTION_RECENTS)
         is ActionNode.SwitchLastApp -> switchLastApp()
+        is ActionNode.SwitchNextApp -> switchNextApp()
         is ActionNode.SplitScreen -> requireApi(24) { globalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN) }
         is ActionNode.PowerMenu -> globalAction(GLOBAL_ACTION_POWER_DIALOG)
         is ActionNode.LockScreen -> requireApi(28) { globalAction(GLOBAL_ACTION_LOCK_SCREEN) }
@@ -137,10 +138,20 @@ class ActionDispatcherImpl(
     }
 
     private suspend fun switchLastApp(): ActionResult {
-        val previousPackage = service.previousForegroundPackage()
-            ?: return ActionResult.Failed("Önceki uygulama henüz belirlenemedi")
-        return launchApp(previousPackage)
+        return switchRecentTask(1)
     }
+
+    private suspend fun switchNextApp(): ActionResult {
+        return switchRecentTask(-1)
+    }
+
+    private suspend fun switchRecentTask(direction: Int): ActionResult =
+        withContext(Dispatchers.IO) {
+            when (val result = rootCommands.switchRecentTask(direction)) {
+                RootResult.Success -> ActionResult.Success
+                is RootResult.Failure -> ActionResult.Failed(result.reason)
+            }
+        }
 
     private fun launchApp(pkg: String, legacyActivity: String? = null): ActionResult = try {
         val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
