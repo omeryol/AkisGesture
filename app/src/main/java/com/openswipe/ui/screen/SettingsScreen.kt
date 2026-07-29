@@ -61,8 +61,8 @@ fun SettingsScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         // ── Edge trigger width settings ──
         Text(
@@ -75,8 +75,8 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(text = "Algılama genişliği", style = MaterialTheme.typography.titleMedium)
                 Row(
@@ -152,8 +152,8 @@ fun SettingsScreen(
         )
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
                     text = "Hareketlerin duracağı uygulamalar",
@@ -180,8 +180,8 @@ fun SettingsScreen(
         )
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text("Animasyon rengi", style = MaterialTheme.typography.titleMedium)
                 val hsv = FloatArray(3).also {
@@ -195,9 +195,29 @@ fun SettingsScreen(
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
+                        .height(36.dp)
                         .background(Color(config.feedbackColorArgb), CircleShape),
                 )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    OutlinedButton(
+                        onClick = { viewModel.setFeedbackColor(0xFF000000.toInt()) },
+                    ) {
+                        Text("Siyah")
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.setFeedbackColor(0xFFFFFFFF.toInt()) },
+                    ) {
+                        Text("Beyaz")
+                    }
+                    OutlinedButton(
+                        onClick = { viewModel.setFeedbackColor(0xFF3D5AFE.toInt()) },
+                    ) {
+                        Text("Varsayılan mavi")
+                    }
+                }
                 Text("Renk tonu · ${hsv[0].roundToInt()}°")
                 Slider(
                     value = hsv[0],
@@ -214,7 +234,7 @@ fun SettingsScreen(
                 Slider(
                     value = hsv[2],
                     onValueChange = { updateColor(value = it) },
-                    valueRange = 0.1f..1f,
+                    valueRange = 0f..1f,
                 )
                 Text("Saydamlık", style = MaterialTheme.typography.titleMedium)
                 Slider(
@@ -231,8 +251,8 @@ fun SettingsScreen(
                 )
                 Text("Animasyon biçimi", style = MaterialTheme.typography.titleMedium)
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     FeedbackAnimation.entries.forEach { animation ->
                         FilterChip(
@@ -244,8 +264,8 @@ fun SettingsScreen(
                 }
                 Text("Hızlı çekme simgesi", style = MaterialTheme.typography.titleMedium)
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     FeedbackIcon.entries.forEach { icon ->
                         FilterChip(
@@ -262,8 +282,8 @@ fun SettingsScreen(
                 }
                 Text("Çekip bekletme simgesi", style = MaterialTheme.typography.titleMedium)
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     FeedbackIcon.entries.forEach { icon ->
                         FilterChip(
@@ -291,8 +311,8 @@ fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     text = "Bekleme süresi",
