@@ -33,6 +33,11 @@ data class GestureConfig(
     val quickFeedbackIcon: FeedbackIcon = FeedbackIcon.CHEVRON,
     val holdFeedbackIcon: FeedbackIcon = FeedbackIcon.STAR,
 
+    // Çalışmayacağı yerler
+    val pauseOnLockScreen: Boolean = true,
+    val pauseWhenKeyboardVisible: Boolean = false,
+    val pauseInLandscape: Boolean = false,
+
     // 长按
     val holdTimeMs: Long = 280L,
 ) {
@@ -48,5 +53,8 @@ data class GestureConfig(
         val KEY_FEEDBACK_ANIMATION = stringPreferencesKey("feedback_animation")
         val KEY_QUICK_FEEDBACK_ICON = stringPreferencesKey("quick_feedback_icon")
         val KEY_HOLD_FEEDBACK_ICON = stringPreferencesKey("hold_feedback_icon")
+        val KEY_PAUSE_ON_LOCK_SCREEN = booleanPreferencesKey("pause_on_lock_screen")
+        val KEY_PAUSE_WHEN_KEYBOARD_VISIBLE = booleanPreferencesKey("pause_when_keyboard_visible")
+        val KEY_PAUSE_IN_LANDSCAPE = booleanPreferencesKey("pause_in_landscape")
     }
 }

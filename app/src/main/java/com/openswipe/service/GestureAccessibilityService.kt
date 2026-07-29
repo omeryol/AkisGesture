@@ -3,6 +3,7 @@ package com.omer.akisgesture.service
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.accessibilityservice.GestureDescription
+import android.app.KeyguardManager
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -15,6 +16,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityWindowInfo
 import androidx.core.content.ContextCompat
 import com.omer.akisgesture.AkisGestureApp
 import com.omer.akisgesture.action.ActionDispatcher
@@ -52,7 +54,8 @@ class GestureAccessibilityService : AccessibilityService() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         serviceInfo = serviceInfo?.apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
+                AccessibilityEvent.TYPE_WINDOWS_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.DEFAULT
             notificationTimeout = 200L
@@ -114,12 +117,18 @@ class GestureAccessibilityService : AccessibilityService() {
         Handler(Looper.getMainLooper()).post {
             if (instance === this && ::gestureEngine.isInitialized) {
                 gestureEngine.start()
+                updateSystemContext()
             }
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event ?: return
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
+            event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED
+        ) {
+            updateSystemContext()
+        }
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val pkg = event.packageName?.toString() ?: return
             if (pkg != currentForegroundPackage) {
@@ -171,6 +180,17 @@ class GestureAccessibilityService : AccessibilityService() {
 
     fun doPerformGlobalAction(actionId: Int): Boolean {
         return performGlobalAction(actionId)
+    }
+
+    private fun updateSystemContext() {
+        if (!::gestureEngine.isInitialized) return
+        val locked = getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
+        val keyboard = runCatching {
+            windows.any { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }
+        }.getOrDefault(false)
+        val landscape =
+            resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        gestureEngine.onSystemContextChanged(locked, keyboard, landscape)
     }
 
     fun foregroundPackage(): String? = currentForegroundPackage

@@ -39,7 +39,8 @@ içindeyken geri hareketi uygulamanın kendi sayfalarında
 gezinir. Telefon biçimli kural haritası alanları taşıma, boyutlandırma, birlikte
 eylem atama ve hareketi canlı deneme olanağı sunar. Arayüzde uzun seçenek
 yığınları yerine açılır bölümler ve listeler; eylemlerde ise işleve özel
-vektör simgeler kullanılır.
+vektör simgeler kullanılır. `Çalışmayacağı yerler` menüsünden kilit ekranı,
+klavye, yatay ekran ve uygulamaya özel duraklatma koşulları seçilebilir.
 
 ## Derleme
 

@@ -68,6 +68,10 @@ class AkisGestureApp : Application() {
                     holdFeedbackIcon = prefs[GestureConfig.KEY_HOLD_FEEDBACK_ICON]
                         ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
                         ?: FeedbackIcon.STAR,
+                    pauseOnLockScreen = prefs[GestureConfig.KEY_PAUSE_ON_LOCK_SCREEN] ?: true,
+                    pauseWhenKeyboardVisible =
+                        prefs[GestureConfig.KEY_PAUSE_WHEN_KEYBOARD_VISIBLE] ?: false,
+                    pauseInLandscape = prefs[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] ?: false,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -171,6 +175,18 @@ class AkisGestureApp : Application() {
         settingsDataStore.edit { prefs ->
             prefs[GestureConfig.KEY_HOLD_FEEDBACK_ICON] = icon.name
         }
+    }
+
+    suspend fun updatePauseOnLockScreen(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_LOCK_SCREEN] = enabled }
+    }
+
+    suspend fun updatePauseWhenKeyboardVisible(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_WHEN_KEYBOARD_VISIBLE] = enabled }
+    }
+
+    suspend fun updatePauseInLandscape(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] = enabled }
     }
 
     companion object {
