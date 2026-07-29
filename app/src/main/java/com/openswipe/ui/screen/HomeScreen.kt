@@ -1,4 +1,4 @@
-package com.openswipe.ui.screen
+package com.omer.akisgesture.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,13 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.openswipe.OpenSwipeApp
-import com.openswipe.service.GestureAccessibilityService
-import com.openswipe.ui.theme.StatusConnected
-import com.openswipe.ui.theme.StatusDisconnected
-import com.openswipe.ui.util.edgeLabel
-import com.openswipe.ui.viewmodel.HomeViewModel
-import com.openswipe.util.PermissionHelper
+import com.omer.akisgesture.OpenSwipeApp
+import com.omer.akisgesture.service.GestureAccessibilityService
+import com.omer.akisgesture.ui.theme.StatusConnected
+import com.omer.akisgesture.ui.theme.StatusDisconnected
+import com.omer.akisgesture.ui.util.edgeLabel
+import com.omer.akisgesture.ui.viewmodel.HomeViewModel
+import com.omer.akisgesture.util.PermissionHelper
 
 @Composable
 fun HomeScreen(
@@ -139,8 +139,8 @@ private fun ServiceStatusCard(
 }
 
 @Composable
-private fun RuleSummaryCard(ruleSet: com.openswipe.rule.CompiledRuleSet) {
-    val edges = com.openswipe.overlay.Edge.entries
+private fun RuleSummaryCard(ruleSet: com.omer.akisgesture.rule.CompiledRuleSet) {
+    val edges = com.omer.akisgesture.overlay.Edge.entries
     val activeEdges = edges.filter { ruleSet.hasRulesFor(it) }
     val totalRules = ruleSet.totalRuleCount()
     val edgeDetails = activeEdges.joinToString("、") { edge ->

@@ -1,7 +1,7 @@
-package com.openswipe.rule
+package com.omer.akisgesture.rule
 
-import com.openswipe.model.GestureRule
-import com.openswipe.model.SectionRange
+import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.model.SectionRange
 
 object RuleValidator {
 

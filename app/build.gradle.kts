@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.openswipe"
+    namespace = "com.omer.akisgesture"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.openswipe"
+        applicationId = "com.omer.akisgesture"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

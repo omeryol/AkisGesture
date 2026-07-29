@@ -1,4 +1,4 @@
-package com.openswipe.gesture.model
+package com.omer.akisgesture.gesture.model
 
 enum class SwipeDirection {
     LEFT, RIGHT, UP, DOWN

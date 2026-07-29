@@ -1,24 +1,24 @@
-package com.openswipe.ui.viewmodel
+package com.omer.akisgesture.ui.viewmodel
 
 import android.app.Application
 import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.openswipe.model.ActionNode
-import com.openswipe.model.GestureRule
-import com.openswipe.model.TriggerNode
-import com.openswipe.rule.GestureRuleGraph
-import com.openswipe.rule.Presets
-import com.openswipe.rule.RuleValidator
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.model.TriggerNode
+import com.omer.akisgesture.rule.GestureRuleGraph
+import com.omer.akisgesture.rule.Presets
+import com.omer.akisgesture.rule.RuleValidator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import com.openswipe.OpenSwipeApp
-import com.openswipe.ui.util.edgeLabel
-import com.openswipe.ui.util.gestureLabel
+import com.omer.akisgesture.OpenSwipeApp
+import com.omer.akisgesture.ui.util.edgeLabel
+import com.omer.akisgesture.ui.util.gestureLabel
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -65,7 +65,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     // ── Mutations ──
 
-    fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: com.openswipe.model.TriggerMode = com.openswipe.model.TriggerMode.SWIPE) {
+    fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: com.omer.akisgesture.model.TriggerMode = com.omer.akisgesture.model.TriggerMode.SWIPE) {
         val newRule = GestureRule(
             id = UUID.randomUUID().toString(),
             trigger = trigger,
@@ -111,7 +111,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         revalidate()
     }
 
-    fun updateRuleTriggerMode(ruleId: String, mode: com.openswipe.model.TriggerMode) {
+    fun updateRuleTriggerMode(ruleId: String, mode: com.omer.akisgesture.model.TriggerMode) {
         _rules.value = _rules.value.map { rule ->
             if (rule.id == ruleId) rule.copy(triggerMode = mode) else rule
         }

@@ -1,12 +1,12 @@
-package com.openswipe.rule
+package com.omer.akisgesture.rule
 
-import com.openswipe.model.ActionNode
-import com.openswipe.model.GestureRule
-import com.openswipe.model.GestureType
-import com.openswipe.model.SectionRange
-import com.openswipe.model.TriggerMode
-import com.openswipe.model.TriggerNode
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.SectionRange
+import com.omer.akisgesture.model.TriggerMode
+import com.omer.akisgesture.model.TriggerNode
+import com.omer.akisgesture.overlay.Edge
 import org.json.JSONArray
 import org.json.JSONObject
 

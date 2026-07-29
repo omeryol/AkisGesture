@@ -1,9 +1,9 @@
-package com.openswipe.feedback
+package com.omer.akisgesture.feedback
 
 import android.content.Context
 import android.graphics.Canvas
 import android.view.View
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.overlay.Edge
 
 /**
  * 视觉反馈 View，用在 WindowManager overlay 窗口中。

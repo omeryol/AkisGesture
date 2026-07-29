@@ -1,4 +1,4 @@
-package com.openswipe.ui
+package com.omer.akisgesture.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -29,14 +29,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material.icons.filled.Edit
-import com.openswipe.ui.screen.HomeScreen
-import com.openswipe.ui.screen.PermissionGuideScreen
-import com.openswipe.ui.screen.RuleDetailScreen
-import com.openswipe.ui.screen.RuleListScreen
-import com.openswipe.ui.screen.SettingsScreen
-import com.openswipe.ui.theme.OpenSwipeTheme
-import com.openswipe.ui.viewmodel.HomeViewModel
-import com.openswipe.ui.viewmodel.RuleConfigViewModel
+import com.omer.akisgesture.ui.screen.HomeScreen
+import com.omer.akisgesture.ui.screen.PermissionGuideScreen
+import com.omer.akisgesture.ui.screen.RuleDetailScreen
+import com.omer.akisgesture.ui.screen.RuleListScreen
+import com.omer.akisgesture.ui.screen.SettingsScreen
+import com.omer.akisgesture.ui.theme.OpenSwipeTheme
+import com.omer.akisgesture.ui.viewmodel.HomeViewModel
+import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 
 class MainActivity : ComponentActivity() {
 

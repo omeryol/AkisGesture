@@ -1,4 +1,4 @@
-package com.openswipe.ui.screen
+package com.omer.akisgesture.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,17 +47,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.openswipe.model.GestureType
-import com.openswipe.model.SectionRange
-import com.openswipe.model.TriggerMode
-import com.openswipe.overlay.Edge
-import com.openswipe.ui.component.ActionPickerDialog
-import com.openswipe.ui.viewmodel.RuleConfigViewModel
-import com.openswipe.ui.util.actionIcon
-import com.openswipe.ui.util.edgeIcon
-import com.openswipe.ui.util.edgeLabel
-import com.openswipe.ui.util.gestureLabel
-import com.openswipe.ui.util.sectionLabel
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.SectionRange
+import com.omer.akisgesture.model.TriggerMode
+import com.omer.akisgesture.overlay.Edge
+import com.omer.akisgesture.ui.component.ActionPickerDialog
+import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
+import com.omer.akisgesture.ui.util.actionIcon
+import com.omer.akisgesture.ui.util.edgeIcon
+import com.omer.akisgesture.ui.util.edgeLabel
+import com.omer.akisgesture.ui.util.gestureLabel
+import com.omer.akisgesture.ui.util.sectionLabel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

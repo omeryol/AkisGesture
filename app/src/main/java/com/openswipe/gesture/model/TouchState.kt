@@ -1,4 +1,4 @@
-package com.openswipe.gesture.model
+package com.omer.akisgesture.gesture.model
 
 class TouchState {
     var downX: Float = 0f

@@ -1,4 +1,4 @@
-package com.openswipe.util
+package com.omer.akisgesture.util
 
 import android.content.Context
 import android.content.res.Resources

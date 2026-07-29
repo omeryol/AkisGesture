@@ -13,6 +13,7 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Kaynak projedeki makineye özel ve geçersiz Gradle proxy ayarı kaldırıldı.
 - Proje ve kullanıcıya görünen uygulama adı Akış Gesture olarak değiştirildi.
 - Eski manifest paket bildirimi kaldırılarak Android Gradle Plugin uyarısı giderildi.
+- Uygulama kimliği kaynak projeden ayrılarak `com.omer.akisgesture` yapıldı.
 
 ### Bilinen durumlar
 

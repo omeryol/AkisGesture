@@ -1,4 +1,4 @@
-package com.openswipe.service
+package com.omer.akisgesture.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,8 +8,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.openswipe.R
-import com.openswipe.ui.MainActivity
+import com.omer.akisgesture.R
+import com.omer.akisgesture.ui.MainActivity
 
 class KeepAliveService : Service() {
 

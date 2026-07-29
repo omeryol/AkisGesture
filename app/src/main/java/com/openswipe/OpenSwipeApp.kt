@@ -1,4 +1,4 @@
-package com.openswipe
+package com.omer.akisgesture
 
 import android.app.Application
 import android.content.Context
@@ -7,12 +7,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.openswipe.gesture.GestureConfig
-import com.openswipe.rule.CompiledRuleSet
-import com.openswipe.rule.GestureRuleGraph
-import com.openswipe.rule.Presets
-import com.openswipe.rule.RuleSerializer.toGestureRuleGraph
-import com.openswipe.rule.RuleSerializer.toJson
+import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.rule.CompiledRuleSet
+import com.omer.akisgesture.rule.GestureRuleGraph
+import com.omer.akisgesture.rule.Presets
+import com.omer.akisgesture.rule.RuleSerializer.toGestureRuleGraph
+import com.omer.akisgesture.rule.RuleSerializer.toJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

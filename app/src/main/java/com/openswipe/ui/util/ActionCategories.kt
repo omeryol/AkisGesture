@@ -1,6 +1,6 @@
-package com.openswipe.ui.util
+package com.omer.akisgesture.ui.util
 
-import com.openswipe.model.ActionNode
+import com.omer.akisgesture.model.ActionNode
 
 /**
  * Shared action category definitions used by ActionPickerDialog and AddRuleDialog.

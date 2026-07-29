@@ -1,4 +1,4 @@
-package com.openswipe.overlay
+package com.omer.akisgesture.overlay
 
 import android.content.Context
 import android.graphics.PixelFormat

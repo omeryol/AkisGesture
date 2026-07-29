@@ -1,6 +1,6 @@
-package com.openswipe.model
+package com.omer.akisgesture.model
 
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.overlay.Edge
 
 data class TriggerNode(
     val edge: Edge,

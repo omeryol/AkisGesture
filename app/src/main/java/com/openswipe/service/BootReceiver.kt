@@ -1,4 +1,4 @@
-package com.openswipe.service
+package com.omer.akisgesture.service
 
 import android.content.BroadcastReceiver
 import android.content.Context

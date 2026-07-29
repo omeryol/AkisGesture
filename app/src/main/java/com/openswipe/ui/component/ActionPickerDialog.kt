@@ -1,4 +1,4 @@
-package com.openswipe.ui.component
+package com.omer.akisgesture.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,11 +17,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.openswipe.model.ActionNode
-import com.openswipe.ui.theme.OpenSwipePrimary
-import com.openswipe.ui.util.actionCategories
-import com.openswipe.ui.util.actionIcon
-import com.openswipe.ui.viewmodel.RuleConfigViewModel
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.ui.theme.OpenSwipePrimary
+import com.omer.akisgesture.ui.util.actionCategories
+import com.omer.akisgesture.ui.util.actionIcon
+import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

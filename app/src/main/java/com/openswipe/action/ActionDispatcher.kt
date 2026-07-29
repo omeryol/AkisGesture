@@ -1,4 +1,4 @@
-package com.openswipe.action
+package com.omer.akisgesture.action
 
 import android.content.ComponentName
 import android.content.Context
@@ -7,8 +7,8 @@ import android.media.AudioManager
 import android.os.Build
 import android.view.KeyEvent
 import android.view.ViewConfiguration
-import com.openswipe.model.ActionNode
-import com.openswipe.service.GestureAccessibilityService
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.service.GestureAccessibilityService
 import kotlinx.coroutines.delay
 
 interface ActionDispatcher {
