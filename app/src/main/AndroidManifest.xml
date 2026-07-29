@@ -59,6 +59,46 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".service.StartGestureActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:label="Akış · Hareketleri başlat"
+            android:noHistory="true"
+            android:theme="@style/Theme.AkisGesture" />
+        <activity
+            android:name=".service.StopGestureActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:label="Akış · Hareketleri durdur"
+            android:noHistory="true"
+            android:theme="@style/Theme.AkisGesture" />
+        <activity
+            android:name=".service.ToggleGestureActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:label="Akış · Durumu değiştir"
+            android:noHistory="true"
+            android:theme="@style/Theme.AkisGesture" />
+
+        <activity
+            android:name=".service.MacroDroidPluginActivity"
+            android:exported="true"
+            android:label="Akış Gesture">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".service.MacroDroidPluginReceiver"
+            android:exported="true"
+            android:label="Akış Gesture">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".service.BootReceiver"
             android:enabled="true"

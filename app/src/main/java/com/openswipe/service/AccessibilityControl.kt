@@ -1,6 +1,7 @@
 package com.omer.akisgesture.service
 
 import android.content.Context
+import android.content.ComponentName
 import com.omer.akisgesture.root.RootResult
 import java.util.concurrent.TimeUnit
 
@@ -23,7 +24,7 @@ object AccessibilityControl {
         val component = componentName(context)
         val current = runRoot("settings get secure enabled_accessibility_services")
         return current is CommandResult.Success &&
-            current.output.split(':').any { it.equals(component, ignoreCase = true) }
+            current.output.split(':').any { sameComponent(it, component) }
     }
 
     fun setEnabled(context: Context, enabled: Boolean): RootResult {
@@ -36,7 +37,7 @@ object AccessibilityControl {
             .takeUnless { it == "null" }
             .orEmpty()
             .split(':')
-            .filter { it.isNotBlank() && !it.equals(component, ignoreCase = true) }
+            .filter { it.isNotBlank() && !sameComponent(it, component) }
             .toMutableList()
         if (enabled) services += component
         val safeValue = services.joinToString(":")
@@ -57,7 +58,13 @@ object AccessibilityControl {
     }
 
     private fun componentName(context: Context): String =
-        "${context.packageName}/${GestureAccessibilityService::class.java.canonicalName}"
+        ComponentName(context, GestureAccessibilityService::class.java).flattenToString()
+
+    private fun sameComponent(value: String, target: String): Boolean {
+        val left = ComponentName.unflattenFromString(value) ?: return false
+        val right = ComponentName.unflattenFromString(target) ?: return false
+        return left == right
+    }
 
     private fun runRoot(command: String): CommandResult {
         return try {
