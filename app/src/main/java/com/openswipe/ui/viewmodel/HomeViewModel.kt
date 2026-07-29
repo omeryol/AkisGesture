@@ -93,6 +93,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateHoldFeedbackIcon(icon) }
     }
 
+    fun setPauseOnLockScreen(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseOnLockScreen(enabled) }
+    }
+
+    fun setPauseWhenKeyboardVisible(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseWhenKeyboardVisible(enabled) }
+    }
+
+    fun setPauseInLandscape(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseInLandscape(enabled) }
+    }
+
     private fun loadSelectableApps() {
         viewModelScope.launch(Dispatchers.IO) {
             val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)

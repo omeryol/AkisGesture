@@ -46,6 +46,10 @@ class GestureEngine(
     private var foregroundPackage: String? = null
     private var pausedPackages: Set<String> = pausedPackagesFlow.value
     private var pausedForForegroundApp = false
+    private var pausedForSystemContext = false
+    private var lockScreenVisible = false
+    private var keyboardVisible = false
+    private var landscape = false
 
     fun stop() {
         overlayManager.removeAll()
@@ -72,8 +76,9 @@ class GestureEngine(
                     currentConfig = newConfig
                     pausedPackages = packages
                     val shouldPause = AppPausePolicy.shouldPause(foregroundPackage, packages)
-                    if (shouldPause) {
-                        pausedForForegroundApp = true
+                    pausedForForegroundApp = shouldPause
+                    pausedForSystemContext = shouldPauseForSystemContext()
+                    if (isPaused()) {
                         overlayManager.removeAll()
                         detectors.clear()
                         edgeLengths.clear()
@@ -81,8 +86,7 @@ class GestureEngine(
                         started = true
                         return@collect
                     }
-                    if (pausedForForegroundApp) {
-                        pausedForForegroundApp = false
+                    if (detectors.isEmpty() && started) {
                         started = true
                         rebuildOverlays(ruleSet)
                         return@collect
@@ -102,7 +106,28 @@ class GestureEngine(
         val shouldPause = AppPausePolicy.shouldPause(packageName, pausedPackages)
         if (shouldPause == pausedForForegroundApp) return
         pausedForForegroundApp = shouldPause
-        if (shouldPause) {
+        if (isPaused()) {
+            overlayManager.removeAll()
+            detectors.clear()
+            edgeLengths.clear()
+            feedbackView = null
+        } else {
+            rebuildOverlays(compiledRuleSetFlow.value)
+        }
+    }
+
+    fun onSystemContextChanged(
+        lockScreenVisible: Boolean,
+        keyboardVisible: Boolean,
+        landscape: Boolean,
+    ) {
+        this.lockScreenVisible = lockScreenVisible
+        this.keyboardVisible = keyboardVisible
+        this.landscape = landscape
+        val shouldPause = shouldPauseForSystemContext()
+        if (shouldPause == pausedForSystemContext) return
+        pausedForSystemContext = shouldPause
+        if (isPaused()) {
             overlayManager.removeAll()
             detectors.clear()
             edgeLengths.clear()
@@ -113,8 +138,20 @@ class GestureEngine(
     }
 
     fun onConfigurationChanged(newConfig: Configuration) {
-        rebuildOverlays(compiledRuleSetFlow.value)
+        landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        onSystemContextChanged(lockScreenVisible, keyboardVisible, landscape)
+        if (!isPaused()) rebuildOverlays(compiledRuleSetFlow.value)
     }
+
+    private fun shouldPauseForSystemContext(): Boolean =
+        SystemPausePolicy.shouldPause(
+            config = currentConfig,
+            lockScreenVisible = lockScreenVisible,
+            keyboardVisible = keyboardVisible,
+            landscape = landscape,
+        )
+
+    private fun isPaused(): Boolean = pausedForForegroundApp || pausedForSystemContext
 
     private fun applyConfigDiff(old: GestureConfig, new: GestureConfig, ruleSet: CompiledRuleSet) {
         // If edge width changed, rebuild all side overlays
@@ -320,7 +357,7 @@ class GestureEngine(
     }
 
     override fun onEdgeTouch(edge: Edge, event: MotionEvent): Boolean {
-        if (pausedForForegroundApp) return false
+        if (isPaused()) return false
         return detectors[edge]?.onTouchEvent(event) ?: false
     }
 }

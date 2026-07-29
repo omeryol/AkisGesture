@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Palette
@@ -37,6 +38,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -150,18 +152,45 @@ fun SettingsScreen(
         }
 
         SettingsSection(
-            title = "Uygulama davranışı",
-            summary = if (pausedPackages.isEmpty()) "Her uygulamada etkin"
-            else "${pausedPackages.size} uygulamada duraklıyor",
-            icon = Icons.Filled.Apps,
+            title = "Çalışmayacağı yerler",
+            summary = buildList {
+                if (config.pauseOnLockScreen) add("kilit ekranı")
+                if (config.pauseWhenKeyboardVisible) add("klavye")
+                if (config.pauseInLandscape) add("yatay ekran")
+                if (pausedPackages.isNotEmpty()) add("${pausedPackages.size} uygulama")
+            }.joinToString(" · ").ifEmpty { "Her yerde etkin" },
+            icon = Icons.Filled.Block,
         ) {
+            SwitchSetting(
+                title = "Kilit ekranında",
+                description = "Telefon kilitliyken kenar hareketlerini kapat",
+                checked = config.pauseOnLockScreen,
+                onCheckedChange = viewModel::setPauseOnLockScreen,
+            )
+            SwitchSetting(
+                title = "Klavye açıkken",
+                description = "Yazı yazarken yanlış dokunmaları önle",
+                checked = config.pauseWhenKeyboardVisible,
+                onCheckedChange = viewModel::setPauseWhenKeyboardVisible,
+            )
+            SwitchSetting(
+                title = "Yatay ekranda",
+                description = "Oyun ve video görünümünde hareketleri kapat",
+                checked = config.pauseInLandscape,
+                onCheckedChange = viewModel::setPauseInLandscape,
+            )
             Text(
-                "Akış'ın çalışmamasını istediğin uygulamaları seç.",
+                if (pausedPackages.isEmpty()) {
+                    "Uygulamaya özel bir engel yok."
+                } else {
+                    "${pausedPackages.size} uygulamada hareketler çalışmayacak."
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             OutlinedButton(onClick = { showAppPicker = true }) {
-                Text("Uygulamaları seç")
+                Icon(Icons.Filled.Apps, contentDescription = null)
+                Text("  Uygulamaları seç")
             }
         }
 
@@ -218,6 +247,23 @@ fun SettingsScreen(
             },
         )
     }
+}
+
+@Composable
+private fun SwitchSetting(
+    title: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(description) },
+        trailingContent = {
+            Switch(checked = checked, onCheckedChange = onCheckedChange)
+        },
+        modifier = Modifier.clickable { onCheckedChange(!checked) },
+    )
 }
 
 @Composable

@@ -21,6 +21,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ### Eklendi
 
+- Ayarlara FNG benzeri `Çalışmayacağı yerler` menüsü eklendi. Hareketler kilit
+  ekranında, klavye açıkken, yatay ekranda ve kullanıcının seçtiği uygulamalarda
+  ayrı ayrı duraklatılabiliyor; koşul bittiğinde kendiliğinden geri geliyor.
+- Sistem durumuna göre duraklatmanın yalnızca seçilen koşullarda çalıştığını
+  doğrulayan birim testi eklendi.
 - Hızlı Ayarlar'a Akış hareketlerini açıp kapatan ve gerçek hizmet durumunu
   gösteren `Akış` kutucuğu eklendi.
 - MacroDroid ve diğer otomasyonların kullanabilmesi için yalnızca Akış'ın kendi
