@@ -14,7 +14,7 @@ class BootReceiver : BroadcastReceiver() {
         if (action == Intent.ACTION_BOOT_COMPLETED ||
             action == Intent.ACTION_MY_PACKAGE_REPLACED
         ) {
-            // 检查无障碍服务是否已启用，如果是则启动保活服务
+            // 检查Erişilebilirlik hizmeti是否Etkin，如果是则启动保活服务
             if (isAccessibilityServiceEnabled(context)) {
                 val serviceIntent = Intent(context, KeepAliveService::class.java)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

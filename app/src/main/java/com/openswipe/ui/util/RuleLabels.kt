@@ -6,24 +6,24 @@ import com.omer.akisgesture.model.SectionRange
 import com.omer.akisgesture.overlay.Edge
 
 fun edgeLabel(edge: Edge): String = when (edge) {
-    Edge.LEFT -> "左侧"
-    Edge.RIGHT -> "右侧"
-    Edge.BOTTOM -> "底部"
+    Edge.LEFT -> "Sol kenar"
+    Edge.RIGHT -> "Sağ kenar"
+    Edge.BOTTOM -> "Alt kenar"
 }
 
 fun gestureLabel(type: GestureType): String = when (type) {
-    GestureType.SWIPE -> "滑动"
+    GestureType.SWIPE -> "Kaydırma"
 }
 
 fun sectionLabel(section: SectionRange, edge: Edge): String {
     val isVertical = edge == Edge.LEFT || edge == Edge.RIGHT
     return when {
-        section.start == 0f && section.end == 1f -> "全段"
-        section.start == 0f && section.end == 1f / 3f -> if (isVertical) "上1/3" else "左1/3"
-        section.start == 1f / 3f && section.end == 2f / 3f -> "中1/3"
-        section.start == 2f / 3f && section.end == 1f -> if (isVertical) "下1/3" else "右1/3"
-        section.start == 0f && section.end == 0.5f -> if (isVertical) "上半" else "左半"
-        section.start == 0.5f && section.end == 1f -> if (isVertical) "下半" else "右半"
+        section.start == 0f && section.end == 1f -> "Tüm alan"
+        section.start == 0f && section.end == 1f / 3f -> if (isVertical) "Üst üçte bir" else "Sol üçte bir"
+        section.start == 1f / 3f && section.end == 2f / 3f -> "Orta üçte bir"
+        section.start == 2f / 3f && section.end == 1f -> if (isVertical) "Alt üçte bir" else "Sağ üçte bir"
+        section.start == 0f && section.end == 0.5f -> if (isVertical) "Üst yarı" else "Sol yarı"
+        section.start == 0.5f && section.end == 1f -> if (isVertical) "Alt yarı" else "Sağ yarı"
         else -> "${(section.start * 100).toInt()}%-${(section.end * 100).toInt()}%"
     }
 }

@@ -15,6 +15,7 @@ class EdgeGestureDetector(
     private val onGestureResult: (GestureResult) -> Unit,
     private val triggerMode: TriggerMode = TriggerMode.TOUCH,
     private val onReplayTap: ((Float, Float) -> Unit)? = null,
+    private val onProgress: (GestureProgress) -> Unit = {},
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
@@ -42,6 +43,7 @@ class EdgeGestureDetector(
             prevY = event.rawY
             downTime = System.currentTimeMillis()
         }
+        onProgress(GestureProgress(edge, 0f, touchCoord(event), active = true, armed = false))
     }
 
     private fun handleMove(event: MotionEvent) {
@@ -72,6 +74,21 @@ class EdgeGestureDetector(
 
         touchState.prevX = event.rawX
         touchState.prevY = event.rawY
+
+        val dampedDisplacement = inwardDisplacement(dx, dy) / config.dampingFactor
+        val visuallyActive = state == GestureState.DETECTED ||
+            state == GestureState.TRACKING ||
+            state == GestureState.AWAITING_DIRECTION
+        onProgress(
+            GestureProgress(
+                edge,
+                dampedDisplacement,
+                touchCoord(event),
+                active = visuallyActive,
+                armed = state == GestureState.DETECTED &&
+                    dampedDisplacement > config.minSwipeThresholdPx,
+            )
+        )
     }
 
     private fun handleUp(event: MotionEvent) {
@@ -79,6 +96,7 @@ class EdgeGestureDetector(
         if (triggerMode == TriggerMode.SWIPE) {
             if (state == GestureState.AWAITING_DIRECTION || state == GestureState.REJECTED) {
                 onReplayTap?.invoke(touchState.downX, touchState.downY)
+                finishProgress(event)
                 reset()
                 return
             }
@@ -86,11 +104,7 @@ class EdgeGestureDetector(
 
         val dx = event.rawX - touchState.downX
         val dy = event.rawY - touchState.downY
-        val rawDisplacement = when (edge) {
-            Edge.LEFT -> dx.coerceAtLeast(0f)
-            Edge.RIGHT -> (-dx).coerceAtLeast(0f)
-            Edge.BOTTOM -> (-dy).coerceAtLeast(0f)
-        }
+        val rawDisplacement = inwardDisplacement(dx, dy)
         val dampedDisplacement = rawDisplacement / config.dampingFactor
         val touchAlongEdge = touchCoord(event)
         val section = resolveSection(touchAlongEdge)
@@ -101,7 +115,18 @@ class EdgeGestureDetector(
             onGestureResult(result)
         }
 
+        finishProgress(event)
         reset()
+    }
+
+    private fun inwardDisplacement(dx: Float, dy: Float): Float = when (edge) {
+        Edge.LEFT -> dx.coerceAtLeast(0f)
+        Edge.RIGHT -> (-dx).coerceAtLeast(0f)
+        Edge.BOTTOM -> (-dy).coerceAtLeast(0f)
+    }
+
+    private fun finishProgress(event: MotionEvent) {
+        onProgress(GestureProgress(edge, 0f, touchCoord(event), active = false, armed = false))
     }
 
     private fun resolveGestureResult(
@@ -146,6 +171,14 @@ class EdgeGestureDetector(
         touchState.reset()
     }
 }
+
+data class GestureProgress(
+    val edge: Edge,
+    val stretch: Float,
+    val touchAlongEdgePx: Float,
+    val active: Boolean,
+    val armed: Boolean,
+)
 
 enum class GestureState {
     IDLE,

@@ -33,7 +33,7 @@ import com.omer.akisgesture.model.SectionRange
 import com.omer.akisgesture.model.TriggerMode
 import com.omer.akisgesture.model.TriggerNode
 import com.omer.akisgesture.overlay.Edge
-import com.omer.akisgesture.ui.theme.OpenSwipePrimary
+import com.omer.akisgesture.ui.theme.AkisGesturePrimary
 import com.omer.akisgesture.ui.util.actionCategories
 import com.omer.akisgesture.ui.util.actionIcon
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
@@ -52,12 +52,12 @@ fun AddRuleDialog(
     var selectedAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
 
-    val stepTitles = listOf("选择边缘", "选择区段", "选择动作")
+    val stepTitles = listOf("Kenar seç", "Alan seç", "Eylem seç")
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("添加规则 - ${stepTitles[step]}")
+            Text("Kural ekle - ${stepTitles[step]}")
         },
         text = {
             Column(
@@ -67,7 +67,7 @@ fun AddRuleDialog(
             ) {
                 // Step indicator
                 Text(
-                    text = "步骤 ${step + 1} / 3",
+                    text = "Adım ${step + 1} / 3",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -90,7 +90,7 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "触发模式",
+                            text = "Tetikleme biçimi",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -101,20 +101,20 @@ fun AddRuleDialog(
                             FilterChip(
                                 selected = selectedTriggerMode == TriggerMode.SWIPE,
                                 onClick = { selectedTriggerMode = TriggerMode.SWIPE },
-                                label = { Text("滑动（推荐）") },
+                                label = { Text("Kaydırma (önerilen)") },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                                    selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
                                 ),
-                                border = if (selectedTriggerMode == TriggerMode.SWIPE) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                                border = if (selectedTriggerMode == TriggerMode.SWIPE) BorderStroke(1.dp, AkisGesturePrimary) else null,
                             )
                             FilterChip(
                                 selected = selectedTriggerMode == TriggerMode.TOUCH,
                                 onClick = { selectedTriggerMode = TriggerMode.TOUCH },
-                                label = { Text("轻触") },
+                                label = { Text("Dokunma") },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                                    selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
                                 ),
-                                border = if (selectedTriggerMode == TriggerMode.TOUCH) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                                border = if (selectedTriggerMode == TriggerMode.TOUCH) BorderStroke(1.dp, AkisGesturePrimary) else null,
                             )
                         }
                     }
@@ -141,7 +141,7 @@ fun AddRuleDialog(
                         else -> false
                     },
                 ) {
-                    Text("下一步")
+                    Text("İleri")
                 }
             } else {
                 Button(
@@ -158,18 +158,18 @@ fun AddRuleDialog(
                     },
                     enabled = selectedAction != null,
                 ) {
-                    Text("确认")
+                    Text("Onayla")
                 }
             }
         },
         dismissButton = {
             if (step > 0) {
                 OutlinedButton(onClick = { step-- }) {
-                    Text("上一步")
+                    Text("Geri")
                 }
             } else {
                 TextButton(onClick = onDismiss) {
-                    Text("取消")
+                    Text("İptal")
                 }
             }
         },
@@ -183,9 +183,9 @@ private fun EdgeSelector(
     onSelect: (Edge) -> Unit,
 ) {
     val edges = listOf(
-        Triple(Edge.LEFT, "\u2190 左侧", "从左边缘向右滑"),
-        Triple(Edge.RIGHT, "\u2192 右侧", "从右边缘向左滑"),
-        Triple(Edge.BOTTOM, "\u2193 底部", "从底部向上滑"),
+        Triple(Edge.LEFT, "\u2190 Sol kenar", "Sol kenardan içeri kaydır"),
+        Triple(Edge.RIGHT, "\u2192 Sağ kenar", "Sağ kenardan içeri kaydır"),
+        Triple(Edge.BOTTOM, "\u2193 Alt kenar", "Alt kenardan yukarı kaydır"),
     )
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -203,9 +203,9 @@ private fun EdgeSelector(
                     }
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                    selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
                 ),
-                border = if (selected == edge) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                border = if (selected == edge) BorderStroke(1.dp, AkisGesturePrimary) else null,
             )
         }
     }
@@ -222,12 +222,12 @@ private fun SectionSelector(
         SectionRange.presets(edge)
     } else {
         // Left / Right edges: only full section makes sense for Phase 1
-        listOf("全段" to SectionRange.ALL)
+        listOf("Tüm alan" to SectionRange.ALL)
     }
 
     if (options.size == 1) {
         // Auto-select for left/right
-        Text("左右边缘默认使用全段", style = MaterialTheme.typography.bodyMedium)
+        Text("Yan kenarlar varsayılan olarak tüm alanı kullanır", style = MaterialTheme.typography.bodyMedium)
     }
 
     FlowRow(
@@ -240,9 +240,9 @@ private fun SectionSelector(
                 onClick = { onSelect(section) },
                 label = { Text(label) },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                    selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
                 ),
-                border = if (selected == section) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                border = if (selected == section) BorderStroke(1.dp, AkisGesturePrimary) else null,
             )
         }
     }
@@ -275,9 +275,9 @@ private fun ActionSelector(
                     label = { Text("${actionIcon(action)} ${action.label}", maxLines = 1) },
                     enabled = available,
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                        selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
                     ),
-                    border = if (selected == action) BorderStroke(1.dp, OpenSwipePrimary) else null,
+                    border = if (selected == action) BorderStroke(1.dp, AkisGesturePrimary) else null,
                 )
             }
         }

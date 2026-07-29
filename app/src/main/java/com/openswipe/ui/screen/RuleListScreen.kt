@@ -57,7 +57,7 @@ import android.widget.Toast
 import com.omer.akisgesture.model.GestureRule
 import com.omer.akisgesture.ui.component.ActionPickerDialog
 import com.omer.akisgesture.ui.component.AddRuleDialog
-import com.omer.akisgesture.ui.theme.OpenSwipePrimary
+import com.omer.akisgesture.ui.theme.AkisGesturePrimary
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 import com.omer.akisgesture.ui.util.actionIcon
 import com.omer.akisgesture.ui.util.edgeIcon
@@ -87,13 +87,13 @@ fun RuleListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("手势规则") },
+                title = { Text("Hareket kuralları") },
                 actions = {
                     val applyEnabled = hasUnapplied && conflicts.isEmpty()
                     TextButton(
                         onClick = {
                             viewModel.applyRules()
-                            Toast.makeText(context, "规则已应用", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Kurallar uygulandı", Toast.LENGTH_SHORT).show()
                         },
                         enabled = applyEnabled,
                     ) {
@@ -101,16 +101,16 @@ fun RuleListScreen(
                             Icons.Filled.Check,
                             contentDescription = null,
                             tint = if (applyEnabled)
-                                OpenSwipePrimary
+                                AkisGesturePrimary
                             else
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            "应用",
+                            "Uygula",
                             color = if (applyEnabled)
-                                OpenSwipePrimary
+                                AkisGesturePrimary
                             else
                                 MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                         )
@@ -122,8 +122,8 @@ fun RuleListScreen(
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("添加规则") },
-                containerColor = OpenSwipePrimary,
+                text = { Text("Kural ekle") },
+                containerColor = AkisGesturePrimary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
             )
         },
@@ -142,14 +142,14 @@ fun RuleListScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "预设方案",
+                    text = "Hazır düzen",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.width(12.dp))
                 Box {
                     OutlinedButton(onClick = { showPresetMenu = true }) {
-                        Text(activePreset ?: "自定义")
+                        Text(activePreset ?: "Özel")
                     }
                     DropdownMenu(
                         expanded = showPresetMenu,
@@ -190,7 +190,7 @@ fun RuleListScreen(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "${conflicts.size} 条冲突：${conflicts.firstOrNull()?.message ?: ""}",
+                            text = "${conflicts.size}  çakışma: ${conflicts.firstOrNull()?.message ?: ""}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onErrorContainer,
                         )
@@ -207,7 +207,7 @@ fun RuleListScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "暂无规则，请选择预设或添加规则",
+                        text = "Henüz kural yok. Hazır bir düzen seçin veya kural ekleyin.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -330,7 +330,7 @@ private fun RuleCard(
             IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
                 Icon(
                     Icons.Filled.Close,
-                    contentDescription = "删除规则",
+                    contentDescription = "Kuralı sil",
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

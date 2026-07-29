@@ -7,6 +7,8 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import com.omer.akisgesture.action.ActionDispatcher
 import com.omer.akisgesture.action.ActionType
+import com.omer.akisgesture.feedback.FeedbackView
+import com.omer.akisgesture.feedback.HapticHelper
 import com.omer.akisgesture.gesture.model.GestureResult
 import com.omer.akisgesture.model.ActionNode
 import com.omer.akisgesture.model.GestureType
@@ -36,11 +38,17 @@ class GestureEngine(
     private val detectors = mutableMapOf<Edge, EdgeGestureDetector>()
     private var currentConfig: GestureConfig = configFlow.value
     private var started = false
+    private var feedbackView: FeedbackView? = null
+    private var lastArmed = false
+    private var lastProgressActive = false
 
     fun stop() {
         overlayManager.removeAll()
         detectors.clear()
         edgeLengths.clear()
+        feedbackView = null
+        lastArmed = false
+        lastProgressActive = false
         scope.cancel()
         started = false
     }
@@ -99,11 +107,18 @@ class GestureEngine(
         overlayManager.removeAll()
         detectors.clear()
         edgeLengths.clear()
+        addFeedbackOverlay()
         for (edge in Edge.entries) {
             if (ruleSet.hasRulesFor(edge)) {
                 addEdgeOverlay(edge)
             }
         }
+    }
+
+    private fun addFeedbackOverlay() {
+        val window = OverlayWindowFactory.createFeedbackOverlay(overlayManager.context)
+        feedbackView = window.view as FeedbackView
+        overlayManager.addWindow("gesture_feedback", window)
     }
 
     private fun removeEdge(edge: Edge) {
@@ -176,7 +191,32 @@ class GestureEngine(
             onReplayTap = if (edgeTriggerMode == TriggerMode.SWIPE) { x, y ->
                 GestureAccessibilityService.getInstance()?.dispatchTap(x, y)
             } else null,
+            onProgress = ::handleGestureProgress,
         )
+    }
+
+    private fun handleGestureProgress(progress: GestureProgress) {
+        val view = feedbackView ?: return
+        view.peakThreshold = currentConfig.minSwipeThresholdPx
+        view.updateGestureState(
+            edge = progress.edge,
+            stretch = progress.stretch,
+            touchPos = progress.touchAlongEdgePx,
+            active = progress.active,
+            armed = progress.armed,
+        )
+
+        if (currentConfig.hapticEnabled) {
+            if (progress.active && !lastProgressActive) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
+            } else if (progress.armed && !lastArmed) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
+            } else if (!progress.active && lastArmed) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
+            }
+        }
+        lastArmed = progress.armed
+        lastProgressActive = progress.active
     }
 
     /** Map of edge → current sensor length in pixels, updated when overlays are created. */

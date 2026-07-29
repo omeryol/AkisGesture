@@ -34,7 +34,7 @@ import com.omer.akisgesture.ui.screen.PermissionGuideScreen
 import com.omer.akisgesture.ui.screen.RuleDetailScreen
 import com.omer.akisgesture.ui.screen.RuleListScreen
 import com.omer.akisgesture.ui.screen.SettingsScreen
-import com.omer.akisgesture.ui.theme.OpenSwipeTheme
+import com.omer.akisgesture.ui.theme.AkisGestureTheme
 import com.omer.akisgesture.ui.viewmodel.HomeViewModel
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 
@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            OpenSwipeTheme {
-                OpenSwipeApp()
+            AkisGestureTheme {
+                AkisGestureApp()
             }
         }
     }
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OpenSwipeApp() {
+private fun AkisGestureApp() {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: "home"
@@ -65,10 +65,10 @@ private fun OpenSwipeApp() {
                     title = {
                         Text(
                             text = when {
-                                currentRoute == "home" -> "OpenSwipe"
-                                currentRoute == "permissions" -> "权限设置"
-                                currentRoute == "settings" -> "设置"
-                                else -> "OpenSwipe"
+                                currentRoute == "home" -> "Akış Gesture"
+                                currentRoute == "permissions" -> "İzinler"
+                                currentRoute == "settings" -> "Ayarlar"
+                                else -> "Akış Gesture"
                             }
                         )
                     },
@@ -77,7 +77,7 @@ private fun OpenSwipeApp() {
         },
         bottomBar = {
             if (currentRoute in listOf("home", "rules", "settings")) {
-                OpenSwipeBottomBar(navController = navController, currentRoute = currentRoute)
+                AkisGestureBottomBar(navController = navController, currentRoute = currentRoute)
             }
         },
     ) { innerPadding ->
@@ -136,14 +136,14 @@ private fun OpenSwipeApp() {
 }
 
 @Composable
-private fun OpenSwipeBottomBar(
+private fun AkisGestureBottomBar(
     navController: NavHostController,
     currentRoute: String,
 ) {
     NavigationBar {
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Home, contentDescription = "主页") },
-            label = { Text("主页") },
+            icon = { Icon(Icons.Filled.Home, contentDescription = "Ana ekran") },
+            label = { Text("Ana ekran") },
             selected = currentRoute == "home",
             onClick = {
                 if (currentRoute != "home") {
@@ -154,8 +154,8 @@ private fun OpenSwipeBottomBar(
             },
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Edit, contentDescription = "规则") },
-            label = { Text("规则") },
+            icon = { Icon(Icons.Filled.Edit, contentDescription = "Kurallar") },
+            label = { Text("Kurallar") },
             selected = currentRoute == "rules",
             onClick = {
                 if (currentRoute != "rules") {
@@ -168,8 +168,8 @@ private fun OpenSwipeBottomBar(
             },
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Settings, contentDescription = "设置") },
-            label = { Text("设置") },
+            icon = { Icon(Icons.Filled.Settings, contentDescription = "Ayarlar") },
+            label = { Text("Ayarlar") },
             selected = currentRoute == "settings",
             onClick = {
                 if (currentRoute != "settings") {

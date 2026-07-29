@@ -81,21 +81,21 @@ fun RuleDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("规则详情") },
+                title = { Text("Kural ayrıntısı") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
                     }
                 },
                 actions = {
                     IconButton(onClick = {
                         viewModel.applyRules()
                         scope.launch {
-                            snackbarHostState.showSnackbar("已保存")
+                            snackbarHostState.showSnackbar("Kaydedildi")
                         }
                         onNavigateBack()
                     }) {
-                        Icon(Icons.Filled.Check, contentDescription = "保存")
+                        Icon(Icons.Filled.Check, contentDescription = "Kaydet")
                     }
                 },
             )
@@ -110,7 +110,7 @@ fun RuleDetailScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("规则不存在", style = MaterialTheme.typography.bodyLarge)
+                Text("Kural bulunamadı", style = MaterialTheme.typography.bodyLarge)
             }
             return@Scaffold
         }
@@ -126,9 +126,9 @@ fun RuleDetailScreen(
             // ── Enable/Disable ──
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
-                    headlineContent = { Text("启用规则") },
+                    headlineContent = { Text("Kuralı etkinleştir") },
                     supportingContent = {
-                        Text(if (rule.enabled) "已启用" else "已禁用")
+                        Text(if (rule.enabled) "Etkin" else "Kapalı")
                     },
                     trailingContent = {
                         Switch(
@@ -143,7 +143,7 @@ fun RuleDetailScreen(
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "触发条件",
+                        text = "Hareket koşulu",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -154,7 +154,7 @@ fun RuleDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("边缘", modifier = Modifier.weight(1f))
+                        Text("Kenar", modifier = Modifier.weight(1f))
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showEdgeMenu = true }) {
                                 Text("${edgeIcon(rule.trigger.edge)} ${edgeLabel(rule.trigger.edge)}")
@@ -186,7 +186,7 @@ fun RuleDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("区段", modifier = Modifier.weight(1f))
+                        Text("Alan", modifier = Modifier.weight(1f))
                         val sectionOptions = SectionRange.presets(rule.trigger.edge)
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showSectionMenu = true }) {
@@ -219,7 +219,7 @@ fun RuleDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("手势类型", modifier = Modifier.weight(1f))
+                        Text("Hareket türü", modifier = Modifier.weight(1f))
                         Text(
                             text = gestureLabel(rule.trigger.gestureType),
                             style = MaterialTheme.typography.bodyMedium,
@@ -233,7 +233,7 @@ fun RuleDetailScreen(
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "触发模式",
+                        text = "Tetikleme biçimi",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -252,9 +252,9 @@ fun RuleDetailScreen(
                         ) {
                             RadioButton(selected = rule.triggerMode == TriggerMode.SWIPE, onClick = null)
                             Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text("滑动", style = MaterialTheme.typography.bodyLarge)
+                                Text("Kaydırma", style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    "仅滑动触发，点击穿透到下层App",
+                                    "Yalnızca kaydırınca çalışır; normal dokunuş uygulamaya geçer.",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -273,9 +273,9 @@ fun RuleDetailScreen(
                         ) {
                             RadioButton(selected = rule.triggerMode == TriggerMode.TOUCH, onClick = null)
                             Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text("轻触", style = MaterialTheme.typography.bodyLarge)
+                                Text("Dokunma", style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    "触碰即检测（触碰就响应）",
+                                    "Kenara dokunulduğu anda algılar.",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -288,13 +288,13 @@ fun RuleDetailScreen(
             // ── Action ──
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
-                    headlineContent = { Text("执行动作") },
+                    headlineContent = { Text("Yapılacak işlem") },
                     supportingContent = {
                         Text("${actionIcon(rule.action)} ${rule.action.label}")
                     },
                     trailingContent = {
                         OutlinedButton(onClick = { showActionPicker = true }) {
-                            Text("更换")
+                            Text("Değiştir")
                         }
                     },
                 )
@@ -311,7 +311,7 @@ fun RuleDetailScreen(
             ) {
                 Icon(Icons.Filled.Delete, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("删除规则")
+                Text("Kuralı sil")
             }
         }
     }
@@ -331,20 +331,20 @@ fun RuleDetailScreen(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("确认删除") },
-            text = { Text("确定要删除此规则吗？此操作不可撤销。") },
+            title = { Text("OnaylaSil") },
+            text = { Text("Bu kural silinsin mi? Bu işlem geri alınamaz.") },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.removeRule(ruleId)
                     showDeleteConfirm = false
                     onNavigateBack()
                 }) {
-                    Text("删除", color = MaterialTheme.colorScheme.error)
+                    Text("Sil", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("取消")
+                    Text("İptal")
                 }
             },
         )

@@ -24,11 +24,11 @@ class KeepAliveService : Service() {
         super.onCreate()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID, "手势服务保活",
+                CHANNEL_ID, "Hareket hizmeti",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 setShowBadge(false)
-                description = "保持手势识别服务在后台稳定运行"
+                description = "Hareket hizmetini arka planda kullanılabilir tutar"
             }
             getSystemService(NotificationManager::class.java)
                 .createNotificationChannel(channel)
@@ -45,8 +45,8 @@ class KeepAliveService : Service() {
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_gesture_24)
-            .setContentTitle("OpenSwipe 手势服务运行中")
-            .setContentText("边缘手势识别已就绪，点击打开设置")
+            .setContentTitle("Akış Gesture hareket hizmeti çalışıyor")
+            .setContentText("Kenar hareketleri hazır. Ayarları açmak için dokunun.")
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)

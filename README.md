@@ -28,10 +28,10 @@ OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
 
 ## Mevcut durum
 
-İlk aşama OpenSwipe tabanının korunması ve doğrulanmasıdır. Uygulama henüz
-günlük kullanım için hazır değildir ve mevcut FNG kurulumu kaldırılmamalıdır.
-Akış Gesture paket kimliği `com.omer.akisgesture` olduğundan FNG ile yan yana
-kurulabilir.
+Temel sol, sağ ve alt kenar hareketleri gerçek cihazda çalışmaktadır. Türkçe
+arayüz, erişilebilirlik hizmeti, dokunsal geri bildirim ve parmağı izleyen
+kenar animasyonu geliştirme sürümünde aktiftir. Uzun hareketler ve uygulama
+profilleri tamamlanana kadar sürüm cihaz üzerinde denenerek geliştirilmektedir.
 
 ## Derleme
 
@@ -50,17 +50,27 @@ APK:
 
 `app/build/outputs/apk/debug/app-debug.apk`
 
+Kişisel profile kurulum:
+
+```powershell
+adb install --user 0 -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+Genel `adb install -r` kullanılmaz; aktif bir Island iş profili varsa uygulamayı
+o profile de kaydedebilir.
+
 ## Yol haritası
 
-- [ ] Temel projeyi temiz biçimde derle
-- [ ] Akış kimliği, adı ve görsel sistemini ayır
+- [x] Temel projeyi temiz biçimde derle
+- [x] Akış kimliği, adı ve görsel sistemini ayır
+- [x] Akıcı kenar animasyonu ve dokunsal eşik geri bildirimi ekle
 - [ ] Hareket motoru için birim testleri ekle
 - [ ] Gerçek cihazda kenar gecikmesi ve yanlış tetikleme ölçümü yap
 - [ ] Kısa, uzun ve bekletmeli hareketleri tek durum makinesinde birleştir
 - [ ] Uygulamaya özel profilleri ekle
 - [ ] HyperOS sağlık durumunu olay tabanlı izle
 - [ ] Ayrı ve isteğe bağlı root/APatch yardımcısını geliştir
-- [ ] FNG ile yan yana kullanım ve güvenli geçiş testi yap
+- [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle
 
 ## Lisans
 

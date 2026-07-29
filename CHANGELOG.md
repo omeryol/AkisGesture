@@ -19,13 +19,19 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
   yükleniyor.
 - Android 14 ve üzeri için hareket hizmetinin gerekli `specialUse` ön plan
   hizmeti izni ve açıklaması eklendi.
+- Uygulamanın görünen metinleri sade Türkçe anlatımla yenilendi.
+- Sol, sağ ve alt kenar hareketlerine parmağı izleyen akıcı dalga animasyonu eklendi.
+- Hareket eşiği renk değişimi ve üç aşamalı dokunsal geri bildirimle görünür hâle getirildi.
+- Parmak bırakıldığında görselin sertçe kaybolması yerine yumuşak geri çekilmesi sağlandı.
+- Görsel geri bildirim dokunmayı engellemeyen ayrı bir erişilebilirlik katmanına bağlandı.
+- Island iş profiline yanlışlıkla kurulum yapılmaması için cihaz kurulum komutu
+  yalnızca kişisel kullanıcıyı (`--user 0`) hedefleyecek şekilde belgelendi.
 
 ### Bilinen durumlar
 
-- İlk temiz derleme henüz doğrulanmadı.
-- Uygulama kimliği ve ekrandaki OpenSwipe markası henüz değiştirilmedi.
+- Uzun kaydırma ve kaydırıp bekletme hareketleri henüz tamamlanmadı.
 - Root/APatch yardımcısı henüz eklenmedi.
-- Mevcut FNG kurulumu için otomatik kaldırma veya veri taşıma yapılmıyor.
+- Uygulama profilleri henüz eklenmedi.
 
 ## [0.1.0-foundation] - 2026-07-30
 

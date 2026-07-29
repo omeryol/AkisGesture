@@ -14,7 +14,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.content.ContextCompat
-import com.omer.akisgesture.OpenSwipeApp
+import com.omer.akisgesture.AkisGestureApp
 import com.omer.akisgesture.action.ActionDispatcher
 import com.omer.akisgesture.action.ActionDispatcherImpl
 import com.omer.akisgesture.gesture.GestureEngine
@@ -55,9 +55,9 @@ class GestureAccessibilityService : AccessibilityService() {
             notificationTimeout = 200L
         }
 
-        val app = application as OpenSwipeApp
+        val app = application as AkisGestureApp
 
-        // 关键：如果规则尚未加载（EMPTY），在此同步加载
+        // 关键：如果Kurallar尚未加载（EMPTY），在此同步加载
         // 学习 STB 的策略：onServiceConnected 必须是完整的自包含初始化
         if (app.compiledRuleSet.value === com.omer.akisgesture.rule.CompiledRuleSet.EMPTY) {
             app.ensureRulesLoadedSync()

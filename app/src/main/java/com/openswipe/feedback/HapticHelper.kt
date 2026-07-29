@@ -14,16 +14,16 @@ import android.view.View
  * 三个触发时机（来自 STB/XDA 分析）：
  * 1. 触摸进入触发区域 → LIGHT
  * 2. 跨越 halfPeak 阈值（单→双箭头）→ MEDIUM
- * 3. 释放执行动作 → HEAVY
+ * 3. 释放Yapılacak işlem → HEAVY
  */
 object HapticHelper {
 
     enum class HapticType {
-        /** 轻触觉 - 手势开始 */
+        /** Dokunma觉 - 手势开始 */
         LIGHT,
         /** 中等触觉 - 跨越阈值 */
         MEDIUM,
-        /** 重触觉 - 动作确认 */
+        /** 重触觉 - 动作Onayla */
         HEAVY,
     }
 
@@ -54,7 +54,7 @@ object HapticHelper {
 
     /**
      * 通过 Vibrator 直接振动（当没有 View 可用时）。
-     * XDA 的自定义振动方案。
+     * XDA 的Özel振动方案。
      */
     fun performHaptic(context: Context, type: HapticType) {
         val vibrator = getVibrator(context) ?: return

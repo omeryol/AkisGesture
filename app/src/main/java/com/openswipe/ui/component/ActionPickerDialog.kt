@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.omer.akisgesture.model.ActionNode
-import com.omer.akisgesture.ui.theme.OpenSwipePrimary
+import com.omer.akisgesture.ui.theme.AkisGesturePrimary
 import com.omer.akisgesture.ui.util.actionCategories
 import com.omer.akisgesture.ui.util.actionIcon
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
@@ -33,7 +33,7 @@ fun ActionPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("选择动作") },
+        title = { Text("Eylem seç") },
         text = {
             Column(
                 modifier = Modifier
@@ -68,7 +68,7 @@ fun ActionPickerDialog(
                                 },
                                 enabled = available,
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = OpenSwipePrimary.copy(alpha = 0.15f),
+                                    selectedContainerColor = AkisGesturePrimary.copy(alpha = 0.15f),
                                 ),
                             )
                         }
@@ -79,7 +79,7 @@ fun ActionPickerDialog(
         confirmButton = {},
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("取消")
+                Text("İptal")
             }
         },
     )

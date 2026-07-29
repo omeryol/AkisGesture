@@ -16,31 +16,31 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = OpenSwipePrimaryDarkTheme,
-    secondary = OpenSwipeSecondary,
+    primary = AkisGesturePrimaryDarkTheme,
+    secondary = AkisGestureSecondary,
     tertiary = Pink80,
-    background = OpenSwipeBackgroundDark,
-    surface = OpenSwipeSurfaceDark,
-    onPrimary = OpenSwipeOnPrimaryDark,
-    onSecondary = OpenSwipeOnSecondary,
-    onBackground = OpenSwipeOnBackgroundDark,
-    onSurface = OpenSwipeOnSurfaceDark,
+    background = AkisGestureBackgroundDark,
+    surface = AkisGestureSurfaceDark,
+    onPrimary = AkisGestureOnPrimaryDark,
+    onSecondary = AkisGestureOnSecondary,
+    onBackground = AkisGestureOnBackgroundDark,
+    onSurface = AkisGestureOnSurfaceDark,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = OpenSwipePrimary,
-    secondary = OpenSwipeSecondary,
+    primary = AkisGesturePrimary,
+    secondary = AkisGestureSecondary,
     tertiary = Pink40,
-    background = OpenSwipeBackground,
-    surface = OpenSwipeSurface,
-    onPrimary = OpenSwipeOnPrimary,
-    onSecondary = OpenSwipeOnSecondary,
-    onBackground = OpenSwipeOnBackground,
-    onSurface = OpenSwipeOnSurface,
+    background = AkisGestureBackground,
+    surface = AkisGestureSurface,
+    onPrimary = AkisGestureOnPrimary,
+    onSecondary = AkisGestureOnSecondary,
+    onBackground = AkisGestureOnBackground,
+    onSurface = AkisGestureOnSurface,
 )
 
 @Composable
-fun OpenSwipeTheme(
+fun AkisGestureTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit,

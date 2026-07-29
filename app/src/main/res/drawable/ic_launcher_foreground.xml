@@ -30,7 +30,7 @@
             android:fillColor="#FFFFFF"
             android:fillAlpha="0.12"/>
 
-        <!-- 左边缘→右箭头 -->
+        <!-- 左Kenar→右箭头 -->
         <path
             android:pathData="M204,258 L228,258"
             android:strokeColor="#FFFFFF"
@@ -46,7 +46,7 @@
             android:fillColor="@android:color/transparent"
             android:strokeAlpha="0.9"/>
 
-        <!-- 右边缘→左箭头 -->
+        <!-- 右Kenar→左箭头 -->
         <path
             android:pathData="M308,278 L284,278"
             android:strokeColor="#FFFFFF"
@@ -62,7 +62,7 @@
             android:fillColor="@android:color/transparent"
             android:strokeAlpha="0.9"/>
 
-        <!-- 底部→上箭头 -->
+        <!-- Alt kenar→上箭头 -->
         <path
             android:pathData="M256,340 L256,316"
             android:strokeColor="#FFFFFF"
@@ -78,13 +78,13 @@
             android:fillColor="@android:color/transparent"
             android:strokeAlpha="0.9"/>
 
-        <!-- 底部 pill 条 -->
+        <!-- Alt kenar pill 条 -->
         <path
             android:pathData="M238,348 h36 a2,2 0 0 1 0,4 h-36 a2,2 0 0 1 0,-4 z"
             android:fillColor="#FFFFFF"
             android:fillAlpha="0.6"/>
 
-        <!-- 滑动轨迹弧线（背景） -->
+        <!-- Kaydırma轨迹弧线（背景） -->
         <path
             android:pathData="M436,466 C396,406 336,316 200,241"
             android:strokeColor="#FFFFFF"
@@ -92,7 +92,7 @@
             android:strokeLineCap="round"
             android:strokeAlpha="0.15"/>
 
-        <!-- 滑动轨迹弧线（前景） -->
+        <!-- Kaydırma轨迹弧线（前景） -->
         <path
             android:pathData="M416,436 C376,376 316,301 190,231"
             android:strokeColor="#FFFFFF"
@@ -100,7 +100,7 @@
             android:strokeLineCap="round"
             android:strokeAlpha="0.7"/>
 
-        <!-- 左边缘发光弧 -->
+        <!-- 左Kenar发光弧 -->
         <path
             android:pathData="M10,180 Q55,268 10,356"
             android:strokeColor="#FFFFFF"
@@ -109,7 +109,7 @@
             android:fillColor="@android:color/transparent"
             android:strokeAlpha="0.3"/>
 
-        <!-- 右边缘发光弧 -->
+        <!-- 右Kenar发光弧 -->
         <path
             android:pathData="M502,180 Q457,268 502,356"
             android:strokeColor="#FFFFFF"
@@ -118,7 +118,7 @@
             android:fillColor="@android:color/transparent"
             android:strokeAlpha="0.3"/>
 
-        <!-- 底部发光弧 -->
+        <!-- Alt kenar发光弧 -->
         <path
             android:pathData="M180,502 Q268,457 356,502"
             android:strokeColor="#FFFFFF"
