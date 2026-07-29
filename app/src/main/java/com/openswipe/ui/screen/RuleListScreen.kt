@@ -79,6 +79,7 @@ fun RuleListScreen(
     val conflicts by viewModel.conflicts.collectAsState()
     val hasUnapplied by viewModel.hasUnappliedChanges.collectAsState()
     val activePreset by viewModel.activePresetName.collectAsState()
+    val gestureConfig by viewModel.gestureConfig.collectAsState()
 
     var showAddDialog by remember { mutableStateOf(false) }
     var showPresetMenu by remember { mutableStateOf(false) }
@@ -238,6 +239,7 @@ fun RuleListScreen(
                     item(key = "gesture-map") {
                         GestureMapCard(
                             rules = rules,
+                            config = gestureConfig,
                             onZoneClick = { tappedRule ->
                                 selectedGroupKey = ruleGroups
                                     .firstOrNull { tappedRule.id in it.ids }

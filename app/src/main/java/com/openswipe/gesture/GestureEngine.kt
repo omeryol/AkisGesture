@@ -1,8 +1,8 @@
 package com.omer.akisgesture.gesture
 
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.util.TypedValue
+import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import com.omer.akisgesture.action.ActionDispatcher
@@ -172,8 +172,7 @@ class GestureEngine(
     }
 
     private fun addEdgeOverlay(edge: Edge) {
-        val resources = Resources.getSystem()
-        val displayMetrics = resources.displayMetrics
+        val displayMetrics = overlayManager.context.resources.displayMetrics
         val screenHeight = displayMetrics.heightPixels
         val screenWidth = displayMetrics.widthPixels
 
@@ -235,6 +234,17 @@ class GestureEngine(
                 GestureAccessibilityService.getInstance()?.dispatchTap(x, y)
             } else null,
             onProgress = ::handleGestureProgress,
+            hasHoldActionAt = { touchAlongEdgePx ->
+                if (sensorLength <= 0f) {
+                    false
+                } else {
+                    compiledRuleSetFlow.value.match(
+                        edge = edge,
+                        gestureType = GestureType.SWIPE_HOLD,
+                        sectionRatio = (touchAlongEdgePx / sensorLength).coerceIn(0f, 1f),
+                    ) != null
+                }
+            },
         )
     }
 
@@ -275,8 +285,13 @@ class GestureEngine(
     private val edgeLengths = mutableMapOf<Edge, Float>()
 
     private fun handleGestureResult(result: GestureResult) {
-        val actionNode = matchViaRuleSet(result) ?: return
-        scope.launch { actionDispatcher.dispatch(actionNode) }
+        val actionNode = matchViaRuleSet(result)
+        Log.d("AkisGesture", "matched_result result=$result action=$actionNode")
+        if (actionNode == null) return
+        scope.launch {
+            val dispatchResult = actionDispatcher.dispatch(actionNode)
+            Log.d("AkisGesture", "dispatch_result action=$actionNode result=$dispatchResult")
+        }
     }
 
     private fun matchViaRuleSet(result: GestureResult): ActionNode? {

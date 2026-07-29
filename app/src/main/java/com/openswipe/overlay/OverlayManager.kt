@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
+import android.util.Log
 
 class OverlayManager(
     val context: Context,
@@ -17,7 +18,7 @@ class OverlayManager(
             windowManager.addView(window.view, window.params)
             windows[tag] = window
         } catch (e: Exception) {
-            // 窗口添加失败（服务断开、权限不足等）
+            Log.e("AkisGesture", "overlay_add_failed tag=$tag", e)
         }
     }
 
