@@ -48,4 +48,49 @@ object GestureMapGeometry {
             )
         }
     }
+
+    fun toSectionPosition(contentPosition: Float): Float =
+        ((contentPosition - CONTENT_START) / CONTENT_LENGTH).coerceIn(0f, 1f)
+
+    fun toSectionDelta(contentDelta: Float): Float =
+        contentDelta / CONTENT_LENGTH
+}
+
+enum class RangeDragHandle {
+    START,
+    CENTER,
+    END,
+}
+
+object SectionRangeEditor {
+    const val MIN_LENGTH = 0.12f
+
+    fun handleFor(position: Float, range: SectionRange): RangeDragHandle {
+        val relative = ((position - range.start) / range.length).coerceIn(0f, 1f)
+        return when {
+            relative <= 0.25f -> RangeDragHandle.START
+            relative >= 0.75f -> RangeDragHandle.END
+            else -> RangeDragHandle.CENTER
+        }
+    }
+
+    fun drag(
+        original: SectionRange,
+        handle: RangeDragHandle,
+        delta: Float,
+    ): SectionRange = when (handle) {
+        RangeDragHandle.START -> SectionRange(
+            start = (original.start + delta).coerceIn(0f, original.end - MIN_LENGTH),
+            end = original.end,
+        )
+        RangeDragHandle.END -> SectionRange(
+            start = original.start,
+            end = (original.end + delta).coerceIn(original.start + MIN_LENGTH, 1f),
+        )
+        RangeDragHandle.CENTER -> {
+            val length = original.length
+            val start = (original.start + delta).coerceIn(0f, 1f - length)
+            SectionRange(start = start, end = start + length)
+        }
+    }
 }
