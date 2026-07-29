@@ -14,6 +14,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Proje ve kullanıcıya görünen uygulama adı Akış Gesture olarak değiştirildi.
 - Eski manifest paket bildirimi kaldırılarak Android Gradle Plugin uyarısı giderildi.
 - Uygulama kimliği kaynak projeden ayrılarak `com.omer.akisgesture` yapıldı.
+- Erişilebilirlik bağlanırken ana iş parçacığını kilitleyen senkron DataStore
+  okuması kaldırıldı; güvenli varsayılanlar anında, kayıtlı kurallar asenkron
+  yükleniyor.
+- Android 14 ve üzeri için hareket hizmetinin gerekli `specialUse` ön plan
+  hizmeti izni ve açıklaması eklendi.
 
 ### Bilinen durumlar
 
