@@ -1,4 +1,4 @@
-package com.openswipe.ui.theme
+package com.omer.akisgesture.ui.theme
 
 import android.app.Activity
 import android.os.Build

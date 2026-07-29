@@ -1,4 +1,4 @@
-package com.openswipe.gesture
+package com.omer.akisgesture.gesture
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey

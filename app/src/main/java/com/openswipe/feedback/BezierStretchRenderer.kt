@@ -1,10 +1,10 @@
-package com.openswipe.feedback
+package com.omer.akisgesture.feedback
 
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.overlay.Edge
 
 /**
  * 基于 STB 的贝塞尔曲线拉伸效果渲染器。

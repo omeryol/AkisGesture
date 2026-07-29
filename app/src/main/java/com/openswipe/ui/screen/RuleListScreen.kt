@@ -1,4 +1,4 @@
-package com.openswipe.ui.screen
+package com.omer.akisgesture.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
@@ -54,16 +54,16 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
-import com.openswipe.model.GestureRule
-import com.openswipe.ui.component.ActionPickerDialog
-import com.openswipe.ui.component.AddRuleDialog
-import com.openswipe.ui.theme.OpenSwipePrimary
-import com.openswipe.ui.viewmodel.RuleConfigViewModel
-import com.openswipe.ui.util.actionIcon
-import com.openswipe.ui.util.edgeIcon
-import com.openswipe.ui.util.edgeLabel
-import com.openswipe.ui.util.gestureLabel
-import com.openswipe.ui.util.sectionLabel
+import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.ui.component.ActionPickerDialog
+import com.omer.akisgesture.ui.component.AddRuleDialog
+import com.omer.akisgesture.ui.theme.OpenSwipePrimary
+import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
+import com.omer.akisgesture.ui.util.actionIcon
+import com.omer.akisgesture.ui.util.edgeIcon
+import com.omer.akisgesture.ui.util.edgeLabel
+import com.omer.akisgesture.ui.util.gestureLabel
+import com.omer.akisgesture.ui.util.sectionLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

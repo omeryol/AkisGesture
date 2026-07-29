@@ -1,9 +1,9 @@
-package com.openswipe.rule
+package com.omer.akisgesture.rule
 
-import com.openswipe.model.ActionNode
-import com.openswipe.model.GestureType
-import com.openswipe.model.TriggerMode
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.TriggerMode
+import com.omer.akisgesture.overlay.Edge
 
 class CompiledRuleSet(
     private val table: Map<Edge, Map<GestureType, List<CompiledSection>>>,

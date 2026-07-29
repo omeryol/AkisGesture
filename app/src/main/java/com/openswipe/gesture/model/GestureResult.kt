@@ -1,6 +1,6 @@
-package com.openswipe.gesture.model
+package com.omer.akisgesture.gesture.model
 
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.overlay.Edge
 
 sealed class GestureResult {
     /** Touch position along the edge in pixels (top-to-bottom for L/R, left-to-right for bottom). */

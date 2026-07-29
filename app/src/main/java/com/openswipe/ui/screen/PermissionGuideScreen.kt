@@ -1,4 +1,4 @@
-package com.openswipe.ui.screen
+package com.omer.akisgesture.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,9 +31,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import com.openswipe.ui.theme.StatusConnected
-import com.openswipe.ui.theme.StatusDisconnected
-import com.openswipe.util.PermissionHelper
+import com.omer.akisgesture.ui.theme.StatusConnected
+import com.omer.akisgesture.ui.theme.StatusDisconnected
+import com.omer.akisgesture.util.PermissionHelper
 
 @Composable
 fun PermissionGuideScreen(

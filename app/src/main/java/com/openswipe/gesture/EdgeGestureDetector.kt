@@ -1,11 +1,11 @@
-package com.openswipe.gesture
+package com.omer.akisgesture.gesture
 
 import android.view.MotionEvent
-import com.openswipe.gesture.model.GestureResult
-import com.openswipe.gesture.model.SwipeDirection
-import com.openswipe.gesture.model.TouchState
-import com.openswipe.model.TriggerMode
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.gesture.model.GestureResult
+import com.omer.akisgesture.gesture.model.SwipeDirection
+import com.omer.akisgesture.gesture.model.TouchState
+import com.omer.akisgesture.model.TriggerMode
+import com.omer.akisgesture.overlay.Edge
 import kotlin.math.abs
 
 class EdgeGestureDetector(

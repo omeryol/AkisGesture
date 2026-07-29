@@ -1,4 +1,4 @@
-package com.openswipe.feedback
+package com.omer.akisgesture.feedback
 
 import android.content.Context
 import android.os.Build

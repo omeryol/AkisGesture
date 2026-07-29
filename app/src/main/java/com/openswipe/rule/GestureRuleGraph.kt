@@ -1,8 +1,8 @@
-package com.openswipe.rule
+package com.omer.akisgesture.rule
 
-import com.openswipe.model.GestureRule
-import com.openswipe.model.GestureType
-import com.openswipe.model.TriggerMode
+import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.TriggerMode
 
 data class GestureRuleGraph(
     val rules: List<GestureRule>
@@ -10,7 +10,7 @@ data class GestureRuleGraph(
     fun validate(): List<RuleValidator.Conflict> = RuleValidator.validate(rules)
 
     fun compile(): CompiledRuleSet {
-        val table = mutableMapOf<com.openswipe.overlay.Edge, MutableMap<GestureType, MutableList<CompiledSection>>>()
+        val table = mutableMapOf<com.omer.akisgesture.overlay.Edge, MutableMap<GestureType, MutableList<CompiledSection>>>()
 
         for (rule in rules) {
             if (!rule.enabled) continue
@@ -37,7 +37,7 @@ data class GestureRuleGraph(
         }
 
         // Aggregate trigger mode per edge: if ANY enabled rule uses SWIPE, the edge uses SWIPE
-        val edgeTriggerModes = mutableMapOf<com.openswipe.overlay.Edge, TriggerMode>()
+        val edgeTriggerModes = mutableMapOf<com.omer.akisgesture.overlay.Edge, TriggerMode>()
         for (rule in rules) {
             if (!rule.enabled) continue
             val edge = rule.trigger.edge

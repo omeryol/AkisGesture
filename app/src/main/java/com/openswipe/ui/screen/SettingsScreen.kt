@@ -1,4 +1,4 @@
-package com.openswipe.ui.screen
+package com.omer.akisgesture.ui.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.openswipe.ui.viewmodel.HomeViewModel
+import com.omer.akisgesture.ui.viewmodel.HomeViewModel
 import kotlin.math.roundToInt
 
 @Composable

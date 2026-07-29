@@ -1,4 +1,4 @@
-package com.openswipe.ui.theme
+package com.omer.akisgesture.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

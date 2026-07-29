@@ -1,4 +1,4 @@
-package com.openswipe.model
+package com.omer.akisgesture.model
 
 sealed interface ActionNode {
     val id: String

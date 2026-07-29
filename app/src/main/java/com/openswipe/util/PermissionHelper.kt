@@ -1,4 +1,4 @@
-package com.openswipe.util
+package com.omer.akisgesture.util
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
@@ -8,7 +8,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
-import com.openswipe.service.GestureAccessibilityService
+import com.omer.akisgesture.service.GestureAccessibilityService
 
 /**
  * 权限检查工具类。

@@ -1,7 +1,7 @@
-package com.openswipe.rule
+package com.omer.akisgesture.rule
 
-import com.openswipe.model.*
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.model.*
+import com.omer.akisgesture.overlay.Edge
 
 object Presets {
 

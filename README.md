@@ -30,6 +30,8 @@ OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
 
 İlk aşama OpenSwipe tabanının korunması ve doğrulanmasıdır. Uygulama henüz
 günlük kullanım için hazır değildir ve mevcut FNG kurulumu kaldırılmamalıdır.
+Akış Gesture paket kimliği `com.omer.akisgesture` olduğundan FNG ile yan yana
+kurulabilir.
 
 ## Derleme
 

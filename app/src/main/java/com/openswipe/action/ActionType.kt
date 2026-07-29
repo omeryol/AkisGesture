@@ -1,4 +1,4 @@
-package com.openswipe.action
+package com.omer.akisgesture.action
 
 sealed class ActionType {
     data object None : ActionType()

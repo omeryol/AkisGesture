@@ -1,4 +1,4 @@
-package com.openswipe.overlay
+package com.omer.akisgesture.overlay
 
 import android.annotation.SuppressLint
 import android.content.Context

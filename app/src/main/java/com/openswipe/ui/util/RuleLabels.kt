@@ -1,9 +1,9 @@
-package com.openswipe.ui.util
+package com.omer.akisgesture.ui.util
 
-import com.openswipe.model.ActionNode
-import com.openswipe.model.GestureType
-import com.openswipe.model.SectionRange
-import com.openswipe.overlay.Edge
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.SectionRange
+import com.omer.akisgesture.overlay.Edge
 
 fun edgeLabel(edge: Edge): String = when (edge) {
     Edge.LEFT -> "左侧"

@@ -1,10 +1,10 @@
-package com.openswipe.ui.viewmodel
+package com.omer.akisgesture.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.openswipe.OpenSwipeApp
-import com.openswipe.gesture.GestureConfig
+import com.omer.akisgesture.OpenSwipeApp
+import com.omer.akisgesture.gesture.GestureConfig
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 

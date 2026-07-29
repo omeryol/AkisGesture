@@ -1,4 +1,4 @@
-package com.openswipe.ui.component
+package com.omer.akisgesture.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -27,16 +27,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.openswipe.model.ActionNode
-import com.openswipe.model.GestureType
-import com.openswipe.model.SectionRange
-import com.openswipe.model.TriggerMode
-import com.openswipe.model.TriggerNode
-import com.openswipe.overlay.Edge
-import com.openswipe.ui.theme.OpenSwipePrimary
-import com.openswipe.ui.util.actionCategories
-import com.openswipe.ui.util.actionIcon
-import com.openswipe.ui.viewmodel.RuleConfigViewModel
+import com.omer.akisgesture.model.ActionNode
+import com.omer.akisgesture.model.GestureType
+import com.omer.akisgesture.model.SectionRange
+import com.omer.akisgesture.model.TriggerMode
+import com.omer.akisgesture.model.TriggerNode
+import com.omer.akisgesture.overlay.Edge
+import com.omer.akisgesture.ui.theme.OpenSwipePrimary
+import com.omer.akisgesture.ui.util.actionCategories
+import com.omer.akisgesture.ui.util.actionIcon
+import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
