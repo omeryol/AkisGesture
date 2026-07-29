@@ -54,7 +54,7 @@ import com.omer.akisgesture.model.TriggerMode
 import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.component.ActionPickerDialog
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
-import com.omer.akisgesture.ui.util.actionIcon
+import com.omer.akisgesture.ui.util.actionImageVector
 import com.omer.akisgesture.ui.util.edgeIcon
 import com.omer.akisgesture.ui.util.edgeLabel
 import com.omer.akisgesture.ui.util.gestureLabel
@@ -336,7 +336,14 @@ fun RuleDetailScreen(
                 ListItem(
                     headlineContent = { Text("Yapılacak işlem") },
                     supportingContent = {
-                        Text("${actionIcon(rule.action)} ${rule.action.label}")
+                        Text(rule.action.label)
+                    },
+                    leadingContent = {
+                        Icon(
+                            actionImageVector(rule.action),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
                     },
                     trailingContent = {
                         OutlinedButton(onClick = { showActionPicker = true }) {

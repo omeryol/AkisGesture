@@ -1,7 +1,9 @@
 package com.omer.akisgesture.ui.component
 
 import android.os.SystemClock
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +17,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +54,7 @@ fun GestureMapCard(
     modifier: Modifier = Modifier,
 ) {
     var mode by remember { mutableStateOf(GestureMapMode.EDIT) }
+    var expanded by remember { mutableStateOf(false) }
     var rehearsalStatus by remember { mutableStateOf("Bir alanı kenardan içeri çek") }
     val zones = rules
         .filter { it.enabled }
@@ -74,52 +82,68 @@ fun GestureMapCard(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            Text("Hareket alanların", style = MaterialTheme.typography.titleMedium)
-            Text(
-                if (mode == GestureMapMode.EDIT) {
-                    "Dokunarak düzenle · sürükleyerek taşı veya boyutlandır"
-                } else {
-                    rehearsalStatus
+            ListItem(
+                headlineContent = { Text("Hareket alanları") },
+                supportingContent = {
+                    Text(if (expanded) "Dokunarak düzenle veya canlı dene" else "${zones.size} etkin alan")
                 },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = mode == GestureMapMode.EDIT,
-                    onClick = { mode = GestureMapMode.EDIT },
-                    label = { Text("Düzenle") },
-                )
-                FilterChip(
-                    selected = mode == GestureMapMode.REHEARSE,
-                    onClick = {
-                        mode = GestureMapMode.REHEARSE
-                        rehearsalStatus = "Bir alanı kenardan içeri çek"
-                    },
-                    label = { Text("Dene") },
-                )
-            }
-            GestureMapCanvas(
-                zones = zones,
-                config = config,
-                mode = mode,
-                onZoneClick = { onZoneClick(it.representative) },
-                onZoneRangeChange = { zone, range ->
-                    onZoneRangeChange(zone.ruleIds, range)
+                trailingContent = {
+                    Icon(
+                        if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = if (expanded) "Daralt" else "Haritayı aç",
+                    )
                 },
-                onRehearsalStatus = { rehearsalStatus = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .padding(top = 8.dp),
+                modifier = Modifier.clickable { expanded = !expanded },
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                MapLegend(color = Color(0xFF5B8CFF), text = "Hızlı")
-                MapLegend(color = Color(0xFFFFB74D), text = "Beklet")
-                MapLegend(color = Color(0xFF8B5CF6), text = "İkisi")
+            AnimatedVisibility(expanded) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        if (mode == GestureMapMode.EDIT) {
+                            "Dokunarak düzenle · sürükleyerek taşı veya boyutlandır"
+                        } else {
+                            rehearsalStatus
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = mode == GestureMapMode.EDIT,
+                            onClick = { mode = GestureMapMode.EDIT },
+                            label = { Text("Düzenle") },
+                        )
+                        FilterChip(
+                            selected = mode == GestureMapMode.REHEARSE,
+                            onClick = {
+                                mode = GestureMapMode.REHEARSE
+                                rehearsalStatus = "Bir alanı kenardan içeri çek"
+                            },
+                            label = { Text("Dene") },
+                        )
+                    }
+                    GestureMapCanvas(
+                        zones = zones,
+                        config = config,
+                        mode = mode,
+                        onZoneClick = { onZoneClick(it.representative) },
+                        onZoneRangeChange = { zone, range ->
+                            onZoneRangeChange(zone.ruleIds, range)
+                        },
+                        onRehearsalStatus = { rehearsalStatus = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                            .padding(top = 8.dp),
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        MapLegend(color = Color(0xFF5B8CFF), text = "Hızlı")
+                        MapLegend(color = Color(0xFFFFB74D), text = "Beklet")
+                        MapLegend(color = Color(0xFF8B5CF6), text = "İkisi")
+                    }
+                }
             }
         }
     }
