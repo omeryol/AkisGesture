@@ -30,6 +30,18 @@ class FeedbackView(context: Context) : View(context) {
         }
 
     var peakThreshold: Float = 30f
+    var feedbackColor: Int
+        get() = renderer.baseColor
+        set(value) {
+            renderer.baseColor = value
+            invalidate()
+        }
+    var feedbackOpacity: Float
+        get() = renderer.opacity
+        set(value) {
+            renderer.opacity = value.coerceIn(0.1f, 1f)
+            invalidate()
+        }
     var isActive: Boolean = false
         set(value) {
             field = value

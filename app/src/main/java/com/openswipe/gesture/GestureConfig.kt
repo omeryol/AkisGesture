@@ -3,6 +3,7 @@ package com.omer.akisgesture.gesture
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 
 data class GestureConfig(
     // 触发区域
@@ -23,6 +24,8 @@ data class GestureConfig(
 
     // 反馈
     val hapticEnabled: Boolean = true,
+    val feedbackColorArgb: Int = 0xFF3D5AFE.toInt(),
+    val feedbackOpacity: Float = 0.57f,
 
     // 长按
     val holdTimeMs: Long = 500L,
@@ -34,5 +37,7 @@ data class GestureConfig(
         val KEY_EDGE_TRIGGER_WIDTH = floatPreferencesKey("edge_trigger_width_dp")
         val KEY_BOTTOM_TRIGGER_HEIGHT = floatPreferencesKey("bottom_trigger_height_dp")
         val KEY_HOLD_TIME = longPreferencesKey("gesture_hold_time_ms")
+        val KEY_FEEDBACK_COLOR = intPreferencesKey("feedback_color_argb")
+        val KEY_FEEDBACK_OPACITY = floatPreferencesKey("feedback_opacity")
     }
 }

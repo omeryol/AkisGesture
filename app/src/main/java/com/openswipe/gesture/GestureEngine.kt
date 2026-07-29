@@ -241,6 +241,8 @@ class GestureEngine(
     private fun handleGestureProgress(progress: GestureProgress) {
         val view = feedbackView ?: return
         view.peakThreshold = currentConfig.minSwipeThresholdPx
+        view.feedbackColor = currentConfig.feedbackColorArgb
+        view.feedbackOpacity = currentConfig.feedbackOpacity
         view.updateGestureState(
             edge = progress.edge,
             stretch = progress.stretch,

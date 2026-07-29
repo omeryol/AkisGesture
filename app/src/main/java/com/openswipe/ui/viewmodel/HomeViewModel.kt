@@ -71,6 +71,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setFeedbackColor(argb: Int) {
+        viewModelScope.launch { app.updateFeedbackColor(argb) }
+    }
+
+    fun setFeedbackOpacity(opacity: Float) {
+        viewModelScope.launch { app.updateFeedbackOpacity(opacity) }
+    }
+
     private fun loadSelectableApps() {
         viewModelScope.launch(Dispatchers.IO) {
             val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)

@@ -17,6 +17,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -77,7 +78,10 @@ fun AddRuleDialog(
                 when (step) {
                     0 -> EdgeSelector(
                         selected = selectedEdge,
-                        onSelect = { selectedEdge = it },
+                        onSelect = {
+                            selectedEdge = it
+                            selectedSection = SectionRange.ALL
+                        },
                     )
                     1 -> SectionSelector(
                         edge = selectedEdge!!,
@@ -176,9 +180,6 @@ fun AddRuleDialog(
                     onClick = {
                         when (step) {
                             0 -> if (selectedEdge != null) {
-                                if (selectedEdge != Edge.BOTTOM && selectedSection == null) {
-                                    selectedSection = SectionRange.ALL
-                                }
                                 step++
                             }
                             1 -> if (selectedSection != null) step++
@@ -269,17 +270,7 @@ private fun SectionSelector(
     selected: SectionRange?,
     onSelect: (SectionRange) -> Unit,
 ) {
-    val options = if (edge == Edge.BOTTOM) {
-        SectionRange.presets(edge)
-    } else {
-        // Left / Right edges: only full section makes sense for Phase 1
-        listOf("Tüm alan" to SectionRange.ALL)
-    }
-
-    if (options.size == 1) {
-        // Auto-select for left/right
-        Text("Yan kenarlar varsayılan olarak tüm alanı kullanır", style = MaterialTheme.typography.bodyMedium)
-    }
+    val options = SectionRange.presets(edge)
 
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -297,6 +288,35 @@ private fun SectionSelector(
             )
         }
     }
+
+    Spacer(Modifier.height(16.dp))
+    Text(
+        "Konum ve uzunluk",
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+    )
+    Text(
+        if (edge == Edge.BOTTOM) "Sol ve sağ sınırı sürükleyin."
+        else "Üst ve alt sınırı sürükleyin.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    val range = selected ?: SectionRange.ALL
+    RangeSlider(
+        value = range.start..range.end,
+        onValueChange = { newRange ->
+            val start = newRange.start.coerceIn(0f, 0.9f)
+            val end = newRange.endInclusive.coerceIn(start + 0.1f, 1f)
+            onSelect(SectionRange(start, end))
+        },
+        valueRange = 0f..1f,
+        steps = 9,
+    )
+    Text(
+        "${(range.start * 100).toInt()}% – ${(range.end * 100).toInt()}%",
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.fillMaxWidth(),
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

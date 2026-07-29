@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -179,6 +180,34 @@ fun RuleDetailScreen(
                             }
                         }
                     }
+
+                    Text(
+                        if (rule.trigger.edge == Edge.BOTTOM)
+                            "Sol ve sağ sınır"
+                        else
+                            "Üst ve alt sınır",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    RangeSlider(
+                        value = rule.trigger.section.start..rule.trigger.section.end,
+                        onValueChange = { newRange ->
+                            val start = newRange.start.coerceIn(0f, 0.9f)
+                            val end = newRange.endInclusive.coerceIn(start + 0.1f, 1f)
+                            viewModel.updateRuleTrigger(
+                                ruleId,
+                                rule.trigger.copy(section = SectionRange(start, end)),
+                            )
+                        },
+                        valueRange = 0f..1f,
+                        steps = 9,
+                    )
+                    Text(
+                        "${(rule.trigger.section.start * 100).toInt()}% – " +
+                            "${(rule.trigger.section.end * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
 
                     Spacer(Modifier.height(8.dp))
 

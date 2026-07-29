@@ -27,6 +27,7 @@ class EdgeGestureDetector(
     private var holdArmed = false
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
+    private var wasArmed = false
     private val holdRunnable = Runnable {
         holdScheduled = false
         if (state == GestureState.DETECTED &&
@@ -114,6 +115,19 @@ class EdgeGestureDetector(
             state == GestureState.AWAITING_DIRECTION
         val quickArmed = state == GestureState.DETECTED &&
             dampedDisplacement >= config.minSwipeThresholdPx
+        if (quickArmed) wasArmed = true
+        if (state == GestureState.DETECTED &&
+            GestureCancelPolicy.shouldCancel(
+                wasArmed,
+                dampedDisplacement,
+                config.minSwipeThresholdPx,
+            )
+        ) {
+            state = GestureState.CANCELLED
+            cancelHold()
+            publishProgress(active = false)
+            return
+        }
         if (quickArmed && !holdScheduled && !holdArmed) {
             holdScheduled = true
             handler.postDelayed(holdRunnable, config.holdTimeMs)
@@ -242,6 +256,7 @@ class EdgeGestureDetector(
         cancelHold()
         lastStretch = 0f
         lastTouchAlongEdge = 0f
+        wasArmed = false
         state = GestureState.IDLE
         touchState.reset()
     }
@@ -267,4 +282,5 @@ enum class GestureState {
     EXECUTING,
     AWAITING_DIRECTION,
     REJECTED,
+    CANCELLED,
 }

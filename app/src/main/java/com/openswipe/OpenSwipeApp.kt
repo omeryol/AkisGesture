@@ -54,6 +54,9 @@ class AkisGestureApp : Application() {
                     edgeTriggerWidthDp = prefs[GestureConfig.KEY_EDGE_TRIGGER_WIDTH] ?: 20f,
                     bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 40f,
                     holdTimeMs = prefs[GestureConfig.KEY_HOLD_TIME] ?: 280L,
+                    feedbackColorArgb = prefs[GestureConfig.KEY_FEEDBACK_COLOR]
+                        ?: 0xFF3D5AFE.toInt(),
+                    feedbackOpacity = prefs[GestureConfig.KEY_FEEDBACK_OPACITY] ?: 0.57f,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -126,6 +129,18 @@ class AkisGestureApp : Application() {
             val current = prefs[KEY_PAUSED_PACKAGES].orEmpty()
             prefs[KEY_PAUSED_PACKAGES] =
                 if (paused) current + packageName else current - packageName
+        }
+    }
+
+    suspend fun updateFeedbackColor(argb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_COLOR] = argb
+        }
+    }
+
+    suspend fun updateFeedbackOpacity(opacity: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_OPACITY] = opacity.coerceIn(0.1f, 1f)
         }
     }
 
