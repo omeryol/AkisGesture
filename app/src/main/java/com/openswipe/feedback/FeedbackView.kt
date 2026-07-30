@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import com.omer.akisgesture.overlay.Edge
+import com.omer.akisgesture.gesture.model.SwipeDirection
 
 /**
  * Dokunmayı engellemeyen erişilebilirlik katmanında akıcı hareket geri bildirimi.
@@ -13,6 +14,7 @@ import com.omer.akisgesture.overlay.Edge
 class FeedbackView(context: Context) : View(context) {
 
     private val renderer = BezierStretchRenderer()
+    private val appSwitchRenderer = AppSwitchFeedbackRenderer()
     private var releaseAnimator: ValueAnimator? = null
 
     var edge: Edge = Edge.LEFT
@@ -80,6 +82,12 @@ class FeedbackView(context: Context) : View(context) {
             invalidate()
         }
 
+    var appSwitchDirection: SwipeDirection? = null
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private val arrowAlpha: Float
         get() = if (peakThreshold > 0f) {
             (stretchDistance / peakThreshold).coerceIn(0f, 1f)
@@ -96,6 +104,18 @@ class FeedbackView(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!isActive || stretchDistance < 0.5f) return
+        appSwitchDirection?.let { direction ->
+            appSwitchRenderer.draw(
+                canvas = canvas,
+                direction = direction,
+                touchX = touchPosition,
+                progress = arrowAlpha,
+                armed = isArmed,
+                color = feedbackColor,
+                opacity = feedbackOpacity,
+            )
+            return
+        }
         renderer.draw(
             canvas = canvas,
             edge = edge,
@@ -115,11 +135,13 @@ class FeedbackView(context: Context) : View(context) {
         active: Boolean,
         armed: Boolean,
         holdArmed: Boolean,
+        appSwitchDirection: SwipeDirection? = null,
     ) {
         this.edge = edge
         this.touchPosition = touchPos
         this.isArmed = armed
         this.isHoldArmed = holdArmed
+        this.appSwitchDirection = appSwitchDirection
         if (active) {
             releaseAnimator?.cancel()
             isActive = true
@@ -133,6 +155,7 @@ class FeedbackView(context: Context) : View(context) {
         releaseAnimator?.cancel()
         if (stretchDistance < 0.5f) {
             isActive = false
+            appSwitchDirection = null
             return
         }
         releaseAnimator = ValueAnimator.ofFloat(stretchDistance, 0f).apply {
@@ -140,7 +163,10 @@ class FeedbackView(context: Context) : View(context) {
             interpolator = DecelerateInterpolator(1.8f)
             addUpdateListener {
                 stretchDistance = it.animatedValue as Float
-                if (stretchDistance < 0.5f) isActive = false
+                if (stretchDistance < 0.5f) {
+                    isActive = false
+                    appSwitchDirection = null
+                }
             }
             start()
         }

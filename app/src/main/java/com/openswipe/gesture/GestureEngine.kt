@@ -300,6 +300,7 @@ class GestureEngine(
             active = progress.active,
             armed = progress.armed,
             holdArmed = progress.holdArmed,
+            appSwitchDirection = progress.appSwitchDirection,
         )
 
         if (currentConfig.hapticEnabled) {

@@ -29,6 +29,7 @@ class EdgeGestureDetector(
     private var holdArmed = false
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
+    private var lastSwitchDirection: SwipeDirection? = null
     private var wasArmed = false
     private val holdRunnable = Runnable {
         holdScheduled = false
@@ -81,6 +82,7 @@ class EdgeGestureDetector(
                 active = true,
                 armed = false,
                 holdArmed = false,
+                appSwitchDirection = null,
             )
         )
     }
@@ -88,13 +90,18 @@ class EdgeGestureDetector(
     private fun handleMove(event: MotionEvent) {
         val dx = event.rawX - touchState.downX
         val dy = event.rawY - touchState.downY
+        val switchDirection = if (edge == Edge.BOTTOM) {
+            BottomAppSwitchPolicy.direction(dx, dy, scaledTouchSlop.toFloat())
+        } else {
+            null
+        }
 
         when (state) {
             GestureState.AWAITING_DIRECTION -> {
                 if (dx * dx + dy * dy > scaledTouchSlop * scaledTouchSlop) {
                     val isValidSwipe = when (edge) {
-                        Edge.BOTTOM ->
-                            (dy < 0 && abs(dy) > abs(dx)) || abs(dx) > abs(dy)
+                        Edge.BOTTOM -> (dy < 0 && abs(dy) > abs(dx)) ||
+                            switchDirection != null
                         Edge.LEFT -> dx > 0 && abs(dx) > abs(dy)    // rightward
                         Edge.RIGHT -> dx < 0 && abs(dx) > abs(dy)   // leftward
                     }
@@ -119,18 +126,20 @@ class EdgeGestureDetector(
             inwardDisplacement(dx, dy),
             config.dampingFactor,
         )
-        lastStretch = dampedDisplacement
+        lastSwitchDirection = switchDirection
+        lastStretch = if (switchDirection != null) abs(dx) else dampedDisplacement
         lastTouchAlongEdge = touchCoord(event)
         val visuallyActive = state == GestureState.DETECTED ||
             state == GestureState.TRACKING ||
             state == GestureState.AWAITING_DIRECTION
-        val quickArmed = state == GestureState.DETECTED &&
-            GestureThresholds.isQuickArmed(
-                dampedDisplacement,
-                config.minSwipeThresholdPx,
-            )
+        val quickArmed = state == GestureState.DETECTED && if (switchDirection != null) {
+            BottomAppSwitchPolicy.isArmed(dx, config.minSwipeThresholdPx)
+        } else {
+            GestureThresholds.isQuickArmed(dampedDisplacement, config.minSwipeThresholdPx)
+        }
         if (quickArmed) wasArmed = true
-        if (state == GestureState.DETECTED &&
+        if (switchDirection == null &&
+            state == GestureState.DETECTED &&
             GestureCancelPolicy.shouldCancel(
                 wasArmed,
                 dampedDisplacement,
@@ -142,7 +151,7 @@ class EdgeGestureDetector(
             publishProgress(active = false)
             return
         }
-        if (quickArmed && !holdScheduled && !holdArmed) {
+        if (switchDirection == null && quickArmed && !holdScheduled && !holdArmed) {
             holdScheduled = true
             handler.postDelayed(holdRunnable, config.holdTimeMs)
         } else if (!quickArmed &&
@@ -205,6 +214,7 @@ class EdgeGestureDetector(
                 active = false,
                 armed = false,
                 holdArmed = false,
+                appSwitchDirection = null,
             )
         )
     }
@@ -218,7 +228,8 @@ class EdgeGestureDetector(
                 active = active,
                 armed = state == GestureState.DETECTED &&
                     lastStretch >= config.minSwipeThresholdPx,
-                holdArmed = holdArmed,
+            holdArmed = holdArmed,
+            appSwitchDirection = lastSwitchDirection,
             )
         )
     }
@@ -286,6 +297,7 @@ class EdgeGestureDetector(
         cancelHold()
         lastStretch = 0f
         lastTouchAlongEdge = 0f
+        lastSwitchDirection = null
         wasArmed = false
         state = GestureState.IDLE
         touchState.reset()
@@ -304,6 +316,7 @@ data class GestureProgress(
     val active: Boolean,
     val armed: Boolean,
     val holdArmed: Boolean,
+    val appSwitchDirection: SwipeDirection? = null,
 )
 
 enum class GestureState {

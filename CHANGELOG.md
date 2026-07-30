@@ -4,6 +4,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Alt kenardaki uygulama geçişi için parmağı izleyen yön kapsülü eklendi.
+  Sağ/sol yön oku hareket sırasında görünür; eşik tamamlandığında kapsül çerçeve
+  ve dokunsal geri bildirimle hazır durumunu bildirir, işlem yine bırakınca çalışır.
+- Yatay uygulama geçişini dikey alt-kenar hareketinden ayıran saf yön/eşik
+  politikası ve birim testleri eklendi.
 - Eylem listesinde bulunmasına rağmen çalışmayan `Fener` işlemi gerçek kamera
   fener denetimine bağlandı. Gerekli kamera izni yalnız kişisel profilde root
   üzerinden veriliyor; erişilebilirlik hizmeti izin verilmeden önce kameraya
