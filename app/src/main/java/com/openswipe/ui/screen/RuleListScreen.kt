@@ -308,7 +308,14 @@ fun RuleListScreen(
                             group = group,
                             onClick = { selectedGroupKey = group.key },
                             onDelete = { viewModel.removeRules(group.ids) },
-                            onChangeAction = { editingActionRuleId = it.id },
+                            onSelectAction = { gestureType, rule ->
+                                selectedGroupKey = group.key
+                                if (rule != null) {
+                                    editingActionRuleId = rule.id
+                                } else {
+                                    addingGestureType = gestureType
+                                }
+                            },
                             onToggleEnabled = {
                                 viewModel.setRulesEnabled(group.ids, it)
                             },
@@ -501,7 +508,7 @@ private fun RuleTableRow(
     group: RuleGroup,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    onChangeAction: (GestureRule) -> Unit,
+    onSelectAction: (GestureType, GestureRule?) -> Unit,
     onToggleEnabled: (Boolean) -> Unit,
 ) {
     val rule = group.representative
@@ -540,8 +547,7 @@ private fun RuleTableRow(
                 rule = group.quick,
                 modifier = Modifier.weight(1.05f),
                 onClick = {
-                    group.quick?.let(onChangeAction)
-                        ?: onClick()
+                    onSelectAction(GestureType.QUICK_SWIPE, group.quick)
                 },
             )
             ActionCell(
@@ -549,8 +555,7 @@ private fun RuleTableRow(
                 rule = group.hold,
                 modifier = Modifier.weight(1.05f),
                 onClick = {
-                    group.hold?.let(onChangeAction)
-                        ?: onClick()
+                    onSelectAction(GestureType.SWIPE_HOLD, group.hold)
                 },
             )
             Box {
