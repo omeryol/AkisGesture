@@ -67,11 +67,11 @@ import com.omer.akisgesture.model.GestureRule
 import com.omer.akisgesture.model.GestureType
 import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.component.ActionPickerDialog
+import com.omer.akisgesture.ui.component.ActionIcon
 import com.omer.akisgesture.ui.component.AddRuleDialog
 import com.omer.akisgesture.ui.component.GestureMapCard
 import com.omer.akisgesture.ui.theme.AkisGesturePrimary
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
-import com.omer.akisgesture.ui.util.actionImageVector
 import com.omer.akisgesture.ui.util.edgeIcon
 import com.omer.akisgesture.ui.util.edgeLabel
 import com.omer.akisgesture.ui.util.gestureLabel
@@ -476,10 +476,10 @@ private fun GestureSlotButton(
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
     ) {
         rule?.let {
-            Icon(
-                actionImageVector(it.action),
+            ActionIcon(
+                action = it.action,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.width(12.dp))
         }
@@ -609,10 +609,9 @@ private fun ActionCell(
         verticalArrangement = Arrangement.Center,
     ) {
         if (rule != null) {
-            Icon(
-                actionImageVector(rule.action),
+            ActionIcon(
+                action = rule.action,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp),
             )
             Spacer(Modifier.height(4.dp))

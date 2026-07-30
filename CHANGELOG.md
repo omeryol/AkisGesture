@@ -4,6 +4,13 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Eylem seçimine telefondaki başlatılabilir uygulamaları listeleyen ve arayan
+  `Uygulama aç` bölümü eklendi. Uygulama adı doğrudan genel eylem aramasında da
+  bulunabiliyor ve seçim yedeklere paket adıyla kaydediliyor.
+- Seçilen uygulamalar eylem seçicisinde, kural tablosunda ve ayrıntı ekranında
+  genel bir simge yerine kendi gerçek uygulama simgesiyle gösteriliyor.
+- Artık kullanılmayan eski eylem modeli ve içindeki uygulanmamış klavye seçici
+  yolu kaldırıldı; hareket motoru tek `ActionNode` yürütme hattını kullanıyor.
 - Alan adlarındaki teknik `üçte bir` ifadeleri kaldırıldı. Dikey kenarlarda
   `Üst / Orta / Alt bölüm`, alt kenarda `Sol / Orta / Sağ bölüm` dili
   kullanılıyor; özel alanlar da anlaşılır yüzde aralığıyla gösteriliyor.

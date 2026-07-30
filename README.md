@@ -44,6 +44,9 @@ klavye, yatay ekran ve uygulamaya özel duraklatma koşulları seçilebilir.
 Hareketler ekranında kenarlar sekmelerle ayrılır; her alanın hızlı ve bekletme
 eylemi aynı kompakt satırda düzenlenir. Ayrıntılı görünüm ayarları ana sayfayı
 kalabalıklaştırmadan ayrı pencerelerde açılır.
+Eylem seçicisinden telefondaki başlatılabilir uygulamalar ada göre aranabilir;
+atanan uygulama kendi simgesiyle gösterilir ve paket kimliği yedek dosyasında
+korunur.
 
 ## Derleme
 

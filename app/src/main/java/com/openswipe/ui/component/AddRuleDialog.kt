@@ -43,7 +43,6 @@ import com.omer.akisgesture.model.TriggerMode
 import com.omer.akisgesture.model.TriggerNode
 import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.theme.AkisGesturePrimary
-import com.omer.akisgesture.ui.util.actionImageVector
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -229,12 +228,20 @@ private fun ActionChoiceButton(
             vertical = 12.dp,
         ),
     ) {
-        Icon(
-            imageVector = action?.let(::actionImageVector) ?: Icons.Filled.Add,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(24.dp),
-        )
+        if (action != null) {
+            ActionIcon(
+                action = action,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp),
+            )
+        }
         Spacer(Modifier.size(12.dp))
         Column(
             modifier = Modifier.weight(1f),

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -53,8 +54,8 @@ import com.omer.akisgesture.model.SectionRange
 import com.omer.akisgesture.model.TriggerMode
 import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.ui.component.ActionPickerDialog
+import com.omer.akisgesture.ui.component.ActionIcon
 import com.omer.akisgesture.ui.viewmodel.RuleConfigViewModel
-import com.omer.akisgesture.ui.util.actionImageVector
 import com.omer.akisgesture.ui.util.edgeIcon
 import com.omer.akisgesture.ui.util.edgeLabel
 import com.omer.akisgesture.ui.util.gestureLabel
@@ -339,10 +340,10 @@ fun RuleDetailScreen(
                         Text(rule.action.label)
                     },
                     leadingContent = {
-                        Icon(
-                            actionImageVector(rule.action),
+                        ActionIcon(
+                            action = rule.action,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp),
                         )
                     },
                     trailingContent = {
