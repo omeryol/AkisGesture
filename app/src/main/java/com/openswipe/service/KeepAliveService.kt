@@ -13,14 +13,24 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.omer.akisgesture.R
 import com.omer.akisgesture.ui.MainActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class KeepAliveService : Service() {
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var healthCheckJob: Job? = null
+
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_SCREEN_ON ||
                 intent.action == Intent.ACTION_USER_PRESENT
             ) {
-                Thread { AccessibilityControl.repairIfNeeded(context) }.start()
+                scheduleHealthCheck()
             }
         }
     }
@@ -76,12 +86,23 @@ class KeepAliveService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Thread { AccessibilityControl.repairIfNeeded(this) }.start()
+        scheduleHealthCheck()
         return START_STICKY
     }
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(screenReceiver) }
+        serviceScope.cancel()
         super.onDestroy()
+    }
+
+    private fun scheduleHealthCheck() {
+        healthCheckJob?.cancel()
+        healthCheckJob = serviceScope.launch {
+            // HyperOS'a normal bağlanma için kısa bir süre tanı; yalnızca hâlâ
+            // bağlantı yoksa Akış bileşenini yeniden bağla.
+            delay(1_500)
+            AccessibilityControl.repairIfNeeded(this@KeepAliveService)
+        }
     }
 }

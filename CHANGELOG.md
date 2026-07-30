@@ -4,6 +4,14 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- HyperOS koruması artık yalnızca erişilebilirlik ayarındaki kaydı değil,
+  hizmetin gerçekten bağlı olup olmadığını da kontrol ediyor. Ayar açık fakat
+  bağlantı düşmüşse yalnızca Akış bileşeni olay sonrasında yeniden bağlanıyor.
+- Ekran açma, kilit açma, cihaz açılışı ve uygulama güncellemesi kontrollerine
+  kısa bağlanma bekleme süresi ve 30 saniyelik yeniden deneme sınırı eklendi;
+  saniyelik sorgu veya sürekli kapat-aç döngüsü kullanılmıyor.
+- Kullanıcı kutucuk, intent veya etkinlik üzerinden Akış'ı durdurduğunda ön plan
+  koruma hizmeti de kapanıyor ve olay kontrolleri kullanıcı kararını geri almıyor.
 - Eylem seçimine telefondaki başlatılabilir uygulamaları listeleyen ve arayan
   `Uygulama aç` bölümü eklendi. Uygulama adı doğrudan genel eylem aramasında da
   bulunabiliyor ve seçim yedeklere paket adıyla kaydediliyor.

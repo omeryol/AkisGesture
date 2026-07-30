@@ -118,7 +118,7 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Haritada gerçek eşiklerle canlı hızlı çekme/bekletme denemesi ekle
 - [x] HyperOS erişilebilirlik katmanı başlatma yarışını gider
 - [x] Uygulama içi geri ve güvenilir önceki uygulama davranışını ekle
-- [ ] HyperOS sağlık durumunu olay tabanlı izle
+- [x] HyperOS sağlık durumunu olay tabanlı izle
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle
 
