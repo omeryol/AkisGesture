@@ -3,6 +3,8 @@ package com.omer.akisgesture.action
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.view.KeyEvent
 import android.view.inputmethod.InputMethodManager
@@ -34,6 +36,18 @@ class ActionDispatcherImpl(
         service.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
     private val rootCommands by lazy { RootCommandExecutor(service) }
+    private val cameraManager by lazy {
+        service.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    }
+    @Volatile
+    private var torchEnabled = false
+    @Volatile
+    private var torchCallbackRegistered = false
+    private val torchCallback = object : CameraManager.TorchCallback() {
+        override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+            torchEnabled = enabled
+        }
+    }
 
     override suspend fun dispatch(action: ActionNode): ActionResult = when (action) {
         is ActionNode.NoAction -> ActionResult.Success
@@ -73,7 +87,7 @@ class ActionDispatcherImpl(
             audioManager.adjustVolume(AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
             ActionResult.Success
         }
-        is ActionNode.ToggleFlashlight -> ActionResult.Failed("Not implemented yet")
+        is ActionNode.ToggleFlashlight -> toggleFlashlight()
         is ActionNode.LaunchApp -> launchApp(action.packageName)
         is ActionNode.ForceStopForeground -> forceStopForeground()
     }
@@ -117,7 +131,7 @@ class ActionDispatcherImpl(
 
         is ActionType.LaunchApp -> launchApp(action.packageName, action.activityName)
 
-        is ActionType.ToggleFlashlight -> ActionResult.Failed("Not implemented yet")
+        is ActionType.ToggleFlashlight -> toggleFlashlight()
         is ActionType.SwitchInputMethod -> ActionResult.Failed("Not implemented yet")
     }
 
@@ -193,6 +207,29 @@ class ActionDispatcherImpl(
         ActionResult.Success
     } catch (e: Exception) {
         ActionResult.Failed(e.message ?: "Sistem asistanı açılamadı")
+    }
+
+    private suspend fun toggleFlashlight(): ActionResult = withContext(Dispatchers.IO) {
+        when (val grant = rootCommands.grantCameraPermission()) {
+            is RootResult.Failure -> return@withContext ActionResult.Failed(grant.reason)
+            RootResult.Success -> Unit
+        }
+        try {
+            if (!torchCallbackRegistered) {
+                cameraManager.registerTorchCallback(torchCallback, null)
+                torchCallbackRegistered = true
+            }
+            val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
+                val info = cameraManager.getCameraCharacteristics(id)
+                info.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true &&
+                    info.get(CameraCharacteristics.LENS_FACING) ==
+                    CameraCharacteristics.LENS_FACING_BACK
+            } ?: return@withContext ActionResult.Failed("Fener desteklenmiyor")
+            cameraManager.setTorchMode(cameraId, !torchEnabled)
+            ActionResult.Success
+        } catch (error: Exception) {
+            ActionResult.Failed(error.message ?: "Fener değiştirilemedi")
+        }
     }
 
     private suspend fun forceStopForeground(): ActionResult = withContext(Dispatchers.IO) {

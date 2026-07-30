@@ -31,6 +31,9 @@ class RootCommandExecutor(private val context: Context) {
 
     fun checkAccess(): RootResult = execute("id -u")
 
+    fun grantCameraPermission(): RootResult =
+        execute("pm grant --user 0 ${context.packageName} android.permission.CAMERA")
+
     fun switchRecentTask(direction: Int): RootResult {
         if (direction == 0) return RootResult.Failure("Geçersiz geçiş yönü")
         val now = android.os.SystemClock.elapsedRealtime()

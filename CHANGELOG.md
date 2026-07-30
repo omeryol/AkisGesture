@@ -4,6 +4,10 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Eylem listesinde bulunmasına rağmen çalışmayan `Fener` işlemi gerçek kamera
+  fener denetimine bağlandı. Gerekli kamera izni yalnız kişisel profilde root
+  üzerinden veriliyor; erişilebilirlik hizmeti izin verilmeden önce kameraya
+  erişmeye çalışmıyor.
 - Ana ekran; hizmet durumu, etkin hareketler, kullanılan kenarlar ve koruma
   bilgisini tek bakışta gösteren kompakt bir gösterge paneline dönüştürüldü.
 - Yedek yükleme işlemine, mevcut ayarların değiştirileceğini açıkça gösteren
