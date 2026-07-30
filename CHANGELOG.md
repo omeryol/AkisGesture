@@ -4,6 +4,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Hareket tablosunda boş `Hızlı` veya `Beklet` alanına dokununca ara pencere
+  kaldırıldı; ilgili eylem artık doğrudan atanabiliyor.
+- Eylem seçimine arama alanı ve sık kullanılan eylemler bölümü eklendi. Geri,
+  ana ekran, son uygulamalar, uygulama geçişi ve temel paneller tek dokunuşla
+  seçilebiliyor.
 - Alt kenardaki uygulama geçişi için parmağı izleyen yön kapsülü eklendi.
   Sağ/sol yön oku hareket sırasında görünür; eşik tamamlandığında kapsül çerçeve
   ve dokunsal geri bildirimle hazır durumunu bildirir, işlem yine bırakınca çalışır.
