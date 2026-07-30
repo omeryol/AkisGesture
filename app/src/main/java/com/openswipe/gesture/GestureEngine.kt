@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import com.omer.akisgesture.action.ActionDispatcher
-import com.omer.akisgesture.action.ActionType
 import com.omer.akisgesture.feedback.FeedbackView
 import com.omer.akisgesture.feedback.HapticHelper
 import com.omer.akisgesture.gesture.model.GestureResult

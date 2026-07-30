@@ -17,8 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 interface ActionDispatcher {
-    @Deprecated("Use dispatch(ActionNode) instead", replaceWith = ReplaceWith("dispatch(actionNode)"))
-    suspend fun dispatch(action: ActionType): ActionResult
     suspend fun dispatch(action: ActionNode): ActionResult
 }
 
@@ -92,49 +90,6 @@ class ActionDispatcherImpl(
         is ActionNode.ForceStopForeground -> forceStopForeground()
     }
 
-    @Deprecated("Use dispatch(ActionNode) instead")
-    override suspend fun dispatch(action: ActionType): ActionResult = when (action) {
-        is ActionType.None -> ActionResult.Success
-
-        is ActionType.Navigation.Back -> globalAction(GLOBAL_ACTION_BACK)
-        is ActionType.Navigation.Home -> globalAction(GLOBAL_ACTION_HOME)
-        is ActionType.Navigation.Recents -> globalAction(GLOBAL_ACTION_RECENTS)
-        is ActionType.Navigation.SwitchLastApp -> switchLastApp()
-        is ActionType.Navigation.SplitScreen -> requireApi(24) {
-            globalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
-        }
-        is ActionType.Navigation.PowerDialog -> globalAction(GLOBAL_ACTION_POWER_DIALOG)
-        is ActionType.Navigation.LockScreen -> requireApi(28) {
-            globalAction(GLOBAL_ACTION_LOCK_SCREEN)
-        }
-        is ActionType.Navigation.TakeScreenshot -> requireApi(28) {
-            globalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
-        }
-        is ActionType.Navigation.Notifications -> globalAction(4)
-        is ActionType.Navigation.QuickSettings -> globalAction(5)
-
-        is ActionType.Media.PlayPause -> mediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
-        is ActionType.Media.Previous -> mediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-        is ActionType.Media.Next -> mediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
-        is ActionType.Media.VolumeUp -> {
-            audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
-            ActionResult.Success
-        }
-        is ActionType.Media.VolumeDown -> {
-            audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
-            ActionResult.Success
-        }
-        is ActionType.Media.ToggleMute -> {
-            audioManager.adjustVolume(AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
-            ActionResult.Success
-        }
-
-        is ActionType.LaunchApp -> launchApp(action.packageName, action.activityName)
-
-        is ActionType.ToggleFlashlight -> toggleFlashlight()
-        is ActionType.SwitchInputMethod -> ActionResult.Failed("Not implemented yet")
-    }
-
     private fun globalAction(id: Int): ActionResult {
         return if (service.doPerformGlobalAction(id)) ActionResult.Success
         else ActionResult.Failed("performGlobalAction($id) returned false")
@@ -167,14 +122,8 @@ class ActionDispatcherImpl(
             }
         }
 
-    private fun launchApp(pkg: String, legacyActivity: String? = null): ActionResult = try {
+    private fun launchApp(pkg: String): ActionResult = try {
         val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
-            ?: legacyActivity?.let { activity ->
-                Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_LAUNCHER)
-                    setClassName(pkg, activity)
-                }
-            }
             ?: return ActionResult.Failed("Uygulamanın açılış ekranı bulunamadı")
         service.startActivity(launchIntent.apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
