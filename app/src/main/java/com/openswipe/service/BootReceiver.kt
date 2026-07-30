@@ -4,43 +4,38 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.provider.Settings
-import android.text.TextUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val action = intent.action
-        if (action == Intent.ACTION_BOOT_COMPLETED ||
-            action == Intent.ACTION_MY_PACKAGE_REPLACED
+        if (intent.action != Intent.ACTION_BOOT_COMPLETED &&
+            intent.action != Intent.ACTION_MY_PACKAGE_REPLACED
         ) {
-            Thread { AccessibilityControl.repairIfNeeded(context) }.start()
-            // 检查Erişilebilirlik hizmeti是否Etkin，如果是则启动保活服务
-            if (AccessibilityControl.isDesired(context)) {
-                val serviceIntent = Intent(context, KeepAliveService::class.java)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context.startForegroundService(serviceIntent)
-                } else {
-                    context.startService(serviceIntent)
-                }
-            }
+            return
         }
-    }
+        if (!AccessibilityControl.isDesired(context)) return
 
-    private fun isAccessibilityServiceEnabled(context: Context): Boolean {
-        val expectedComponentName = "${context.packageName}/${GestureAccessibilityService::class.java.canonicalName}"
-        val enabledServices = Settings.Secure.getString(
-            context.contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        ) ?: return false
-        val colonSplitter = TextUtils.SimpleStringSplitter(':')
-        colonSplitter.setString(enabledServices)
-        while (colonSplitter.hasNext()) {
-            val componentName = colonSplitter.next()
-            if (componentName.equals(expectedComponentName, ignoreCase = true)) {
-                return true
+        val serviceIntent = Intent(context, KeepAliveService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
+
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Paket güncellemesi ve açılışta Android'in normal erişilebilirlik
+                // bağlama sürecini tamamlamasına izin ver.
+                delay(5_000)
+                AccessibilityControl.repairIfNeeded(context.applicationContext)
+            } finally {
+                pendingResult.finish()
             }
         }
-        return false
     }
 }
