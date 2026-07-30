@@ -20,12 +20,16 @@ fun sectionLabel(section: SectionRange, edge: Edge): String {
     val isVertical = edge == Edge.LEFT || edge == Edge.RIGHT
     return when {
         section.start == 0f && section.end == 1f -> "Tüm alan"
-        section.start == 0f && section.end == 1f / 3f -> if (isVertical) "Üst üçte bir" else "Sol üçte bir"
-        section.start == 1f / 3f && section.end == 2f / 3f -> "Orta üçte bir"
-        section.start == 2f / 3f && section.end == 1f -> if (isVertical) "Alt üçte bir" else "Sağ üçte bir"
-        section.start == 0f && section.end == 0.5f -> if (isVertical) "Üst yarı" else "Sol yarı"
-        section.start == 0.5f && section.end == 1f -> if (isVertical) "Alt yarı" else "Sağ yarı"
-        else -> "${(section.start * 100).toInt()}%-${(section.end * 100).toInt()}%"
+        section.start == 0f && section.end == 1f / 3f ->
+            if (isVertical) "Üst bölüm" else "Sol bölüm"
+        section.start == 1f / 3f && section.end == 2f / 3f -> "Orta bölüm"
+        section.start == 2f / 3f && section.end == 1f ->
+            if (isVertical) "Alt bölüm" else "Sağ bölüm"
+        section.start == 0f && section.end == 0.5f ->
+            if (isVertical) "Üst yarısı" else "Sol yarısı"
+        section.start == 0.5f && section.end == 1f ->
+            if (isVertical) "Alt yarısı" else "Sağ yarısı"
+        else -> "Özel alan · %${(section.start * 100).toInt()}–%${(section.end * 100).toInt()}"
     }
 }
 
