@@ -4,6 +4,14 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [Unreleased]
 
+- Alan adlarındaki teknik `üçte bir` ifadeleri kaldırıldı. Dikey kenarlarda
+  `Üst / Orta / Alt bölüm`, alt kenarda `Sol / Orta / Sağ bölüm` dili
+  kullanılıyor; özel alanlar da anlaşılır yüzde aralığıyla gösteriliyor.
+- Yeni kural oluşturma akışı üç adımdan iki adıma indirildi. Kenar ve alan aynı
+  ekranda, hızlı ve bekletmeli hareketler ise tek özet ekranında ayarlanıyor.
+- Yeni kural ekranındaki uzun açılır eylem listesi kaldırıldı. Mevcut kurallarla
+  aynı aranabilir eylem seçici kullanılıyor; seçilen eylem tek dokunuşla
+  değiştirilebiliyor veya kaldırılabiliyor.
 - Hareket tablosunda boş `Hızlı` veya `Beklet` alanına dokununca ara pencere
   kaldırıldı; ilgili eylem artık doğrudan atanabiliyor.
 - Eylem seçimine arama alanı ve sık kullanılan eylemler bölümü eklendi. Geri,

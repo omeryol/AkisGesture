@@ -37,11 +37,11 @@ data class SectionRange(
             val isVertical = edge == Edge.LEFT || edge == Edge.RIGHT
             return listOf(
                 "Tüm alan" to ALL,
-                (if (isVertical) "Üst üçte bir" else "Sol üçte bir") to thirds(0),
-                "Orta üçte bir" to thirds(1),
-                (if (isVertical) "Alt üçte bir" else "Sağ üçte bir") to thirds(2),
-                (if (isVertical) "Üst yarı" else "Sol yarı") to halves(0),
-                (if (isVertical) "Alt yarı" else "Sağ yarı") to halves(1),
+                (if (isVertical) "Üst bölüm" else "Sol bölüm") to thirds(0),
+                "Orta bölüm" to thirds(1),
+                (if (isVertical) "Alt bölüm" else "Sağ bölüm") to thirds(2),
+                (if (isVertical) "Üst yarısı" else "Sol yarısı") to halves(0),
+                (if (isVertical) "Alt yarısı" else "Sağ yarısı") to halves(1),
             )
         }
     }
