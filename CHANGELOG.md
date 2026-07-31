@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.11] - 2026-08-01
+
+### 🔴 Yuvarlak Dairesel Emoji İkonlar & Uyumlu 3D Yuvarlak Gölge
+
+- **Dairesel Emoji İkonlar Seçildi:** Mümkün olan tüm ikon seçenekleri yuvarlak/dairesel Emoji sembollerine dönüştürüldü (`🎯 🔘 ⚪ 🧿 🌟 🔴 🔵 🟢 🟣 ⭕`).
+- **Uyumlu 3D Yuvarlak Taban Gölgesi:** Dairesel ikonlarla tam uyum sağlayan 3 boyutlu yuvarlak küre cam rozet ve taban gölgesi korundu.
+
 ## [1.1.10] - 2026-08-01
 
 ### 🔴 3D Yuvarlak Cam Rozet & Eşleşen 3D Dairesel Yükselti Gölgesi (3D Glass Orb)
