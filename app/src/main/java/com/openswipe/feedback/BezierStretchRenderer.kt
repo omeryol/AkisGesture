@@ -10,13 +10,16 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
 import com.omer.akisgesture.overlay.Edge
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.random.Random
 
 /**
- * Natural Elements Visual Feedback Engine.
- * Takes direct creative inspiration from core forces of nature:
- * Water (Su), Fire (Ateş), Steam (Buhar), Cloud (Bulut), Lightning (Şimşek), Wind (Rüzgar), Rain (Yağmur), Sun (Güneş).
+ * Deep Organic Nature Simulation Engine.
+ * Complete architectural rewrite featuring procedural fluid dynamics,
+ * fractal lightning generation, turbulent plasma fire physics,
+ * atmospheric nebula particle fields, and solar corona optics.
  */
 class BezierStretchRenderer {
 
@@ -32,6 +35,10 @@ class BezierStretchRenderer {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
+    }
+
+    private val sparkPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
     }
 
     private val highlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -53,7 +60,7 @@ class BezierStretchRenderer {
     }
 
     private val path = Path()
-    private val secondaryPath = Path()
+    private val branchPath = Path()
     private val arrowPath = Path()
     private val rectF = RectF()
 
@@ -69,13 +76,29 @@ class BezierStretchRenderer {
     var lSwipeColor: Int = Color.rgb(0, 230, 118)
     var baseColor: Int = Color.rgb(61, 90, 254)
     var opacity: Float = 0.65f
-    var animation: FeedbackAnimation = FeedbackAnimation.WATER
+    var animation: FeedbackAnimation = FeedbackAnimation.OCEAN_LIQUID
     var quickIcon: FeedbackIcon = FeedbackIcon.CHEVRON
     var holdIcon: FeedbackIcon = FeedbackIcon.STAR
     var actionSymbol: String = ""
     var animSpeed: Float = 1f
     var animSize: Float = 1f
     var showIndicatorBar: Boolean = false
+
+    // ── Organic Particle Data Class ──
+    private class OrganicParticle(
+        var x: Float,
+        var y: Float,
+        var vx: Float,
+        var vy: Float,
+        var radius: Float,
+        var alpha: Float,
+        var life: Float,
+        var maxLife: Float
+    )
+
+    private val particlePool = Array(18) {
+        OrganicParticle(0f, 0f, 0f, 0f, 4f, 1f, 1f, 1f)
+    }
 
     fun draw(
         canvas: Canvas,
@@ -115,24 +138,27 @@ class BezierStretchRenderer {
             else -> 1.0f
         }
 
-        // Draw active animation shape based on Natural Elements & Legacy Styles
+        // Execute Deep Organic Nature Simulation Engines
         when (animation) {
-            FeedbackAnimation.WATER, FeedbackAnimation.FLUID -> drawWaterElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.FIRE -> drawFireElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.STEAM -> drawSteamElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.CLOUD -> drawCloudElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.LIGHTNING -> drawLightningElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.WIND -> drawWindElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.RAIN -> drawRainElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.SUN -> drawSunElement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-
-            FeedbackAnimation.NEON_PULSE -> drawQuantumNeonAura(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.CYBER_HEX -> drawCyberPrism(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.ORB_GLOW -> drawStellarFlareOrb(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.TEARDROP -> drawHydrodynamicMercuryDrop(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.BUBBLE -> drawBubbleDisplacement(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.MINIMAL_PADDLE -> drawGlassmorphicPill(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.OCEAN_LIQUID, FeedbackAnimation.WATER, FeedbackAnimation.FLUID -> {
+                drawOceanLiquidSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            }
+            FeedbackAnimation.PLASMA_FIRE, FeedbackAnimation.FIRE -> {
+                drawPlasmaFireSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            }
+            FeedbackAnimation.ELECTRIC_STORM, FeedbackAnimation.LIGHTNING -> {
+                drawElectricStormSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            }
+            FeedbackAnimation.ATMOSPHERIC_MIST, FeedbackAnimation.STEAM -> {
+                drawAtmosphericMistSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            }
+            FeedbackAnimation.SOLAR_CORONA, FeedbackAnimation.SUN -> {
+                drawSolarCoronaSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
+            else -> {
+                drawOceanLiquidSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            }
         }
 
         // Draw icon & action symbol with tight shape interaction
@@ -151,359 +177,356 @@ class BezierStretchRenderer {
         }
     }
 
-    // ── 🌊 1. WATER (Su - Akıcı Nehir Dalgası & Sıvı Fiziği) ──
-    private fun drawWaterElement(
+    // =========================================================================
+    // 🌊 1. OCEAN LIQUID & METABALL DYNAMICS (Procedural Hydrodynamic Wave)
+    // =========================================================================
+    private fun drawOceanLiquidSimulation(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val span = halfSpan * (0.8f + (stretch / 300f).coerceIn(0f, 0.3f)) * animSize
-        val peakVal = stretch * 0.95f
+        val span = halfSpan * (0.85f + (stretch / 280f).coerceIn(0f, 0.35f)) * animSize
+        val peakVal = stretch * 0.96f
+        val timeSec = System.currentTimeMillis() / 300.0
 
+        // Procedural Wave Path with Sine Wave Interference
         path.reset()
+        val segments = 12
+        val points = Array(segments + 1) { Pair(0f, 0f) }
+
+        for (i in 0..segments) {
+            val t = i.toFloat() / segments
+            val waveOffset = sin(timeSec * 2.5 + i * 0.6).toFloat() * (8f * progress)
+            val yAlong = touchPos - span + t * (span * 2f)
+
+            // Sine envelop calculation for wave swelling
+            val envelope = sin(t * Math.PI).toFloat()
+            val xDepth = (peakVal + waveOffset) * envelope
+
+            points[i] = when (edge) {
+                Edge.LEFT -> Pair(xDepth, yAlong)
+                Edge.RIGHT -> Pair(w - xDepth, yAlong)
+                Edge.BOTTOM -> Pair(yAlong, h - xDepth)
+            }
+        }
+
         when (edge) {
             Edge.LEFT -> {
                 path.moveTo(0f, touchPos - span)
-                path.cubicTo(peakVal * 0.85f, touchPos - span * 0.38f, peakVal * 0.85f, touchPos + span * 0.38f, 0f, touchPos + span)
+                for (i in 0..segments) path.lineTo(points[i].first, points[i].second)
+                path.lineTo(0f, touchPos + span)
             }
             Edge.RIGHT -> {
                 path.moveTo(w, touchPos - span)
-                path.cubicTo(w - peakVal * 0.85f, touchPos - span * 0.38f, w - peakVal * 0.85f, touchPos + span * 0.38f, w, touchPos + span)
+                for (i in 0..segments) path.lineTo(points[i].first, points[i].second)
+                path.lineTo(w, touchPos + span)
             }
             Edge.BOTTOM -> {
                 path.moveTo(touchPos - span, h)
-                path.cubicTo(touchPos - span * 0.38f, h - peakVal * 0.85f, touchPos + span * 0.38f, h - peakVal * 0.85f, touchPos + span, h)
+                for (i in 0..segments) path.lineTo(points[i].first, points[i].second)
+                path.lineTo(touchPos + span, h)
             }
         }
         path.close()
 
-        val alphaVal = ((75 + progress * 85) * opacity * stateBoost).toInt().coerceIn(0, 245)
+        // Hydrodynamic Multi-Stop Linear Gradient Shader
+        val alphaVal = ((80 + progress * 90) * opacity * stateBoost).toInt().coerceIn(0, 245)
+        val startColor = intColorWithAlpha(baseColor, alphaVal)
+        val endColor = intColorWithAlpha(baseColor, alphaVal / 4)
+
         val shader = when (edge) {
-            Edge.LEFT -> LinearGradient(0f, cy, peakVal, cy, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(baseColor, alphaVal / 3), Shader.TileMode.CLAMP)
-            Edge.RIGHT -> LinearGradient(w, cy, w - peakVal, cy, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(baseColor, alphaVal / 3), Shader.TileMode.CLAMP)
-            Edge.BOTTOM -> LinearGradient(cx, h, cx, h - peakVal, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(baseColor, alphaVal / 3), Shader.TileMode.CLAMP)
+            Edge.LEFT -> LinearGradient(0f, cy, peakVal, cy, startColor, endColor, Shader.TileMode.CLAMP)
+            Edge.RIGHT -> LinearGradient(w, cy, w - peakVal, cy, startColor, endColor, Shader.TileMode.CLAMP)
+            Edge.BOTTOM -> LinearGradient(cx, h, cx, h - peakVal, startColor, endColor, Shader.TileMode.CLAMP)
         }
         bodyPaint.shader = shader
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // Water crest foam highlight
+        // Specular Crest Foam Highlight Rim
         rimPaint.color = Color.WHITE
-        rimPaint.strokeWidth = 2.5f * animSize
-        rimPaint.alpha = ((85 + progress * 110) * opacity * stateBoost).toInt().coerceIn(0, 240)
+        rimPaint.strokeWidth = 2.6f * animSize
+        rimPaint.alpha = ((90 + progress * 120) * opacity * stateBoost).toInt().coerceIn(0, 245)
         canvas.drawPath(path, rimPaint)
 
-        // Water micro splash droplets
-        if (progress > 0.35f) {
-            highlightPaint.color = intColorWithAlpha(baseColor, 200)
-            val dropCount = 3
-            for (i in 0 until dropCount) {
-                val offset = (i - 1) * 16f * animSize
-                val dropX = if (edge == Edge.LEFT) cx + 18f * animSize else if (edge == Edge.RIGHT) cx - 18f * animSize else cx + offset
-                val dropY = if (edge == Edge.BOTTOM) cy - 18f * animSize else cy + offset
-                canvas.drawCircle(dropX, dropY, (4f + i) * animSize, highlightPaint)
+        // Floating Buoyant Liquid Droplets (Metaball Physics)
+        val dropCount = 5
+        sparkPaint.color = intColorWithAlpha(baseColor, (alphaVal * 0.85f).toInt())
+        for (i in 0 until dropCount) {
+            val wobble = sin(timeSec * 3.0 + i * 1.2).toFloat() * 12f * animSize
+            val dropRadius = (5f + (i % 3) * 3.5f) * animSize
+            val dist = (cx * (0.6f + i * 0.2f))
+
+            val dropX = when (edge) {
+                Edge.LEFT -> cx + dist * 0.35f
+                Edge.RIGHT -> cx - dist * 0.35f
+                Edge.BOTTOM -> cx + wobble
             }
+            val dropY = when (edge) {
+                Edge.BOTTOM -> cy - dist * 0.35f
+                else -> cy + wobble
+            }
+
+            canvas.drawCircle(dropX, dropY, dropRadius, sparkPaint)
+
+            // Micro specular reflection on droplet
+            sparkPaint.color = Color.WHITE
+            sparkPaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(dropX - dropRadius * 0.3f, dropY - dropRadius * 0.3f, dropRadius * 0.35f, sparkPaint)
+            sparkPaint.color = intColorWithAlpha(baseColor, (alphaVal * 0.85f).toInt())
         }
     }
 
-    // ── 🔥 2. FIRE (Ateş - Alev Dalgaları & Uçuşan Kıvılcımlar) ──
-    private fun drawFireElement(
+    // =========================================================================
+    // 🔥 2. PLASMA FIRE & VOLCANIC EMBERS (Turbulent Flame Engine)
+    // =========================================================================
+    private fun drawPlasmaFireSimulation(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val flameR = (24f + progress * 18f) * animSize
+        val flameR = (26f + progress * 20f) * animSize
         val timeMs = System.currentTimeMillis()
 
-        // Flickering Flame Tongue Path
-        val flicker = 4f * sin(timeMs / 60.0).toFloat()
+        // Turbulent Flame Path
         path.reset()
+        val flicker1 = sin(timeMs / 45.0).toFloat() * 6f * animSize
+        val flicker2 = cos(timeMs / 35.0).toFloat() * 6f * animSize
+
         when (edge) {
             Edge.LEFT -> {
-                val tipX = cx + flameR + flicker
-                path.moveTo(0f, cy - flameR * 1.5f)
-                path.cubicTo(tipX * 0.6f, cy - flameR * 1.2f, tipX, cy - flameR * 0.4f, tipX, cy)
-                path.cubicTo(tipX, cy + flameR * 0.4f, tipX * 0.6f, cy + flameR * 1.2f, 0f, cy + flameR * 1.5f)
+                val tipX = cx + flameR + flicker1
+                path.moveTo(0f, cy - flameR * 1.6f)
+                path.cubicTo(tipX * 0.5f, cy - flameR * 1.3f + flicker2, tipX + flicker2, cy - flameR * 0.4f, tipX, cy)
+                path.cubicTo(tipX + flicker2, cy + flameR * 0.4f, tipX * 0.5f, cy + flameR * 1.3f - flicker2, 0f, cy + flameR * 1.6f)
             }
             Edge.RIGHT -> {
-                val tipX = cx - flameR - flicker
-                path.moveTo(w, cy - flameR * 1.5f)
-                path.cubicTo(w - (w - tipX) * 0.6f, cy - flameR * 1.2f, tipX, cy - flameR * 0.4f, tipX, cy)
-                path.cubicTo(tipX, cy + flameR * 0.4f, w - (w - tipX) * 0.6f, cy + flameR * 1.2f, w, cy + flameR * 1.5f)
+                val tipX = cx - flameR - flicker1
+                path.moveTo(w, cy - flameR * 1.6f)
+                path.cubicTo(w - (w - tipX) * 0.5f, cy - flameR * 1.3f + flicker2, tipX - flicker2, cy - flameR * 0.4f, tipX, cy)
+                path.cubicTo(tipX - flicker2, cy + flameR * 0.4f, w - (w - tipX) * 0.5f, cy + flameR * 1.3f - flicker2, w, cy + flameR * 1.6f)
             }
             Edge.BOTTOM -> {
-                val tipY = cy - flameR - flicker
-                path.moveTo(cx - flameR * 1.5f, h)
-                path.cubicTo(cx - flameR * 1.2f, h - (h - tipY) * 0.6f, cx - flameR * 0.4f, tipY, cx, tipY)
-                path.cubicTo(cx + flameR * 0.4f, tipY, cx + flameR * 1.2f, h - (h - tipY) * 0.6f, cx + flameR * 1.5f, h)
+                val tipY = cy - flameR - flicker1
+                path.moveTo(cx - flameR * 1.6f, h)
+                path.cubicTo(cx - flameR * 1.3f + flicker2, h - (h - tipY) * 0.5f, cx - flameR * 0.4f, tipY - flicker2, cx, tipY)
+                path.cubicTo(cx + flameR * 0.4f, tipY - flicker2, cx + flameR * 1.3f - flicker2, h - (h - tipY) * 0.5f, cx + flameR * 1.6f, h)
             }
         }
         path.close()
 
-        // Intense radial flame heat shader (Amber-Red-Yellow)
-        val flameColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 87, 34)
-        val alphaVal = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        // Volumetric Multi-Stop Heat Radial Shader
+        val flameColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 61, 0)
+        val alphaVal = (235 * opacity * stateBoost).toInt().coerceIn(0, 255)
+
         val radialShader = RadialGradient(
-            cx, cy, flameR * 2.2f,
-            intColorWithAlpha(flameColor, alphaVal),
-            intColorWithAlpha(Color.rgb(255, 193, 7), (alphaVal * 0.3f).toInt()),
+            cx, cy, flameR * 2.4f,
+            intArrayOf(
+                Color.rgb(255, 245, 157), // White-hot plasma core
+                intColorWithAlpha(flameColor, alphaVal),
+                intColorWithAlpha(Color.rgb(183, 28, 28), (alphaVal * 0.2f).toInt())
+            ),
+            floatArrayOf(0f, 0.45f, 1f),
             Shader.TileMode.CLAMP
         )
         bodyPaint.shader = radialShader
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // Floating embers / sparks particles
-        highlightPaint.color = Color.rgb(255, 235, 59)
-        highlightPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
-        for (i in 0 until 4) {
-            val sparkAngle = timeMs / 100.0 + i * 1.5
-            val sx = cx + (flameR * 0.7f * cos(sparkAngle)).toFloat()
-            val sy = cy - (flameR * 0.5f + (i * 6f))
-            canvas.drawCircle(sx, sy, 3f * animSize, highlightPaint)
+        // Volcanic Embers Particle Field
+        val rand = Random(timeMs / 120)
+        sparkPaint.color = Color.rgb(255, 214, 0)
+        for (i in 0 until 8) {
+            val driftX = (rand.nextFloat() - 0.5f) * 36f * animSize
+            val driftY = -rand.nextFloat() * 40f * animSize
+            val emberX = cx + driftX
+            val emberY = cy + driftY
+            val emberR = (2.5f + rand.nextFloat() * 3f) * animSize
+
+            sparkPaint.alpha = ((180 + rand.nextInt(75)) * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(emberX, emberY, emberR, sparkPaint)
         }
     }
 
-    // ── 💨 3. STEAM (Buhar - Sıcak Sis & Hacimsel Yoğuşma) ──
-    private fun drawSteamElement(
-        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
-        w: Float, h: Float, progress: Float, stateBoost: Float
-    ) {
-        val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (32f + progress * 24f) * animSize
-
-        // 3 overlapping soft atmospheric mist puffs
-        val alphaVal = (95 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        for (i in 0 until 3) {
-            val offset = (i - 1) * 14f * animSize
-            val puffX = if (edge == Edge.BOTTOM) cx + offset else cx
-            val puffY = if (edge == Edge.BOTTOM) cy else cy + offset
-            val puffR = r * (0.8f + i * 0.2f)
-
-            val mistShader = RadialGradient(
-                puffX, puffY, puffR,
-                intColorWithAlpha(baseColor, alphaVal),
-                Color.TRANSPARENT,
-                Shader.TileMode.CLAMP
-            )
-            auraPaint.shader = mistShader
-            canvas.drawCircle(puffX, puffY, puffR, auraPaint)
-        }
-        auraPaint.shader = null
-
-        // Soft steam highlight core
-        highlightPaint.color = Color.WHITE
-        highlightPaint.alpha = (70 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r * 0.45f, highlightPaint)
-    }
-
-    // ── ☁️ 4. CLOUD (Bulut - Yumuşak Kümülüs Şekilleri) ──
-    private fun drawCloudElement(
-        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
-        w: Float, h: Float, progress: Float, stateBoost: Float
-    ) {
-        val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val cloudR = (22f + progress * 14f) * animSize
-
-        // 3 Cumulus cloud lobes
-        val alphaVal = (210 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        bodyPaint.color = baseColor
-        bodyPaint.alpha = alphaVal
-
-        // Main center lobe
-        canvas.drawCircle(cx, cy, cloudR * 1.1f, bodyPaint)
-        // Left/Top lobe
-        canvas.drawCircle(cx - cloudR * 0.7f, cy - cloudR * 0.3f, cloudR * 0.85f, bodyPaint)
-        // Right/Bottom lobe
-        canvas.drawCircle(cx + cloudR * 0.7f, cy - cloudR * 0.3f, cloudR * 0.85f, bodyPaint)
-
-        // Top cloud highlight rim
-        rimPaint.color = Color.WHITE
-        rimPaint.strokeWidth = 2.4f * animSize
-        rimPaint.alpha = (200 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy - cloudR * 0.2f, cloudR * 0.9f, rimPaint)
-    }
-
-    // ── ⚡ 5. LIGHTNING (Şimşek - Elektrik Arki & Lazer Çatallanması) ──
-    private fun drawLightningElement(
+    // =========================================================================
+    // ⚡ 3. ELECTRIC STORM & VOLTAGE LIGHTNING (Procedural Fractal Lightning)
+    // =========================================================================
+    private fun drawElectricStormSimulation(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
         val timeMs = System.currentTimeMillis()
 
-        // Flash electric aura
+        // Flash Ionization Plasma Glow
         val lightningColor = if (isLUp || isLDown) lSwipeColor else Color.rgb(0, 229, 255)
-        val alphaVal = (210 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        val alphaVal = (220 * opacity * stateBoost).toInt().coerceIn(0, 255)
+
         val radialShader = RadialGradient(
-            cx, cy, 46f * animSize,
+            cx, cy, 52f * animSize,
             intColorWithAlpha(lightningColor, alphaVal),
             Color.TRANSPARENT,
             Shader.TileMode.CLAMP
         )
         auraPaint.shader = radialShader
-        canvas.drawCircle(cx, cy, 46f * animSize, auraPaint)
+        canvas.drawCircle(cx, cy, 52f * animSize, auraPaint)
         auraPaint.shader = null
 
-        // Jagged Lightning Bolt Path
+        // Procedural Fractal Lightning Bolt Generation
+        val seed = (timeMs / 35).toInt()
+        val rand = Random(seed)
+
         path.reset()
-        val jitter = ((timeMs / 40) % 7) * 2f - 6f
-        when (edge) {
-            Edge.LEFT -> {
-                path.moveTo(0f, cy)
-                path.lineTo(cx * 0.4f, cy - 14f + jitter)
-                path.lineTo(cx * 0.7f, cy + 12f - jitter)
-                path.lineTo(cx + 12f, cy)
-            }
-            Edge.RIGHT -> {
-                path.moveTo(w, cy)
-                path.lineTo(w - (w - cx) * 0.4f, cy - 14f + jitter)
-                path.lineTo(w - (w - cx) * 0.7f, cy + 12f - jitter)
-                path.lineTo(cx - 12f, cy)
-            }
-            Edge.BOTTOM -> {
-                path.moveTo(cx, h)
-                path.lineTo(cx - 14f + jitter, h - (h - cy) * 0.4f)
-                path.lineTo(cx + 12f - jitter, h - (h - cy) * 0.7f)
-                path.lineTo(cx, cy - 12f)
+        branchPath.reset()
+
+        val startX = when (edge) { Edge.LEFT -> 0f; Edge.RIGHT -> w; Edge.BOTTOM -> cx }
+        val startY = when (edge) { Edge.LEFT -> cy; Edge.RIGHT -> cy; Edge.BOTTOM -> h }
+
+        var currX = startX
+        var currY = startY
+        path.moveTo(currX, currY)
+
+        val steps = 6
+        for (i in 1..steps) {
+            val ratio = i.toFloat() / steps
+            val targetX = startX + (cx - startX) * ratio
+            val targetY = startY + (cy - startY) * ratio
+
+            val jitterX = (rand.nextFloat() - 0.5f) * 28f * animSize
+            val jitterY = (rand.nextFloat() - 0.5f) * 28f * animSize
+
+            currX = if (i == steps) cx else targetX + jitterX
+            currY = if (i == steps) cy else targetY + jitterY
+
+            path.lineTo(currX, currY)
+
+            // Generate Fractal Sub-Branch
+            if (i == 3 || i == 4) {
+                branchPath.moveTo(currX, currY)
+                val branchX = currX + (rand.nextFloat() - 0.5f) * 45f * animSize
+                val branchY = currY + (rand.nextFloat() - 0.5f) * 45f * animSize
+                branchPath.lineTo(branchX, branchY)
             }
         }
 
-        // Electric bolt stroke
+        // Draw Lightning Core (White Hot High Voltage)
         rimPaint.color = Color.WHITE
-        rimPaint.strokeWidth = (4f + progress * 2f) * animSize
-        rimPaint.alpha = (245 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        rimPaint.strokeWidth = (4.5f + progress * 2.5f) * animSize
+        rimPaint.alpha = (255 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(path, rimPaint)
-    }
 
-    // ── 🍃 6. WIND (Rüzgar - Aerodinamik Hava Akımı) ──
-    private fun drawWindElement(
-        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
-        w: Float, h: Float, progress: Float, stateBoost: Float
-    ) {
-        val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val windLen = (36f + progress * 24f) * animSize
-
-        rimPaint.color = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(178, 235, 242)
-        rimPaint.strokeWidth = 3f * animSize
-        val alphaVal = (200 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        rimPaint.alpha = alphaVal
-
-        // 3 Aerodynamic wind streamlines
-        for (i in -1..1) {
-            val offset = i * 16f * animSize
-            path.reset()
-            when (edge) {
-                Edge.LEFT -> {
-                    path.moveTo(0f, cy + offset * 1.4f)
-                    path.cubicTo(cx * 0.6f, cy + offset, cx + windLen, cy + offset * 0.5f, cx + windLen * 1.2f, cy + offset)
-                }
-                Edge.RIGHT -> {
-                    path.moveTo(w, cy + offset * 1.4f)
-                    path.cubicTo(w - (w - cx) * 0.6f, cy + offset, cx - windLen, cy + offset * 0.5f, cx - windLen * 1.2f, cy + offset)
-                }
-                Edge.BOTTOM -> {
-                    path.moveTo(cx + offset * 1.4f, h)
-                    path.cubicTo(cx + offset, h - (h - cy) * 0.6f, cx + offset * 0.5f, cy - windLen, cx + offset, cy - windLen * 1.2f)
-                }
-            }
-            canvas.drawPath(path, rimPaint)
-        }
-    }
-
-    // ── 🌧️ 7. RAIN (Yağmur - Su Serpintisi & Halka Dalgaları) ──
-    private fun drawRainElement(
-        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
-        w: Float, h: Float, progress: Float, stateBoost: Float
-    ) {
-        val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (24f + progress * 18f) * animSize
-
-        // Raindrop splash ripple ring 1 & 2
-        rimPaint.color = baseColor
+        // Draw Sub-Branches (Cyan Ion Glow)
+        rimPaint.color = lightningColor
         rimPaint.strokeWidth = 2.2f * animSize
-        rimPaint.alpha = ((210 - progress * 80) * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r, rimPaint)
-        canvas.drawCircle(cx, cy, r * 1.45f, rimPaint)
+        rimPaint.alpha = (210 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawPath(branchPath, rimPaint)
 
-        // Rain splash micro-droplets radiating outwards
-        highlightPaint.color = Color.WHITE
-        highlightPaint.alpha = (220 * opacity).toInt().coerceIn(0, 255)
-        for (i in 0 until 6) {
-            val angle = Math.toRadians((i * 60).toDouble())
-            val rx = cx + (r * 1.6f * cos(angle)).toFloat()
-            val ry = cy + (r * 1.6f * sin(angle)).toFloat()
-            canvas.drawCircle(rx, ry, 2.5f * animSize, highlightPaint)
+        // Energy Arc Sparks Radiating at Contact Points
+        sparkPaint.color = Color.WHITE
+        for (i in 0 until 5) {
+            val angle = rand.nextDouble() * Math.PI * 2
+            val dist = 8f + rand.nextFloat() * 16f * animSize
+            val sx = cx + (dist * cos(angle)).toFloat()
+            val sy = cy + (dist * sin(angle)).toFloat()
+            canvas.drawCircle(sx, sy, (2f + rand.nextFloat() * 2.5f) * animSize, sparkPaint)
         }
     }
 
-    // ── ☀️ 8. SUN (Güneş - Işıltılı Korona & Güneş Işınları) ──
-    private fun drawSunElement(
+    // =========================================================================
+    // 💨 4. ATMOSPHERIC MIST & NEBULA (Volumetric Cloudlet Particle Field)
+    // =========================================================================
+    private fun drawAtmosphericMistSimulation(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (22f + progress * 15f) * animSize
+        val r = (36f + progress * 26f) * animSize
+        val timeSec = System.currentTimeMillis() / 400.0
+
+        // 8 Volumetric Atmospheric Nebula Cloudlets Swirling in Orbital Fields
+        val alphaVal = (105 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        val cloudletCount = 8
+
+        for (i in 0 until cloudletCount) {
+            val angle = timeSec * (0.8 + i * 0.2) + i * (Math.PI / 4)
+            val orbitDist = (i * 4f) * animSize
+            val cloudletX = cx + (orbitDist * cos(angle)).toFloat()
+            val cloudletY = cy + (orbitDist * sin(angle)).toFloat()
+            val cloudletR = r * (0.6f + (i % 4) * 0.18f)
+
+            val mistShader = RadialGradient(
+                cloudletX, cloudletY, cloudletR,
+                intColorWithAlpha(baseColor, alphaVal),
+                Color.TRANSPARENT,
+                Shader.TileMode.CLAMP
+            )
+            auraPaint.shader = mistShader
+            canvas.drawCircle(cloudletX, cloudletY, cloudletR, auraPaint)
+        }
+        auraPaint.shader = null
+
+        // Ethereal Soft Highlight Core
+        highlightPaint.color = Color.WHITE
+        highlightPaint.alpha = (85 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 0.4f, highlightPaint)
+    }
+
+    // =========================================================================
+    // ☀️ 5. SOLAR CORONA & STELLAR RAYS (Radiant Solar Flare Engine)
+    // =========================================================================
+    private fun drawSolarCoronaSimulation(
+        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
+        w: Float, h: Float, progress: Float, stateBoost: Float
+    ) {
+        val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val r = (24f + progress * 16f) * animSize
         val timeMs = System.currentTimeMillis()
 
-        // Radiant Solar Corona Aura
+        // Volumetric Solar Corona Gradient
         val sunColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 179, 0)
-        val alphaVal = (230 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        val alphaVal = (235 * opacity * stateBoost).toInt().coerceIn(0, 255)
+
         val radialShader = RadialGradient(
-            cx, cy, r * 1.8f,
+            cx, cy, r * 2.2f,
             intColorWithAlpha(sunColor, alphaVal),
             Color.TRANSPARENT,
             Shader.TileMode.CLAMP
         )
         auraPaint.shader = radialShader
-        canvas.drawCircle(cx, cy, r * 1.8f, auraPaint)
+        canvas.drawCircle(cx, cy, r * 2.2f, auraPaint)
         auraPaint.shader = null
 
-        // 8 Rotating Solar Rays
-        rimPaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.8f).toInt())
-        rimPaint.strokeWidth = 2.5f * animSize
-        val rotAngle = (timeMs / 50.0) % 360.0
-        for (i in 0 until 8) {
-            val angle = Math.toRadians(rotAngle + i * 45.0)
-            val rx1 = cx + (r * 1.1f * cos(angle)).toFloat()
-            val ry1 = cy + (r * 1.1f * sin(angle)).toFloat()
-            val rx2 = cx + (r * 1.6f * cos(angle)).toFloat()
-            val ry2 = cy + (r * 1.6f * sin(angle)).toFloat()
+        // 16 Dynamic Rotating Solar Rays
+        rimPaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
+        rimPaint.strokeWidth = 2.4f * animSize
+        val rotAngle = (timeMs / 45.0) % 360.0
+
+        for (i in 0 until 16) {
+            val angle = Math.toRadians(rotAngle + i * 22.5)
+            val rayPulse = sin(timeMs / 80.0 + i).toFloat() * 6f * animSize
+            val rx1 = cx + (r * 1.05f * cos(angle)).toFloat()
+            val ry1 = cy + (r * 1.05f * sin(angle)).toFloat()
+            val rx2 = cx + ((r * 1.55f + rayPulse) * cos(angle)).toFloat()
+            val ry2 = cy + ((r * 1.55f + rayPulse) * sin(angle)).toFloat()
+
             canvas.drawLine(rx1, ry1, rx2, ry2, rimPaint)
         }
 
-        // Intense Sun Core Lens Flare
+        // Intense White-Hot Sun Core Lens Flare
         bodyPaint.color = Color.WHITE
-        bodyPaint.alpha = (240 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r * 0.75f, bodyPaint)
+        bodyPaint.alpha = (245 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 0.72f, bodyPaint)
+
+        // Core lens flare ring
+        rimPaint.color = Color.WHITE
+        rimPaint.strokeWidth = 2f
+        rimPaint.alpha = (200 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 0.95f, rimPaint)
     }
 
-    // ── LEGACY & EXTRA ANIMATIONS ──
-    private fun drawQuantumNeonAura(canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float, progress: Float, stateBoost: Float) {
-        drawLightningElement(canvas, edge, stretch, touchPos, w, h, progress, stateBoost)
-    }
-
-    private fun drawCyberPrism(canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float, progress: Float, stateBoost: Float) {
-        drawSunElement(canvas, edge, stretch, touchPos, w, h, progress, stateBoost)
-    }
-
-    private fun drawStellarFlareOrb(canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float, progress: Float, stateBoost: Float) {
-        drawSunElement(canvas, edge, stretch, touchPos, w, h, progress, stateBoost)
-    }
-
-    private fun drawHydrodynamicMercuryDrop(canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float, progress: Float, stateBoost: Float) {
-        drawWaterElement(canvas, edge, stretch, touchPos, w, h, progress, stateBoost)
-    }
-
-    private fun drawBubbleDisplacement(canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float, progress: Float, stateBoost: Float) {
-        drawRainElement(canvas, edge, stretch, touchPos, w, h, progress, stateBoost)
-    }
-
-    private fun drawGlassmorphicPill(canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float, progress: Float, stateBoost: Float) {
-        drawWindElement(canvas, edge, stretch, touchPos, w, h, progress, stateBoost)
-    }
-
-    // ── GLASS ICON INTERACTION ──
+    // =========================================================================
+    // 🎯 6. GESTURE ICON & ACTION SYMBOL INTERACTION
+    // =========================================================================
     private fun drawGestureIcon(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, alpha: Float, progress: Float

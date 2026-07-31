@@ -2,6 +2,17 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.5] - 2026-08-01
+
+### 🌋 Derin Doğa Simülasyonu Mimarisi & Parçacık Fiziği (Deep Organic Engine Rewrite)
+
+- **Eski 2D Çizim Mantığı Tamamen Silindi:** Basit ve sığ görsel kalıplar temizlendi. Yerine prosedürel parçacık ve sıvı fiziği simülasyonları yazıldı:
+  - **🌊 Okyanus Sıvı & Metaball Fiziği (`OCEAN_LIQUID`):** 12 dinamik sıvı verteksinden oluşan sinüs dalgası ve yüzeyden ayrılıp yalpalayan 5 dinamik metaball damlası.
+  - **🔥 Plazma Ateş & Volkanik Kıvılcım Fiziği (`PLASMA_FIRE`):** Titreşen alev dili path'i, 3 kademeli plazma ısı gradyanı ve yukarı doğru süzülen 8 kor parçacığı.
+  - **⚡ Elektrik Fırtınası & Fraktal Şimşek Fiziği (`ELECTRIC_STORM`):** Her karede prosedürel olarak üretilen 6 fraktal çatallanmalı elektrik arkı ve plazma iyonlaşma aurası.
+  - **💨 Atmosferik Sis & Buhar Fiziği (`ATMOSPHERIC_MIST`):** Yörüngesel sis küme parçacıkları içeren derin bulutsu yoğuşma aurası.
+  - **☀️ Güneş Koronası & Yıldız Işını Fiziği (`SOLAR_CORONA`):** 16 dönen güneş ışını, güneş korona aurası ve beyaz plazma mercek odağı.
+
 ## [1.1.4] - 2026-08-01
 
 ### 🌿 Doğal Varlıklar Animasyon Felsefesi & Sonsuz Renk Barları
