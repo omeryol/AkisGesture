@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.8] - 2026-08-01
+
+### 💎 Belirgin 3D Derinlik Efektleri & Canlı Emoji Simgeleri
+
+- **Belirgin 3D Derinlik & Çift Katmanlı Z-Gölgesi:** 3D Z-yükselti gölgesi (`drop shadow opacity & offset`) daha belirginleştirildi. Şekiller ekrandan bağımsız ve kabartmalı görünür.
+- **Yüksek Kontrastlı 3D Optik & Küresel Işık Merceği:** Kopan cıva damlası, okyanus dalgası ve plazma kürelerine belirgin 3D ambient kararma (`ambient occlusion`) ve üst-sol parlak **3D mercek nodu (`specular highlight lens`)** kazandırıldı.
+- **Canlı Emoji Simgeleri Geri Yüklendi:** Tüm jest eylem simgeleri ve geri bildirim ikonları ifadeli ve canlı Emoji formatına (`🏠 📱 🔒 📸 ⚡ 🔔 ⚙️ 🔊 ☀️ 🌙 🔦 🚀`) dönüştürüldü.
+
 ## [1.1.7] - 2026-08-01
 
 ### 🔮 3D Hacimsel Uzamsal Optik & Z-Eksen Derinliği (3D Spatial Engine)

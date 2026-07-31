@@ -15,9 +15,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * 3D Spatial Optics & Natural Elements Engine.
- * Features 3D Z-elevation drop shadows, 3D spherical ambient occlusion,
- * 3D specular light refraction nodes, and 3D particle depth parallax.
+ * Intense 3D Spatial Optics & Natural Elements Engine.
+ * Features ultra-pronounced 3D Z-elevation drop shadows, 3D ambient occlusion,
+ * 3D spherical specular refraction glare nodes, 3D wave protrusion, and Emoji icon integration.
  */
 class BezierStretchRenderer {
 
@@ -124,7 +124,7 @@ class BezierStretchRenderer {
             else -> 1.0f
         }
 
-        // Execute 3D Spatial Optics Nature Simulation Engines
+        // Execute Intense 3D Spatial Optics Nature Simulation Engines
         when (animation) {
             FeedbackAnimation.OCEAN_WAVE -> {
                 drawRefractiveOceanWave3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
@@ -164,7 +164,7 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // 🌊 1. 3D OCEAN WAVE (Volumetric 3D Refractive Tide & Z-Elevation)
+    // 🌊 1. 3D OCEAN WAVE (Volumetric 3D Refractive Tide & Deep Z-Shadow)
     // =========================================================================
     private fun drawRefractiveOceanWave3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -175,7 +175,7 @@ class BezierStretchRenderer {
         val peakVal = stretch * 0.96f
         val timeSec = System.currentTimeMillis() / 280.0
 
-        // 1. Primary 3D Outer Ocean Tide Wave Path
+        // Primary 3D Outer Ocean Tide Wave Path
         path.reset()
         val segments = 14
         for (i in 0..segments) {
@@ -198,22 +198,23 @@ class BezierStretchRenderer {
         else if (edge == Edge.BOTTOM) path.lineTo(touchPos + span, h)
         path.close()
 
-        // 3D Ambient Z-Depth Shadow underneath the wave
-        val shadowAlpha = (50 * opacity).toInt().coerceIn(0, 255)
+        // Intense 3D Z-Elevation Drop Shadow
+        val shadowAlpha = (90 * opacity).toInt().coerceIn(0, 255)
         shadowPaint.color = Color.BLACK
         shadowPaint.alpha = shadowAlpha
         canvas.save()
-        val shadowOffset = 6f * animSize
+        val shadowOffsetX = 10f * animSize
+        val shadowOffsetY = 12f * animSize
         when (edge) {
-            Edge.LEFT -> canvas.translate(shadowOffset, shadowOffset * 0.5f)
-            Edge.RIGHT -> canvas.translate(-shadowOffset, shadowOffset * 0.5f)
-            Edge.BOTTOM -> canvas.translate(0f, shadowOffset)
+            Edge.LEFT -> canvas.translate(shadowOffsetX, shadowOffsetY)
+            Edge.RIGHT -> canvas.translate(-shadowOffsetX, shadowOffsetY)
+            Edge.BOTTOM -> canvas.translate(0f, shadowOffsetY)
         }
         canvas.drawPath(path, shadowPaint)
         canvas.restore()
 
         // 3D Volumetric Linear Gradient Shader
-        val alphaVal = ((90 + progress * 95) * opacity * stateBoost).toInt().coerceIn(0, 245)
+        val alphaVal = ((95 + progress * 95) * opacity * stateBoost).toInt().coerceIn(0, 245)
         val startColor = intColorWithAlpha(baseColor, alphaVal)
         val endColor = intColorWithAlpha(baseColor, alphaVal / 4)
 
@@ -226,7 +227,7 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // 2. Inner 3D Protruding Refractive Tide Layer
+        // Inner 3D Protruding Refractive Tide Layer
         secondaryPath.reset()
         val innerPeak = peakVal * 0.65f
         val innerSpan = span * 0.75f
@@ -247,12 +248,12 @@ class BezierStretchRenderer {
         secondaryPath.close()
 
         bodyPaint.color = Color.WHITE
-        bodyPaint.alpha = (50 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        bodyPaint.alpha = (55 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(secondaryPath, bodyPaint)
     }
 
     // =========================================================================
-    // 💧 2. 3D MERCURY TEARDROP (3D Spherical Optics & Ambient Occlusion Drop)
+    // 💧 2. 3D MERCURY TEARDROP (Pronounced 3D Spherical Optics & Ambient Shadow)
     // =========================================================================
     private fun drawDetachingPinchTeardrop3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -261,7 +262,7 @@ class BezierStretchRenderer {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
         val bulbR = (22f + progress * 16f) * animSize
         val baseSpan = (42f + progress * 24f) * animSize
-        val alphaVal = (220 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        val alphaVal = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
         // Surface Tension Pinching Base at Screen Edge
         path.reset()
@@ -297,7 +298,7 @@ class BezierStretchRenderer {
         // Fully Detached Spherical 3D Liquid Droplet floating in front!
         if (progress > 0.4f) {
             val dropDist = (stretch * 0.55f).coerceAtLeast(30f * animSize)
-            val dropR = (14f + progress * 14f) * animSize
+            val dropR = (15f + progress * 14f) * animSize
 
             val dropX = when (edge) {
                 Edge.LEFT -> dropDist
@@ -309,16 +310,16 @@ class BezierStretchRenderer {
                 else -> cy
             }
 
-            // 1. 3D Drop Shadow Cast on Screen Background
+            // 1. Intense 3D Drop Shadow Cast on Screen Background
             shadowPaint.color = Color.BLACK
-            shadowPaint.alpha = (65 * opacity).toInt().coerceIn(0, 255)
-            canvas.drawCircle(dropX + 4f * animSize, dropY + 6f * animSize, dropR * 1.05f, shadowPaint)
+            shadowPaint.alpha = (100 * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(dropX + 6f * animSize, dropY + 9f * animSize, dropR * 1.08f, shadowPaint)
 
-            // 2. 3D Spherical Volume Radial Gradient (Ambient Occlusion Bottom + Light Top)
+            // 2. High-Contrast 3D Spherical Radial Gradient (White Light Top -> Deep Shade Bottom)
             val radialShader = RadialGradient(
-                dropX - dropR * 0.35f, dropY - dropR * 0.35f, dropR * 1.8f,
-                intArrayOf(Color.WHITE, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(Color.BLACK, (alphaVal * 0.7f).toInt())),
-                floatArrayOf(0f, 0.55f, 1f),
+                dropX - dropR * 0.4f, dropY - dropR * 0.4f, dropR * 1.9f,
+                intArrayOf(Color.WHITE, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(Color.argb(230, 10, 10, 10), (alphaVal * 0.85f).toInt())),
+                floatArrayOf(0f, 0.5f, 1f),
                 Shader.TileMode.CLAMP
             )
             bodyPaint.shader = radialShader
@@ -327,8 +328,8 @@ class BezierStretchRenderer {
 
             // 3. Top-Left 3D Specular Light Refraction Lens Highlight Node
             highlightPaint.color = Color.WHITE
-            highlightPaint.alpha = (210 * opacity).toInt().coerceIn(0, 255)
-            canvas.drawCircle(dropX - dropR * 0.38f, dropY - dropR * 0.38f, dropR * 0.35f, highlightPaint)
+            highlightPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(dropX - dropR * 0.38f, dropY - dropR * 0.38f, dropR * 0.36f, highlightPaint)
         }
     }
 
@@ -390,7 +391,7 @@ class BezierStretchRenderer {
         val rand = Random(timeMs / 120)
         sparkPaint.color = Color.rgb(255, 214, 0)
         for (i in 0 until 9) {
-            val zScale = 0.5f + (i % 4) * 0.25f // 3D Z-depth scaling
+            val zScale = 0.5f + (i % 4) * 0.25f
             val driftX = (rand.nextFloat() - 0.5f) * 38f * animSize * zScale
             val driftY = -rand.nextFloat() * 42f * animSize * zScale
             val emberX = cx + driftX
@@ -449,7 +450,6 @@ class BezierStretchRenderer {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
         val timeMs = System.currentTimeMillis()
 
-        // Flash Ionization Plasma Glow
         val lightningColor = if (isLUp || isLDown) lSwipeColor else Color.rgb(0, 229, 255)
         val alphaVal = (235 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
@@ -463,7 +463,6 @@ class BezierStretchRenderer {
         canvas.drawCircle(cx, cy, 60f * animSize, auraPaint)
         auraPaint.shader = null
 
-        // Procedural Lightning Bolt Path
         val seed = (timeMs / 30).toInt()
         val rand = Random(seed)
 
@@ -491,12 +490,10 @@ class BezierStretchRenderer {
 
             path.lineTo(currX, currY)
 
-            // Ionization Plasma Node
             sparkPaint.color = lightningColor
             sparkPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
             canvas.drawCircle(currX, currY, 3.5f * animSize, sparkPaint)
 
-            // 8 Secondary Fractal Branching Forks
             if (i % 2 == 1 && i < steps) {
                 secondaryPath.moveTo(currX, currY)
                 val forkAngle = rand.nextDouble() * Math.PI * 2
@@ -507,12 +504,10 @@ class BezierStretchRenderer {
             }
         }
 
-        // Soft Glowing Electric Bolt Path
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (240 * opacity * stateBoost).toInt().coerceIn(0, 255))
         glowStrokePaint.strokeWidth = (5f + progress * 3f) * animSize
         canvas.drawPath(path, glowStrokePaint)
 
-        // Secondary Fork Branches
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (200 * opacity).toInt().coerceIn(0, 255))
         glowStrokePaint.strokeWidth = 2.5f * animSize
         canvas.drawPath(secondaryPath, glowStrokePaint)
@@ -529,7 +524,6 @@ class BezierStretchRenderer {
         val r = (24f + progress * 16f) * animSize
         val timeMs = System.currentTimeMillis()
 
-        // 1. 3D Volumetric Solar Flare Heat Shader
         val sunColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 179, 0)
         val alphaVal = (240 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
@@ -547,7 +541,6 @@ class BezierStretchRenderer {
         canvas.drawCircle(cx, cy, r * 2.5f, auraPaint)
         auraPaint.shader = null
 
-        // 2. 16 Pulsating Rotating Solar Rays (3D Z-parallax effect)
         glowStrokePaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
         glowStrokePaint.strokeWidth = 2.6f * animSize
         val rotAngle = (timeMs / 40.0) % 360.0
@@ -563,7 +556,6 @@ class BezierStretchRenderer {
             canvas.drawLine(rx1, ry1, rx2, ry2, glowStrokePaint)
         }
 
-        // 3. Central Solar Core
         bodyPaint.color = Color.WHITE
         bodyPaint.alpha = (245 * opacity).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, r * 0.75f, bodyPaint)
@@ -589,14 +581,14 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // 3D Glass Floating Badge Ring with Drop Shadow
+        // 3D Glass Floating Badge Ring with Double Drop Shadow
         if (armed || holdArmed || isLUp || isLDown) {
             val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
 
-            // 3D Drop Shadow
+            // Double Pass 3D Drop Shadow
             shadowPaint.color = Color.BLACK
-            shadowPaint.alpha = (70 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx + 2f, cy + 4f, auraRadius, shadowPaint)
+            shadowPaint.alpha = (95 * opacity * alpha).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx + 4f, cy + 6f, auraRadius * 1.05f, shadowPaint)
 
             // 3D Glass Badge Body
             auraPaint.color = when {
@@ -604,12 +596,12 @@ class BezierStretchRenderer {
                 holdArmed -> secondaryColor
                 else -> baseColor
             }
-            auraPaint.alpha = ((if (isLUp || isLDown) 210 else if (holdArmed) 190 else 135) * opacity * alpha).toInt().coerceIn(0, 255)
+            auraPaint.alpha = ((if (isLUp || isLDown) 215 else if (holdArmed) 195 else 140) * opacity * alpha).toInt().coerceIn(0, 255)
             canvas.drawCircle(cx, cy, auraRadius, auraPaint)
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-        iconPaint.setShadowLayer(8f, 0f, 2f, Color.argb(160, 0, 0, 0))
+        iconPaint.setShadowLayer(9f, 0f, 2.5f, Color.argb(170, 0, 0, 0))
 
         val symbolStr = when {
             actionSymbol.isNotEmpty() -> actionSymbol
@@ -674,7 +666,7 @@ class BezierStretchRenderer {
             }
             Edge.BOTTOM -> {
                 val cx = if (touchPos > 0) touchPos else w / 2f
-                rectF.set(cx - 50f, h - 10f, cx + 50f, h - 4f)
+                rectF.set(cx - 54f, h - 11f, cx + 54f, h - 4f)
                 canvas.drawRoundRect(rectF, 3.5f, 3.5f, auraPaint)
             }
         }
