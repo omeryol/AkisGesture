@@ -2,6 +2,21 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.4] - 2026-08-01
+
+### 🌿 Doğal Varlıklar Animasyon Felsefesi & Sonsuz Renk Barları
+
+- **Doğal Varlıklar Animasyon Motoru (Natural Elements Engine):** Animasyon felsefesi doğanın 8 temel unsurundan ilham alınarak sıfırdan yazıldı:
+  - **🌊 Su (Water):** Akıcı nehir Bezier dalgası, köpük vurgusu ve su damlası serpintisi.
+  - **🔥 Ateş (Fire):** Titreşen alev dili path'i, kehribar-kırmızı radyal ısı gradyanı ve yükselen kıvılcım parçacıkları.
+  - **💨 Buhar (Steam):** Sıcak sis kümeleri ve yumuşak saydam yoğuşma daireleri.
+  - **☁️ Bulut (Cloud):** Yumuşak kümülüs bulut katmanları ve hava hissi.
+  - **⚡ Şimşek (Lightning):** Yüksek voltajlı çatallanan elektrik arkları ve flaş parlaması.
+  - **🍃 Rüzgar (Wind):** Aerodinamik hava akımı çizgileri ve rüzgar kıvrımları.
+  - **🌧️ Yağmur (Rain):** Suya düşen damla gibi genişleyen halka dalgaları ve micro-splash serpintileri.
+  - **☀️ Güneş (Sun):** Dönen 8 güneş ışını, altın korona aurası ve yoğun ışık merceği.
+- **Sonsuz HSV Renk Seçim Barı (`AkisInfiniteColorPicker`):** Sabit palet butonları yerine 16.7 milyon renk olanağı sunan 0°-360° Hue barı, Doygunluk ve Parlaklık slider'ları ve canlı HEX gösterimi sunuldu.
+
 ## [1.1.3] - 2026-08-01
 
 ### 🎨 Çift Renkli Renk Uzayı, Sabitlenen L-Swipe Geri Bildirimi & Görsel Yenilenme
