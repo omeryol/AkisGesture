@@ -426,6 +426,14 @@ class GestureEngine(
     }
 
     private fun handleGestureResult(result: GestureResult) {
+        // Trigger vibration when finger is released and gesture executes (1st or 2nd action)
+        val view = feedbackView
+        if (view != null) {
+            HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
+        } else {
+            HapticHelper.performHaptic(overlayManager.context, HapticHelper.HapticType.MEDIUM)
+        }
+
         if (result is GestureResult.BottomHorizontalSwipe) {
             val action = when (result.direction) {
                 com.omer.akisgesture.gesture.model.SwipeDirection.RIGHT -> ActionNode.SwitchLastApp
