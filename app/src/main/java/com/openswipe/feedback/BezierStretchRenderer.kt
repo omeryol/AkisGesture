@@ -2,19 +2,17 @@ package com.omer.akisgesture.feedback
 
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
-import android.graphics.Shader
 import android.graphics.Typeface
 import com.omer.akisgesture.overlay.Edge
 import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Modern, fluid visual feedback renderer with rich geometric aesthetics,
- * smooth organic curves, and tight shape-icon interaction.
+ * Modern, fluid visual feedback renderer with mathematically smooth,
+ * elegant geometries and tight shape-icon interaction.
  */
 class BezierStretchRenderer {
 
@@ -127,11 +125,11 @@ class BezierStretchRenderer {
     }
 
     /**
-     * Calculates the centroid (cx, cy) of the shape so the icon tracks the wave peak smoothly.
+     * Calculates the centroid (cx, cy) of the shape so the icon tracks the shape center smoothly.
      */
     private fun center(edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float): Pair<Float, Float> {
-        val maxOffset = 64f * animSize
-        val inset = (stretch * 0.52f).coerceAtMost(maxOffset).coerceAtLeast(10f)
+        val maxOffset = 60f * animSize
+        val inset = (stretch * 0.48f).coerceAtMost(maxOffset).coerceAtLeast(12f)
         return when (edge) {
             Edge.LEFT -> inset to touchPos
             Edge.RIGHT -> (w - inset) to touchPos
@@ -139,7 +137,7 @@ class BezierStretchRenderer {
         }
     }
 
-    // ── 1. FLUID WAVE ──
+    // ── 1. FLUID WAVE (Akıcı Kenar Dalgası) ──
     private fun drawFluidWave(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
@@ -147,67 +145,64 @@ class BezierStretchRenderer {
         val span = halfSpan * (0.8f + (stretch / 320f).coerceIn(0f, 0.25f)) * animSize
         path.reset()
 
-        val peakVal = stretch * 1.05f
+        val peakVal = stretch * 0.95f
 
         when (edge) {
             Edge.LEFT -> {
                 path.moveTo(0f, touchPos - span)
-                path.cubicTo(peakVal, touchPos - span * 0.42f, peakVal, touchPos + span * 0.42f, 0f, touchPos + span)
+                path.cubicTo(peakVal * 0.85f, touchPos - span * 0.38f, peakVal * 0.85f, touchPos + span * 0.38f, 0f, touchPos + span)
             }
             Edge.RIGHT -> {
                 path.moveTo(w, touchPos - span)
-                path.cubicTo(w - peakVal, touchPos - span * 0.42f, w - peakVal, touchPos + span * 0.42f, w, touchPos + span)
+                path.cubicTo(w - peakVal * 0.85f, touchPos - span * 0.38f, w - peakVal * 0.85f, touchPos + span * 0.38f, w, touchPos + span)
             }
             Edge.BOTTOM -> {
                 path.moveTo(touchPos - span, h)
-                path.cubicTo(touchPos - span * 0.42f, h - peakVal, touchPos + span * 0.42f, h - peakVal, touchPos + span, h)
+                path.cubicTo(touchPos - span * 0.38f, h - peakVal * 0.85f, touchPos + span * 0.38f, h - peakVal * 0.85f, touchPos + span, h)
             }
         }
         path.close()
 
         fillPaint.color = baseColor
-        fillPaint.alpha = ((55 + progress * 80) * opacity * stateBoost).toInt().coerceIn(0, 255)
+        fillPaint.alpha = ((60 + progress * 75) * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(path, fillPaint)
 
-        // Accent glow along the inner crest
+        // Accent crest line
         strokePaint.color = Color.WHITE
-        strokePaint.strokeWidth = 3f * animSize
-        strokePaint.alpha = ((40 + progress * 90) * opacity * stateBoost).toInt().coerceIn(0, 220)
+        strokePaint.strokeWidth = 2.8f * animSize
+        strokePaint.alpha = ((50 + progress * 90) * opacity * stateBoost).toInt().coerceIn(0, 220)
         canvas.drawPath(path, strokePaint)
     }
 
-    // ── 2. NEON PULSE ──
+    // ── 2. NEON PULSE (Neon Halka) ──
     private fun drawNeonPulse(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val baseRadius = (24f + progress * 22f) * animSize
+        val r = (25f + progress * 20f) * animSize
 
-        // Outer glow aura
         auraPaint.color = baseColor
         auraPaint.alpha = (90 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, baseRadius * 1.5f, auraPaint)
+        canvas.drawCircle(cx, cy, r * 1.45f, auraPaint)
 
-        // Inner glowing ring
         strokePaint.color = baseColor
-        strokePaint.strokeWidth = (5f + progress * 3f) * animSize
-        strokePaint.alpha = (230 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, baseRadius, strokePaint)
+        strokePaint.strokeWidth = (4.5f + progress * 2.5f) * animSize
+        strokePaint.alpha = (235 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r, strokePaint)
 
-        // Core fill
         fillPaint.color = Color.WHITE
-        fillPaint.alpha = (50 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, baseRadius * 0.7f, fillPaint)
+        fillPaint.alpha = (45 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 0.68f, fillPaint)
     }
 
-    // ── 3. CYBER HEX ──
+    // ── 3. CYBER HEX (Siber Altıgen) ──
     private fun drawCyberHex(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val radius = (28f + progress * 18f) * animSize
+        val radius = (27f + progress * 17f) * animSize
 
         path.reset()
         for (i in 0 until 6) {
@@ -219,7 +214,7 @@ class BezierStretchRenderer {
         path.close()
 
         fillPaint.color = baseColor
-        fillPaint.alpha = (160 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        fillPaint.alpha = (165 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(path, fillPaint)
 
         strokePaint.color = Color.WHITE
@@ -228,104 +223,106 @@ class BezierStretchRenderer {
         canvas.drawPath(path, strokePaint)
     }
 
-    // ── 4. ORB GLOW ──
+    // ── 4. ORB GLOW (Işıklı Küre) ──
     private fun drawOrbGlow(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val rOuter = (38f + progress * 26f) * animSize
-        val rInner = (20f + progress * 14f) * animSize
+        val rOuter = (36f + progress * 24f) * animSize
+        val rInner = (22f + progress * 14f) * animSize
 
         auraPaint.color = baseColor
-        auraPaint.alpha = (100 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        auraPaint.alpha = (105 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, rOuter, auraPaint)
 
         fillPaint.color = baseColor
-        fillPaint.alpha = (220 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        fillPaint.alpha = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, rInner, fillPaint)
 
-        // Core highlight
         fillPaint.color = Color.WHITE
-        fillPaint.alpha = (120 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx - rInner * 0.25f, cy - rInner * 0.25f, rInner * 0.4f, fillPaint)
+        fillPaint.alpha = (130 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx - rInner * 0.22f, cy - rInner * 0.22f, rInner * 0.38f, fillPaint)
     }
 
-    // ── 5. TEARDROP ──
+    // ── 5. TEARDROP (Doğal Akıcı Damla) ──
     private fun drawTeardrop(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (24f + progress * 16f) * animSize
+        val bulbR = (22f + progress * 16f) * animSize
+        val baseSpan = (42f + progress * 24f) * animSize
 
         path.reset()
         when (edge) {
             Edge.LEFT -> {
-                path.moveTo(0f, cy - r * 1.3f)
-                path.cubicTo(cx * 1.1f, cy - r * 1.2f, cx + r * 1.4f, cy - r * 0.4f, cx + r * 1.4f, cy)
-                path.cubicTo(cx + r * 1.4f, cy + r * 0.4f, cx * 1.1f, cy + r * 1.2f, 0f, cy + r * 1.3f)
+                val tipX = cx + bulbR
+                path.moveTo(0f, cy - baseSpan)
+                path.cubicTo(tipX * 0.45f, cy - baseSpan * 0.8f, tipX + bulbR * 0.6f, cy - bulbR * 1.1f, tipX + bulbR, cy)
+                path.cubicTo(tipX + bulbR * 0.6f, cy + bulbR * 1.1f, tipX * 0.45f, cy + baseSpan * 0.8f, 0f, cy + baseSpan)
             }
             Edge.RIGHT -> {
-                path.moveTo(w, cy - r * 1.3f)
-                path.cubicTo(cx * 0.9f, cy - r * 1.2f, cx - r * 1.4f, cy - r * 0.4f, cx - r * 1.4f, cy)
-                path.cubicTo(cx - r * 1.4f, cy + r * 0.4f, cx * 0.9f, cy + r * 1.2f, w, cy + r * 1.3f)
+                val tipX = cx - bulbR
+                path.moveTo(w, cy - baseSpan)
+                path.cubicTo(w - (w - tipX) * 0.45f, cy - baseSpan * 0.8f, tipX - bulbR * 0.6f, cy - bulbR * 1.1f, tipX - bulbR, cy)
+                path.cubicTo(tipX - bulbR * 0.6f, cy + bulbR * 1.1f, w - (w - tipX) * 0.45f, cy + baseSpan * 0.8f, w, cy + baseSpan)
             }
             Edge.BOTTOM -> {
-                path.moveTo(cx - r * 1.3f, h)
-                path.cubicTo(cx - r * 1.2f, cy * 0.9f, cx - r * 0.4f, cy - r * 1.4f, cx, cy - r * 1.4f)
-                path.cubicTo(cx + r * 0.4f, cy - r * 1.4f, cx + r * 1.2f, cy * 0.9f, cx + r * 1.3f, h)
+                val tipY = cy - bulbR
+                path.moveTo(cx - baseSpan, h)
+                path.cubicTo(cx - baseSpan * 0.8f, h - (h - tipY) * 0.45f, cx - bulbR * 1.1f, tipY - bulbR * 0.6f, cx, tipY - bulbR)
+                path.cubicTo(cx + bulbR * 1.1f, tipY - bulbR * 0.6f, cx + baseSpan * 0.8f, h - (h - tipY) * 0.45f, cx + baseSpan, h)
             }
         }
         path.close()
 
         fillPaint.color = baseColor
-        fillPaint.alpha = (210 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        fillPaint.alpha = (215 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(path, fillPaint)
 
         strokePaint.color = Color.WHITE
         strokePaint.strokeWidth = 2.5f * animSize
-        strokePaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
+        strokePaint.alpha = (190 * opacity).toInt().coerceIn(0, 255)
         canvas.drawPath(path, strokePaint)
     }
 
-    // ── 6. BUBBLE ──
+    // ── 6. BUBBLE (Cam Baloncuk) ──
     private fun drawBubble(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val radius = (30f + progress * 20f) * animSize
+        val radius = (28f + progress * 18f) * animSize
 
         fillPaint.color = baseColor
-        fillPaint.alpha = (200 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        fillPaint.alpha = (205 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, radius, fillPaint)
 
-        // Glossy bubble arc reflection
         strokePaint.color = Color.WHITE
         strokePaint.strokeWidth = 3f * animSize
-        strokePaint.alpha = (190 * opacity).toInt().coerceIn(0, 255)
+        strokePaint.alpha = (200 * opacity).toInt().coerceIn(0, 255)
         rectF.set(cx - radius * 0.7f, cy - radius * 0.7f, cx + radius * 0.7f, cy + radius * 0.7f)
-        canvas.drawArc(rectF, 200f, 80f, false, strokePaint)
+        canvas.drawArc(rectF, 200f, 85f, false, strokePaint)
     }
 
-    // ── 7. MINIMAL PADDLE ──
+    // ── 7. MINIMAL PADDLE (Minimal Kapsül) ──
     private fun drawMinimalPaddle(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val rx = (20f + progress * 8f) * animSize
-        val ry = (38f + progress * 24f) * animSize
+        val rx = (18f + progress * 8f) * animSize
+        val ry = (36f + progress * 22f) * animSize
 
         rectF.set(cx - rx, cy - ry, cx + rx, cy + ry)
         fillPaint.color = baseColor
-        fillPaint.alpha = (220 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        fillPaint.alpha = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawRoundRect(rectF, rx, rx, fillPaint)
 
         strokePaint.color = Color.WHITE
         strokePaint.strokeWidth = 2.5f * animSize
-        strokePaint.alpha = (170 * opacity).toInt().coerceIn(0, 255)
+        strokePaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
         canvas.drawRoundRect(rectF, rx, rx, strokePaint)
     }
 
@@ -337,9 +334,9 @@ class BezierStretchRenderer {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
         val timeMs = System.currentTimeMillis()
 
-        // Elastic scale pop based on gesture arming state
         val scale = when {
-            holdArmed -> 1.32f + 0.06f * sin(timeMs / 90.0).toFloat()
+            isLUp || isLDown -> 1.38f + 0.05f * sin(timeMs / 80.0).toFloat()
+            holdArmed -> 1.30f + 0.05f * sin(timeMs / 90.0).toFloat()
             armed -> 1.18f
             else -> 0.85f + (progress * 0.25f).coerceAtMost(0.25f)
         }
@@ -347,11 +344,15 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // Arming state glow ring/badge behind icon
-        if (armed || holdArmed) {
-            auraPaint.color = if (holdArmed) Color.rgb(255, 215, 0) else baseColor
-            auraPaint.alpha = ((if (holdArmed) 190 else 130) * opacity * alpha).toInt().coerceIn(0, 255)
-            val auraRadius = if (holdArmed) 36f else 30f
+        // Arming / L-swipe badge ring
+        if (armed || holdArmed || isLUp || isLDown) {
+            auraPaint.color = when {
+                isLUp || isLDown -> lSwipeColor
+                holdArmed -> secondaryColor
+                else -> baseColor
+            }
+            auraPaint.alpha = ((if (isLUp || isLDown) 210 else if (holdArmed) 190 else 130) * opacity * alpha).toInt().coerceIn(0, 255)
+            val auraRadius = if (isLUp || isLDown || holdArmed) 36f else 30f
             canvas.drawCircle(cx, cy, auraRadius, auraPaint)
 
             strokePaint.color = Color.WHITE
@@ -363,13 +364,18 @@ class BezierStretchRenderer {
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
         iconPaint.setShadowLayer(8f, 0f, 2f, Color.argb(160, 0, 0, 0))
 
-        val symbolStr = if (actionSymbol.isNotEmpty()) actionSymbol else {
-            val selectedIcon = if (holdArmed) holdIcon else quickIcon
-            if (selectedIcon != FeedbackIcon.NONE && selectedIcon != FeedbackIcon.CHEVRON) selectedIcon.symbol else ""
+        val symbolStr = when {
+            actionSymbol.isNotEmpty() -> actionSymbol
+            isLUp -> "▲"
+            isLDown -> "▼"
+            else -> {
+                val selectedIcon = if (holdArmed) holdIcon else quickIcon
+                if (selectedIcon != FeedbackIcon.NONE && selectedIcon != FeedbackIcon.CHEVRON) selectedIcon.symbol else ""
+            }
         }
 
         if (symbolStr.isNotEmpty()) {
-            val popSize = if (holdArmed) 46f else if (armed) 42f else 36f
+            val popSize = if (isLUp || isLDown || holdArmed) 46f else if (armed) 42f else 36f
             iconPaint.textSize = popSize
             val baseline = cy - (iconPaint.ascent() + iconPaint.descent()) / 2f
             canvas.drawText(symbolStr, cx, baseline, iconPaint)
