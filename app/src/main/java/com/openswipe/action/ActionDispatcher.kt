@@ -1,20 +1,17 @@
 package com.omer.akisgesture.action
 
 import android.content.Context
-import android.content.Intent
-import android.media.AudioManager
-import android.hardware.camera2.CameraCharacteristics
+import android.content.pm.ActivityInfo
 import android.hardware.camera2.CameraManager
-import android.os.Build
+import android.media.AudioManager
 import android.view.KeyEvent
-import android.view.inputmethod.InputMethodManager
+import com.omer.akisgesture.action.handler.HardwareAndAppHandler
+import com.omer.akisgesture.action.handler.MediaActionHandler
+import com.omer.akisgesture.action.handler.NavigationActionHandler
+import com.omer.akisgesture.action.handler.SystemActionHandler
 import com.omer.akisgesture.model.ActionNode
-import com.omer.akisgesture.service.GestureAccessibilityService
 import com.omer.akisgesture.root.RootCommandExecutor
-import com.omer.akisgesture.root.RootResult
-import com.omer.akisgesture.navigation.InternalNavigationBus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.omer.akisgesture.service.GestureAccessibilityService
 
 interface ActionDispatcher {
     suspend fun dispatch(action: ActionNode): ActionResult
@@ -26,6 +23,14 @@ sealed class ActionResult {
     data class RequiresMinApi(val api: Int) : ActionResult()
 }
 
+/**
+ * Modular Action Dispatcher.
+ * Delegates action execution to domain-specific handlers:
+ * - [NavigationActionHandler] for Back, Home, Recents, App Switching
+ * - [SystemActionHandler] for Panels, Screenshot, LockScreen, Brightness
+ * - [MediaActionHandler] for Playback and Volume
+ * - [HardwareAndAppHandler] for Flashlight, App Launch, Orientation, Shortcuts
+ */
 class ActionDispatcherImpl(
     private val service: GestureAccessibilityService,
 ) : ActionDispatcher {
@@ -37,166 +42,56 @@ class ActionDispatcherImpl(
     private val cameraManager by lazy {
         service.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
-    @Volatile
-    private var torchEnabled = false
-    @Volatile
-    private var torchCallbackRegistered = false
-    private val torchCallback = object : CameraManager.TorchCallback() {
-        override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
-            torchEnabled = enabled
-        }
-    }
+
+    private val navHandler by lazy { NavigationActionHandler(service, rootCommands) }
+    private val systemHandler by lazy { SystemActionHandler(service, rootCommands, audioManager) }
+    private val mediaHandler by lazy { MediaActionHandler(audioManager) }
+    private val hardwareHandler by lazy { HardwareAndAppHandler(service, rootCommands, audioManager, cameraManager) }
 
     override suspend fun dispatch(action: ActionNode): ActionResult = when (action) {
         is ActionNode.NoAction -> ActionResult.Success
-        is ActionNode.Back -> {
-            if (service.foregroundPackage() == service.packageName) {
-                if (InternalNavigationBus.requestBack()) ActionResult.Success
-                else ActionResult.Failed("Uygulama içi geri isteği iletilemedi")
-            } else {
-                globalAction(GLOBAL_ACTION_BACK)
-            }
-        }
-        is ActionNode.Home -> globalAction(GLOBAL_ACTION_HOME)
-        is ActionNode.Recents -> globalAction(GLOBAL_ACTION_RECENTS)
-        is ActionNode.SwitchLastApp -> switchLastApp()
-        is ActionNode.SwitchNextApp -> switchNextApp()
-        is ActionNode.SplitScreen -> requireApi(24) { globalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN) }
-        is ActionNode.PowerMenu -> globalAction(GLOBAL_ACTION_POWER_DIALOG)
-        is ActionNode.LockScreen -> requireApi(28) { globalAction(GLOBAL_ACTION_LOCK_SCREEN) }
-        is ActionNode.Screenshot -> requireApi(28) { globalAction(GLOBAL_ACTION_TAKE_SCREENSHOT) }
-        is ActionNode.NotificationPanel -> globalAction(4)
-        is ActionNode.QuickSettings -> globalAction(5)
-        is ActionNode.InputMethodPicker -> showInputMethodPicker()
-        is ActionNode.VolumePanel -> showVolumePanel()
-        is ActionNode.Assistant -> launchAssistant()
-        is ActionNode.MediaPlayPause -> mediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
-        is ActionNode.MediaPrevious -> mediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
-        is ActionNode.MediaNext -> mediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
-        is ActionNode.VolumeUp -> {
-            audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
-            ActionResult.Success
-        }
-        is ActionNode.VolumeDown -> {
-            audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
-            ActionResult.Success
-        }
-        is ActionNode.ToggleMute -> {
-            audioManager.adjustVolume(AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
-            ActionResult.Success
-        }
-        is ActionNode.ToggleFlashlight -> toggleFlashlight()
-        is ActionNode.LaunchApp -> launchApp(action.packageName)
-        is ActionNode.ForceStopForeground -> forceStopForeground()
-    }
 
-    private fun globalAction(id: Int): ActionResult {
-        return if (service.doPerformGlobalAction(id)) ActionResult.Success
-        else ActionResult.Failed("performGlobalAction($id) returned false")
-    }
+        // ═══ Navigation ═══
+        is ActionNode.Back -> navHandler.handleBack()
+        is ActionNode.Home -> navHandler.handleHome()
+        is ActionNode.Recents -> navHandler.handleRecents()
+        is ActionNode.SwitchLastApp -> navHandler.handleSwitchLastApp()
+        is ActionNode.SwitchNextApp -> navHandler.handleSwitchNextApp()
 
-    private inline fun requireApi(api: Int, block: () -> ActionResult): ActionResult {
-        return if (Build.VERSION.SDK_INT >= api) block()
-        else ActionResult.RequiresMinApi(api)
-    }
+        // ═══ System & Panels ═══
+        is ActionNode.LockScreen -> systemHandler.handleLockScreen()
+        is ActionNode.Screenshot -> systemHandler.handleScreenshot()
+        is ActionNode.SplitScreen -> systemHandler.handleSplitScreen()
+        is ActionNode.PowerMenu -> systemHandler.handlePowerMenu()
+        is ActionNode.NotificationPanel -> systemHandler.handleNotificationPanel()
+        is ActionNode.QuickSettings -> systemHandler.handleQuickSettings()
+        is ActionNode.InputMethodPicker -> systemHandler.handleInputMethodPicker()
+        is ActionNode.VolumePanel -> systemHandler.handleVolumePanel()
+        is ActionNode.Assistant -> systemHandler.handleAssistant()
+        is ActionNode.BrightnessUp -> systemHandler.handleBrightness(increase = true)
+        is ActionNode.BrightnessDown -> systemHandler.handleBrightness(increase = false)
 
-    private fun mediaKey(keyCode: Int): ActionResult {
-        audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-        audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
-        return ActionResult.Success
-    }
+        // ═══ Media & Volume ═══
+        is ActionNode.MediaPlayPause -> mediaHandler.handleMediaPlayPause()
+        is ActionNode.MediaPrevious -> mediaHandler.handleMediaPrevious()
+        is ActionNode.MediaNext -> mediaHandler.handleMediaNext()
+        is ActionNode.VolumeUp -> mediaHandler.handleVolumeUp()
+        is ActionNode.VolumeDown -> mediaHandler.handleVolumeDown()
+        is ActionNode.ToggleMute -> mediaHandler.handleToggleMute()
 
-    private suspend fun switchLastApp(): ActionResult {
-        return switchRecentTask(1)
-    }
-
-    private suspend fun switchNextApp(): ActionResult {
-        return switchRecentTask(-1)
-    }
-
-    private suspend fun switchRecentTask(direction: Int): ActionResult =
-        withContext(Dispatchers.IO) {
-            when (val result = rootCommands.switchRecentTask(direction)) {
-                RootResult.Success -> ActionResult.Success
-                is RootResult.Failure -> ActionResult.Failed(result.reason)
-            }
-        }
-
-    private fun launchApp(pkg: String): ActionResult = try {
-        val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
-            ?: return ActionResult.Failed("Uygulamanın açılış ekranı bulunamadı")
-        service.startActivity(launchIntent.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        })
-        ActionResult.Success
-    } catch (e: Exception) {
-        ActionResult.Failed(e.message ?: "Uygulama açılamadı")
-    }
-
-    private fun showInputMethodPicker(): ActionResult = try {
-        val inputMethodManager =
-            service.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showInputMethodPicker()
-        ActionResult.Success
-    } catch (e: Exception) {
-        ActionResult.Failed(e.message ?: "Klavye seçici açılamadı")
-    }
-
-    private fun showVolumePanel(): ActionResult = try {
-        audioManager.adjustVolume(AudioManager.ADJUST_SAME, AudioManager.FLAG_SHOW_UI)
-        ActionResult.Success
-    } catch (e: Exception) {
-        ActionResult.Failed(e.message ?: "Ses paneli açılamadı")
-    }
-
-    private fun launchAssistant(): ActionResult = try {
-        service.startActivity(Intent(Intent.ACTION_ASSIST).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
-        ActionResult.Success
-    } catch (e: Exception) {
-        ActionResult.Failed(e.message ?: "Sistem asistanı açılamadı")
-    }
-
-    private suspend fun toggleFlashlight(): ActionResult = withContext(Dispatchers.IO) {
-        when (val grant = rootCommands.grantCameraPermission()) {
-            is RootResult.Failure -> return@withContext ActionResult.Failed(grant.reason)
-            RootResult.Success -> Unit
-        }
-        try {
-            if (!torchCallbackRegistered) {
-                cameraManager.registerTorchCallback(torchCallback, null)
-                torchCallbackRegistered = true
-            }
-            val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
-                val info = cameraManager.getCameraCharacteristics(id)
-                info.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true &&
-                    info.get(CameraCharacteristics.LENS_FACING) ==
-                    CameraCharacteristics.LENS_FACING_BACK
-            } ?: return@withContext ActionResult.Failed("Fener desteklenmiyor")
-            cameraManager.setTorchMode(cameraId, !torchEnabled)
-            ActionResult.Success
-        } catch (error: Exception) {
-            ActionResult.Failed(error.message ?: "Fener değiştirilemedi")
-        }
-    }
-
-    private suspend fun forceStopForeground(): ActionResult = withContext(Dispatchers.IO) {
-        val packageName = service.foregroundPackage()
-            ?: return@withContext ActionResult.Failed("Öndeki uygulama belirlenemedi")
-        when (val result = rootCommands.forceStopPersonalProfile(packageName)) {
-            RootResult.Success -> ActionResult.Success
-            is RootResult.Failure -> ActionResult.Failed(result.reason)
-        }
-    }
-
-    companion object {
-        const val GLOBAL_ACTION_BACK = 1
-        const val GLOBAL_ACTION_HOME = 2
-        const val GLOBAL_ACTION_RECENTS = 3
-        const val GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN = 7
-        const val GLOBAL_ACTION_POWER_DIALOG = 6
-        const val GLOBAL_ACTION_LOCK_SCREEN = 8
-        const val GLOBAL_ACTION_TAKE_SCREENSHOT = 9
+        // ═══ Hardware, Rotation & Apps ═══
+        is ActionNode.ToggleFlashlight -> hardwareHandler.handleToggleFlashlight()
+        is ActionNode.LaunchApp -> hardwareHandler.handleLaunchApp(action.packageName)
+        is ActionNode.AppShortcut -> hardwareHandler.handleAppShortcut(action.packageName, action.shortcutId)
+        is ActionNode.Menu -> hardwareHandler.handleSendKeyEvent(KeyEvent.KEYCODE_MENU)
+        is ActionNode.ToggleAutoRotate -> hardwareHandler.handleToggleAutoRotate()
+        is ActionNode.ForcePortrait -> hardwareHandler.handleForceOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        is ActionNode.ForceLandscape -> hardwareHandler.handleForceOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+        is ActionNode.XiaomiOneHandMode -> hardwareHandler.handleXiaomiOneHandMode()
+        is ActionNode.VoiceSearch -> hardwareHandler.handleVoiceSearch()
+        is ActionNode.VoiceAssistant -> hardwareHandler.handleVoiceAssistant()
+        is ActionNode.SendKeyCode -> hardwareHandler.handleSendKeyEvent(action.keyCode)
+        is ActionNode.ForceStopForeground -> hardwareHandler.handleForceStopForeground()
+        is ActionNode.ToggleNavBar -> hardwareHandler.handleToggleNavBar()
     }
 }
