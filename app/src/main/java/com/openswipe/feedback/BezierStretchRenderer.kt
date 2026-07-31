@@ -597,11 +597,11 @@ class BezierStretchRenderer {
 
         val symbolStr = when {
             actionSymbol.isNotEmpty() -> actionSymbol
-            isLUp -> "🟢"
-            isLDown -> "🟡"
+            isLUp -> "▲"
+            isLDown -> "▼"
             else -> {
                 val selectedIcon = if (holdArmed) holdIcon else quickIcon
-                if (selectedIcon != FeedbackIcon.NONE) selectedIcon.symbol else "🎯"
+                if (selectedIcon != FeedbackIcon.NONE && selectedIcon != FeedbackIcon.CHEVRON) selectedIcon.symbol else ""
             }
         }
 
@@ -610,6 +610,10 @@ class BezierStretchRenderer {
             iconPaint.textSize = popSize
             val baseline = cy - (iconPaint.ascent() + iconPaint.descent()) / 2f
             canvas.drawText(symbolStr, cx, baseline, iconPaint)
+        } else {
+            arrowPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
+            arrowPaint.strokeWidth = if (armed) 6.5f else 5f
+            drawChevron(canvas, cx, cy, 24f, edge)
         }
 
         canvas.restore()
