@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.12] - 2026-08-01
+
+### 🔴 Yuvarlak Dairesel Geri & İkincil Eylem İkonları
+
+- **Geri & Tüm Eylem İkonları Daireselleştirildi:** En çok kullanılan Geri (`Back -> 🔴`), Ana Ekran (`Home -> 🔘`), Son Uygulamalar (`Recents -> ⚪`) ve L-Swipe ikincil eylem ikonları (`🟢` / `🟡`) köşe içermeyen yuvarlak dairesel Emoji sembolleriyle yenilendi.
+- **Keskin Ok Çizgileri Kaldırıldı:** Eski üçgen/köşeli ok sembolleri tamamen kaldırılarak yuvarlak 3D rozet katmanıyla kusursuz bir görsel uyum sağlandı.
+
 ## [1.1.11] - 2026-08-01
 
 ### 🔴 Yuvarlak Dairesel Emoji İkonlar & Uyumlu 3D Yuvarlak Gölge
