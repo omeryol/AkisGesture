@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import com.omer.akisgesture.action.ActionDispatcher
+import com.omer.akisgesture.feedback.ActionSymbols
 import com.omer.akisgesture.feedback.FeedbackView
 import com.omer.akisgesture.feedback.HapticHelper
 import com.omer.akisgesture.gesture.model.GestureResult
@@ -17,6 +18,7 @@ import com.omer.akisgesture.overlay.EdgeSensorView
 import com.omer.akisgesture.overlay.OverlayManager
 import com.omer.akisgesture.overlay.OverlayWindowFactory
 import com.omer.akisgesture.rule.CompiledRuleSet
+import com.omer.akisgesture.rule.RuleProfileResolver
 import com.omer.akisgesture.service.GestureAccessibilityService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,7 @@ class GestureEngine(
     private val overlayManager: OverlayManager,
     private val compiledRuleSetFlow: StateFlow<CompiledRuleSet>,
     private val pausedPackagesFlow: StateFlow<Set<String>>,
+    private val ruleProfilesFlow: StateFlow<Map<String, CompiledRuleSet>>,
 ) : EdgeSensorView.OnEdgeTouchListener {
 
     private var scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -46,9 +49,18 @@ class GestureEngine(
     private var pausedPackages: Set<String> = pausedPackagesFlow.value
     private var pausedForForegroundApp = false
     private var pausedForSystemContext = false
+    private var defaultRuleSet = compiledRuleSetFlow.value
+    private var ruleProfiles = ruleProfilesFlow.value
+    private var activeRuleSet = RuleProfileResolver.resolve(
+        foregroundPackage = null,
+        defaultRules = defaultRuleSet,
+        appProfiles = ruleProfiles,
+    )
     private var lockScreenVisible = false
     private var keyboardVisible = false
     private var landscape = false
+    private var fullScreen = false
+    private var permissionScreen = false
 
     fun stop() {
         overlayManager.removeAll()
@@ -69,12 +81,26 @@ class GestureEngine(
                 configFlow,
                 compiledRuleSetFlow,
                 pausedPackagesFlow,
-            ) { config, ruleSet, packages -> Triple(config, ruleSet, packages) }
-                .collect { (newConfig, ruleSet, packages) ->
+                ruleProfilesFlow,
+            ) { config, ruleSet, packages, profiles ->
+                RuntimeInputs(config, ruleSet, packages, profiles)
+            }
+                .collect { inputs ->
                     val old = currentConfig
-                    currentConfig = newConfig
-                    pausedPackages = packages
-                    val shouldPause = AppPausePolicy.shouldPause(foregroundPackage, packages)
+                    val oldActiveRuleSet = activeRuleSet
+                    currentConfig = inputs.config
+                    defaultRuleSet = inputs.defaultRuleSet
+                    pausedPackages = inputs.pausedPackages
+                    ruleProfiles = inputs.profiles
+                    activeRuleSet = RuleProfileResolver.resolve(
+                        foregroundPackage,
+                        defaultRuleSet,
+                        ruleProfiles,
+                    )
+                    val shouldPause = AppPausePolicy.shouldPause(
+                        foregroundPackage,
+                        inputs.pausedPackages,
+                    )
                     pausedForForegroundApp = shouldPause
                     pausedForSystemContext = shouldPauseForSystemContext()
                     if (isPaused()) {
@@ -87,44 +113,69 @@ class GestureEngine(
                     }
                     if (detectors.isEmpty() && started) {
                         started = true
-                        rebuildOverlays(ruleSet)
+                        rebuildOverlays(activeRuleSet)
                         return@collect
                     }
                     if (!started) {
                         started = true
-                        rebuildOverlays(ruleSet)
+                        rebuildOverlays(activeRuleSet)
+                    } else if (oldActiveRuleSet !== activeRuleSet) {
+                        rebuildOverlays(activeRuleSet)
                     } else {
-                        applyConfigDiff(old, newConfig, ruleSet)
+                        applyConfigDiff(old, inputs.config, activeRuleSet)
                     }
                 }
         }
     }
 
-    fun onForegroundAppChanged(packageName: String) {
+    private var adaptiveAppColor: Int? = null
+
+    fun onForegroundAppChanged(packageName: String, adaptiveColor: Int? = null) {
+        val oldActiveRuleSet = activeRuleSet
         foregroundPackage = packageName
+        this.adaptiveAppColor = adaptiveColor
+        activeRuleSet = RuleProfileResolver.resolve(
+            foregroundPackage,
+            defaultRuleSet,
+            ruleProfiles,
+        )
         val shouldPause = AppPausePolicy.shouldPause(packageName, pausedPackages)
-        if (shouldPause == pausedForForegroundApp) return
+        val pauseChanged = shouldPause != pausedForForegroundApp
         pausedForForegroundApp = shouldPause
         if (isPaused()) {
             overlayManager.removeAll()
             detectors.clear()
             edgeLengths.clear()
             feedbackView = null
-        } else {
-            rebuildOverlays(compiledRuleSetFlow.value)
+        } else if (pauseChanged || oldActiveRuleSet !== activeRuleSet) {
+            rebuildOverlays(activeRuleSet)
         }
     }
+
+    private var currentKeyboardTopRatio: Float = 1.0f
 
     fun onSystemContextChanged(
         lockScreenVisible: Boolean,
         keyboardVisible: Boolean,
         landscape: Boolean,
+        fullScreen: Boolean = false,
+        permissionScreen: Boolean = false,
+        keyboardTopRatio: Float = 1.0f,
     ) {
         this.lockScreenVisible = lockScreenVisible
+        val keyboardStateChanged = this.keyboardVisible != keyboardVisible || this.currentKeyboardTopRatio != keyboardTopRatio
         this.keyboardVisible = keyboardVisible
+        this.currentKeyboardTopRatio = keyboardTopRatio
         this.landscape = landscape
+        this.fullScreen = fullScreen
+        this.permissionScreen = permissionScreen
         val shouldPause = shouldPauseForSystemContext()
-        if (shouldPause == pausedForSystemContext) return
+        if (shouldPause == pausedForSystemContext) {
+            if (!shouldPause && keyboardStateChanged) {
+                rebuildOverlays(activeRuleSet)
+            }
+            return
+        }
         pausedForSystemContext = shouldPause
         if (isPaused()) {
             overlayManager.removeAll()
@@ -132,35 +183,42 @@ class GestureEngine(
             edgeLengths.clear()
             feedbackView = null
         } else {
-            rebuildOverlays(compiledRuleSetFlow.value)
+            rebuildOverlays(activeRuleSet)
         }
     }
 
     fun onConfigurationChanged(newConfig: Configuration) {
         landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
-        onSystemContextChanged(lockScreenVisible, keyboardVisible, landscape)
-        if (!isPaused()) rebuildOverlays(compiledRuleSetFlow.value)
+        onSystemContextChanged(lockScreenVisible, keyboardVisible, landscape, fullScreen, permissionScreen, currentKeyboardTopRatio)
+        if (!isPaused()) rebuildOverlays(activeRuleSet)
     }
 
     private fun shouldPauseForSystemContext(): Boolean =
         SystemPausePolicy.shouldPause(
             config = currentConfig,
             lockScreenVisible = lockScreenVisible,
-            keyboardVisible = keyboardVisible,
+            keyboardVisible = false, // Handled dynamically via keyboardTopRatio clipping instead of complete pause
             landscape = landscape,
+            fullScreen = fullScreen,
+            permissionScreen = permissionScreen,
         )
 
     private fun isPaused(): Boolean = pausedForForegroundApp || pausedForSystemContext
 
     private fun applyConfigDiff(old: GestureConfig, new: GestureConfig, ruleSet: CompiledRuleSet) {
         // If edge width changed, rebuild all side overlays
-        val sideNeedsRebuild = old.edgeTriggerWidthDp != new.edgeTriggerWidthDp
+        val sideNeedsRebuild = old.leftTriggerWidthDp != new.leftTriggerWidthDp ||
+            old.rightTriggerWidthDp != new.rightTriggerWidthDp
 
         // If bottom height changed, rebuild bottom overlay
         val bottomNeedsRebuild = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp
         val behaviorNeedsRebuild =
-            old.dampingFactor != new.dampingFactor ||
-            old.minSwipeThresholdPx != new.minSwipeThresholdPx ||
+            old.leftDamping != new.leftDamping ||
+            old.rightDamping != new.rightDamping ||
+            old.bottomDamping != new.bottomDamping ||
+            old.leftSwipeThresholdDp != new.leftSwipeThresholdDp ||
+            old.rightSwipeThresholdDp != new.rightSwipeThresholdDp ||
+            old.bottomSwipeThresholdDp != new.bottomSwipeThresholdDp ||
             old.holdTimeMs != new.holdTimeMs ||
             old.sectionCount != new.sectionCount
 
@@ -212,41 +270,47 @@ class GestureEngine(
         val screenHeight = displayMetrics.heightPixels
         val screenWidth = displayMetrics.widthPixels
 
-        val edgeWidthPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, currentConfig.edgeTriggerWidthDp, displayMetrics
-        ).toInt()
-
-        val bottomHeightPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, currentConfig.bottomTriggerHeightDp, displayMetrics
+        val triggerSizePx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, currentConfig.triggerSizeDpFor(edge), displayMetrics
         ).toInt()
 
         val tag = "sensor_${edge.name.lowercase()}"
 
         when (edge) {
             Edge.LEFT -> {
-                val detector = createDetector(Edge.LEFT, screenHeight.toFloat())
+                val (vStart, vEnd) = currentConfig.verticalRangeFor(Edge.LEFT) ?: (0f to 1f)
+                val effectiveVEnd = if (keyboardVisible) minOf(vEnd, currentKeyboardTopRatio) else vEnd
+                val sensorHeight = ((effectiveVEnd - vStart) * screenHeight).toInt().coerceAtLeast(1)
+                val verticalOffset = (vStart * screenHeight).toInt()
+                val detector = createDetector(Edge.LEFT, sensorHeight.toFloat())
                 val window = OverlayWindowFactory.createEdgeSensor(
-                    overlayManager.context, Edge.LEFT, edgeWidthPx, screenHeight,
+                    overlayManager.context, Edge.LEFT, triggerSizePx, sensorHeight,
+                    offsetPx = verticalOffset,
                     onTouchListener = this
                 )
                 detectors[Edge.LEFT] = detector
-                edgeLengths[Edge.LEFT] = screenHeight.toFloat()
+                edgeLengths[Edge.LEFT] = sensorHeight.toFloat()
                 overlayManager.addWindow(tag, window)
             }
             Edge.RIGHT -> {
-                val detector = createDetector(Edge.RIGHT, screenHeight.toFloat())
+                val (vStart, vEnd) = currentConfig.verticalRangeFor(Edge.RIGHT) ?: (0f to 1f)
+                val effectiveVEnd = if (keyboardVisible) minOf(vEnd, currentKeyboardTopRatio) else vEnd
+                val sensorHeight = ((effectiveVEnd - vStart) * screenHeight).toInt().coerceAtLeast(1)
+                val verticalOffset = (vStart * screenHeight).toInt()
+                val detector = createDetector(Edge.RIGHT, sensorHeight.toFloat())
                 val window = OverlayWindowFactory.createEdgeSensor(
-                    overlayManager.context, Edge.RIGHT, edgeWidthPx, screenHeight,
+                    overlayManager.context, Edge.RIGHT, triggerSizePx, sensorHeight,
+                    offsetPx = verticalOffset,
                     onTouchListener = this
                 )
                 detectors[Edge.RIGHT] = detector
-                edgeLengths[Edge.RIGHT] = screenHeight.toFloat()
+                edgeLengths[Edge.RIGHT] = sensorHeight.toFloat()
                 overlayManager.addWindow(tag, window)
             }
             Edge.BOTTOM -> {
                 val detector = createDetector(Edge.BOTTOM, screenWidth.toFloat())
                 val window = OverlayWindowFactory.createEdgeSensor(
-                    overlayManager.context, Edge.BOTTOM, screenWidth, bottomHeightPx,
+                    overlayManager.context, Edge.BOTTOM, screenWidth, triggerSizePx,
                     onTouchListener = this
                 )
                 detectors[Edge.BOTTOM] = detector
@@ -257,9 +321,19 @@ class GestureEngine(
     }
 
     private fun createDetector(edge: Edge, sensorLength: Float): EdgeGestureDetector {
-        val configCopy = currentConfig.copy(sensorLength = sensorLength)
+        val displayMetrics = overlayManager.context.resources.displayMetrics
+        val perEdgeThresholdPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            currentConfig.swipeThresholdDpFor(edge),
+            displayMetrics,
+        )
+        val configCopy = currentConfig.copy(
+            sensorLength = sensorLength,
+            dampingFactor = currentConfig.dampingFor(edge),
+            minSwipeThresholdPx = perEdgeThresholdPx,
+        )
         val touchSlop = ViewConfiguration.get(overlayManager.context).scaledTouchSlop
-        val edgeTriggerMode = compiledRuleSetFlow.value.triggerModeFor(edge)
+        val edgeTriggerMode = activeRuleSet.triggerModeFor(edge)
         return EdgeGestureDetector(
             edge = edge,
             config = configCopy,
@@ -267,18 +341,27 @@ class GestureEngine(
             onGestureResult = { result -> handleGestureResult(result) },
             triggerMode = edgeTriggerMode,
             onReplayTap = if (edgeTriggerMode == TriggerMode.SWIPE) { x, y ->
-                GestureAccessibilityService.getInstance()?.dispatchTap(x, y)
+                GestureAccessibilityService.instance?.dispatchTap(x, y)
             } else null,
             onProgress = ::handleGestureProgress,
             hasHoldActionAt = { touchAlongEdgePx ->
                 if (sensorLength <= 0f) {
                     false
                 } else {
-                    compiledRuleSetFlow.value.match(
+                    activeRuleSet.match(
                         edge = edge,
                         gestureType = GestureType.SWIPE_HOLD,
                         sectionRatio = (touchAlongEdgePx / sensorLength).coerceIn(0f, 1f),
                     ) != null
+                }
+            },
+            hasLActionAt = { touchAlongEdgePx ->
+                if (sensorLength <= 0f) {
+                    false
+                } else {
+                    val ratio = (touchAlongEdgePx / sensorLength).coerceIn(0f, 1f)
+                    activeRuleSet.match(edge, GestureType.SWIPE_UP_L, ratio) != null ||
+                        activeRuleSet.match(edge, GestureType.SWIPE_DOWN_L, ratio) != null
                 }
             },
         )
@@ -286,12 +369,27 @@ class GestureEngine(
 
     private fun handleGestureProgress(progress: GestureProgress) {
         val view = feedbackView ?: return
+        @Suppress("DEPRECATION")
         view.peakThreshold = currentConfig.minSwipeThresholdPx
-        view.feedbackColor = currentConfig.feedbackColorArgb
+        val effectiveColor = if (currentConfig.useAppAdaptiveColor && adaptiveAppColor != null) {
+            adaptiveAppColor!!
+        } else {
+            currentConfig.feedbackColorArgb
+        }
+        view.feedbackColor = effectiveColor
         view.feedbackOpacity = currentConfig.feedbackOpacity
         view.feedbackAnimation = currentConfig.feedbackAnimation
-        view.quickIcon = currentConfig.quickFeedbackIcon
-        view.holdIcon = currentConfig.holdFeedbackIcon
+        view.animationSpeed = currentConfig.animationSpeed
+        view.animationSize = currentConfig.animationSize
+        view.showIndicatorBar = currentConfig.showGestureIndicatorBar
+        // Eylem simgesi: dokunulduğu/sürüklendiği andan itibaren eşleşen eylemi bul ve simgesini göster
+        val matchedAction = if (progress.active) {
+            val sensorLen = edgeLengths[progress.edge] ?: 0f
+            val ratio = if (sensorLen > 0f) (progress.touchAlongEdgePx / sensorLen).coerceIn(0f, 1f) else 0f
+            val gestureType = if (progress.holdArmed) GestureType.SWIPE_HOLD else GestureType.QUICK_SWIPE
+            activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
+        } else null
+        view.actionSymbol = ActionSymbols.symbolFor(matchedAction)
         view.updateGestureState(
             edge = progress.edge,
             stretch = progress.stretch,
@@ -302,16 +400,17 @@ class GestureEngine(
             appSwitchDirection = progress.appSwitchDirection,
         )
 
-        if (currentConfig.hapticEnabled) {
-            if (progress.active && !lastProgressActive) {
-                HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
-            } else if (progress.armed && !lastArmed) {
-                HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
-            } else if (progress.holdArmed && !lastHoldArmed) {
-                HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
-            } else if (!progress.active && lastArmed) {
-                HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
-            }
+        Log.d("AkisGesture", "haptic_check intensity=${currentConfig.hapticIntensity} sound=${currentConfig.hapticSoundEnabled} active=${progress.active} lastActive=$lastProgressActive armed=${progress.armed} lastArmed=$lastArmed")
+        HapticHelper.intensity = currentConfig.hapticIntensity
+        HapticHelper.soundEnabled = currentConfig.hapticSoundEnabled
+        if (progress.active && !lastProgressActive) {
+            HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
+        } else if (progress.armed && !lastArmed) {
+            HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
+        } else if (progress.holdArmed && !lastHoldArmed) {
+            HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
+        } else if (!progress.active && lastArmed) {
+            HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
         }
         lastArmed = progress.armed
         lastHoldArmed = progress.holdArmed
@@ -367,7 +466,7 @@ class GestureEngine(
             )
             is GestureResult.BottomHorizontalSwipe -> return null
         }
-        val compiledRuleSet = compiledRuleSetFlow.value
+        val compiledRuleSet = activeRuleSet
         val edgeLength = edgeLengths[edge] ?: return null
         if (edgeLength <= 0f) return null
         val sectionRatio = (touchPx / edgeLength).coerceIn(0f, 1f)
@@ -378,4 +477,11 @@ class GestureEngine(
         if (isPaused()) return false
         return detectors[edge]?.onTouchEvent(event) ?: false
     }
+
+    private data class RuntimeInputs(
+        val config: GestureConfig,
+        val defaultRuleSet: CompiledRuleSet,
+        val pausedPackages: Set<String>,
+        val profiles: Map<String, CompiledRuleSet>,
+    )
 }

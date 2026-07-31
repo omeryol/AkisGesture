@@ -4,17 +4,27 @@ import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.omer.akisgesture.AkisGestureApp
-import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.settingsDataStore
 import com.omer.akisgesture.feedback.FeedbackAnimation
 import com.omer.akisgesture.feedback.FeedbackIcon
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
+import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.gesture.HoldFireMode
+import com.omer.akisgesture.model.GestureRule
+import com.omer.akisgesture.overlay.Edge
 import com.omer.akisgesture.root.RootCommandExecutor
 import com.omer.akisgesture.root.RootResult
+import com.omer.akisgesture.rule.Presets
+import com.omer.akisgesture.rule.RuleSerializer.toGestureRuleGraph
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 enum class RootAccessState { CHECKING, AVAILABLE, UNAVAILABLE }
 
@@ -29,6 +39,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     val configState: StateFlow<GestureConfig> = app.gestureConfigFlow
     val pausedPackages: StateFlow<Set<String>> = app.pausedPackagesFlow
+    val rules: StateFlow<List<GestureRule>> = app.settingsDataStore.data.map { prefs ->
+        val json = prefs[stringPreferencesKey("gesture_rules_json")]
+            ?: return@map Presets.DEFAULT.rules.toList()
+        runCatching { json.toGestureRuleGraph() }
+            .getOrElse { Presets.DEFAULT }.rules.toList()
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, Presets.DEFAULT.rules.toList())
     private val _selectableApps = MutableStateFlow<List<SelectableApp>>(emptyList())
     val selectableApps: StateFlow<List<SelectableApp>> = _selectableApps.asStateFlow()
     private val _rootAccess = MutableStateFlow(RootAccessState.CHECKING)
@@ -103,6 +119,66 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setPauseInLandscape(enabled: Boolean) {
         viewModelScope.launch { app.updatePauseInLandscape(enabled) }
+    }
+
+    fun setPauseOnFullScreen(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseOnFullScreen(enabled) }
+    }
+
+    fun setPauseOnPermissionScreen(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseOnPermissionScreen(enabled) }
+    }
+
+    // ── Per-edge sensitivity ──
+
+    fun setEdgeTriggerSize(edge: Edge, dp: Float) {
+        viewModelScope.launch { app.updateEdgeTriggerSize(edge, dp) }
+    }
+
+    fun setEdgeDamping(edge: Edge, value: Float) {
+        viewModelScope.launch { app.updateEdgeDamping(edge, value) }
+    }
+
+    fun setEdgeSwipeThreshold(edge: Edge, dp: Float) {
+        viewModelScope.launch { app.updateEdgeSwipeThreshold(edge, dp) }
+    }
+
+    fun setLSwipeThreshold(dp: Float) {
+        viewModelScope.launch { app.updateLSwipeThreshold(dp) }
+    }
+
+    fun setEdgeVerticalRange(edge: Edge, start: Float, end: Float) {
+        viewModelScope.launch { app.updateEdgeVerticalRange(edge, start, end) }
+    }
+
+    fun setHoldFireMode(mode: HoldFireMode) {
+        viewModelScope.launch { app.updateHoldFireMode(mode) }
+    }
+
+    fun setHapticIntensity(intensity: Float) {
+        viewModelScope.launch {
+            app.updateHapticIntensity(intensity)
+            if (intensity > 0f) {
+                com.omer.akisgesture.feedback.HapticHelper.intensity = intensity
+                com.omer.akisgesture.feedback.HapticHelper.performHaptic(app, com.omer.akisgesture.feedback.HapticHelper.HapticType.LIGHT)
+            }
+        }
+    }
+
+    fun setHapticSoundEnabled(enabled: Boolean) {
+        viewModelScope.launch { app.updateHapticSoundEnabled(enabled) }
+    }
+
+    fun setHapticEnabled(enabled: Boolean) {
+        viewModelScope.launch { app.updateHapticEnabled(enabled) }
+    }
+
+    fun setAnimationSpeed(speed: Float) {
+        viewModelScope.launch { app.updateAnimationSpeed(speed) }
+    }
+
+    fun setAnimationSize(size: Float) {
+        viewModelScope.launch { app.updateAnimationSize(size) }
     }
 
     private fun loadSelectableApps() {
