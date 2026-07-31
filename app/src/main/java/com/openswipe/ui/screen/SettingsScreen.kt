@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Restore
@@ -42,9 +43,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -349,109 +352,23 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            // 1. Birincil Hareket Rengi (Hızlı Çekme)
-            Text(
-                text = "Birincil Hareket Rengi (Hızlı Çekme)",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold,
-                color = scheme.onSurface
+            Spacer(Modifier.height(8.dp))
+
+            // 1. Birincil Hareket Rengi (Hızlı Çekme) - Infinite Custom Color Picker
+            AkisInfiniteColorPicker(
+                title = "Birincil Hareket Rengi (Hızlı Çekme)",
+                currentColorArgb = config.feedbackColorArgb,
+                onColorChanged = viewModel::setFeedbackColor
             )
-            Spacer(Modifier.height(4.dp))
-            val colorPalettes = listOf(
-                Color(0xFF3D5AFE) to "Mavi",
-                Color(0xFF00E5FF) to "Siyan",
-                Color(0xFF00E676) to "Yeşil",
-                Color(0xFFD500F9) to "Mor",
-                Color(0xFFFF1744) to "Kırmızı",
-                Color(0xFFFFD600) to "Sarı",
-                Color(0xFF000000) to "Siyah",
-                Color(0xFFFFFFFF) to "Beyaz"
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                colorPalettes.forEach { (color, label) ->
-                    val colorArgb = color.toArgb()
-                    val isSelected = config.feedbackColorArgb == colorArgb && !config.useAppAdaptiveColor
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(color)
-                            .border(
-                                width = if (isSelected) 3.dp else 1.dp,
-                                color = if (isSelected) scheme.onSurface else Color.Black.copy(alpha = 0.2f),
-                                shape = CircleShape
-                            )
-                            .clickable { viewModel.setFeedbackColor(colorArgb) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = label,
-                                tint = if (color == Color.White) Color.Black else Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
 
             Spacer(Modifier.height(8.dp))
 
-            // 2. İkincil Hareket Rengi (Çekip Bekletme / Hold)
-            Text(
-                text = "İkincil Hareket Rengi (Çekip Bekletme)",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold,
-                color = scheme.onSurface
+            // 2. İkincil Hareket Rengi (Çekip Bekletme) - Infinite Custom Color Picker
+            AkisInfiniteColorPicker(
+                title = "İkincil Hareket Rengi (Çekip Bekletme)",
+                currentColorArgb = config.secondaryColorArgb,
+                onColorChanged = viewModel::setSecondaryColor
             )
-            Spacer(Modifier.height(4.dp))
-            val secondaryPalettes = listOf(
-                Color(0xFFFF9100) to "Kehribar",
-                Color(0xFFFF3D00) to "Turuncu",
-                Color(0xFFD500F9) to "Mor",
-                Color(0xFF00E5FF) to "Siyan",
-                Color(0xFFFF1744) to "Kırmızı",
-                Color(0xFFFFD600) to "Sarı",
-                Color(0xFF00E676) to "Yeşil",
-                Color(0xFFFFFFFF) to "Beyaz"
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                secondaryPalettes.forEach { (color, label) ->
-                    val colorArgb = color.toArgb()
-                    val isSelected = config.secondaryColorArgb == colorArgb
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(color)
-                            .border(
-                                width = if (isSelected) 3.dp else 1.dp,
-                                color = if (isSelected) scheme.onSurface else Color.Black.copy(alpha = 0.2f),
-                                shape = CircleShape
-                            )
-                            .clickable { viewModel.setSecondaryColor(colorArgb) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = label,
-                                tint = if (color == Color.White) Color.Black else Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
 
             Spacer(Modifier.height(8.dp))
 
@@ -687,5 +604,117 @@ fun SettingsScreen(
                 TextButton(onClick = { showAppPicker = false }) { Text("Tamam", fontWeight = FontWeight.Bold) }
             }
         )
+    }
+}
+
+@Composable
+fun AkisInfiniteColorPicker(
+    title: String,
+    currentColorArgb: Int,
+    onColorChanged: (Int) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val hsv = remember(currentColorArgb) {
+        FloatArray(3).also { AndroidColor.colorToHSV(currentColorArgb, it) }
+    }
+    val hexCode = String.format("#%06X", 0xFFFFFF and currentColorArgb)
+    val scheme = MaterialTheme.colorScheme
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .background(scheme.surfaceVariant.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+            .padding(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color(currentColorArgb))
+                        .border(2.dp, scheme.onSurface.copy(alpha = 0.3f), CircleShape)
+                )
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = scheme.onSurface
+                    )
+                    Text(
+                        text = "HEX: $hexCode | Hue: ${hsv[0].toInt()}°",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            IconButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = "Renk Seçici Barı",
+                    tint = scheme.onSurface
+                )
+            }
+        }
+
+        AnimatedVisibility(visible = expanded) {
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                // Hue Slider (0 - 360)
+                Text(
+                    text = "Renk Tonu (Hue Bar): ${hsv[0].toInt()}°",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface
+                )
+                Slider(
+                    value = hsv[0],
+                    onValueChange = { newHue ->
+                        val newColor = AndroidColor.HSVToColor(floatArrayOf(newHue, hsv[1].coerceAtLeast(0.1f), hsv[2].coerceAtLeast(0.1f)))
+                        onColorChanged(newColor)
+                    },
+                    valueRange = 0f..360f
+                )
+
+                // Saturation Slider (0.0 - 1.0)
+                Text(
+                    text = "Doygunluk: %${(hsv[1] * 100).toInt()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurface
+                )
+                Slider(
+                    value = hsv[1],
+                    onValueChange = { newSat ->
+                        val newColor = AndroidColor.HSVToColor(floatArrayOf(hsv[0], newSat, hsv[2]))
+                        onColorChanged(newColor)
+                    },
+                    valueRange = 0f..1f
+                )
+
+                // Brightness / Value Slider (0.0 - 1.0)
+                Text(
+                    text = "Parlaklık: %${(hsv[2] * 100).toInt()}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurface
+                )
+                Slider(
+                    value = hsv[2],
+                    onValueChange = { newVal ->
+                        val newColor = AndroidColor.HSVToColor(floatArrayOf(hsv[0], hsv[1], newVal))
+                        onColorChanged(newColor)
+                    },
+                    valueRange = 0f..1f
+                )
+            }
+        }
     }
 }
