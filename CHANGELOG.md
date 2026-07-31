@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.3] - 2026-08-01
+
+### 🎨 Çift Renkli Renk Uzayı, Sabitlenen L-Swipe Geri Bildirimi & Görsel Yenilenme
+
+- **Çift Renkli (Dual-Color) Tasarım & Renk Uzayı Düzeltmesi:** Manuel renk paleti seçiminin uygulamaya duyarlı otomatik renk tarafından ezilmesi sorunu giderildi. Hızlı Çekme için **Birincil Hareket Rengi** ve Çekip Bekletme için **İkincil Hareket Rengi** ayrıldı. Çekip bekletme eşiği aşıldığında renk yumuşak biçimde ikincil renge geçiş yapar.
+- **Sabitlenen L-Swipe Görsel Geri Bildirimi (Anchored Lock-On):** L-Swipe hareketi başladığı anda kenardaki animasyon parmakla dikey kaymak yerine parmağın büküldüğü ilk dönüş noktasında (`bendStartY`) **kilitlenip sabit kalır** ve anında parlak **Neon Yeşil L-Swipe Vurgu Rengine** dönüşür.
+- **1. Eylem (Geri) Parmak Bırakma Titreşimi:** `handleGestureResult` eylem yürütücüsüne haptik tetikleyici eklendi. Geri hareketi tamamlanıp parmak kaldırıldığı anda belirgin haptik darbe ile eylem onaylanır.
+- **Görsel Geometri & Simge Etkileşimi Yenileme:** `BezierStretchRenderer` kütle merkezi hesabı (`0.52x`), akıcı Bezier konturları, yaylı simge büyümesi (spring-pop `1.18x` / `1.32x`) ve rozet halkası (badge ring) ile yenilendi.
+
 ## [1.1.2] - 2026-08-01
 
 ### 🏗️ Mimari Modülerleştirme, Haptik Motoru Sıfırdan Yazımı & Temizlik
