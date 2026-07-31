@@ -187,7 +187,18 @@ class BezierStretchRenderer {
                 Edge.RIGHT -> Pair(w - xDepth, yAlong)
                 Edge.BOTTOM -> Pair(yAlong, h - xDepth)
             }
-            if (i == 0) path.moveTo(if (edge == Edge.RIGHT) w else 0f, touchPos - span)
+            if (i == 0) {
+                val startPx = when (edge) {
+                    Edge.LEFT -> 0f
+                    Edge.RIGHT -> w
+                    Edge.BOTTOM -> touchPos - span
+                }
+                val startPy = when (edge) {
+                    Edge.LEFT, Edge.RIGHT -> touchPos - span
+                    Edge.BOTTOM -> h
+                }
+                path.moveTo(startPx, startPy)
+            }
             path.lineTo(px, py)
         }
         if (edge == Edge.LEFT) path.lineTo(0f, touchPos + span)
