@@ -302,10 +302,11 @@ class EdgeGestureDetector(
     }
 
     private fun publishProgress(active: Boolean) {
-        val dy = touchState.prevY - touchState.downY
         val armedNow = state == GestureState.DETECTED && lastStretch >= swipeThresholdPx
-        val isLUp = armedNow && (edge == Edge.LEFT || edge == Edge.RIGHT) && dy < -45f
-        val isLDown = armedNow && (edge == Edge.LEFT || edge == Edge.RIGHT) && dy > 45f
+        val detectedL = lSwipeDetector.detectedLGesture
+        val isLUp = detectedL == GestureType.SWIPE_UP_L
+        val isLDown = detectedL == GestureType.SWIPE_DOWN_L
+        val bendStartY = if (isLUp || isLDown || lSwipeDetector.inwardArmed) lSwipeDetector.bendStartY else 0f
 
         onProgress(
             GestureProgress(
@@ -318,6 +319,7 @@ class EdgeGestureDetector(
                 appSwitchDirection = lastSwitchDirection,
                 isLUp = isLUp,
                 isLDown = isLDown,
+                bendStartY = bendStartY,
             )
         )
     }
@@ -410,6 +412,7 @@ data class GestureProgress(
     val appSwitchDirection: SwipeDirection? = null,
     val isLUp: Boolean = false,
     val isLDown: Boolean = false,
+    val bendStartY: Float = 0f,
 )
 
 enum class GestureState {

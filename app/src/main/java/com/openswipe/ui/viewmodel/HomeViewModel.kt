@@ -89,17 +89,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setFeedbackColor(argb: Int) {
-        viewModelScope.launch { app.updateFeedbackColor(argb) }
-    }
 
-    fun setFeedbackOpacity(opacity: Float) {
-        viewModelScope.launch { app.updateFeedbackOpacity(opacity) }
-    }
-
-    fun setFeedbackAnimation(animation: FeedbackAnimation) {
-        viewModelScope.launch { app.updateFeedbackAnimation(animation) }
-    }
 
     fun setQuickFeedbackIcon(icon: FeedbackIcon) {
         viewModelScope.launch { app.updateQuickFeedbackIcon(icon) }
@@ -171,6 +161,30 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setHapticEnabled(enabled: Boolean) {
         viewModelScope.launch { app.updateHapticEnabled(enabled) }
+    }
+
+    fun setFeedbackColor(colorArgb: Int) {
+        viewModelScope.launch { app.updateFeedbackColor(colorArgb) }
+    }
+
+    fun setSecondaryColor(colorArgb: Int) {
+        viewModelScope.launch { app.updateSecondaryColor(colorArgb) }
+    }
+
+    fun setLSwipeColor(colorArgb: Int) {
+        viewModelScope.launch { app.updateLSwipeColor(colorArgb) }
+    }
+
+    fun setUseAppAdaptiveColor(enabled: Boolean) {
+        viewModelScope.launch { app.updateUseAppAdaptiveColor(enabled) }
+    }
+
+    fun setFeedbackOpacity(opacity: Float) {
+        viewModelScope.launch { app.updateFeedbackOpacity(opacity) }
+    }
+
+    fun setFeedbackAnimation(animation: com.omer.akisgesture.feedback.FeedbackAnimation) {
+        viewModelScope.launch { app.updateFeedbackAnimation(animation) }
     }
 
     fun setAnimationSpeed(speed: Float) {

@@ -9,9 +9,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.omer.akisgesture.gesture.GestureConfig
+import com.omer.akisgesture.gesture.HoldFireMode
 import com.omer.akisgesture.feedback.FeedbackAnimation
 import com.omer.akisgesture.feedback.FeedbackIcon
 import com.omer.akisgesture.rule.CompiledRuleSet
+import com.omer.akisgesture.rule.AppRuleProfilesSerializer
 import com.omer.akisgesture.rule.GestureRuleGraph
 import com.omer.akisgesture.rule.Presets
 import com.omer.akisgesture.rule.RuleSerializer.toGestureRuleGraph
@@ -43,6 +45,12 @@ class AkisGestureApp : Application() {
     lateinit var pausedPackagesFlow: StateFlow<Set<String>>
         private set
 
+    lateinit var ruleProfilesFlow: StateFlow<Map<String, GestureRuleGraph>>
+        private set
+
+    lateinit var compiledRuleProfilesFlow: StateFlow<Map<String, CompiledRuleSet>>
+        private set
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -53,11 +61,33 @@ class AkisGestureApp : Application() {
                     leftEnabled = prefs[GestureConfig.KEY_LEFT_ENABLED] ?: true,
                     rightEnabled = prefs[GestureConfig.KEY_RIGHT_ENABLED] ?: true,
                     bottomEnabled = prefs[GestureConfig.KEY_BOTTOM_ENABLED] ?: true,
-                    edgeTriggerWidthDp = prefs[GestureConfig.KEY_EDGE_TRIGGER_WIDTH] ?: 20f,
+                    leftTriggerWidthDp = prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] ?: 20f,
+                    rightTriggerWidthDp = prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] ?: 20f,
                     bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 40f,
                     holdTimeMs = prefs[GestureConfig.KEY_HOLD_TIME] ?: 280L,
+                    holdFireMode = prefs[GestureConfig.KEY_HOLD_FIRE_MODE]
+                        ?.let { runCatching { HoldFireMode.valueOf(it) }.getOrNull() }
+                        ?: HoldFireMode.ON_RELEASE,
+                    leftDamping = prefs[GestureConfig.KEY_LEFT_DAMPING] ?: 2.0f,
+                    rightDamping = prefs[GestureConfig.KEY_RIGHT_DAMPING] ?: 2.0f,
+                    bottomDamping = prefs[GestureConfig.KEY_BOTTOM_DAMPING] ?: 2.0f,
+                    leftSwipeThresholdDp = prefs[GestureConfig.KEY_LEFT_SWIPE_THRESHOLD_DP] ?: 14f,
+                    rightSwipeThresholdDp = prefs[GestureConfig.KEY_RIGHT_SWIPE_THRESHOLD_DP] ?: 14f,
+                    bottomSwipeThresholdDp = prefs[GestureConfig.KEY_BOTTOM_SWIPE_THRESHOLD_DP] ?: 14f,
+                    leftVerticalStart = prefs[GestureConfig.KEY_LEFT_VERTICAL_START] ?: 0f,
+                    leftVerticalEnd = prefs[GestureConfig.KEY_LEFT_VERTICAL_END] ?: 1f,
+                    rightVerticalStart = prefs[GestureConfig.KEY_RIGHT_VERTICAL_START] ?: 0f,
+                    rightVerticalEnd = prefs[GestureConfig.KEY_RIGHT_VERTICAL_END] ?: 1f,
+                    directionToleranceDegrees = prefs[GestureConfig.KEY_DIRECTION_TOLERANCE] ?: 35f,
+                    hysteresisRatio = prefs[GestureConfig.KEY_HYSTERESIS_RATIO] ?: 0.25f,
+                    lSwipeThresholdDp = prefs[GestureConfig.KEY_L_SWIPE_THRESHOLD_DP] ?: 30f,
                     feedbackColorArgb = prefs[GestureConfig.KEY_FEEDBACK_COLOR]
                         ?: 0xFF3D5AFE.toInt(),
+                    secondaryColorArgb = prefs[GestureConfig.KEY_SECONDARY_COLOR]
+                        ?: 0xFFFF9100.toInt(),
+                    lSwipeColorArgb = prefs[GestureConfig.KEY_L_SWIPE_COLOR]
+                        ?: 0xFF00E676.toInt(),
+                    useAppAdaptiveColor = prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] ?: false,
                     feedbackOpacity = prefs[GestureConfig.KEY_FEEDBACK_OPACITY] ?: 0.57f,
                     feedbackAnimation = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION]
                         ?.let { runCatching { FeedbackAnimation.valueOf(it) }.getOrNull() }
@@ -72,6 +102,13 @@ class AkisGestureApp : Application() {
                     pauseWhenKeyboardVisible =
                         prefs[GestureConfig.KEY_PAUSE_WHEN_KEYBOARD_VISIBLE] ?: false,
                     pauseInLandscape = prefs[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] ?: false,
+                    pauseOnFullScreen = prefs[GestureConfig.KEY_PAUSE_ON_FULL_SCREEN] ?: true,
+                    pauseOnPermissionScreen = prefs[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] ?: true,
+                    hapticIntensity = prefs[GestureConfig.KEY_HAPTIC_INTENSITY] ?: 1f,
+                    hapticSoundEnabled = prefs[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] ?: false,
+                    hapticEnabled = prefs[GestureConfig.KEY_HAPTIC_ENABLED] ?: true,
+                    animationSpeed = prefs[GestureConfig.KEY_ANIMATION_SPEED] ?: 1f,
+                    animationSize = prefs[GestureConfig.KEY_ANIMATION_SIZE] ?: 1f,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -79,6 +116,21 @@ class AkisGestureApp : Application() {
         pausedPackagesFlow = settingsDataStore.data
             .map { prefs -> prefs[KEY_PAUSED_PACKAGES] ?: emptySet() }
             .stateIn(appScope, SharingStarted.Eagerly, emptySet())
+
+        ruleProfilesFlow = settingsDataStore.data
+            .map { prefs ->
+                prefs[KEY_RULE_PROFILES_JSON]
+                    ?.let { json ->
+                        runCatching { AppRuleProfilesSerializer.fromJson(json) }
+                            .getOrDefault(emptyMap())
+                    }
+                    .orEmpty()
+            }
+            .stateIn(appScope, SharingStarted.Eagerly, emptyMap())
+
+        compiledRuleProfilesFlow = ruleProfilesFlow
+            .map { profiles -> profiles.mapValues { (_, graph) -> graph.compile() } }
+            .stateIn(appScope, SharingStarted.Eagerly, emptyMap())
 
         // Load rules from DataStore on startup
         appScope.launch(Dispatchers.IO) {
@@ -101,9 +153,52 @@ class AkisGestureApp : Application() {
         _compiledRuleSet.value = graph.compile()
     }
 
+    suspend fun applyProfileRules(packageName: String, graph: GestureRuleGraph) {
+        if (packageName == this.packageName) return
+        settingsDataStore.edit { prefs ->
+            val current = prefs[KEY_RULE_PROFILES_JSON]
+                ?.let { runCatching { AppRuleProfilesSerializer.fromJson(it) }.getOrNull() }
+                .orEmpty()
+            prefs[KEY_RULE_PROFILES_JSON] =
+                AppRuleProfilesSerializer.toJson(current + (packageName to graph))
+        }
+    }
+
+    suspend fun removeRuleProfile(packageName: String) {
+        settingsDataStore.edit { prefs ->
+            val current = prefs[KEY_RULE_PROFILES_JSON]
+                ?.let { runCatching { AppRuleProfilesSerializer.fromJson(it) }.getOrNull() }
+                .orEmpty()
+            val updated = current - packageName
+            if (updated.isEmpty()) {
+                prefs.remove(KEY_RULE_PROFILES_JSON)
+            } else {
+                prefs[KEY_RULE_PROFILES_JSON] = AppRuleProfilesSerializer.toJson(updated)
+            }
+        }
+    }
+
+    suspend fun loadRuleProfile(packageName: String): GestureRuleGraph? {
+        return ruleProfilesFlow.value[packageName]
+            ?: settingsDataStore.data.first()[KEY_RULE_PROFILES_JSON]
+                ?.let { runCatching { AppRuleProfilesSerializer.fromJson(it)[packageName] }.getOrNull() }
+    }
+
     suspend fun updateEdgeTriggerWidth(dp: Float) {
         settingsDataStore.edit { prefs ->
-            prefs[GestureConfig.KEY_EDGE_TRIGGER_WIDTH] = dp
+            // Write to both per-edge keys (legacy function kept for ViewModel compatibility)
+            prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] = dp
+            prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] = dp
+        }
+    }
+
+    suspend fun updateEdgeTriggerSize(edge: com.omer.akisgesture.overlay.Edge, dp: Float) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                com.omer.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] = dp
+                com.omer.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] = dp
+                com.omer.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] = dp
+            }
         }
     }
 
@@ -120,8 +215,7 @@ class AkisGestureApp : Application() {
     }
 
     /**
-     * 同步加载Kurallar — 在 onServiceConnected 中调用，确保 Service 启动时Kurallar立即可用。
-     * 学习 STB 策略：不依赖异步 flow，在 Service 绑定时同步完成初始化。
+     * Kuralları senkron yükler — onServiceConnected içinde çağrılarak servis başladığında kuralların hazır olmasını sağlar.
      */
     fun ensureRulesLoadedSync() {
         if (_compiledRuleSet.value !== CompiledRuleSet.EMPTY) return
@@ -147,12 +241,6 @@ class AkisGestureApp : Application() {
         }
     }
 
-    suspend fun updateFeedbackColor(argb: Int) {
-        settingsDataStore.edit { prefs ->
-            prefs[GestureConfig.KEY_FEEDBACK_COLOR] = argb
-        }
-    }
-
     suspend fun updateFeedbackOpacity(opacity: Float) {
         settingsDataStore.edit { prefs ->
             prefs[GestureConfig.KEY_FEEDBACK_OPACITY] = opacity.coerceIn(0.1f, 1f)
@@ -168,6 +256,31 @@ class AkisGestureApp : Application() {
     suspend fun updateQuickFeedbackIcon(icon: FeedbackIcon) {
         settingsDataStore.edit { prefs ->
             prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON] = icon.name
+        }
+    }
+
+    suspend fun updateFeedbackColor(colorArgb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_COLOR] = colorArgb
+            prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] = false
+        }
+    }
+
+    suspend fun updateSecondaryColor(colorArgb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_SECONDARY_COLOR] = colorArgb
+        }
+    }
+
+    suspend fun updateLSwipeColor(colorArgb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_L_SWIPE_COLOR] = colorArgb
+        }
+    }
+
+    suspend fun updateUseAppAdaptiveColor(enabled: Boolean) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] = enabled
         }
     }
 
@@ -189,8 +302,89 @@ class AkisGestureApp : Application() {
         settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] = enabled }
     }
 
+    suspend fun updatePauseOnFullScreen(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_FULL_SCREEN] = enabled }
+    }
+
+    suspend fun updatePauseOnPermissionScreen(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] = enabled }
+    }
+
+    suspend fun updateHapticIntensity(intensity: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_INTENSITY] = intensity.coerceIn(0f, 1f) }
+    }
+
+    suspend fun updateHapticSoundEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] = enabled }
+    }
+
+    suspend fun updateAnimationSpeed(speed: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ANIMATION_SPEED] = speed.coerceIn(0.5f, 2f) }
+    }
+
+    suspend fun updateAnimationSize(size: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ANIMATION_SIZE] = size.coerceIn(0.5f, 2f) }
+    }
+
+    suspend fun updateHapticEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_ENABLED] = enabled }
+    }
+
+    // ── Per-edge sensitivity ──
+
+    suspend fun updateEdgeDamping(edge: com.omer.akisgesture.overlay.Edge, value: Float) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                com.omer.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_DAMPING] = value
+                com.omer.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_DAMPING] = value
+                com.omer.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_DAMPING] = value
+            }
+        }
+    }
+
+    suspend fun updateEdgeSwipeThreshold(edge: com.omer.akisgesture.overlay.Edge, dp: Float) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                com.omer.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_SWIPE_THRESHOLD_DP] = dp
+                com.omer.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_SWIPE_THRESHOLD_DP] = dp
+                com.omer.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_SWIPE_THRESHOLD_DP] = dp
+            }
+        }
+    }
+
+    suspend fun updateLSwipeThreshold(dp: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_L_SWIPE_THRESHOLD_DP] = dp.coerceIn(15f, 60f)
+        }
+    }
+
+    suspend fun updateEdgeVerticalRange(
+        edge: com.omer.akisgesture.overlay.Edge,
+        start: Float,
+        end: Float,
+    ) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                com.omer.akisgesture.overlay.Edge.LEFT -> {
+                    prefs[GestureConfig.KEY_LEFT_VERTICAL_START] = start
+                    prefs[GestureConfig.KEY_LEFT_VERTICAL_END] = end
+                }
+                com.omer.akisgesture.overlay.Edge.RIGHT -> {
+                    prefs[GestureConfig.KEY_RIGHT_VERTICAL_START] = start
+                    prefs[GestureConfig.KEY_RIGHT_VERTICAL_END] = end
+                }
+                com.omer.akisgesture.overlay.Edge.BOTTOM -> { /* no vertical range for bottom */ }
+            }
+        }
+    }
+
+    suspend fun updateHoldFireMode(mode: HoldFireMode) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HOLD_FIRE_MODE] = mode.name }
+    }
+
     companion object {
         private val KEY_RULES_JSON = stringPreferencesKey("gesture_rules_json")
+        private val KEY_RULE_PROFILES_JSON = stringPreferencesKey("app_rule_profiles_json")
         private val KEY_PAUSED_PACKAGES = stringSetPreferencesKey("paused_packages")
         private lateinit var instance: AkisGestureApp
         fun getInstance(): AkisGestureApp = instance
