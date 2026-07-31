@@ -581,23 +581,29 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // 3D Glass Floating Badge Ring with Double Drop Shadow
+        // 3D Floating Glass Squircle Container (Perfect matching shape for Emojis & Icons)
         if (armed || holdArmed || isLUp || isLDown) {
-            val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
+            val auraW = if (isLUp || isLDown || holdArmed) 34f else 28f
+            val auraH = auraW
+            val cornerR = auraW * 0.48f // Squircle curvature
+            rectF.set(cx - auraW, cy - auraH, cx + auraW, cy + auraH)
 
-            // Double Pass 3D Drop Shadow
+            // Double Pass 3D Drop Shadow for Squircle
             shadowPaint.color = Color.BLACK
             shadowPaint.alpha = (95 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx + 4f, cy + 6f, auraRadius * 1.05f, shadowPaint)
+            canvas.drawRoundRect(
+                rectF.left + 4f, rectF.top + 6f, rectF.right + 4f, rectF.bottom + 6f,
+                cornerR, cornerR, shadowPaint
+            )
 
-            // 3D Glass Badge Body
+            // 3D Glass Squircle Body
             auraPaint.color = when {
                 isLUp || isLDown -> lSwipeColor
                 holdArmed -> secondaryColor
                 else -> baseColor
             }
             auraPaint.alpha = ((if (isLUp || isLDown) 215 else if (holdArmed) 195 else 140) * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx, cy, auraRadius, auraPaint)
+            canvas.drawRoundRect(rectF, cornerR, cornerR, auraPaint)
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)

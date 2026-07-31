@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.9] - 2026-08-01
+
+### 🟧 3D Adaptif Cam Squircle İkon Rozeti (Squircle Badge Container)
+
+- **Sert Daire Rozet Kaldırıldı:** Kare/dikdörtgen Emoji simgeleriyle çakışan rijit daire konteyneri silindi.
+- **3D Cam Squircle (`3D Adaptive Squircle`):** İkon ve Emoji geometrisine kusursuz uyum sağlayan yumuşak yumurtlatılmış kavisli **3D Cam Squircle (`drawRoundRect` ile 14-16dp kavis)** ve gölgelendirme konteyneri entegre edildi.
+
 ## [1.1.8] - 2026-08-01
 
 ### 💎 Belirgin 3D Derinlik Efektleri & Canlı Emoji Simgeleri
