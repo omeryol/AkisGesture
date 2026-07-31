@@ -2,7 +2,196 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
-## [Unreleased]
+## [1.1.1] - 2026-08-01
+
+### 🔧 Hareket Algılama Güvenilirlik Düzeltmesi
+
+- **L-Swipe yanlış pozitif algılama giderildi:** `resolveGestureResult` içindeki
+  `rawDy > 40f` tabanlı L-swipe sınıflandırması kaldırıldı. Normal geri hareketi
+  sırasında parmağın doğal dikey sapması (40+ piksel) bu eşiği aşarak hareketi
+  yanlışlıkla `SWIPE_UP_L` / `SWIPE_DOWN_L` olarak sınıflandırıyordu. Bu gesture
+  tipi için kural tanımlı olmadığından eylem tetiklenmiyordu. L-swipe algılama
+  artık yalnızca `handleUp` içindeki 2-fazlı dedektör tarafından yapılıyor;
+  kasıtlı içeri→dikey hareket gerektirdiğinden yanlış pozitif üretmiyor.
+- **Yön toleransı minimum alt sınırı:** `directionToleranceDegrees` değerine
+  minimum 40° alt sınır eklendi. Önceki durumda 35.12° açı farkı 35.0° toleransla
+  sadece 0.12° farkla reddediliyordu; artık tolerans 40°'nin altına düşemiyor.
+
+## [1.1.0] - 2026-07-31
+
+### 🚀 Geri Hareketi, L-Swipe İptal & Ana Sayfa Yönlendirme Düzeltmeleri
+
+- **Geri Hareketi Takılma Düzeltmesi:** `InternalNavigationBus.requestBack()`, `MainActivity` aktif olmadığında veya dinleyici olmadığında `false` dönecek şekilde düzeltildi. Böylece dış uygulamalarda ve Akış içinde sistem `GLOBAL_ACTION_BACK` anında çalışır, geri hareketi takılması tamamen giderildi.
+- **L-Swipe ve İptal Mantığı:** `EdgeGestureDetector` içerisindeki `state == CANCELLED` kontrolünün hareketi çalıştırması önlendi. Parmak kenara geri getirildiğinde (`< %40` eşik) `inwardArmed = false` yapılır ve hareket 0x0 tepkiyle iptal edilir.
+- **Ana Sayfa Navigasyonu:** Durum kartı, Kenar Haritası kartı ve "Düzenle →" metni doğrudan Kurallar/İzinler ekranlarına yönlendirir.
+- **Ana Sayfa Sekme Yönlendirmesi:** Ana sayfadaki "Sol & Sağ" kartı doğrudan `Sol Kenar` sekmesini, "Alt Kenar" kartı ise doğrudan `Alt Kenar` sekmesini açacak şekilde güncellendi.
+- **Haptik Titreşim & Tıklama Sesi Düzeltmesi:** Titreşim çağrıları doğrudan donanım motoruna iletildi, sesler `STREAM_MUSIC` kanalına aktarıldı. Sistem dokunma sesleri kapalı olsa bile Akış içindeki sesler tam şiddetle çalışır.
+- **L-Swipe 1.0x Vektör Oranı Kurallandırması:** L-Swipe'ın kabul edilmesi için dikey sürükleme mesafesinin yatay içeriye sürükleme mesafesinin en az **1.0 katı** (`turnDy >= turnDx * 1.0f`) olması zorunlu kılındı.
+- **Ayar Kartları & Kavram Açıklamaları:** Ayarlar ekranında **Tetik**, **Hassasiyet (Sönümleme)**, **Eşik Mesafesi** ve **L-Swipe Bükülme Eşiği** için açıklayıcı yardım alt metinleri ve ayarlanabilir kaydırıcılar eklendi.
+- **Sürüm:** Uygulama sürümü `1.1.0` (versionCode `2`) olarak güncellendi ve ana sayfaya eklendi.
+
+- **L-Swipe Hassasiyet & Açı Kontrolü (`lSwipeThresholdDp`):**
+  - İstem dışı L-Swipe tetiklenmelerini önlemek için dikey bükülme eşiği yükseltildi (`~85px / 30dp+`).
+  - Çapraz kaydırmaları ayırt etmek için dikey vektör açı denetimi eklendi (`abs(turnDy) > turnDx * 1.1f`).
+  - `hasLActionAt` kural kontrolü eklendi; ilgili bölgede L kuralı tanımlı değilse L-Swipe durum makinesi hiç devreye girmiyor.
+- **Kademeli Geri Dönüş ve Esnek İptal (Multi-tier Hysteresis):**
+  - **%65 Threshold Reversion:** Parmak bekletme (Hold / İkincil Eylem) modundayken %65 eşik seviyesinin altına çekildiğinde Hold kilidi çözülüyor ve otomatik olarak **Birincil Eyleme (Quick Swipe)** geri dönülüyor.
+  - **%35 Threshold Cancel:** Parmak %35 eşiğin altına çekildiğinde tüm hareket güvenle iptal ediliyor.
+- **Root Gerektirmeyen Anlık Uygulama Geçişi (`SwitchLastApp`):**
+  - `ActionDispatcher.kt`, hafızadaki `previousForegroundPackage()` bilgisini kullanarak **Root gereksinimi olmadan ve sıfır gecikmeyle** önceki uygulamaya geçiyor.
+  - Hata toast mesajları kaldırıldı; geçiş başarısız olursa sistem `GLOBAL_ACTION_RECENTS` görünümüne yumuşak yedekleme yapıyor.
+
+### 🚀 L-Şeklinde Çekme (L-Swipe) — 2-Fazlı Mimari Yeniden Yazımı
+
+> **Kök Neden Teşhisi:** L-hareketinin hiç tetiklenmemesinin iki temel nedeni tespit
+> edildi ve kökten çözüldü.
+
+- **Kök Neden 1 — Durum İptal Çakışması:** Parmak içeriye girdikten sonra L
+  biçiminde yukarı/aşağı büküldüğünde yatay mesafe (`dx`) doğal olarak azalıyordu.
+  `GestureCancelPolicy`, bu azalmayı "geri çekilme" sanarak durumu `CANCELLED`'e
+  alıyordu. Parmak ekrandan kalktığında `state == DETECTED` kontrolü geçemediği
+  için hiçbir eylem çalışmıyordu.
+- **Kök Neden 2 — Bölge Hesabında Bitiş Koordinatı Hatası:** Parmağın kalktığı son
+  `event.rawY` koordinatı kural eşleştirmesinde bölge oranı (`sectionRatio`) için
+  kaynak olarak kullanılıyordu. L-Up hareketi sırasında parmak ekranın farklı bir
+  bölgesine kayabildiğinden kullanıcının kuraldaki bölgeyle eşleşme sağlanamıyor ve
+  `null` dönüyordu.
+
+#### Uygulanan Çözümler
+
+- **`maxInwardPx` Takibi:** Her `ACTION_MOVE` olayında içe ilerleme kaydediliyor.
+  `maxInwardPx >= threshold` olduğu anda `inwardArmed = true` kilitlenir; bundan
+  sonra yatay koordinat azalsa dahi `GestureCancelPolicy` devreye giremez.
+- **`bendStartY` — Dönüş Noktası:** İçeri giriş eşiği aşıldığı andaki `event.rawY`
+  değeri kaydedilerek dikey dönüş miktarı (`turnDy = event.rawY − bendStartY`)
+  doğru geometri üzerinden hesaplanıyor.
+- **2-Fazlı Sınıflandırma:** `inwardArmed && turnDy <= -35f → SWIPE_UP_L`,
+  `turnDy >= 35f → SWIPE_DOWN_L`. L-tipi belirlendi mi `handleUp`'ta öncelikli
+  olarak değerlendiriliyor; normal `QUICK_SWIPE` çözümlemesi atlanıyor.
+- **`initialTouchCoord()` ile Başlangıç Bölge Hesabı:** Bölge oranı (`sectionRatio`)
+  artık parmağın kenara ilk temas ettiği `downY` / `downX` koordinatından hesaplanıyor.
+  Alt bölgeden başlayan L-Up hareketi ekranın en üstünde bitse bile Alt Bölge kuralı
+  doğru bulunuyor.
+- **`handleUp` Öncelik Sırası:** `lGestureType != null` ise eylem normal swipe
+  değerlendirmesinden önce anında tetikleniyor.
+- **`reset()` Temizliği:** `maxInwardPx`, `inwardArmed`, `bendStartY` ve `lGestureType`
+  her dokunma başında sıfırlanıyor.
+
+### 🧹 Kod Temizliği ve Deprecated Uyarı Giderimi
+
+- **`service/GestureCommandReceiver.kt` silindi:** `receiver/GestureCommandReceiver`
+  aktif ve Manifest'e kayıtlı olan sürümdür. `service/` paketindeki klon hiçbir
+  bileşen tarafından kullanılmıyor ve Manifest'e kayıtlı değildi; ölü kod olarak
+  kaldırıldı.
+- **`EdgeGestureDetector.kt` — Deprecated Alan Geçişi (13 kullanım):**
+  `config.dampingFactor` → `edgeDamping` (her kenar için `config.dampingFor(edge)`)
+  ve `config.minSwipeThresholdPx` → `swipeThresholdPx` yerel property'leri eklendi.
+  Tüm deprecated çağrılar bu iki alias üzerinden gerçekleştiriliyor.
+- **`GestureEngine.kt` — Deprecated Alan Geçişi:**
+  - `edgeTriggerWidthDp` karşılaştırması → `leftTriggerWidthDp != rightTriggerWidthDp`
+  - `dampingFactor/minSwipeThresholdPx` diff kontrolü → `leftDamping/rightDamping/
+    bottomDamping` ve `leftSwipeThresholdDp/rightSwipeThresholdDp/bottomSwipeThresholdDp`
+    ile yeniden yazıldı.
+  - `view.peakThreshold = currentConfig.minSwipeThresholdPx` satırı
+    `@Suppress("DEPRECATION")` ile belgelenmiş istisna olarak işaretlendi
+    (FeedbackView görsel bant genişliği için edge-agnostik global değer gerektirir).
+- **`OpenSwipeApp.kt` — `KEY_EDGE_TRIGGER_WIDTH` kaldırıldı:**
+  `updateEdgeTriggerWidth(dp)` artık deprecated `KEY_EDGE_TRIGGER_WIDTH` yerine
+  `KEY_LEFT_TRIGGER_WIDTH` ve `KEY_RIGHT_TRIGGER_WIDTH` anahtarlarını doğrudan
+  yazıyor.
+- **`RuleLabels.kt` — Çift `when` Dalı Hatası:** `LockScreen`, `Screenshot` ve
+  `SplitScreen` örnekleri `actionIcon` when-bloğunda iki kez yer alıyordu. Derleyici
+  uyarısı veren yinelenen dallar temizlendi.
+- **`ActionVisuals.kt` — AutoMirrored Icon Geçişi:**
+  `Icons.Filled.ArrowBack` → `Icons.AutoMirrored.Filled.ArrowBack`
+  `Icons.Filled.VolumeUp/Down/Off` → `Icons.AutoMirrored.Filled.*`
+  Karşılıklı yansıtma (RTL) desteği ve Compose Material3 uyumluluğu sağlandı.
+- **Sonuç:** `BUILD SUCCESSFUL` — sıfır `w:` derleyici uyarısı.
+
+
+- **Siyah Renk Uzayı:** Renk uzayı palet seçicisine Siyah (`#000000`) seçeneği eklendi.
+- **100% Dokunsal Titreşim (Haptics):** `HapticHelper` içerisine `VibrationAttributes.USAGE_TOUCH` / `USAGE_ASSISTANCE_SONIFICATION` ve `FLAG_IGNORE_GLOBAL_SETTING` eklendi; Android 10-15 pencerelerinden titreşim tam hassasiyetle tetiklendi.
+- **8 Animasyon Modu Çizimi:** `BezierStretchRenderer` içerisine tüm 8 animasyon modu (`FLUID`, `NEON_PULSE`, `CYBER_HEX`, `ORB_GLOW`, `TEARDROP`, `BUBBLE`, `MINIMAL_PADDLE`, `ICON_ONLY`) tam matematiksel formüllerle aktarıldı.
+- **Sönümlemeli Simge Ölçekleme ve 0.36x Takip:** Simgenin parmağın altına sıçramasını önleyen `0.36x` sönümlemeli takip fiziği ve pürüzsüz saydamlık (`alpha`) sönümlenmesi eklendi.
+
+### 🌟 Yeni L-Şeklinde Çekme ve Kenar Sürükleyici Hazırlıkları
+- Kenardan içeri çekip yukarı/aşağı kaydırma (L-Swipe) ve Kenar Parlaklık/Ses kaydırıcısı geliştirmeleri planlandı.
+
+### Kenar Başına Tetik Kalınlığı
+- Sol, sağ ve alt kenar için ayrı tetik genişliği ayarı
+  (`leftTriggerWidthDp`, `rightTriggerWidthDp`, `bottomTriggerHeightDp`)
+- Ayarlar > Hareket altında her kenar için kalınlık slider'ı
+
+### Tam Ekran ve İzin Ekranı Duraklatma
+- **Tam ekran**: Video ve oyunlarda kenar hareketlerini otomatik kapatma
+  (varsayılan: açık)
+- **İzin ve güvenlik ekranları**: APK yükleme, izin verme ve güvenlik
+  ekranlarında hareketleri kapatma (varsayılan: açık)
+- MIUI/HyperOS paket yükleyici ve izin denetleyicisi de tanınıyor
+
+### Diğer
+- GestureMapCard canlı prova artık kenar başına hassasiyet kullanıyor
+- Deprecation uyarıları temizlendi
+- Titreşim artık şiddet ayarına duyarlı (%0–100), sıfırlanınca tamamen kapanıyor
+- İsteğe bağlı tıklama sesi: hareket tetiklendiğinde kısa ton sesi
+- Eylem simgeleri: hareket sırasında eşleşen eyleme özel Unicode simge
+  gösteriliyor (← ⌂ ⊞ 🔊 vb.) — ayrı simge kategorisi gereksiz
+- Animasyon hızı ve boyutu ayarlanabilir (0.5x–2.0x)
+- Ayarlar > Görünüm yeniden düzenlendi: animasyon, titreşim, ses ve renk
+  bir arada
+- Eylem seçicideki simgeler yeni eylemler için güncellendi
+
+### Arayüz Tasarım Güncellemesi
+- **Tema yenilendi:** Dinamik renk desteği (Android 12+ Material You),
+  modern renk paleti, daha yumuşak köşe yarıçapları (6–28 dp)
+- **Ana ekran kompaktlaştı:** Hantal kartlar kaldırıldı, renkli metrik
+  kutucukları eklendi, durum bildirimi daha zarif
+- **Glass-effect kartlar:** `AkisGlassCard` komponenti ile tüm ekranlarda
+  tutarlı cam görünümü — HomeScreen, RuleListScreen, GestureMapCard
+- **Eylem ikonları renkli:** Her eylem kategorisine özel renk (gezinme=mavi,
+  sistem=kırmızı, panel=yeşil, medya=sarı, root=kırmızı)
+- **Hareket haritası:** Telefon silüeti içinde renkli bölge overlay,
+  yarım telefon görseli (`EdgeZoneVisual`) ile kenar/bölge gösterimi
+- **Animasyonlar:** 8 farklı geri bildirim animasyonu (Akış, Neon, Altıgen,
+  Küre, Damla, Baloncuk, Kart, Sade simge)
+- **Slider'lar:** Tema renklerine uyumlu thumb ve track renkleri
+- Karanlık tema: Zengin kontrastlı koyu mavi-mor palet
+
+### Yeni Eylemler (FNG eşliği)
+- **Menü** — `KEYCODE_MENU` tuş kodu gönderir
+- **Otomatik döndürme aç/kapat** — `ACCELEROMETER_ROTATION` değiştirir
+- **Dikey / Yatay yön** — Geçerli uygulamanın yönünü zorlar
+- **Tek el modu** — Xiaomi/MIUI/HyperOS one-hand mode tetikler
+- **Sesli arama** — `ACTION_VOICE_SEARCH_HANDS_FREE` intenti
+- **Sesli asistan** — `ACTION_VOICE_COMMAND` (fallback: sistem asistanı)
+- **Uygulama kısayolu** — `ShortcutManager` ile kısayol başlatma
+- **Özel tuş kodu** — Kullanıcının seçtiği herhangi `KeyEvent`
+- **Gezinme çubuğu göster/gizle** — Root ile `policy_control` değiştirir
+
+### Kenar Başına Hassasiyet
+- Her kenar için ayrı damping (`leftDamping`, `rightDamping`, `bottomDamping`)
+  ve eşik mesafesi (`leftSwipeThresholdDp`, ...) ayarı eklendi
+- Sol ve sağ kenar için dikey konum aralığı (`leftVerticalStart/End`,
+  `rightVerticalStart/End`) — tek el kullanımını kolaylaştırır
+- Ayarlar > Hareket bölümünde her kenar için bağımsız slider'lar
+
+### Bekletme Eylemi Geliştirmeleri
+- **Eşikte çalıştır** modu: Bekletme eylemi artık parmak kalkmadan,
+  eşik geçilir geçilmez tetiklenebilir (`HoldFireMode.ON_THRESHOLD`)
+- **Parmak kalkınca çalıştır** varsayılan mod korundu (`HoldFireMode.ON_RELEASE`)
+- Seçenek Ayarlar > Hareket altında
+
+### Yön Doğruluğu ve Histerezis
+- Yan kenarlarda yön sapma kontrolü: beklenen yönden `35°` (varsayılan)
+  sapmadan fazlası reddedilir
+- Histerezis oranı (`0.25` varsayılan): eşik geçildikten sonra parmak
+  küçük geri hareketlerinde durum düşmez
+- `GestureCancelPolicy` artık yapılandırılabilir histerezis kullanıyor
+
+### Görsel Arayüz
+- Ayarlar > Hareket: Her kenar için hassasiyet ve eşik slider'ları
+- Bekletme modu seçici (Eşikte / Parmak kalkınca)
+- Eylem kategorilerine "Döndürme" ve "Sistem Arayüzü" eklendi
 
 - HyperOS koruması artık yalnızca erişilebilirlik ayarındaki kaydı değil,
   hizmetin gerçekten bağlı olup olmadığını da kontrol ediyor. Ayar açık fakat
