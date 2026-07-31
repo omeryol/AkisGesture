@@ -4,10 +4,11 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Build
-import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.View
 
 object HapticHelper {
@@ -18,86 +19,117 @@ object HapticHelper {
         HEAVY,
     }
 
-    /** Global intensity 0f..1f. Set by GestureConfig. */
+    /** Titreşim şiddeti 0f..1f (Ayarlar slider'ı) */
     var intensity: Float = 1f
-    /** Whether to play a click sound alongside vibration. */
+
+    /** Tıklama sesi anahtarı (Ayarlar switch'i) */
     var soundEnabled: Boolean = false
 
     private var toneGenerator: ToneGenerator? = null
-    private var toneIntensity: Float = -1f
     private var lastSoundMs = 0L
 
     /**
-     * Primary entry point — vibrates via the direct Vibrator API.
-     * The View parameter is used only to obtain a Context; no view-level
-     * haptic feedback is triggered (overlay windows handle it unreliably).
+     * View üzerinden hem haptik geri bildirimi hem donanım titreşimini tetikler.
      */
     fun performHaptic(view: View, type: HapticType) {
+        if (intensity > 0f) {
+            runCatching {
+                view.isHapticFeedbackEnabled = true
+                val constant = when (type) {
+                    HapticType.LIGHT -> HapticFeedbackConstants.KEYBOARD_TAP
+                    HapticType.MEDIUM -> HapticFeedbackConstants.VIRTUAL_KEY
+                    HapticType.HEAVY -> HapticFeedbackConstants.LONG_PRESS
+                }
+                @Suppress("DEPRECATION")
+                view.performHapticFeedback(
+                    constant,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING or HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
+                )
+            }
+        }
         performHaptic(view.context, type)
     }
 
+    /**
+     * Context üzerinden donanım vibratörü ve ses motorunu çalıştırır.
+     */
     fun performHaptic(context: Context, type: HapticType) {
-        if (intensity <= 0f) return
-        val vibrator = getVibrator(context) ?: return
-        if (!vibrator.hasVibrator()) return
+        Log.d(TAG, "performHaptic type=$type intensity=$intensity soundEnabled=$soundEnabled")
 
-        val (durationMs, amplitude) = when (type) {
-            HapticType.LIGHT -> 20L to 90
-            HapticType.MEDIUM -> 35L to 160
-            HapticType.HEAVY -> 60L to 245
+        // 1. Titreşim Donanımı
+        if (intensity > 0f) {
+            val vibrator = getVibrator(context)
+            if (vibrator != null && vibrator.hasVibrator()) {
+                val durationMs = when (type) {
+                    HapticType.LIGHT -> (30 + 30 * intensity).toLong()    // 30ms - 60ms
+                    HapticType.MEDIUM -> (60 + 40 * intensity).toLong()   // 60ms - 100ms
+                    HapticType.HEAVY -> (100 + 60 * intensity).toLong()   // 100ms - 160ms
+                }
+
+                val amplitude = when (type) {
+                    HapticType.LIGHT -> (100 + 155 * intensity).toInt().coerceIn(1, 255)
+                    HapticType.MEDIUM -> (160 + 95 * intensity).toInt().coerceIn(1, 255)
+                    HapticType.HEAVY -> 255
+                }
+
+                vibrate(vibrator, durationMs, amplitude)
+            }
         }
-        vibrate(vibrator, durationMs, (amplitude * intensity).toInt().coerceIn(1, 255))
-        playClickSound()
+
+        // 2. Ses Motoru (Titreşimden tamamen bağımsız)
+        if (soundEnabled) {
+            playSound(context)
+        }
     }
 
     private fun vibrate(vibrator: Vibrator, durationMs: Long, amplitude: Int) {
-        val safeAmplitude = amplitude.coerceIn(1, 255)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val effect = VibrationEffect.createOneShot(durationMs, safeAmplitude)
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    // Android 13+: use VibrationAttributes with USAGE_TOUCH to bypass
-                    // the system "disable touch vibration" setting.
-                    val attrs = VibrationAttributes.Builder()
-                        .setUsage(VibrationAttributes.USAGE_TOUCH)
-                        .build()
-                    vibrator.vibrate(effect, attrs)
+            runCatching {
+                val effect = if (vibrator.hasAmplitudeControl()) {
+                    VibrationEffect.createOneShot(durationMs, amplitude)
                 } else {
-                    vibrator.vibrate(effect)
+                    VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE)
                 }
-            } catch (_: Exception) {
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(durationMs)
+                vibrator.vibrate(effect)
+                Log.d(TAG, "vibrate_effect duration=$durationMs amp=$amplitude")
             }
-        } else {
+        }
+
+        // Eski cihazlar ve varsayılan donanım darbesi için yedek çağrı
+        runCatching {
             @Suppress("DEPRECATION")
             vibrator.vibrate(durationMs)
+            Log.d(TAG, "vibrate_pulse duration=$durationMs")
         }
     }
 
-    private fun playClickSound() {
-        if (!soundEnabled) return
+    private fun playSound(context: Context) {
         val now = System.currentTimeMillis()
         if (now - lastSoundMs < 50) return // debounce
         lastSoundMs = now
-        runCatching {
-            // Recreate ToneGenerator when intensity changes so volume stays in sync
-            if (toneGenerator == null || toneIntensity != intensity) {
-                toneGenerator?.release()
-                toneGenerator = ToneGenerator(
-                    AudioManager.STREAM_MUSIC,
-                    (85 * intensity).toInt().coerceIn(30, 100),
-                )
-                toneIntensity = intensity
+
+        // 1. Öncelik: Sistem standart dokunma klik sesi (en doğal ses)
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val soundEffectPlayed = runCatching {
+            audioManager?.playSoundEffect(AudioManager.FX_KEY_CLICK, 1.0f)
+            true
+        }.getOrDefault(false)
+
+        // 2. Öncelik: Sistem klik sesi çalmazsa ToneGenerator
+        if (!soundEffectPlayed) {
+            runCatching {
+                if (toneGenerator == null) {
+                    toneGenerator = ToneGenerator(AudioManager.STREAM_SYSTEM, 85)
+                }
+                toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 35)
+                Log.d(TAG, "tone_played TONE_PROP_ACK")
             }
-            toneGenerator?.startTone(ToneGenerator.TONE_CDMA_PIP, 25)
         }
     }
 
     fun release() {
         toneGenerator?.release()
         toneGenerator = null
-        toneIntensity = -1f
     }
 
     private fun getVibrator(context: Context): Vibrator? {
@@ -109,4 +141,6 @@ object HapticHelper {
             context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
         }
     }
+
+    private const val TAG = "AkisGesture"
 }
