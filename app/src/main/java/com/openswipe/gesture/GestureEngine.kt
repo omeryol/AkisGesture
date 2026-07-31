@@ -375,13 +375,15 @@ class GestureEngine(
         @Suppress("DEPRECATION")
         view.peakThreshold = currentConfig.minSwipeThresholdPx
 
-        val effectiveColor = if (currentConfig.useAppAdaptiveColor && adaptiveAppColor != null) {
+        val effectivePrimaryColor = if (currentConfig.useAppAdaptiveColor && adaptiveAppColor != null) {
             adaptiveAppColor!!
         } else {
             currentConfig.feedbackColorArgb
         }
 
-        view.feedbackColor = effectiveColor
+        view.primaryColor = effectivePrimaryColor
+        view.secondaryColor = currentConfig.secondaryColorArgb
+        view.lSwipeColor = currentConfig.lSwipeColorArgb
         view.feedbackOpacity = currentConfig.feedbackOpacity
         view.feedbackAnimation = currentConfig.feedbackAnimation
         view.animationSpeed = currentConfig.animationSpeed
@@ -391,7 +393,12 @@ class GestureEngine(
         val matchedAction = if (progress.active) {
             val sensorLen = edgeLengths[progress.edge] ?: 0f
             val ratio = if (sensorLen > 0f) (progress.touchAlongEdgePx / sensorLen).coerceIn(0f, 1f) else 0f
-            val gestureType = if (progress.holdArmed) GestureType.SWIPE_HOLD else GestureType.QUICK_SWIPE
+            val gestureType = when {
+                progress.isLUp -> GestureType.SWIPE_UP_L
+                progress.isLDown -> GestureType.SWIPE_DOWN_L
+                progress.holdArmed -> GestureType.SWIPE_HOLD
+                else -> GestureType.QUICK_SWIPE
+            }
             activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
         } else null
 
@@ -404,6 +411,9 @@ class GestureEngine(
             armed = progress.armed,
             holdArmed = progress.holdArmed,
             appSwitchDirection = progress.appSwitchDirection,
+            isLUp = progress.isLUp,
+            isLDown = progress.isLDown,
+            bendStartY = progress.bendStartY,
         )
 
         // Haptic and sound execution

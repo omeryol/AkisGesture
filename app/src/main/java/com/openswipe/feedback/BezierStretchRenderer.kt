@@ -53,6 +53,13 @@ class BezierStretchRenderer {
     var halfSpan: Float = 190f
     var armed: Boolean = false
     var holdArmed: Boolean = false
+    var isLUp: Boolean = false
+    var isLDown: Boolean = false
+    var bendStartY: Float = 0f
+
+    var primaryColor: Int = Color.rgb(61, 90, 254)
+    var secondaryColor: Int = Color.rgb(255, 145, 0)
+    var lSwipeColor: Int = Color.rgb(0, 230, 118)
     var baseColor: Int = Color.rgb(61, 90, 254)
     var opacity: Float = 0.65f
     var animation: FeedbackAnimation = FeedbackAnimation.FLUID
@@ -73,34 +80,49 @@ class BezierStretchRenderer {
         canvasHeight: Float,
         arrowAlpha: Float = 1f,
     ) {
+        // Lock touch position in place at bendStartY when L-swipe is active
+        val effectiveTouchPos = if ((isLUp || isLDown) && bendStartY > 0f) {
+            bendStartY
+        } else {
+            touchPosition
+        }
+
         if (showIndicatorBar) {
-            drawIndicatorBar(canvas, edge, touchPosition, canvasWidth, canvasHeight)
+            drawIndicatorBar(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight)
         }
 
         if (stretch < 0.5f || animation == FeedbackAnimation.NONE) return
 
+        // Color Space Selection: L-swipe > Secondary (Hold) > Primary (Quick Swipe)
+        baseColor = when {
+            isLUp || isLDown -> lSwipeColor
+            holdArmed -> secondaryColor
+            else -> primaryColor
+        }
+
         val progress = (stretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.4f)
         val stateBoost = when {
+            isLUp || isLDown -> 1.4f
             holdArmed -> 1.3f
             armed -> 1.15f
             else -> 1.0f
         }
 
-        // Draw active animation shape
+        // Draw active animation shape with anchored position
         when (animation) {
-            FeedbackAnimation.FLUID -> drawFluidWave(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.NEON_PULSE -> drawNeonPulse(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.CYBER_HEX -> drawCyberHex(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.ORB_GLOW -> drawOrbGlow(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.TEARDROP -> drawTeardrop(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.BUBBLE -> drawBubble(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.MINIMAL_PADDLE -> drawMinimalPaddle(canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.FLUID -> drawFluidWave(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.NEON_PULSE -> drawNeonPulse(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.CYBER_HEX -> drawCyberHex(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.ORB_GLOW -> drawOrbGlow(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.TEARDROP -> drawTeardrop(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.BUBBLE -> drawBubble(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.MINIMAL_PADDLE -> drawMinimalPaddle(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
         }
 
         // Draw icon & action symbol with tight shape interaction
         drawGestureIcon(
-            canvas, edge, stretch, touchPosition, canvasWidth, canvasHeight, arrowAlpha, progress
+            canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, arrowAlpha, progress
         )
     }
 

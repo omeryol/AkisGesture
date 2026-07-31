@@ -10,6 +10,7 @@ import com.omer.akisgesture.gesture.model.SwipeDirection
 
 /**
  * Dokunmayı engellemeyen erişilebilirlik katmanında akıcı hareket geri bildirimi.
+ * Eylem simgesi desteği: gesture bir eylemle eşleştiğinde o eylemin simgesi gösterilir.
  */
 class FeedbackView(context: Context) : View(context) {
 
@@ -33,9 +34,29 @@ class FeedbackView(context: Context) : View(context) {
 
     var peakThreshold: Float = 30f
     var feedbackColor: Int
-        get() = renderer.baseColor
+        get() = renderer.primaryColor
         set(value) {
+            renderer.primaryColor = value
             renderer.baseColor = value
+            invalidate()
+        }
+    var primaryColor: Int
+        get() = renderer.primaryColor
+        set(value) {
+            renderer.primaryColor = value
+            renderer.baseColor = value
+            invalidate()
+        }
+    var secondaryColor: Int
+        get() = renderer.secondaryColor
+        set(value) {
+            renderer.secondaryColor = value
+            invalidate()
+        }
+    var lSwipeColor: Int
+        get() = renderer.lSwipeColor
+        set(value) {
+            renderer.lSwipeColor = value
             invalidate()
         }
     var feedbackOpacity: Float
@@ -50,18 +71,38 @@ class FeedbackView(context: Context) : View(context) {
             renderer.animation = value
             invalidate()
         }
-    var quickIcon: FeedbackIcon
-        get() = renderer.quickIcon
+    /** Eyleme özel simge (Unicode) — boşsa geri dönüş simgesi kullanılır. */
+    var actionSymbol: String = ""
         set(value) {
-            renderer.quickIcon = value
+            renderer.actionSymbol = value
+            field = value
             invalidate()
         }
-    var holdIcon: FeedbackIcon
-        get() = renderer.holdIcon
+    /** Animasyon hız ve boyut çarpanları */
+    var animationSpeed: Float
+        get() = renderer.animSpeed
         set(value) {
-            renderer.holdIcon = value
+            renderer.animSpeed = value.coerceIn(0.5f, 2f)
             invalidate()
         }
+    var animationSize: Float
+        get() = renderer.animSize
+        set(value) {
+            renderer.animSize = value.coerceIn(0.5f, 2f)
+            invalidate()
+        }
+    var showIndicatorBar: Boolean
+        get() = renderer.showIndicatorBar
+        set(value) {
+            renderer.showIndicatorBar = value
+            invalidate()
+        }
+    @Deprecated("actionSymbol ile değiştirildi")
+    var quickIcon: FeedbackIcon = FeedbackIcon.CHEVRON
+        set(value) { renderer.quickIcon = value; invalidate() }
+    @Deprecated("actionSymbol ile değiştirildi")
+    var holdIcon: FeedbackIcon = FeedbackIcon.STAR
+        set(value) { renderer.holdIcon = value; invalidate() }
     var isActive: Boolean = false
         set(value) {
             field = value
@@ -136,12 +177,18 @@ class FeedbackView(context: Context) : View(context) {
         armed: Boolean,
         holdArmed: Boolean,
         appSwitchDirection: SwipeDirection? = null,
+        isLUp: Boolean = false,
+        isLDown: Boolean = false,
+        bendStartY: Float = 0f,
     ) {
         this.edge = edge
         this.touchPosition = touchPos
         this.isArmed = armed
         this.isHoldArmed = holdArmed
         this.appSwitchDirection = appSwitchDirection
+        renderer.isLUp = isLUp
+        renderer.isLDown = isLDown
+        renderer.bendStartY = bendStartY
         if (active) {
             releaseAnimator?.cancel()
             isActive = true
