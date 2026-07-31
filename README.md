@@ -249,6 +249,9 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle
 - [x] **Sıfır derleyici uyarısı — tüm deprecated alanlar per-edge API'ye geçirildi**
+- [x] **Modüler mimari (Navigation, System, Media, Hardware handler'ları) & Baştan yazılmış Haptik motoru**
+- [x] **Çift Renkli Renk Uzayı (Birincil Hızlı Çekme + İkincil Çekip Bekletme paleti)**
+- [x] **Sabitlenen L-Swipe Görsel Geri Bildirimi (Bükülme noktasında sabitlenen Neon Yeşil kilitlenme)**
 
 ## Lisans
 
