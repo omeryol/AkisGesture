@@ -2,6 +2,22 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.2] - 2026-08-01
+
+### 🏗️ Mimari Modülerleştirme, Haptik Motoru Sıfırdan Yazımı & Temizlik
+
+- **`HapticHelper.kt` Sıfırdan Yazıldı:** Çapraz bağımlılıklar ve yama kodları tamamen temizlendi. Donanım titreşimi (OneShot + legacy darbe) ve ses motoru (`AudioManager.FX_KEY_CLICK` + `ToneGenerator`) iki bağımsız kanala ayrıldı. Titreşim süresi (%100'de 160ms'ye kadar) ve genliği slider'a tam duyarlı ölçekleniyor. Ayarlar ekranında slider sürüklendiğinde canlı haptik önizleme eklendi.
+- **Eylem Yürütücüler Modülerleştirildi (`com.openswipe.action.handler`):** Monolitik `ActionDispatcher` 4 ayrı domain handler'a bölündü:
+  - `NavigationActionHandler`: Geri, Ana Ekran, Son Uygulamalar, Önceki/Sonraki Uygulama.
+  - `SystemActionHandler`: Ekran Kilidi, Ekran Görüntüsü, Güç Menüsü, Paneller, Parlaklık.
+  - `MediaActionHandler`: Oynat/Duraklat, İleri/Geri parça, Ses seviyesi ve Sessiz.
+  - `HardwareAndAppHandler`: Fener, Uygulama/Kısayol Başlatıcı, Ekran Yönü zorlama, Özel tuş kodları.
+- **Hareket Algılama Modülleri (`com.openswipe.gesture.detector`):**
+  - `LSwipeDetector.kt`: 2-fazlı L-swipe vektör fiziği ve içe çekilme durum takibi bağımsız modüle dönüştürüldü.
+  - `DirectionValidator.kt`: Sürükleme yönü ve açı toleransı doğrulaması modülleştirildi.
+  - `EdgeGestureDetector.kt`: Tüm alt modülleri koordine eden temiz ve sürdürülebilir bir Durum Makinesi olarak sıfırdan refaktör edildi.
+- **Canvas Simge Uyumsuzluğu Giderildi:** Canvas `drawText` ile çizilen emoji karakterleri (`🏠📸🔄`), tüm Android cihazlarda ve farklı sistem yazı tiplerinde sorunsuz render olan standart Unicode geometrik karakterlerle (`⌂⊡⇄`) yenilendi.
+
 ## [1.1.1] - 2026-08-01
 
 ### 🔧 Hareket Algılama Güvenilirlik Düzeltmesi

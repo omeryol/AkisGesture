@@ -10,7 +10,7 @@ OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
 ## Hedef
 
 - Sol, sağ ve alt kenarda gecikmesiz hareket algılama
-- Hızlı çekme ve çekip bekletme için bağımsız eylemler
+- Hızlı çekme, çekip bekletme ve **L-şeklinde çekme** için bağımsız eylemler
 - Geri, ana ekran, son uygulamalar ve kullanıcı eylemleri
 - Uygulamaya ve ekran yönüne göre farklı profiller
 - Kullanıcıyı teknik ayrıntılarla yormayan sade Türkçe arayüz
@@ -20,7 +20,7 @@ OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
 Root ile öndeki uygulamayı kapatma eylemi yalnızca kişisel profili hedefler ve
 kritik sistem uygulamalarını korur.
 
-## Mimari ilkeler
+## Mimari İlkeler
 
 1. Hareket motorunun tek bir doğruluk kaynağı vardır.
 2. Root, normal Android yolları başarısız olduğunda kullanılan yardımcıdır.
@@ -29,24 +29,150 @@ kritik sistem uygulamalarını korur.
 5. Sürekli süreç öldürme, görünür uygulama açma veya sık aralıklı sorgulama yapılmaz.
 6. Her davranış değişikliği test ve CHANGELOG kaydıyla birlikte gelir.
 
-## Mevcut durum
+## Mevcut Durum
 
 Sol, sağ ve alt kenar hareketleri HyperOS/Android 15 cihazda çalışmaktadır.
-Hızlı çekme ve çekip bekletme aynı alanda bağımsız eylemler çalıştırır; bekletme
-varsayılan olarak 280 ms'de hazır olur ve eylem parmak bırakılınca devreye
-girer. Parmak kenara geri götürülerek hareket iptal edilebilir. Akış Gesture
-içindeyken geri hareketi uygulamanın kendi sayfalarında
-gezinir. Telefon biçimli kural haritası alanları taşıma, boyutlandırma, birlikte
-eylem atama ve hareketi canlı deneme olanağı sunar. Arayüzde uzun seçenek
-yığınları yerine açılır bölümler ve listeler; eylemlerde ise işleve özel
-vektör simgeler kullanılır. `Çalışmayacağı yerler` menüsünden kilit ekranı,
-klavye, yatay ekran ve uygulamaya özel duraklatma koşulları seçilebilir.
+Hızlı çekme, çekip bekletme ve **L-şeklinde çekme (L-Swipe)** aynı alanda bağımsız
+eylemler çalıştırır.
+
+### L-Swipe Çalışma Mantığı
+
+L-hareketi kenardan içe doğru çekip ardından parmağı yukarı veya aşağı
+bükerek gerçekleştirilir. Hareket tespiti 2 fazlıdır:
+
+- **Faz 1 — İçeri Giriş:** `maxInwardPx ≥ threshold` olduğu anda `inwardArmed`
+  kilitlenir ve dönüş noktası (`bendStartY`) kaydedilir. Bundan sonra yatay
+  koordinat azalsa dahi hareket iptal edilmez.
+- **Faz 2 — Dikey Dönüş:** `turnDy = event.rawY − bendStartY`
+  - `turnDy ≤ −35 px` → `SWIPE_UP_L`
+  - `turnDy ≥ +35 px` → `SWIPE_DOWN_L`
+
+Kural eşleştirme, parmağın kalktığı son konuma değil, kenara **ilk temas ettiği**
+`downY` koordinatından (`initialTouchCoord()`) hesaplanan bölgeye bakılarak yapılır.
+
+Bekletme eylemi varsayılan olarak 280 ms'de hazır olur; eylem parmak bırakılınca
+devreye girer. Parmak kenara geri götürülerek herhangi bir hareket iptal edilebilir.
+
+Akış Gesture içindeyken geri hareketi uygulamanın kendi sayfalarında gezinir.
+Telefon biçimli kural haritası alanları taşıma, boyutlandırma, birlikte eylem
+atama ve hareketi canlı deneme olanağı sunar. `Çalışmayacağı yerler` menüsünden
+kilit ekranı, klavye, yatay ekran ve uygulamaya özel duraklatma koşulları seçilebilir.
 Hareketler ekranında kenarlar sekmelerle ayrılır; her alanın hızlı ve bekletme
-eylemi aynı kompakt satırda düzenlenir. Ayrıntılı görünüm ayarları ana sayfayı
-kalabalıklaştırmadan ayrı pencerelerde açılır.
-Eylem seçicisinden telefondaki başlatılabilir uygulamalar ada göre aranabilir;
-atanan uygulama kendi simgesiyle gösterilir ve paket kimliği yedek dosyasında
-korunur.
+eylemi aynı kompakt satırda düzenlenir. Eylem seçicisinden telefondaki başlatılabilir
+uygulamalar ada göre aranabilir; atanan uygulama kendi simgesiyle gösterilir.
+
+## Kaynak Ağacı
+
+```
+app/src/main/java/com/openswipe/
+│
+├── OpenSwipeApp.kt               # Application sınıfı, DataStore akışları, ayar yazma
+│
+├── action/
+│   ├── ActionDispatcher.kt       # Modüler eylem dağıtıcısı (Domain handler'lara delege eder)
+│   └── handler/                  # ⭐ Domain bazlı eylem işleyicileri
+│       ├── HardwareAndAppHandler.kt  # Fener, uygulama başlatıcı, ekran yönü, tuş kodları
+│       ├── MediaActionHandler.kt     # Medya oynatma, parça değiştirme ve ses
+│       ├── NavigationActionHandler.kt # Geri, Ana Ekran, Son Uygulamalar, Uygulama Geçişi
+│       └── SystemActionHandler.kt    # Ekran Kilidi, Ekran Görüntüsü, Güç Menüsü, Paneller
+│
+├── backup/
+│   └── SettingsBackupManager.kt  # Kuralları ve ayarları JSON'a yedekle/geri yükle
+│
+├── feedback/
+│   ├── ActionSymbols.kt          # Eylem → Standart Unicode simge eşlemesi
+│   ├── AppSwitchFeedbackRenderer.kt  # Alt kenar yön kapsülü animasyonu
+│   ├── BezierStretchRenderer.kt  # 8 animasyon modu (Fluid, Neon, Hex, Orb, …)
+│   ├── FeedbackStyle.kt          # Görsel stil sabitleri
+│   ├── FeedbackView.kt           # Dokunmayı engellemez overlay View
+│   └── HapticHelper.kt           # ⭐ Baştan yazılmış modüler haptik ve ses motoru
+│
+├── gesture/
+│   ├── AppPausePolicy.kt         # Uygulama listesine göre duraklatma kararı
+│   ├── BottomAppSwitchPolicy.kt  # Alt kenar yatay sürükleme → uygulama geçişi
+│   ├── EdgeGestureDetector.kt    # ⭐ Dokunma durum makinesi (Alt modüllerle modülerleştirilmiş)
+│   ├── GestureCancelPolicy.kt    # İptal eşiği ve histerezis
+│   ├── GestureConfig.kt          # Tüm ayar alanları (per-edge API + compat alias)
+│   ├── GestureEngine.kt          # Overlay oluşturma, config diff, orkestrasyon
+│   ├── GestureThresholds.kt      # Damping ve eşik hesabı
+│   ├── SystemPausePolicy.kt      # Kilit/klavye/yatay/tam ekran duraklatma
+│   ├── detector/                 # ⭐ Modüler hareket algılayıcı alt bileşenler
+│   │   ├── DirectionValidator.kt # Sürükleme yönü ve açı toleransı doğrulaması
+│   │   └── LSwipeDetector.kt     # 2-Fazlı L-Swipe vektör fiziği ve durum takibi
+│   └── model/
+│       ├── GestureResult.kt      # EdgeSwipe / BottomHorizontalSwipe / Tap / Vertical
+│       ├── SwipeDirection.kt     # LEFT / RIGHT / UP / DOWN
+│       └── TouchState.kt         # downX, downY, prevX, prevY, downTime
+│
+├── model/
+│   ├── ActionNode.kt             # Sealed class — tüm eylem türleri
+│   ├── GestureRule.kt            # Kenar + bölge + hareket türü + eylem
+│   └── TriggerNode.kt            # GestureType enum (QUICK_SWIPE, SWIPE_HOLD,
+│                                 #   SWIPE_UP_L, SWIPE_DOWN_L)
+│
+├── navigation/
+│   └── InternalNavigationBus.kt  # Ekranlar arası uygulama içi gezinme köprüsü
+│
+├── overlay/
+│   ├── EdgeSensorView.kt         # Dokunma olaylarını alan saydam View
+│   ├── OverlayManager.kt         # WindowManager üzerinde overlay yaşam döngüsü
+│   └── OverlayWindowFactory.kt   # Kenar penceresi parametreleri
+│
+├── receiver/
+│   └── GestureCommandReceiver.kt # Broadcast alıcı — START / STOP / TOGGLE / eylem
+│
+├── root/
+│   └── RootCommandExecutor.kt    # Root/APatch komut çalıştırıcı
+│
+├── rule/
+│   ├── AppRuleProfilesSerializer.kt  # Per-app profil JSON serileştirme
+│   ├── CompiledRuleSet.kt        # Hızlı eşleştirme tablosu (edge × type × section)
+│   ├── GestureRuleGraph.kt       # Kuralları compile et → CompiledRuleSet'e dönüştür
+│   ├── Presets.kt                # 9 hazır hareket düzeni
+│   ├── RuleProfileResolver.kt    # Öndeki uygulamaya göre aktif profili seç
+│   ├── RuleSerializer.kt         # Kural JSON serileştirme
+│   └── RuleValidator.kt          # Kural tutarlılık denetimi
+│
+├── service/
+│   ├── AccessibilityControl.kt   # Root'la erişilebilirlik servis yönetimi
+│   ├── AccessibilityHealthPolicy.kt  # HyperOS sağlık onarımı politikası
+│   ├── BootReceiver.kt           # Açılışta servisi başlat
+│   ├── GestureAccessibilityService.kt  # Erişilebilirlik hizmeti giriş noktası
+│   ├── GestureCommandActivities.kt     # MacroDroid etkinlik hedefleri
+│   ├── GestureTileService.kt     # Hızlı Ayarlar kutucuğu
+│   ├── KeepAliveService.kt       # Ön plan koruma servisi
+│   └── MacroDroidPlugin.kt       # Locale/Tasker uyumlu eklenti giriş noktası
+│
+└── ui/
+    ├── MainActivity.kt           # NavHost, izin kontrolü
+    ├── component/
+    │   ├── ActionIcon.kt         # Eylem renk + simge bileşeni
+    │   ├── ActionPickerDialog.kt # Aranabilir eylem seçici
+    │   ├── AddRuleDialog.kt      # Kenar başına kural ekleme modali
+    │   ├── AkisGlassCard.kt      # Cam efektli kart bileşeni
+    │   ├── EdgeZoneVisual.kt     # Yarım telefon kenar görünümü
+    │   ├── GestureMapCard.kt     # Canlı harita kartı (dene + düzenle)
+    │   ├── GestureMapGeometry.kt # Harita geometri hesabı
+    │   └── InteractivePhoneMap.kt  # Dokunulabilir telefon silüeti haritası
+    ├── screen/
+    │   ├── HomeScreen.kt         # Durum paneli, metrik kutucukları
+    │   ├── PermissionGuideScreen.kt  # İzin rehberi ekranı
+    │   ├── RuleDetailScreen.kt   # Kural ayrıntısı ve düzenleme
+    │   ├── RuleListScreen.kt     # Kenar sekmeleri + kural kartları
+    │   └── SettingsScreen.kt     # Hareket hissi, görünüm, duraklatma, yedek
+    ├── theme/
+    │   ├── Color.kt              # Akış renk paleti (per-edge API + compat alias)
+    │   ├── Theme.kt              # Material3 tema tanımı
+    │   └── Type.kt               # Tipografi ölçeği
+    ├── util/
+    │   ├── ActionCategories.kt   # Eylem kategori grupları
+    │   ├── ActionSearch.kt       # Eylem arama mantığı
+    │   ├── ActionVisuals.kt      # Eylem → AutoMirrored vektör simge eşlemesi
+    │   └── RuleLabels.kt         # Kenar / hareket / bölge Türkçe etiketleri
+    └── viewmodel/
+        ├── HomeViewModel.kt      # Durum, kural yükleme, ayar yazma
+        └── RuleConfigViewModel.kt  # Kural düzenleme durum yönetimi
+```
 
 ## Derleme
 
@@ -74,7 +200,7 @@ adb install --user 0 -r app\build\outputs\apk\debug\app-debug.apk
 Genel `adb install -r` kullanılmaz; aktif bir Island iş profili varsa uygulamayı
 o profile de kaydedebilir.
 
-## Otomasyon intentleri
+## Otomasyon İntentleri
 
 Akış'ın kendi erişilebilirlik hizmetini başlatmak, durdurmak veya durumunu
 değiştirmek için:
@@ -99,7 +225,7 @@ MacroDroid içinde iki kolay yol vardır:
 Ayarlar ekranındaki `YEDEK` bölümünden kurallar ve uygulama ayarları tek JSON
 dosyasına kaydedilip geri yüklenebilir.
 
-## Yol haritası
+## Yol Haritası
 
 Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md)
 
@@ -109,6 +235,7 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] Hızlı çekme ve çekip bekletme kural motoru için birim testleri ekle
 - [ ] Gerçek cihazda kenar gecikmesi ve yanlış tetikleme ölçümü yap
 - [x] Hızlı çekme ve çekip bekletmeyi tek durum makinesinde birleştir
+- [x] **L-Şeklinde çekme (L-Swipe) 2-fazlı durum makinesiyle tam çalışır hale getirildi**
 - [ ] Uygulamaya özel profilleri ekle (uygulamaya göre duraklatma tamamlandı)
 - [x] Tüm kenarlarda ayarlanabilir alan konumu ve uzunluğu ekle
 - [x] Animasyon rengi, saydamlığı ve kenara geri dönerek iptal davranışını ekle
@@ -121,9 +248,11 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 - [x] HyperOS sağlık durumunu olay tabanlı izle
 - [x] Korunan paketleri gözeten ayrı root/APatch eylem katmanını ekle
 - [x] FNG kalıntılarını Swift Backup yedeğine dokunmadan temizle
+- [x] **Sıfır derleyici uyarısı — tüm deprecated alanlar per-edge API'ye geçirildi**
 
 ## Lisans
 
 Projenin OpenSwipe kaynaklı bölümleri MIT lisansı altındadır. Yeni kodların
 lisans durumu değiştirilmedikçe aynı lisans uygulanır. Ayrıntılar `LICENSE`
 dosyasındadır.
+
