@@ -127,22 +127,22 @@ class BezierStretchRenderer {
 
         // Execute Masterclass Natural Elements Simulation Engines
         when (animation) {
-            FeedbackAnimation.OCEAN_WAVE, FeedbackAnimation.OCEAN_LIQUID, FeedbackAnimation.WATER, FeedbackAnimation.FLUID, FeedbackAnimation.MINIMAL_PADDLE -> {
+            FeedbackAnimation.OCEAN_WAVE -> {
                 drawRefractiveOceanWave(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
-            FeedbackAnimation.MERCURY_TEARDROP, FeedbackAnimation.TEARDROP, FeedbackAnimation.BUBBLE -> {
+            FeedbackAnimation.MERCURY_TEARDROP -> {
                 drawDetachingPinchTeardrop(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
-            FeedbackAnimation.PLASMA_FIRE, FeedbackAnimation.FIRE -> {
+            FeedbackAnimation.PLASMA_FIRE -> {
                 drawPlasmaFireSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
-            FeedbackAnimation.ATMOSPHERIC_MIST, FeedbackAnimation.STEAM -> {
+            FeedbackAnimation.ATMOSPHERIC_MIST -> {
                 drawAtmosphericMistSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
-            FeedbackAnimation.ELECTRIC_STORM, FeedbackAnimation.LIGHTNING, FeedbackAnimation.NEON_PULSE, FeedbackAnimation.CYBER_HEX -> {
+            FeedbackAnimation.ELECTRIC_STORM -> {
                 drawMultiStageElectricStorm(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
-            FeedbackAnimation.SOLAR_CORONA, FeedbackAnimation.SUN, FeedbackAnimation.ORB_GLOW -> {
+            FeedbackAnimation.SOLAR_CORONA -> {
                 drawMasterSolarCorona(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
