@@ -11,20 +11,20 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Modern, fluid visual feedback renderer with mathematically smooth,
- * elegant geometries and tight shape-icon interaction.
+ * Modern, minimal visual feedback renderer with natural glassmorphism aesthetics,
+ * fluid organic physics, and high-contrast icon interaction.
  */
 class BezierStretchRenderer {
 
-    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val glassBodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
-    private val auraPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val glassAuraPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
-    private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val glassRimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
@@ -100,9 +100,9 @@ class BezierStretchRenderer {
 
         val progress = (stretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.4f)
         val stateBoost = when {
-            isLUp || isLDown -> 1.4f
-            holdArmed -> 1.3f
-            armed -> 1.15f
+            isLUp || isLDown -> 1.35f
+            holdArmed -> 1.25f
+            armed -> 1.12f
             else -> 1.0f
         }
 
@@ -128,7 +128,7 @@ class BezierStretchRenderer {
      * Calculates the centroid (cx, cy) of the shape so the icon tracks the shape center smoothly.
      */
     private fun center(edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float): Pair<Float, Float> {
-        val maxOffset = 60f * animSize
+        val maxOffset = 58f * animSize
         val inset = (stretch * 0.48f).coerceAtMost(maxOffset).coerceAtLeast(12f)
         return when (edge) {
             Edge.LEFT -> inset to touchPos
@@ -137,7 +137,7 @@ class BezierStretchRenderer {
         }
     }
 
-    // ── 1. FLUID WAVE (Akıcı Kenar Dalgası) ──
+    // ── 1. FLUID WAVE (Sade Buzlu Cam Dalgası) ──
     private fun drawFluidWave(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
@@ -145,7 +145,7 @@ class BezierStretchRenderer {
         val span = halfSpan * (0.8f + (stretch / 320f).coerceIn(0f, 0.25f)) * animSize
         path.reset()
 
-        val peakVal = stretch * 0.95f
+        val peakVal = stretch * 0.92f
 
         when (edge) {
             Edge.LEFT -> {
@@ -163,46 +163,47 @@ class BezierStretchRenderer {
         }
         path.close()
 
-        fillPaint.color = baseColor
-        fillPaint.alpha = ((60 + progress * 75) * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawPath(path, fillPaint)
+        // Translucent frosted glass body
+        glassBodyPaint.color = baseColor
+        glassBodyPaint.alpha = ((50 + progress * 70) * opacity * stateBoost).toInt().coerceIn(0, 240)
+        canvas.drawPath(path, glassBodyPaint)
 
-        // Accent crest line
-        strokePaint.color = Color.WHITE
-        strokePaint.strokeWidth = 2.8f * animSize
-        strokePaint.alpha = ((50 + progress * 90) * opacity * stateBoost).toInt().coerceIn(0, 220)
-        canvas.drawPath(path, strokePaint)
+        // Glass highlight rim (1.8px specular stroke)
+        glassRimPaint.color = Color.WHITE
+        glassRimPaint.strokeWidth = 2.2f * animSize
+        glassRimPaint.alpha = ((60 + progress * 100) * opacity * stateBoost).toInt().coerceIn(0, 230)
+        canvas.drawPath(path, glassRimPaint)
     }
 
-    // ── 2. NEON PULSE (Neon Halka) ──
+    // ── 2. NEON PULSE (Sade Neon Halka) ──
     private fun drawNeonPulse(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (25f + progress * 20f) * animSize
+        val r = (24f + progress * 18f) * animSize
 
-        auraPaint.color = baseColor
-        auraPaint.alpha = (90 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r * 1.45f, auraPaint)
+        glassAuraPaint.color = baseColor
+        glassAuraPaint.alpha = (75 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 1.38f, glassAuraPaint)
 
-        strokePaint.color = baseColor
-        strokePaint.strokeWidth = (4.5f + progress * 2.5f) * animSize
-        strokePaint.alpha = (235 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r, strokePaint)
+        glassRimPaint.color = baseColor
+        glassRimPaint.strokeWidth = (4f + progress * 2f) * animSize
+        glassRimPaint.alpha = (230 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r, glassRimPaint)
 
-        fillPaint.color = Color.WHITE
-        fillPaint.alpha = (45 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r * 0.68f, fillPaint)
+        glassBodyPaint.color = Color.WHITE
+        glassBodyPaint.alpha = (40 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 0.65f, glassBodyPaint)
     }
 
-    // ── 3. CYBER HEX (Siber Altıgen) ──
+    // ── 3. CYBER HEX (Cam Altıgen Rozet) ──
     private fun drawCyberHex(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val radius = (27f + progress * 17f) * animSize
+        val radius = (26f + progress * 16f) * animSize
 
         path.reset()
         for (i in 0 until 6) {
@@ -213,120 +214,123 @@ class BezierStretchRenderer {
         }
         path.close()
 
-        fillPaint.color = baseColor
-        fillPaint.alpha = (165 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawPath(path, fillPaint)
+        glassBodyPaint.color = baseColor
+        glassBodyPaint.alpha = (160 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawPath(path, glassBodyPaint)
 
-        strokePaint.color = Color.WHITE
-        strokePaint.strokeWidth = 3f * animSize
-        strokePaint.alpha = (220 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawPath(path, strokePaint)
+        glassRimPaint.color = Color.WHITE
+        glassRimPaint.strokeWidth = 2.5f * animSize
+        glassRimPaint.alpha = (210 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawPath(path, glassRimPaint)
     }
 
-    // ── 4. ORB GLOW (Işıklı Küre) ──
+    // ── 4. ORB GLOW (Cam Küre) ──
     private fun drawOrbGlow(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val rOuter = (36f + progress * 24f) * animSize
-        val rInner = (22f + progress * 14f) * animSize
+        val rOuter = (34f + progress * 22f) * animSize
+        val rInner = (20f + progress * 12f) * animSize
 
-        auraPaint.color = baseColor
-        auraPaint.alpha = (105 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, rOuter, auraPaint)
+        glassAuraPaint.color = baseColor
+        glassAuraPaint.alpha = (95 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, rOuter, glassAuraPaint)
 
-        fillPaint.color = baseColor
-        fillPaint.alpha = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, rInner, fillPaint)
+        glassBodyPaint.color = baseColor
+        glassBodyPaint.alpha = (220 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, rInner, glassBodyPaint)
 
-        fillPaint.color = Color.WHITE
-        fillPaint.alpha = (130 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx - rInner * 0.22f, cy - rInner * 0.22f, rInner * 0.38f, fillPaint)
+        glassBodyPaint.color = Color.WHITE
+        glassBodyPaint.alpha = (120 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx - rInner * 0.22f, cy - rInner * 0.22f, rInner * 0.36f, glassBodyPaint)
     }
 
-    // ── 5. TEARDROP (Doğal Akıcı Damla) ──
+    // ── 5. TEARDROP (Doğal Cıva / Sıvı Damla) ──
     private fun drawTeardrop(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val bulbR = (22f + progress * 16f) * animSize
-        val baseSpan = (42f + progress * 24f) * animSize
+        val bulbR = (20f + progress * 14f) * animSize
+        val baseSpan = (38f + progress * 22f) * animSize
 
         path.reset()
         when (edge) {
             Edge.LEFT -> {
-                val tipX = cx + bulbR
+                val tipX = cx + bulbR * 0.8f
                 path.moveTo(0f, cy - baseSpan)
-                path.cubicTo(tipX * 0.45f, cy - baseSpan * 0.8f, tipX + bulbR * 0.6f, cy - bulbR * 1.1f, tipX + bulbR, cy)
-                path.cubicTo(tipX + bulbR * 0.6f, cy + bulbR * 1.1f, tipX * 0.45f, cy + baseSpan * 0.8f, 0f, cy + baseSpan)
+                path.cubicTo(tipX * 0.5f, cy - baseSpan * 0.85f, tipX + bulbR, cy - bulbR, tipX + bulbR, cy)
+                path.cubicTo(tipX + bulbR, cy + bulbR, tipX * 0.5f, cy + baseSpan * 0.85f, 0f, cy + baseSpan)
             }
             Edge.RIGHT -> {
-                val tipX = cx - bulbR
+                val tipX = cx - bulbR * 0.8f
                 path.moveTo(w, cy - baseSpan)
-                path.cubicTo(w - (w - tipX) * 0.45f, cy - baseSpan * 0.8f, tipX - bulbR * 0.6f, cy - bulbR * 1.1f, tipX - bulbR, cy)
-                path.cubicTo(tipX - bulbR * 0.6f, cy + bulbR * 1.1f, w - (w - tipX) * 0.45f, cy + baseSpan * 0.8f, w, cy + baseSpan)
+                path.cubicTo(w - (w - tipX) * 0.5f, cy - baseSpan * 0.85f, tipX - bulbR, cy - bulbR, tipX - bulbR, cy)
+                path.cubicTo(tipX - bulbR, cy + bulbR, w - (w - tipX) * 0.5f, cy + baseSpan * 0.85f, w, cy + baseSpan)
             }
             Edge.BOTTOM -> {
-                val tipY = cy - bulbR
+                val tipY = cy - bulbR * 0.8f
                 path.moveTo(cx - baseSpan, h)
-                path.cubicTo(cx - baseSpan * 0.8f, h - (h - tipY) * 0.45f, cx - bulbR * 1.1f, tipY - bulbR * 0.6f, cx, tipY - bulbR)
-                path.cubicTo(cx + bulbR * 1.1f, tipY - bulbR * 0.6f, cx + baseSpan * 0.8f, h - (h - tipY) * 0.45f, cx + baseSpan, h)
+                path.cubicTo(cx - baseSpan * 0.85f, h - (h - tipY) * 0.5f, cx - bulbR, tipY - bulbR, cx, tipY - bulbR)
+                path.cubicTo(cx + bulbR, tipY - bulbR, cx + baseSpan * 0.85f, h - (h - tipY) * 0.5f, cx + baseSpan, h)
             }
         }
         path.close()
 
-        fillPaint.color = baseColor
-        fillPaint.alpha = (215 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawPath(path, fillPaint)
+        // Translucent liquid glass body
+        glassBodyPaint.color = baseColor
+        glassBodyPaint.alpha = (200 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawPath(path, glassBodyPaint)
 
-        strokePaint.color = Color.WHITE
-        strokePaint.strokeWidth = 2.5f * animSize
-        strokePaint.alpha = (190 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawPath(path, strokePaint)
+        // Glass highlight specular contour
+        glassRimPaint.color = Color.WHITE
+        glassRimPaint.strokeWidth = 2.2f * animSize
+        glassRimPaint.alpha = (185 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawPath(path, glassRimPaint)
     }
 
-    // ── 6. BUBBLE (Cam Baloncuk) ──
+    // ── 6. BUBBLE (Buzlu Cam Baloncuk) ──
     private fun drawBubble(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val radius = (28f + progress * 18f) * animSize
+        val radius = (26f + progress * 16f) * animSize
 
-        fillPaint.color = baseColor
-        fillPaint.alpha = (205 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, radius, fillPaint)
+        glassBodyPaint.color = baseColor
+        glassBodyPaint.alpha = (195 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, radius, glassBodyPaint)
 
-        strokePaint.color = Color.WHITE
-        strokePaint.strokeWidth = 3f * animSize
-        strokePaint.alpha = (200 * opacity).toInt().coerceIn(0, 255)
-        rectF.set(cx - radius * 0.7f, cy - radius * 0.7f, cx + radius * 0.7f, cy + radius * 0.7f)
-        canvas.drawArc(rectF, 200f, 85f, false, strokePaint)
+        // Glass arc highlight reflection
+        glassRimPaint.color = Color.WHITE
+        glassRimPaint.strokeWidth = 2.5f * animSize
+        glassRimPaint.alpha = (195 * opacity).toInt().coerceIn(0, 255)
+        rectF.set(cx - radius * 0.68f, cy - radius * 0.68f, cx + radius * 0.68f, cy + radius * 0.68f)
+        canvas.drawArc(rectF, 200f, 85f, false, glassRimPaint)
     }
 
-    // ── 7. MINIMAL PADDLE (Minimal Kapsül) ──
+    // ── 7. MINIMAL PADDLE (Buzlu Cam Kapsül - iOS Pill) ──
     private fun drawMinimalPaddle(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val rx = (18f + progress * 8f) * animSize
-        val ry = (36f + progress * 22f) * animSize
+        val rx = (16f + progress * 7f) * animSize
+        val ry = (34f + progress * 20f) * animSize
 
         rectF.set(cx - rx, cy - ry, cx + rx, cy + ry)
-        fillPaint.color = baseColor
-        fillPaint.alpha = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawRoundRect(rectF, rx, rx, fillPaint)
+        glassBodyPaint.color = baseColor
+        glassBodyPaint.alpha = (215 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        canvas.drawRoundRect(rectF, rx, rx, glassBodyPaint)
 
-        strokePaint.color = Color.WHITE
-        strokePaint.strokeWidth = 2.5f * animSize
-        strokePaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawRoundRect(rectF, rx, rx, strokePaint)
+        glassRimPaint.color = Color.WHITE
+        glassRimPaint.strokeWidth = 2.2f * animSize
+        glassRimPaint.alpha = (175 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawRoundRect(rectF, rx, rx, glassRimPaint)
     }
 
-    // ── 8. ICON & ACTION SYMBOL INTERACTION ──
+    // ── 8. GLASS ICON INTERACTION (Buzlu Cam Rozet ve Simge) ──
     private fun drawGestureIcon(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, alpha: Float, progress: Float
@@ -335,34 +339,34 @@ class BezierStretchRenderer {
         val timeMs = System.currentTimeMillis()
 
         val scale = when {
-            isLUp || isLDown -> 1.38f + 0.05f * sin(timeMs / 80.0).toFloat()
-            holdArmed -> 1.30f + 0.05f * sin(timeMs / 90.0).toFloat()
-            armed -> 1.18f
-            else -> 0.85f + (progress * 0.25f).coerceAtMost(0.25f)
+            isLUp || isLDown -> 1.30f + 0.04f * sin(timeMs / 80.0).toFloat()
+            holdArmed -> 1.24f + 0.04f * sin(timeMs / 90.0).toFloat()
+            armed -> 1.14f
+            else -> 0.85f + (progress * 0.22f).coerceAtMost(0.22f)
         }
 
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // Arming / L-swipe badge ring
+        // Frosted glass badge ring when gesture is armed or L-swipe locked
         if (armed || holdArmed || isLUp || isLDown) {
-            auraPaint.color = when {
+            glassAuraPaint.color = when {
                 isLUp || isLDown -> lSwipeColor
                 holdArmed -> secondaryColor
                 else -> baseColor
             }
-            auraPaint.alpha = ((if (isLUp || isLDown) 210 else if (holdArmed) 190 else 130) * opacity * alpha).toInt().coerceIn(0, 255)
-            val auraRadius = if (isLUp || isLDown || holdArmed) 36f else 30f
-            canvas.drawCircle(cx, cy, auraRadius, auraPaint)
+            glassAuraPaint.alpha = ((if (isLUp || isLDown) 200 else if (holdArmed) 180 else 125) * opacity * alpha).toInt().coerceIn(0, 255)
+            val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
+            canvas.drawCircle(cx, cy, auraRadius, glassAuraPaint)
 
-            strokePaint.color = Color.WHITE
-            strokePaint.strokeWidth = 3.5f
-            strokePaint.alpha = (240 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx, cy, auraRadius, strokePaint)
+            glassRimPaint.color = Color.WHITE
+            glassRimPaint.strokeWidth = 3f
+            glassRimPaint.alpha = (230 * opacity * alpha).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx, cy, auraRadius, glassRimPaint)
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-        iconPaint.setShadowLayer(8f, 0f, 2f, Color.argb(160, 0, 0, 0))
+        iconPaint.setShadowLayer(6f, 0f, 1.5f, Color.argb(140, 0, 0, 0))
 
         val symbolStr = when {
             actionSymbol.isNotEmpty() -> actionSymbol
@@ -375,14 +379,14 @@ class BezierStretchRenderer {
         }
 
         if (symbolStr.isNotEmpty()) {
-            val popSize = if (isLUp || isLDown || holdArmed) 46f else if (armed) 42f else 36f
+            val popSize = if (isLUp || isLDown || holdArmed) 44f else if (armed) 40f else 34f
             iconPaint.textSize = popSize
             val baseline = cy - (iconPaint.ascent() + iconPaint.descent()) / 2f
             canvas.drawText(symbolStr, cx, baseline, iconPaint)
         } else {
             arrowPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-            arrowPaint.strokeWidth = if (armed) 7f else 5.5f
-            drawChevron(canvas, cx, cy, 26f, edge)
+            arrowPaint.strokeWidth = if (armed) 6.5f else 5f
+            drawChevron(canvas, cx, cy, 24f, edge)
         }
 
         canvas.restore()
@@ -412,23 +416,23 @@ class BezierStretchRenderer {
     }
 
     private fun drawIndicatorBar(canvas: Canvas, edge: Edge, touchPos: Float, w: Float, h: Float) {
-        auraPaint.color = baseColor
-        auraPaint.alpha = (140 * opacity).toInt().coerceIn(0, 255)
+        glassAuraPaint.color = baseColor
+        glassAuraPaint.alpha = (130 * opacity).toInt().coerceIn(0, 255)
         when (edge) {
             Edge.LEFT -> {
                 val cy = if (touchPos > 0) touchPos else h / 2f
-                rectF.set(4f, cy - 44f, 11f, cy + 44f)
-                canvas.drawRoundRect(rectF, 4f, 4f, auraPaint)
+                rectF.set(4f, cy - 42f, 10f, cy + 42f)
+                canvas.drawRoundRect(rectF, 3.5f, 3.5f, glassAuraPaint)
             }
             Edge.RIGHT -> {
                 val cy = if (touchPos > 0) touchPos else h / 2f
-                rectF.set(w - 11f, cy - 44f, w - 4f, cy + 44f)
-                canvas.drawRoundRect(rectF, 4f, 4f, auraPaint)
+                rectF.set(w - 10f, cy - 42f, w - 4f, cy + 42f)
+                canvas.drawRoundRect(rectF, 3.5f, 3.5f, glassAuraPaint)
             }
             Edge.BOTTOM -> {
                 val cx = if (touchPos > 0) touchPos else w / 2f
-                rectF.set(cx - 54f, h - 11f, cx + 54f, h - 4f)
-                canvas.drawRoundRect(rectF, 4f, 4f, auraPaint)
+                rectF.set(cx - 50f, h - 10f, cx + 50f, h - 4f)
+                canvas.drawRoundRect(rectF, 3.5f, 3.5f, glassAuraPaint)
             }
         }
     }
