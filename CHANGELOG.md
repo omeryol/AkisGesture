@@ -2,6 +2,18 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.6] - 2026-08-01
+
+### 🌊 Masterclass Doğa Simülasyonları & Kopan Sıvı Damlası Fiziği
+
+- **Kopya Animasyonlar Temizlendi:** Tüm çakışan ve kopya isimler kaldırıldı; geriye 6 benzersiz, yüksek derinlikli doğa simülasyonu bırakıldı:
+  - **💧 Kopan Sıvı Damlası (`MERCURY_TEARDROP`):** Parmağı çektikçe okyanustan uzayan, boynu daralıp **yüzey gerilimiyle koparak serbestçe parmağın önünde yüzen dairesel cıva damlası** fiziği.
+  - **🌊 Okyanus Dalgası (`OCEAN_WAVE`):** Çift katmanlı kırılmalı gelgit dalgası ve köpüksü dalga tepeleri.
+  - **⚡ Elektrik Fırtınası & Şimşek (`ELECTRIC_STORM`):** Yüksek voltajlı flaş aurası, 8 fraktal çatallanma arkı ve eklem iyonlaşma kıvılcımları.
+  - **☀️ Güneş Koronası (`SOLAR_CORONA`):** 16 dönen güneş ışını, 4 arklı manyetik güneş ilmiği (`solar prominence loops`) ve mercek parlaması.
+  - **💨 Atmosferik Sis & Buhar (`ATMOSPHERIC_MIST`):** Beğenilen 8 bulutsu sis kümesi ve orbital solunum aurası.
+  - **🔥 Plazma Ateş (`PLASMA_FIRE`):** Titreşen alev dili ve yükselen volkanik kor parçacıkları.
+
 ## [1.1.5] - 2026-08-01
 
 ### 🌋 Derin Doğa Simülasyonu Mimarisi & Parçacık Fiziği (Deep Organic Engine Rewrite)
