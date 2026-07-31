@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.14] - 2026-08-01
+
+### 🐛 Alt Kenar (Ana Ekran) Sol-Yukarı Üçgen Gölge Hatası Düzeltildi
+
+- **Alt Kenar Başlangıç Koordinatı Düzeltildi:** Alt kenar (Ana ekran) sürüklemesinde `path.moveTo` koordinatının hatalı olarak ekranın en sol üst noktasına (`X=0, Y=touchPos-span`) gitmesine ve devasa, rahatsız edici sol-yukarı eğimli üçgen bir gölge/uzantı çizilmesine neden olan koordinat hesaplama hatası tamamen düzeltildi.
+- **Kusursuz Alt Kenar Kavis Geçişi:** Alt kenardan yukarı çekildiğinde dalga ve şekiller tam simetrik olarak ekranın alt tabanından (`Y=h`) temiz bir şekilde yükselir.
+
 ## [1.1.13] - 2026-08-01
 
 ### 🎯 Kimlikle Uyumlu ve Anlamlı Eylem İkonları
