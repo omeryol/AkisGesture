@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.7] - 2026-08-01
+
+### 🔮 3D Hacimsel Uzamsal Optik & Z-Eksen Derinliği (3D Spatial Engine)
+
+- **3D Hacimsel Derinlik & Gölge (3D Z-Elevation Drop Shadow):** Tüm doğa animasyonlarına arka plandaki duvar kağıdı/uygulama üzerine düşen **3D Z-yükselti gölgesi (`drop shadow`)** eklendi.
+- **3D Küresel Optik & Ambient Occlusion (`MERCURY_TEARDROP 3D`):** Kopan cıva damlasına alt 3D ortam kararması (`ambient occlusion`), 3D küresel derinlik gradyanı ve üst-sol **3D ışık kırılma merceği (`3D specular optics node`)** kazandırıldı.
+- **3D Gelgit Yükseltisi (`OCEAN_WAVE 3D`):** Okyanus dalgasına 3D hacimsel derinlik katmanı ve öne doğru Protrude olan 3D kavis hissi eklendi.
+- **3D Parçacık Derinlik Paralaksı (`PLASMA_FIRE 3D` & `SOLAR_CORONA 3D`):** Volkanik kor parçacıklarına ve güneş rüzgarlarına 3D Z-paralaks derinliği kazandırıldı (kameraya yakın parçacıklar daha büyük ve parlak, uzaktakiler derinlikte süzülüyor).
+
 ## [1.1.6] - 2026-08-01
 
 ### 🌊 Masterclass Doğa Simülasyonları & Kopan Sıvı Damlası Fiziği

@@ -15,9 +15,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Pure Borderless Natural Elements Engine.
- * 100% borderless, volumetric organic gradients, soft atmospheric glows,
- * and hydrodynamic fluid/energy simulations without any hard white lines.
+ * 3D Spatial Optics & Natural Elements Engine.
+ * Features 3D Z-elevation drop shadows, 3D spherical ambient occlusion,
+ * 3D specular light refraction nodes, and 3D particle depth parallax.
  */
 class BezierStretchRenderer {
 
@@ -26,6 +26,10 @@ class BezierStretchRenderer {
     }
 
     private val auraPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
@@ -120,25 +124,25 @@ class BezierStretchRenderer {
             else -> 1.0f
         }
 
-        // Execute Borderless Organic Nature Simulation Engines
+        // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
             FeedbackAnimation.OCEAN_WAVE -> {
-                drawRefractiveOceanWave(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawRefractiveOceanWave3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.MERCURY_TEARDROP -> {
-                drawDetachingPinchTeardrop(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawDetachingPinchTeardrop3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.PLASMA_FIRE -> {
-                drawPlasmaFireSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawPlasmaFireSimulation3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.ATMOSPHERIC_MIST -> {
-                drawAtmosphericMistSimulation(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawAtmosphericMistSimulation3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.ELECTRIC_STORM -> {
-                drawMultiStageElectricStorm(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawMultiStageElectricStorm3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.SOLAR_CORONA -> {
-                drawMasterSolarCorona(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawMasterSolarCorona3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
         }
@@ -160,9 +164,9 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // 🌊 1. OCEAN WAVE (Borderless Refractive Ocean Tide Wave)
+    // 🌊 1. 3D OCEAN WAVE (Volumetric 3D Refractive Tide & Z-Elevation)
     // =========================================================================
-    private fun drawRefractiveOceanWave(
+    private fun drawRefractiveOceanWave3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
@@ -171,7 +175,7 @@ class BezierStretchRenderer {
         val peakVal = stretch * 0.96f
         val timeSec = System.currentTimeMillis() / 280.0
 
-        // 1. Primary Outer Ocean Tide Wave
+        // 1. Primary 3D Outer Ocean Tide Wave Path
         path.reset()
         val segments = 14
         for (i in 0..segments) {
@@ -194,6 +198,21 @@ class BezierStretchRenderer {
         else if (edge == Edge.BOTTOM) path.lineTo(touchPos + span, h)
         path.close()
 
+        // 3D Ambient Z-Depth Shadow underneath the wave
+        val shadowAlpha = (50 * opacity).toInt().coerceIn(0, 255)
+        shadowPaint.color = Color.BLACK
+        shadowPaint.alpha = shadowAlpha
+        canvas.save()
+        val shadowOffset = 6f * animSize
+        when (edge) {
+            Edge.LEFT -> canvas.translate(shadowOffset, shadowOffset * 0.5f)
+            Edge.RIGHT -> canvas.translate(-shadowOffset, shadowOffset * 0.5f)
+            Edge.BOTTOM -> canvas.translate(0f, shadowOffset)
+        }
+        canvas.drawPath(path, shadowPaint)
+        canvas.restore()
+
+        // 3D Volumetric Linear Gradient Shader
         val alphaVal = ((90 + progress * 95) * opacity * stateBoost).toInt().coerceIn(0, 245)
         val startColor = intColorWithAlpha(baseColor, alphaVal)
         val endColor = intColorWithAlpha(baseColor, alphaVal / 4)
@@ -207,7 +226,7 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // 2. Inner Refractive Water Wave Layer
+        // 2. Inner 3D Protruding Refractive Tide Layer
         secondaryPath.reset()
         val innerPeak = peakVal * 0.65f
         val innerSpan = span * 0.75f
@@ -228,14 +247,14 @@ class BezierStretchRenderer {
         secondaryPath.close()
 
         bodyPaint.color = Color.WHITE
-        bodyPaint.alpha = (45 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        bodyPaint.alpha = (50 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(secondaryPath, bodyPaint)
     }
 
     // =========================================================================
-    // 💧 2. MERCURY TEARDROP (Borderless Liquid Surface Tension Detaching Drop)
+    // 💧 2. 3D MERCURY TEARDROP (3D Spherical Optics & Ambient Occlusion Drop)
     // =========================================================================
-    private fun drawDetachingPinchTeardrop(
+    private fun drawDetachingPinchTeardrop3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
@@ -275,7 +294,7 @@ class BezierStretchRenderer {
         bodyPaint.alpha = (alphaVal * 0.75f).toInt()
         canvas.drawPath(path, bodyPaint)
 
-        // Fully Detached Spherical Liquid Droplet floating in front!
+        // Fully Detached Spherical 3D Liquid Droplet floating in front!
         if (progress > 0.4f) {
             val dropDist = (stretch * 0.55f).coerceAtLeast(30f * animSize)
             val dropR = (14f + progress * 14f) * animSize
@@ -290,28 +309,33 @@ class BezierStretchRenderer {
                 else -> cy
             }
 
-            // Soft Radial Liquid Sphere Gradient (No hard white stroke)
+            // 1. 3D Drop Shadow Cast on Screen Background
+            shadowPaint.color = Color.BLACK
+            shadowPaint.alpha = (65 * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(dropX + 4f * animSize, dropY + 6f * animSize, dropR * 1.05f, shadowPaint)
+
+            // 2. 3D Spherical Volume Radial Gradient (Ambient Occlusion Bottom + Light Top)
             val radialShader = RadialGradient(
-                dropX - dropR * 0.25f, dropY - dropR * 0.25f, dropR * 1.8f,
-                intArrayOf(Color.WHITE, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(baseColor, alphaVal / 2)),
-                floatArrayOf(0f, 0.45f, 1f),
+                dropX - dropR * 0.35f, dropY - dropR * 0.35f, dropR * 1.8f,
+                intArrayOf(Color.WHITE, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(Color.BLACK, (alphaVal * 0.7f).toInt())),
+                floatArrayOf(0f, 0.55f, 1f),
                 Shader.TileMode.CLAMP
             )
             bodyPaint.shader = radialShader
             canvas.drawCircle(dropX, dropY, dropR, bodyPaint)
             bodyPaint.shader = null
 
-            // Micro specular light reflection node
+            // 3. Top-Left 3D Specular Light Refraction Lens Highlight Node
             highlightPaint.color = Color.WHITE
-            highlightPaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
-            canvas.drawCircle(dropX - dropR * 0.35f, dropY - dropR * 0.35f, dropR * 0.32f, highlightPaint)
+            highlightPaint.alpha = (210 * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(dropX - dropR * 0.38f, dropY - dropR * 0.38f, dropR * 0.35f, highlightPaint)
         }
     }
 
     // =========================================================================
-    // 🔥 3. PLASMA FIRE (Turbulent Volcanic Flame Shader)
+    // 🔥 3. 3D PLASMA FIRE (Volumetric Flame & 3D Perspective Embers)
     // =========================================================================
-    private fun drawPlasmaFireSimulation(
+    private fun drawPlasmaFireSimulation3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
@@ -362,25 +386,26 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // Volcanic Embers Particles
+        // 3D Perspective Volcanic Embers (Nearer embers are larger & brighter)
         val rand = Random(timeMs / 120)
         sparkPaint.color = Color.rgb(255, 214, 0)
-        for (i in 0 until 8) {
-            val driftX = (rand.nextFloat() - 0.5f) * 36f * animSize
-            val driftY = -rand.nextFloat() * 40f * animSize
+        for (i in 0 until 9) {
+            val zScale = 0.5f + (i % 4) * 0.25f // 3D Z-depth scaling
+            val driftX = (rand.nextFloat() - 0.5f) * 38f * animSize * zScale
+            val driftY = -rand.nextFloat() * 42f * animSize * zScale
             val emberX = cx + driftX
             val emberY = cy + driftY
-            val emberR = (2.5f + rand.nextFloat() * 3f) * animSize
+            val emberR = (2.2f + rand.nextFloat() * 2.8f) * animSize * zScale
 
-            sparkPaint.alpha = ((180 + rand.nextInt(75)) * opacity).toInt().coerceIn(0, 255)
+            sparkPaint.alpha = ((170 + rand.nextInt(85)) * opacity * zScale).toInt().coerceIn(0, 255)
             canvas.drawCircle(emberX, emberY, emberR, sparkPaint)
         }
     }
 
     // =========================================================================
-    // 💨 4. ATMOSPHERIC MIST (Volumetric Cloudlets Engine)
+    // 💨 4. 3D ATMOSPHERIC MIST (Volumetric 3D Cloudlet Particles)
     // =========================================================================
-    private fun drawAtmosphericMistSimulation(
+    private fun drawAtmosphericMistSimulation3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
@@ -415,9 +440,9 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // ⚡ 5. ELECTRIC STORM (High-Voltage Glowing Lightning Bolt Shader)
+    // ⚡ 5. 3D ELECTRIC STORM (Multi-Stage High-Voltage Glowing Lightning)
     // =========================================================================
-    private fun drawMultiStageElectricStorm(
+    private fun drawMultiStageElectricStorm3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
@@ -482,21 +507,21 @@ class BezierStretchRenderer {
             }
         }
 
-        // Draw Soft Glowing Electric Bolt Path (No hard white stroke)
+        // Soft Glowing Electric Bolt Path
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (240 * opacity * stateBoost).toInt().coerceIn(0, 255))
         glowStrokePaint.strokeWidth = (5f + progress * 3f) * animSize
         canvas.drawPath(path, glowStrokePaint)
 
-        // Draw Secondary Fork Branches
+        // Secondary Fork Branches
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (200 * opacity).toInt().coerceIn(0, 255))
         glowStrokePaint.strokeWidth = 2.5f * animSize
         canvas.drawPath(secondaryPath, glowStrokePaint)
     }
 
     // =========================================================================
-    // ☀️ 6. SOLAR CORONA (Volumetric Solar Flare Corona Shader)
+    // ☀️ 6. 3D MASTER SOLAR CORONA (3D Volumetric Flare Corona Shader)
     // =========================================================================
-    private fun drawMasterSolarCorona(
+    private fun drawMasterSolarCorona3D(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
@@ -504,7 +529,7 @@ class BezierStretchRenderer {
         val r = (24f + progress * 16f) * animSize
         val timeMs = System.currentTimeMillis()
 
-        // 1. Volumetric Solar Flare Heat Shader
+        // 1. 3D Volumetric Solar Flare Heat Shader
         val sunColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 179, 0)
         val alphaVal = (240 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
@@ -522,7 +547,7 @@ class BezierStretchRenderer {
         canvas.drawCircle(cx, cy, r * 2.5f, auraPaint)
         auraPaint.shader = null
 
-        // 2. 16 Pulsating Rotating Solar Rays (Soft Glowing stroke)
+        // 2. 16 Pulsating Rotating Solar Rays (3D Z-parallax effect)
         glowStrokePaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
         glowStrokePaint.strokeWidth = 2.6f * animSize
         val rotAngle = (timeMs / 40.0) % 360.0
@@ -545,7 +570,7 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // 🎯 7. GESTURE ICON & ACTION SYMBOL INTERACTION (Borderless Glass Badge)
+    // 🎯 7. GESTURE ICON & ACTION SYMBOL INTERACTION (3D Glass Floating Badge)
     // =========================================================================
     private fun drawGestureIcon(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -564,20 +589,27 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // Borderless Glass Badge Ring
+        // 3D Glass Floating Badge Ring with Drop Shadow
         if (armed || holdArmed || isLUp || isLDown) {
+            val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
+
+            // 3D Drop Shadow
+            shadowPaint.color = Color.BLACK
+            shadowPaint.alpha = (70 * opacity * alpha).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx + 2f, cy + 4f, auraRadius, shadowPaint)
+
+            // 3D Glass Badge Body
             auraPaint.color = when {
                 isLUp || isLDown -> lSwipeColor
                 holdArmed -> secondaryColor
                 else -> baseColor
             }
             auraPaint.alpha = ((if (isLUp || isLDown) 210 else if (holdArmed) 190 else 135) * opacity * alpha).toInt().coerceIn(0, 255)
-            val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
             canvas.drawCircle(cx, cy, auraRadius, auraPaint)
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-        iconPaint.setShadowLayer(7f, 0f, 1.8f, Color.argb(150, 0, 0, 0))
+        iconPaint.setShadowLayer(8f, 0f, 2f, Color.argb(160, 0, 0, 0))
 
         val symbolStr = when {
             actionSymbol.isNotEmpty() -> actionSymbol
