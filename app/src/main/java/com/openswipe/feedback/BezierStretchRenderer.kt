@@ -15,9 +15,7 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Intense 3D Spatial Optics & Natural Elements Engine.
- * Features ultra-pronounced 3D Z-elevation drop shadows, 3D ambient occlusion,
- * 3D spherical specular refraction glare nodes, 3D wave protrusion, and Emoji icon integration.
+ * Masterclass 3D Spatial Optics Engine with Circular Emoji Integration.
  */
 class BezierStretchRenderer {
 
@@ -124,7 +122,7 @@ class BezierStretchRenderer {
             else -> 1.0f
         }
 
-        // Execute Intense 3D Spatial Optics Nature Simulation Engines
+        // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
             FeedbackAnimation.OCEAN_WAVE -> {
                 drawRefractiveOceanWave3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
@@ -175,7 +173,6 @@ class BezierStretchRenderer {
         val peakVal = stretch * 0.96f
         val timeSec = System.currentTimeMillis() / 280.0
 
-        // Primary 3D Outer Ocean Tide Wave Path
         path.reset()
         val segments = 14
         for (i in 0..segments) {
@@ -198,7 +195,6 @@ class BezierStretchRenderer {
         else if (edge == Edge.BOTTOM) path.lineTo(touchPos + span, h)
         path.close()
 
-        // Intense 3D Z-Elevation Drop Shadow
         val shadowAlpha = (90 * opacity).toInt().coerceIn(0, 255)
         shadowPaint.color = Color.BLACK
         shadowPaint.alpha = shadowAlpha
@@ -213,7 +209,6 @@ class BezierStretchRenderer {
         canvas.drawPath(path, shadowPaint)
         canvas.restore()
 
-        // 3D Volumetric Linear Gradient Shader
         val alphaVal = ((95 + progress * 95) * opacity * stateBoost).toInt().coerceIn(0, 245)
         val startColor = intColorWithAlpha(baseColor, alphaVal)
         val endColor = intColorWithAlpha(baseColor, alphaVal / 4)
@@ -227,7 +222,6 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // Inner 3D Protruding Refractive Tide Layer
         secondaryPath.reset()
         val innerPeak = peakVal * 0.65f
         val innerSpan = span * 0.75f
@@ -264,7 +258,6 @@ class BezierStretchRenderer {
         val baseSpan = (42f + progress * 24f) * animSize
         val alphaVal = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
-        // Surface Tension Pinching Base at Screen Edge
         path.reset()
         val neckPinch = if (progress > 0.45f) (1f - (progress - 0.45f) * 0.8f).coerceIn(0.2f, 1f) else 1f
 
@@ -290,12 +283,10 @@ class BezierStretchRenderer {
         }
         path.close()
 
-        // Base Liquid Body Gradient
         bodyPaint.color = baseColor
         bodyPaint.alpha = (alphaVal * 0.75f).toInt()
         canvas.drawPath(path, bodyPaint)
 
-        // Fully Detached Spherical 3D Liquid Droplet floating in front!
         if (progress > 0.4f) {
             val dropDist = (stretch * 0.55f).coerceAtLeast(30f * animSize)
             val dropR = (15f + progress * 14f) * animSize
@@ -310,12 +301,10 @@ class BezierStretchRenderer {
                 else -> cy
             }
 
-            // 1. Intense 3D Drop Shadow Cast on Screen Background
             shadowPaint.color = Color.BLACK
             shadowPaint.alpha = (100 * opacity).toInt().coerceIn(0, 255)
             canvas.drawCircle(dropX + 6f * animSize, dropY + 9f * animSize, dropR * 1.08f, shadowPaint)
 
-            // 2. High-Contrast 3D Spherical Radial Gradient (White Light Top -> Deep Shade Bottom)
             val radialShader = RadialGradient(
                 dropX - dropR * 0.4f, dropY - dropR * 0.4f, dropR * 1.9f,
                 intArrayOf(Color.WHITE, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(Color.argb(230, 10, 10, 10), (alphaVal * 0.85f).toInt())),
@@ -326,7 +315,6 @@ class BezierStretchRenderer {
             canvas.drawCircle(dropX, dropY, dropR, bodyPaint)
             bodyPaint.shader = null
 
-            // 3. Top-Left 3D Specular Light Refraction Lens Highlight Node
             highlightPaint.color = Color.WHITE
             highlightPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
             canvas.drawCircle(dropX - dropR * 0.38f, dropY - dropR * 0.38f, dropR * 0.36f, highlightPaint)
@@ -387,7 +375,6 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // 3D Perspective Volcanic Embers (Nearer embers are larger & brighter)
         val rand = Random(timeMs / 120)
         sparkPaint.color = Color.rgb(255, 214, 0)
         for (i in 0 until 9) {
@@ -562,7 +549,7 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // 🎯 7. GESTURE ICON & ACTION SYMBOL INTERACTION (3D Glass Floating Badge)
+    // 🎯 7. GESTURE ICON & ACTION SYMBOL INTERACTION (3D Glass Orb Badge Container)
     // =========================================================================
     private fun drawGestureIcon(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -581,11 +568,11 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // 3D Floating Glass Orb Badge with Matching 3D Rounded Drop Shadow
+        // 3D Floating Glass Orb Badge with 3D Round Drop Shadow
         if (armed || holdArmed || isLUp || isLDown) {
             val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
 
-            // 1. Matching 3D Rounded Drop Shadow
+            // 1. 3D Round Drop Shadow
             shadowPaint.color = Color.BLACK
             shadowPaint.alpha = (105 * opacity * alpha).toInt().coerceIn(0, 255)
             canvas.drawCircle(cx + 5f, cy + 7f, auraRadius * 1.06f, shadowPaint)
