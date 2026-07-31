@@ -90,8 +90,19 @@ class AkisGestureApp : Application() {
                     useAppAdaptiveColor = prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] ?: false,
                     feedbackOpacity = prefs[GestureConfig.KEY_FEEDBACK_OPACITY] ?: 0.57f,
                     feedbackAnimation = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION]
-                        ?.let { runCatching { FeedbackAnimation.valueOf(it) }.getOrNull() }
-                        ?: FeedbackAnimation.FLUID,
+                        ?.let { str ->
+                            runCatching { FeedbackAnimation.valueOf(str) }.getOrNull()
+                                ?: when (str) {
+                                    "FLUID", "WATER", "OCEAN_LIQUID", "MINIMAL_PADDLE" -> FeedbackAnimation.OCEAN_WAVE
+                                    "TEARDROP", "BUBBLE", "MERCURY_TEARDROP" -> FeedbackAnimation.MERCURY_TEARDROP
+                                    "FIRE", "PLASMA_FIRE" -> FeedbackAnimation.PLASMA_FIRE
+                                    "STEAM", "ATMOSPHERIC_MIST" -> FeedbackAnimation.ATMOSPHERIC_MIST
+                                    "LIGHTNING", "NEON_PULSE", "CYBER_HEX", "ELECTRIC_STORM" -> FeedbackAnimation.ELECTRIC_STORM
+                                    "SUN", "ORB_GLOW", "SOLAR_CORONA" -> FeedbackAnimation.SOLAR_CORONA
+                                    else -> FeedbackAnimation.OCEAN_WAVE
+                                }
+                        }
+                        ?: FeedbackAnimation.OCEAN_WAVE,
                     quickFeedbackIcon = prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON]
                         ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
                         ?: FeedbackIcon.CHEVRON,

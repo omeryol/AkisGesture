@@ -7,22 +7,6 @@ enum class FeedbackAnimation(val label: String) {
     ATMOSPHERIC_MIST("Atmosferik Sis & Buhar 💨"),
     ELECTRIC_STORM("Elektrik Fırtınası & Şimşek ⚡"),
     SOLAR_CORONA("Güneş Koronası & Işınlar ☀️"),
-
-    // Compatibility mappings
-    OCEAN_LIQUID("Okyanus Dalgası 🌊"),
-    WATER("Okyanus Dalgası 🌊"),
-    FLUID("Okyanus Dalgası 🌊"),
-    FIRE("Plazma Ateş 🔥"),
-    LIGHTNING("Elektrik Fırtınası ⚡"),
-    STEAM("Atmosferik Sis 💨"),
-    SUN("Güneş Koronası ☀️"),
-    TEARDROP("Kopan Sıvı Damlası 💧"),
-    BUBBLE("Kopan Sıvı Damlası 💧"),
-    NEON_PULSE("Elektrik Fırtınası ⚡"),
-    CYBER_HEX("Elektrik Fırtınası ⚡"),
-    ORB_GLOW("Güneş Koronası ☀️"),
-    MINIMAL_PADDLE("Okyanus Dalgası 🌊"),
-
     ICON_ONLY("Sade Simge 🎯"),
     NONE("Kapalı 🚫"),
 }

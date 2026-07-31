@@ -74,7 +74,7 @@ data class GestureConfig(
     val secondaryColorArgb: Int = 0xFFFF9100.toInt(),
     val lSwipeColorArgb: Int = 0xFF00E676.toInt(),
     val feedbackOpacity: Float = 0.57f,
-    val feedbackAnimation: FeedbackAnimation = FeedbackAnimation.FLUID,
+    val feedbackAnimation: FeedbackAnimation = FeedbackAnimation.OCEAN_WAVE,
     val quickFeedbackIcon: FeedbackIcon = FeedbackIcon.CHEVRON,
     val holdFeedbackIcon: FeedbackIcon = FeedbackIcon.STAR,
 
