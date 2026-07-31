@@ -581,29 +581,28 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // 3D Floating Glass Squircle Container (Perfect matching shape for Emojis & Icons)
+        // 3D Floating Glass Orb Badge with Matching 3D Rounded Drop Shadow
         if (armed || holdArmed || isLUp || isLDown) {
-            val auraW = if (isLUp || isLDown || holdArmed) 34f else 28f
-            val auraH = auraW
-            val cornerR = auraW * 0.48f // Squircle curvature
-            rectF.set(cx - auraW, cy - auraH, cx + auraW, cy + auraH)
+            val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
 
-            // Double Pass 3D Drop Shadow for Squircle
+            // 1. Matching 3D Rounded Drop Shadow
             shadowPaint.color = Color.BLACK
-            shadowPaint.alpha = (95 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawRoundRect(
-                rectF.left + 4f, rectF.top + 6f, rectF.right + 4f, rectF.bottom + 6f,
-                cornerR, cornerR, shadowPaint
-            )
+            shadowPaint.alpha = (105 * opacity * alpha).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx + 5f, cy + 7f, auraRadius * 1.06f, shadowPaint)
 
-            // 3D Glass Squircle Body
+            // 2. 3D Glass Orb Body
             auraPaint.color = when {
                 isLUp || isLDown -> lSwipeColor
                 holdArmed -> secondaryColor
                 else -> baseColor
             }
             auraPaint.alpha = ((if (isLUp || isLDown) 215 else if (holdArmed) 195 else 140) * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawRoundRect(rectF, cornerR, cornerR, auraPaint)
+            canvas.drawCircle(cx, cy, auraRadius, auraPaint)
+
+            // 3. Top-Left 3D Specular Light Refraction Lens
+            highlightPaint.color = Color.WHITE
+            highlightPaint.alpha = (165 * opacity * alpha).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx - auraRadius * 0.35f, cy - auraRadius * 0.35f, auraRadius * 0.38f, highlightPaint)
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)

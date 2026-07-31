@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.10] - 2026-08-01
+
+### 🔴 3D Yuvarlak Cam Rozet & Eşleşen 3D Dairesel Yükselti Gölgesi (3D Glass Orb)
+
+- **3D Yuvarlak Cam Rozet (`3D Glass Orb Badge`):** İkon konteyneri, pürüzsüz 3 boyutlu yuvarlak küre rozet formuna getirildi.
+- **Uyumlu 3D Dairesel Yükselti Gölgesi:** Rozet ile tam uyumlu 3D yuvarlak taban gölgesi (`canvas.drawCircle shadow`) ve üst-sol **3D ışık yansıması merceği (`specular refraction lens`)** entegre edildi.
+
 ## [1.1.9] - 2026-08-01
 
 ### 🟧 3D Adaptif Cam Squircle İkon Rozeti (Squircle Badge Container)
