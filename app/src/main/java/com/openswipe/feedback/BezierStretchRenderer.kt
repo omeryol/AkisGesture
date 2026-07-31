@@ -15,14 +15,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Masterclass Natural Elements Simulation Engine.
- * Features 6 high-fidelity procedural simulation architectures:
- * 1. OCEAN_WAVE: Refractive double-tide ocean wave.
- * 2. MERCURY_TEARDROP: Liquid surface-tension pinching & detaching drop.
- * 3. PLASMA_FIRE: Turbulent flame tendrils with volcanic ember particles.
- * 4. ATMOSPHERIC_MIST: Ethereal nebula cloudlets with orbital alpha breathing.
- * 5. ELECTRIC_STORM: Multi-stage high-voltage lightning with 8 fractal forks & ionization sparks.
- * 6. SOLAR_CORONA: Multi-pass solar coronal flares, magnetic loops & 16 solar wind rays.
+ * Pure Borderless Natural Elements Engine.
+ * 100% borderless, volumetric organic gradients, soft atmospheric glows,
+ * and hydrodynamic fluid/energy simulations without any hard white lines.
  */
 class BezierStretchRenderer {
 
@@ -34,7 +29,7 @@ class BezierStretchRenderer {
         style = Paint.Style.FILL
     }
 
-    private val rimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val glowStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
@@ -125,7 +120,7 @@ class BezierStretchRenderer {
             else -> 1.0f
         }
 
-        // Execute Masterclass Natural Elements Simulation Engines
+        // Execute Borderless Organic Nature Simulation Engines
         when (animation) {
             FeedbackAnimation.OCEAN_WAVE -> {
                 drawRefractiveOceanWave(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
@@ -165,7 +160,7 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // 🌊 1. OCEAN WAVE (Refractive Double-Tide Ocean Wave Engine)
+    // 🌊 1. OCEAN WAVE (Borderless Refractive Ocean Tide Wave)
     // =========================================================================
     private fun drawRefractiveOceanWave(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -199,7 +194,7 @@ class BezierStretchRenderer {
         else if (edge == Edge.BOTTOM) path.lineTo(touchPos + span, h)
         path.close()
 
-        val alphaVal = ((80 + progress * 90) * opacity * stateBoost).toInt().coerceIn(0, 245)
+        val alphaVal = ((90 + progress * 95) * opacity * stateBoost).toInt().coerceIn(0, 245)
         val startColor = intColorWithAlpha(baseColor, alphaVal)
         val endColor = intColorWithAlpha(baseColor, alphaVal / 4)
 
@@ -212,7 +207,7 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
-        // 2. Inner Refractive Turquoise Tide Layer
+        // 2. Inner Refractive Water Wave Layer
         secondaryPath.reset()
         val innerPeak = peakVal * 0.65f
         val innerSpan = span * 0.75f
@@ -233,18 +228,12 @@ class BezierStretchRenderer {
         secondaryPath.close()
 
         bodyPaint.color = Color.WHITE
-        bodyPaint.alpha = (50 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        bodyPaint.alpha = (45 * opacity * stateBoost).toInt().coerceIn(0, 255)
         canvas.drawPath(secondaryPath, bodyPaint)
-
-        // Crest Foam Highlight Contour
-        rimPaint.color = Color.WHITE
-        rimPaint.strokeWidth = 2.6f * animSize
-        rimPaint.alpha = ((90 + progress * 120) * opacity * stateBoost).toInt().coerceIn(0, 245)
-        canvas.drawPath(path, rimPaint)
     }
 
     // =========================================================================
-    // 💧 2. MERCURY TEARDROP (Liquid Surface-Tension Pinching & Detaching Drop)
+    // 💧 2. MERCURY TEARDROP (Borderless Liquid Surface Tension Detaching Drop)
     // =========================================================================
     private fun drawDetachingPinchTeardrop(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -253,9 +242,9 @@ class BezierStretchRenderer {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
         val bulbR = (22f + progress * 16f) * animSize
         val baseSpan = (42f + progress * 24f) * animSize
-        val alphaVal = (215 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        val alphaVal = (220 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
-        // Stage 1 & 2: Surface Tension Pinching Base at Screen Edge
+        // Surface Tension Pinching Base at Screen Edge
         path.reset()
         val neckPinch = if (progress > 0.45f) (1f - (progress - 0.45f) * 0.8f).coerceIn(0.2f, 1f) else 1f
 
@@ -281,12 +270,12 @@ class BezierStretchRenderer {
         }
         path.close()
 
-        // Base Liquid Body Shader
+        // Base Liquid Body Gradient
         bodyPaint.color = baseColor
         bodyPaint.alpha = (alphaVal * 0.75f).toInt()
         canvas.drawPath(path, bodyPaint)
 
-        // Stage 3: Fully Detached Spherical Liquid Droplet floating in front!
+        // Fully Detached Spherical Liquid Droplet floating in front!
         if (progress > 0.4f) {
             val dropDist = (stretch * 0.55f).coerceAtLeast(30f * animSize)
             val dropR = (14f + progress * 14f) * animSize
@@ -301,7 +290,7 @@ class BezierStretchRenderer {
                 else -> cy
             }
 
-            // Radial liquid sphere shader
+            // Soft Radial Liquid Sphere Gradient (No hard white stroke)
             val radialShader = RadialGradient(
                 dropX - dropR * 0.25f, dropY - dropR * 0.25f, dropR * 1.8f,
                 intArrayOf(Color.WHITE, intColorWithAlpha(baseColor, alphaVal), intColorWithAlpha(baseColor, alphaVal / 2)),
@@ -312,21 +301,15 @@ class BezierStretchRenderer {
             canvas.drawCircle(dropX, dropY, dropR, bodyPaint)
             bodyPaint.shader = null
 
-            // Specular glass contour stroke on detached droplet
-            rimPaint.color = Color.WHITE
-            rimPaint.strokeWidth = 2.5f * animSize
-            rimPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
-            canvas.drawCircle(dropX, dropY, dropR, rimPaint)
-
-            // Micro specular lens reflection node
+            // Micro specular light reflection node
             highlightPaint.color = Color.WHITE
-            highlightPaint.alpha = (220 * opacity).toInt().coerceIn(0, 255)
+            highlightPaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
             canvas.drawCircle(dropX - dropR * 0.35f, dropY - dropR * 0.35f, dropR * 0.32f, highlightPaint)
         }
     }
 
     // =========================================================================
-    // 🔥 3. PLASMA FIRE & VOLCANIC EMBERS (Turbulent Flame Engine)
+    // 🔥 3. PLASMA FIRE (Turbulent Volcanic Flame Shader)
     // =========================================================================
     private fun drawPlasmaFireSimulation(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -379,6 +362,7 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
+        // Volcanic Embers Particles
         val rand = Random(timeMs / 120)
         sparkPaint.color = Color.rgb(255, 214, 0)
         for (i in 0 until 8) {
@@ -394,7 +378,7 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // 💨 4. ATMOSPHERIC MIST & NEBULA (Volumetric Cloudlets Engine)
+    // 💨 4. ATMOSPHERIC MIST (Volumetric Cloudlets Engine)
     // =========================================================================
     private fun drawAtmosphericMistSimulation(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -431,7 +415,7 @@ class BezierStretchRenderer {
     }
 
     // =========================================================================
-    // ⚡ 5. MULTI-STAGE ELECTRIC STORM (Procedural High Voltage Lightning Engine)
+    // ⚡ 5. ELECTRIC STORM (High-Voltage Glowing Lightning Bolt Shader)
     // =========================================================================
     private fun drawMultiStageElectricStorm(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -440,7 +424,7 @@ class BezierStretchRenderer {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
         val timeMs = System.currentTimeMillis()
 
-        // 1. High-Frequency Electric Flash Ground Aura
+        // Flash Ionization Plasma Glow
         val lightningColor = if (isLUp || isLDown) lSwipeColor else Color.rgb(0, 229, 255)
         val alphaVal = (235 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
@@ -454,7 +438,7 @@ class BezierStretchRenderer {
         canvas.drawCircle(cx, cy, 60f * animSize, auraPaint)
         auraPaint.shader = null
 
-        // 2. Procedural Fractal Lightning Bolt Generation
+        // Procedural Lightning Bolt Path
         val seed = (timeMs / 30).toInt()
         val rand = Random(seed)
 
@@ -482,8 +466,8 @@ class BezierStretchRenderer {
 
             path.lineTo(currX, currY)
 
-            // Ionization Plasma Node at Vertex
-            sparkPaint.color = Color.WHITE
+            // Ionization Plasma Node
+            sparkPaint.color = lightningColor
             sparkPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
             canvas.drawCircle(currX, currY, 3.5f * animSize, sparkPaint)
 
@@ -498,21 +482,19 @@ class BezierStretchRenderer {
             }
         }
 
-        // Draw White-Hot Main Bolt Core
-        rimPaint.color = Color.WHITE
-        rimPaint.strokeWidth = (5f + progress * 3f) * animSize
-        rimPaint.alpha = (255 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        canvas.drawPath(path, rimPaint)
+        // Draw Soft Glowing Electric Bolt Path (No hard white stroke)
+        glowStrokePaint.color = intColorWithAlpha(lightningColor, (240 * opacity * stateBoost).toInt().coerceIn(0, 255))
+        glowStrokePaint.strokeWidth = (5f + progress * 3f) * animSize
+        canvas.drawPath(path, glowStrokePaint)
 
-        // Draw Cyan Secondary Fork Branches
-        rimPaint.color = lightningColor
-        rimPaint.strokeWidth = 2.5f * animSize
-        rimPaint.alpha = (220 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawPath(secondaryPath, rimPaint)
+        // Draw Secondary Fork Branches
+        glowStrokePaint.color = intColorWithAlpha(lightningColor, (200 * opacity).toInt().coerceIn(0, 255))
+        glowStrokePaint.strokeWidth = 2.5f * animSize
+        canvas.drawPath(secondaryPath, glowStrokePaint)
     }
 
     // =========================================================================
-    // ☀️ 6. MASTER SOLAR CORONA (Coronal Flares, Loops & 16 Solar Rays Engine)
+    // ☀️ 6. SOLAR CORONA (Volumetric Solar Flare Corona Shader)
     // =========================================================================
     private fun drawMasterSolarCorona(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -522,7 +504,7 @@ class BezierStretchRenderer {
         val r = (24f + progress * 16f) * animSize
         val timeMs = System.currentTimeMillis()
 
-        // 1. Multi-Pass Volumetric Solar Flare Heat Shader
+        // 1. Volumetric Solar Flare Heat Shader
         val sunColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 179, 0)
         val alphaVal = (240 * opacity * stateBoost).toInt().coerceIn(0, 255)
 
@@ -540,9 +522,9 @@ class BezierStretchRenderer {
         canvas.drawCircle(cx, cy, r * 2.5f, auraPaint)
         auraPaint.shader = null
 
-        // 2. 16 Pulsating Rotating Solar Wind Rays
-        rimPaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
-        rimPaint.strokeWidth = 2.6f * animSize
+        // 2. 16 Pulsating Rotating Solar Rays (Soft Glowing stroke)
+        glowStrokePaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
+        glowStrokePaint.strokeWidth = 2.6f * animSize
         val rotAngle = (timeMs / 40.0) % 360.0
 
         for (i in 0 until 16) {
@@ -553,30 +535,17 @@ class BezierStretchRenderer {
             val rx2 = cx + ((r * 1.65f + rayPulse) * cos(angle)).toFloat()
             val ry2 = cy + ((r * 1.65f + rayPulse) * sin(angle)).toFloat()
 
-            canvas.drawLine(rx1, ry1, rx2, ry2, rimPaint)
+            canvas.drawLine(rx1, ry1, rx2, ry2, glowStrokePaint)
         }
 
-        // 3. 4 Arcing Magnetic Solar Prominence Loops
-        rimPaint.color = Color.rgb(255, 235, 59)
-        rimPaint.strokeWidth = 2f * animSize
-        for (i in 0 until 4) {
-            val loopAngle = Math.toRadians((i * 90 + rotAngle * 0.5))
-            rectF.set(cx - r * 1.4f, cy - r * 1.4f, cx + r * 1.4f, cy + r * 1.4f)
-            canvas.drawArc(rectF, (i * 90).toFloat(), 60f, false, rimPaint)
-        }
-
-        // 4. White-Hot Central Solar Lens Flare Node
+        // 3. Central Solar Core
         bodyPaint.color = Color.WHITE
-        bodyPaint.alpha = (250 * opacity).toInt().coerceIn(0, 255)
+        bodyPaint.alpha = (245 * opacity).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, r * 0.75f, bodyPaint)
-
-        highlightPaint.color = Color.WHITE
-        highlightPaint.alpha = (180 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx - r * 0.28f, cy - r * 0.28f, r * 0.35f, highlightPaint)
     }
 
     // =========================================================================
-    // 🎯 7. GESTURE ICON & ACTION SYMBOL INTERACTION
+    // 🎯 7. GESTURE ICON & ACTION SYMBOL INTERACTION (Borderless Glass Badge)
     // =========================================================================
     private fun drawGestureIcon(
         canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
@@ -595,6 +564,7 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
+        // Borderless Glass Badge Ring
         if (armed || holdArmed || isLUp || isLDown) {
             auraPaint.color = when {
                 isLUp || isLDown -> lSwipeColor
@@ -604,11 +574,6 @@ class BezierStretchRenderer {
             auraPaint.alpha = ((if (isLUp || isLDown) 210 else if (holdArmed) 190 else 135) * opacity * alpha).toInt().coerceIn(0, 255)
             val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
             canvas.drawCircle(cx, cy, auraRadius, auraPaint)
-
-            rimPaint.color = Color.WHITE
-            rimPaint.strokeWidth = 3f
-            rimPaint.alpha = (235 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx, cy, auraRadius, rimPaint)
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
