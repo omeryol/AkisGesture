@@ -2,6 +2,20 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.13] - 2026-08-01
+
+### 🎯 Kimlikle Uyumlu ve Anlamlı Eylem İkonları
+
+- **Eylemlerin Anlamı ve Kimliği Geri Kazandırıldı:** Alakasız renkli daireler yerine her eylemin gerçek işlevini ve kimliğini ifade eden anlamlı semboller geri getirildi:
+  - **Geri (Back):** Klasik akıcı jest oku (`◀`) 3D cam rozet içinde.
+  - **Ana Ekran (Home):** Ev ikonu (`🏠`).
+  - **Son Uygulamalar (Recents):** Uygulama kartları ikonu (`📱`).
+  - **Kilit:** Asma kilit (`🔒`).
+  - **Ekran Görüntüsü:** Kamera (`📸`).
+  - **Fener:** El feneri (`🔦`).
+  - **Güç Menüsü:** Şimşek (`⚡`).
+- **3D Cam Rozet Derinliği:** Tüm bu kimliksel ikonlar, arka plandaki yuvarlak 3D cam rozet ve taban gölgesi katmanıyla kusursuz bir görsel derinlik sunar.
+
 ## [1.1.12] - 2026-08-01
 
 ### 🔴 Yuvarlak Dairesel Geri & İkincil Eylem İkonları
