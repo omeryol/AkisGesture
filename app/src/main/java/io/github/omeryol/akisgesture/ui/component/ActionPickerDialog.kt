@@ -119,11 +119,15 @@ fun ActionPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xEE161827),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
         title = {
             Column {
-                Text(if (browsingApps) "Uygulama seç" else "Eylem seç")
+                Text(
+                    if (browsingApps) "Uygulama seç" else "Eylem seç",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                )
                 Text(
                     if (browsingApps) {
                         "Hareketle açmak istediğin uygulamayı seç."

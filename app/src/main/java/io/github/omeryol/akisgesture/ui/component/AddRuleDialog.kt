@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -61,10 +62,21 @@ fun AddRuleForEdgeDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = androidx.compose.ui.graphics.Color(0xEE161827),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
         title = {
-            Text("${edgeLabel(edge)} · Kural Ekle", fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            Column {
+                Text(
+                    "${edgeLabel(edge)} · Kural Ekle",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                )
+                Text(
+                    "Bir alan seçin, sonra hareket eylemlerini atayın.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         },
         text = {
             Column(
@@ -168,6 +180,7 @@ fun AddRuleForEdgeDialog(
                     }
                 },
                 enabled = quickAction != null || holdAction != null || lUpAction != null || lDownAction != null,
+                shape = RoundedCornerShape(12.dp),
             ) {
                 Text("Kaydet")
             }
@@ -216,10 +229,21 @@ fun AddRuleDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = androidx.compose.ui.graphics.Color(0xEE161827),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
         title = {
-            Text("Kural ekle - ${stepTitles[step]}")
+            Column {
+                Text(
+                    "Kural ekle - ${stepTitles[step]}",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                )
+                Text(
+                    "Adım ${step + 1} / 2",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         },
         text = {
             Column(
@@ -336,6 +360,7 @@ fun AddRuleDialog(
                 Button(
                     onClick = { step = 1 },
                     enabled = selectedEdge != null && selectedSection != null,
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text("Hareketleri seç")
                 }
@@ -357,6 +382,7 @@ fun AddRuleDialog(
                         }
                     },
                     enabled = quickAction != null || holdAction != null || lUpAction != null || lDownAction != null,
+                    shape = RoundedCornerShape(12.dp),
                 ) {
                     Text("Kaydet")
                 }
@@ -401,6 +427,10 @@ private fun ActionChoiceButton(
     OutlinedButton(
         onClick = onSelect,
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.28f),
+        ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 14.dp,
             vertical = 12.dp,
