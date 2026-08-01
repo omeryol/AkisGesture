@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.28] - 2026-08-01
+
+### 🖥️ Eylem Seçici Tam Ekran Yapıldı
+
+- Eylem seçme modalı tam ekran çalışma yüzeyine genişletildi.
+- Kategori grid'i ve eylem kartları artık daha ferah bir liste alanında
+  gösteriliyor.
+
 ## [1.1.27] - 2026-08-01
 
 ### 🎨 Eylem Kategorileri Görünür Hale Getirildi
