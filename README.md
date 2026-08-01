@@ -21,6 +21,21 @@ varsayılan İngilizce metinler `res/values/strings.xml`, Türkçe metinler
 `res/values-tr/strings.xml`, desteklenen diller ise `res/xml/locales_config.xml`
 dosyasındadır. Kaynak anahtarı eşitliği birim testiyle denetlenir.
 
+## Ekran görüntüleri
+
+Son cihaz ekranlarından seçilmiş örnekler:
+
+<p align="center">
+  <img src="docs/screenshots/akis-home.jpg" width="180" alt="Ana ekran">
+  <img src="docs/screenshots/akis-gestures.jpg" width="180" alt="Hareketler ekranı">
+  <img src="docs/screenshots/akis-appearance.jpg" width="180" alt="Görünüm ayarları">
+</p>
+<p align="center">
+  <img src="docs/screenshots/akis-about.jpg" width="180" alt="Hakkında ekranı">
+  <img src="docs/screenshots/akis-actions.jpg" width="180" alt="Eylem seçici">
+  <img src="docs/screenshots/akis-rule-detail.jpg" width="180" alt="Kural ayrıntısı">
+</p>
+
 ## Proje ve yayın modeli
 
 Akış Gesture, OpenSwipe'a gönderilecek tek ve büyük bir çekme isteği olarak değil,
