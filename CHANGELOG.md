@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.22] - 2026-08-01
+
+### 🖼️ Harita Bölge Kenarları Düzeltildi
+
+- Renkli hareket bölgeleri telefon ekranının yuvarlak yüzey maskesine kırpıldı.
+- Çerçeve ve köşe dışına taşan renk parçaları kaldırıldı.
+
 ## [1.1.21] - 2026-08-01
 
 ### 🗺️ Ana Harita ve Kural Panelleri Yenilendi
