@@ -4,17 +4,23 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -65,6 +71,9 @@ private fun AkisGestureApp() {
     val ruleConfigViewModel: RuleConfigViewModel = viewModel()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route ?: "home"
+    val isRulesRoute = currentRoute.startsWith("rules")
+    val isRuleDetailRoute = currentRoute.startsWith("rule_detail")
+    val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || currentRoute == "settings"
     val activity = LocalContext.current as? Activity
 
     LaunchedEffect(navController, activity) {
@@ -77,7 +86,7 @@ private fun AkisGestureApp() {
 
     Scaffold(
         topBar = {
-            if (currentRoute != "rules" && !currentRoute.startsWith("rule_detail")) {
+            if (!isRulesRoute && !isRuleDetailRoute) {
                 TopAppBar(
                     title = {
                         Text(
@@ -85,6 +94,7 @@ private fun AkisGestureApp() {
                                 currentRoute == "home" -> "Akış Gesture"
                                 currentRoute == "permissions" -> "İzinler"
                                 currentRoute == "settings" -> "Ayarlar"
+                                isRulesRoute -> "Hareketler"
                                 else -> "Akış Gesture"
                             }
                         )
@@ -93,7 +103,7 @@ private fun AkisGestureApp() {
             }
         },
         bottomBar = {
-            if (currentRoute in listOf("home", "rules", "settings")) {
+            if (isMainNavigationRoute) {
                 AkisGestureBottomBar(navController = navController, currentRoute = currentRoute)
             }
         },
@@ -168,60 +178,81 @@ private fun AkisGestureBottomBar(
     navController: NavHostController,
     currentRoute: String,
 ) {
-    NavigationBar(
-        containerColor = androidx.compose.ui.graphics.Color(0xEE121422),
-        tonalElevation = 8.dp,
+    val navigationItems = listOf(
+        Triple("home", "Ana ekran", Icons.Filled.Home),
+        Triple("rules", "Hareketler", Icons.Filled.TouchApp),
+        Triple("settings", "Ayarlar", Icons.Filled.Settings),
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = androidx.compose.ui.graphics.Color(0xF2181B2B),
+        tonalElevation = 0.dp,
+        shadowElevation = 10.dp,
+        border = BorderStroke(
+            1.dp,
+            androidx.compose.ui.graphics.Color.White.copy(alpha = 0.08f),
+        ),
     ) {
-        val items = listOf(
-            Triple("home", "Ana ekran", Icons.Filled.Home),
-            Triple("rules", "Hareketler", Icons.Filled.TouchApp),
-            Triple("settings", "Ayarlar", Icons.Filled.Settings),
-        )
-        items.forEach { (route, label, icon) ->
-            val selected = currentRoute == route
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        icon,
-                        contentDescription = label,
-                        tint = if (selected)
-                            androidx.compose.ui.graphics.Color(0xFF00E5FF)
-                        else
-                            androidx.compose.ui.graphics.Color(0xFF8E92B0),
-                    )
-                },
-                label = {
-                    Text(
-                        label,
-                        style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
-                        color = if (selected)
-                            androidx.compose.ui.graphics.Color(0xFF00E5FF)
-                        else
-                            androidx.compose.ui.graphics.Color(0xFF8E92B0),
-                    )
-                },
-                selected = selected,
-                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                    indicatorColor = androidx.compose.ui.graphics.Color(0xFF3D5AFE).copy(alpha = 0.28f),
-                    selectedIconColor = androidx.compose.ui.graphics.Color(0xFF00E5FF),
-                    unselectedIconColor = androidx.compose.ui.graphics.Color(0xFF8E92B0),
-                    selectedTextColor = androidx.compose.ui.graphics.Color(0xFF00E5FF),
-                    unselectedTextColor = androidx.compose.ui.graphics.Color(0xFF8E92B0),
-                ),
-                onClick = {
-                    if (currentRoute != route) {
-                        navController.navigate(route) {
-                            if (route == "home") {
-                                popUpTo("home") { inclusive = true }
-                            } else {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            navigationItems.forEach { (route, label, icon) ->
+                val selected = when (route) {
+                    "rules" -> currentRoute.startsWith("rules")
+                    else -> currentRoute == route
+                }
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        if (!selected) {
+                            navController.navigate(route) {
                                 popUpTo("home") { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         }
+                    },
+                    shape = RoundedCornerShape(18.dp),
+                    color = if (selected) {
+                        androidx.compose.ui.graphics.Color(0xFF3346A8).copy(alpha = 0.72f)
+                    } else {
+                        androidx.compose.ui.graphics.Color.Transparent
+                    },
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            icon,
+                            contentDescription = label,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (selected)
+                                androidx.compose.ui.graphics.Color(0xFF8DF5FF)
+                            else
+                                androidx.compose.ui.graphics.Color(0xFFA8ADC4),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            label,
+                            maxLines = 1,
+                            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
+                            color = if (selected)
+                                androidx.compose.ui.graphics.Color.White
+                            else
+                                androidx.compose.ui.graphics.Color(0xFFA8ADC4),
+                        )
                     }
-                },
-            )
+                }
+            }
         }
     }
 }

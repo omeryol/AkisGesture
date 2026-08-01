@@ -1,6 +1,8 @@
 package io.github.omeryol.akisgesture.ui.screen
 
 import android.graphics.Color as AndroidColor
+import android.content.Intent
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -70,6 +72,7 @@ import io.github.omeryol.akisgesture.backup.SettingsBackupManager
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.overlay.Edge
+import io.github.omeryol.akisgesture.service.GestureAccessibilityService
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSlider
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSwitch
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
@@ -90,6 +93,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val config by viewModel.configState.collectAsState()
+    val serviceState by GestureAccessibilityService.serviceState.collectAsState()
     val rootAccess by viewModel.rootAccess.collectAsState()
     val pausedPackages by viewModel.pausedPackages.collectAsState()
     val selectableApps by viewModel.selectableApps.collectAsState()
@@ -148,6 +152,62 @@ fun SettingsScreen(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        AkisGlassCard(accentTint = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
+            Color(0xFF00C853)
+        } else {
+            Color(0xFFFF9100)
+        }) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
+                                Color(0xFF00E676)
+                            } else {
+                                Color(0xFFFFB300)
+                            }
+                        )
+                )
+                Spacer(Modifier.width(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
+                            "Hareket hizmeti hazır"
+                        } else {
+                            "Hareket hizmeti bağlı değil"
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = scheme.onSurface,
+                    )
+                    Text(
+                        text = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
+                            "Kenar hareketleri bu kullanıcı için etkin."
+                        } else {
+                            "Kenar hareketlerini etkinleştirmek için izin verin."
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                    )
+                }
+                if (serviceState != GestureAccessibilityService.ServiceState.CONNECTED) {
+                    OutlinedButton(
+                        onClick = {
+                            context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                        },
+                        shape = RoundedCornerShape(10.dp),
+                    ) {
+                        Text("İzin ver", style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+            }
+        }
+
         // ── 1. KENAR HASSASİYETİ VE HAREKET FİZİĞİ ──
         AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             AkisSectionHeader(
@@ -359,10 +419,6 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            Spacer(Modifier.height(8.dp))
-
-            Spacer(Modifier.height(8.dp))
-
             // 1. Birincil Hareket Rengi (Hızlı Çekme) - Infinite Custom Color Picker
             AkisInfiniteColorPicker(
                 title = "Birincil Hareket Rengi (Hızlı Çekme)",
@@ -505,7 +561,7 @@ fun SettingsScreen(
         AkisGlassCard(accentTint = Color(0xFFD500F9)) {
             AkisSectionHeader(
                 title = "Yedekleme ve Sistem",
-                subtitle = "Ayarlarınızı kaydedin, yükleyin veya root durumunu inceleyin",
+                subtitle = "Kurallar, uygulama profilleri, ayarlar ve servis tercihi",
                 icon = Icons.Filled.Save
             )
             Spacer(Modifier.height(6.dp))
