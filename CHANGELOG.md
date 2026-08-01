@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.26] - 2026-08-01
+
+### ⌨️ Tuş Kodları Seçilebilir Hale Getirildi
+
+- Geri, ana ekran, son uygulamalar, ses ve medya tuşları artık seçim
+  panelindeki **Tuşlar** sekmesinde görünür.
+- Altyapıda bulunan ama kullanıcı arayüzünde görünmeyen tuş eylemleri kartlara
+  bağlandı.
+
 ## [1.1.25] - 2026-08-01
 
 ### 🧭 Eylem Erişimi ve Uygulama Geçişi

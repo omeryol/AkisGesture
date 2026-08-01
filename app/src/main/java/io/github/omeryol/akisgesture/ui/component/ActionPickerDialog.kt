@@ -3,6 +3,7 @@ package io.github.omeryol.akisgesture.ui.component
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.view.KeyEvent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,13 +68,26 @@ fun ActionPickerDialog(
 ) {
     val context = LocalContext.current
     val categories = actionCategories()
-    val fixedActions = remember(categories) {
-        categories.flatMap { it.second }.distinctBy { it.id }
+    val keyActions = remember {
+        listOf(
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_BACK, "Geri tuşu"),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_HOME, "Ana ekran tuşu"),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_APP_SWITCH, "Son uygulamalar tuşu"),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_VOLUME_UP, "Ses artırma tuşu"),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_VOLUME_DOWN, "Ses azaltma tuşu"),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, "Medya oynat / duraklat"),
+        )
+    }
+    val pickerCategories = remember(categories, keyActions) {
+        categories + ("Tuşlar" to keyActions)
+    }
+    val fixedActions = remember(pickerCategories) {
+        pickerCategories.flatMap { it.second }.distinctBy { it.id }
     }
     var installedApps by remember { mutableStateOf<List<ActionNode.LaunchApp>>(emptyList()) }
     var appsLoaded by remember { mutableStateOf(false) }
     var browsingApps by remember(appSelectionOnly) { mutableStateOf(appSelectionOnly) }
-    var selectedCategory by remember { mutableStateOf(categories.firstOrNull()?.first) }
+    var selectedCategory by remember { mutableStateOf(pickerCategories.firstOrNull()?.first) }
     var query by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val allSearchableActions = remember(fixedActions, installedApps) {
@@ -273,7 +287,7 @@ fun ActionPickerDialog(
                             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                             modifier = Modifier.padding(vertical = 8.dp),
                         ) {
-                            items(categories, key = { "tab_${it.first}" }) { (category, actions) ->
+                            items(pickerCategories, key = { "tab_${it.first}" }) { (category, actions) ->
                                 FilterChip(
                                     selected = selectedCategory == category,
                                     onClick = { selectedCategory = category },
@@ -283,7 +297,7 @@ fun ActionPickerDialog(
                             }
                         }
                     }
-                    val selectedActions = categories
+                    val selectedActions = pickerCategories
                         .firstOrNull { it.first == selectedCategory }
                         ?.second
                         .orEmpty()
