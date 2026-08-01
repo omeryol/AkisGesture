@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.29] - 2026-08-01
+
+### 🧾 Eylem Seçici Tablo Düzeni
+
+- Kategori hücreleri modalın üst kısmında aynı anda görünür hale getirildi.
+- Sık kullanılanlar ayrı ve gizli bir bölüm yerine **Sık** hücresi olarak tabloya
+  alındı.
+- Eylem kartları seçili kategori altında iki sütunlu tablo düzenine geçirildi.
+
 ## [1.1.28] - 2026-08-01
 
 ### 🖥️ Eylem Seçici Tam Ekran Yapıldı
