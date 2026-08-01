@@ -62,6 +62,29 @@ Kurallar ve uygulama ayarları `Ayarlar > Yedek` bölümünden JSON dosyasına
 aktarılabilir. Bu yedeği güvenli bir yerde saklamak kullanıcının sorumluluğundadır;
 otomatik bulut yedekleme veya veri kurtarma garantisi yoktur.
 
+## Navigasyonu kilitlemeden önce
+
+Sistem gezinme tuşlarını veya çubuğunu ayrıca devre dışı bırakmak, Akış Gesture
+durduğunda ya da erişilebilirlik hizmeti kapanınca cihazı geçici olarak
+kullanılamaz hale getirebilir. Bu işlem Akış Gesture tarafından yapılmaz ve
+projenin sorumluluğunda değildir. Geri dönüş yolu hazır değilse navigasyonu
+kilitlemeyin.
+
+Denemeden önce:
+
+- Kuralları ve ayarları JSON olarak dışa aktarın.
+- ADB/USB hata ayıklamayı veya cihazınızın resmi geri dönüş yöntemini hazır
+  tutun; mümkünse bilgisayar ve kabloyla erişimi önceden test edin.
+- Önce sistem navigasyonunu açık bırakıp tek bir hareket kuralını test edin.
+- Akış Gesture'ı kapatma, erişilebilirlik hizmetini devre dışı bırakma ve
+  sistem navigasyonunu geri açma adımlarını cihazınıza göre önceden doğrulayın.
+
+Akış Gesture durursa önce sistem navigasyonunu geri açın veya Android Ayarları
+üzerinden erişilebilirlik hizmetini kapatın; ardından uygulamayı yeniden
+başlatın ya da JSON yedeğini geri yükleyin. Cihaz üreticilerinin ve üçüncü
+taraf root araçlarının geri alma komutları farklı olabilir. Kullanıcı, cihazını
+geri yükleyememe riskini kabul etmeden bu değişiklikleri yapmamalıdır.
+
 ## Proje ve yayın modeli
 
 Akış Gesture, OpenSwipe'a gönderilecek tek ve büyük bir çekme isteği olarak değil,
