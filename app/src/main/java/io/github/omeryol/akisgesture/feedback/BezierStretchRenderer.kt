@@ -853,12 +853,23 @@ class BezierStretchRenderer {
         )
         canvas.drawCircle(cx, cy, eventHorizon * 3.2f, auraPaint)
         auraPaint.shader = null
+        // A flattened luminous lens makes the gravitational pull readable even
+        // before the event horizon becomes large.
+        glowStrokePaint.color = intColorWithAlpha(Color.rgb(255, 112, 67), (170 * opacity).toInt())
+        glowStrokePaint.strokeWidth = 11f * animSize
+        rectF.set(
+            cx - eventHorizon * 2.1f,
+            cy - eventHorizon * 0.48f,
+            cx + eventHorizon * 2.1f,
+            cy + eventHorizon * 0.48f,
+        )
+        canvas.drawOval(rectF, glowStrokePaint)
         bodyPaint.color = Color.BLACK
         bodyPaint.alpha = (250 * opacity).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, eventHorizon, bodyPaint)
 
         // Accretion disk: light bends into a flattened orbit around the void.
-        glowStrokePaint.strokeWidth = 7f * animSize
+        glowStrokePaint.strokeWidth = 8f * animSize
         for (ring in 0 until 3) {
             val orbit = eventHorizon * (1.35f + ring * 0.32f)
             rectF.set(cx - orbit * 1.7f, cy - orbit * 0.42f, cx + orbit * 1.7f, cy + orbit * 0.42f)
