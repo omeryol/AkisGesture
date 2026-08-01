@@ -418,7 +418,7 @@ class BezierStretchRenderer {
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val flameR = (26f + progress * 20f) * animSize
+        val flameR = (36f + progress * 38f) * animSize * stateBoost.coerceAtMost(1.35f)
         val timeMs = System.currentTimeMillis()
 
         path.reset()
@@ -462,6 +462,19 @@ class BezierStretchRenderer {
         )
         bodyPaint.shader = radialShader
         canvas.drawPath(path, bodyPaint)
+        bodyPaint.shader = null
+
+        // Separate hot tongue: a compact yellow-white core keeps the flame
+        // readable as fire instead of a generic glowing blob.
+        bodyPaint.shader = RadialGradient(
+            cx,
+            cy - flameR * 0.18f,
+            flameR * 0.9f,
+            intArrayOf(Color.WHITE, Color.rgb(255, 193, 7), intColorWithAlpha(flameColor, 0)),
+            floatArrayOf(0f, 0.35f, 1f),
+            Shader.TileMode.CLAMP,
+        )
+        canvas.drawCircle(cx, cy - flameR * 0.12f, flameR * 0.72f, bodyPaint)
         bodyPaint.shader = null
 
         // A hot inner tongue gives the outer silhouette a readable flame shape.
@@ -921,8 +934,8 @@ class BezierStretchRenderer {
     ) {
         val (cx, cy) = center(edge, progress * 260f + 16f, touchPos, w, h)
         val time = System.currentTimeMillis() / 1000.0
-        val opening = (18f + progress * 58f) * animSize
-        val railLength = (42f + progress * 110f) * animSize
+        val opening = (24f + progress * 72f) * animSize
+        val railLength = (58f + progress * 138f) * animSize
         val metal = Color.rgb(185, 205, 224)
 
         auraPaint.shader = RadialGradient(
@@ -958,11 +971,11 @@ class BezierStretchRenderer {
         glowStrokePaint.strokeWidth = 2f * animSize
         canvas.drawPath(path, glowStrokePaint)
 
-        for (i in 0 until 12) {
-            val t = i / 11f
+        for (i in 0 until 16) {
+            val t = i / 15f
             val pulse = sin(time * 1.8 + i * 0.42).toFloat() * 2.5f * animSize
             val along = railLength * (1f - t) + opening * 0.7f
-            val tooth = 6f * animSize
+            val tooth = 7f * animSize
             glowStrokePaint.color = intColorWithAlpha(if (i % 2 == 0) Color.WHITE else metal, (210 * opacity).toInt())
             glowStrokePaint.strokeWidth = tooth * 1.25f
             when (edge) {
