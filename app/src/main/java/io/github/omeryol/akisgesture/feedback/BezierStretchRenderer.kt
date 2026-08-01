@@ -46,7 +46,7 @@ class BezierStretchRenderer {
     }
 
     private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
+        style = Paint.Style.FILL_AND_STROKE
         textAlign = Paint.Align.CENTER
         typeface = Typeface.DEFAULT_BOLD
         color = Color.WHITE
@@ -611,7 +611,8 @@ class BezierStretchRenderer {
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-        iconPaint.setShadowLayer(5f, 0f, 1.5f, Color.argb(150, 0, 0, 0))
+        iconPaint.strokeWidth = (1.5f * animSize).coerceAtLeast(1.2f)
+        iconPaint.setShadowLayer(6f, 0f, 2f, Color.argb(180, 0, 0, 0))
 
         val symbolStr = when {
             actionSymbol.isNotEmpty() -> actionSymbol
@@ -624,7 +625,7 @@ class BezierStretchRenderer {
         }
 
         if (symbolStr.isNotEmpty()) {
-            val popSize = if (isLUp || isLDown || holdArmed) 38f else if (armed) 35f else 31f
+            val popSize = if (isLUp || isLDown || holdArmed) 44f else if (armed) 41f else 36f
             iconPaint.textSize = popSize
             val baseline = cy - (iconPaint.ascent() + iconPaint.descent()) / 2f
             canvas.drawText(symbolStr, cx, baseline, iconPaint)

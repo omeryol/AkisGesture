@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.18] - 2026-08-01
+
+### 🎯 Geri Bildirim İkonları Güçlendirildi
+
+- Sadeleştirilen hareket ikonları daha kalın kontur, güçlü gölge ve daha büyük
+  ölçüyle yeniden dengelendi.
+
 ## [1.1.17] - 2026-08-01
 
 ### ✨ Hareket Geri Bildirimleri Yenilendi
