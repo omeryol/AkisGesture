@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.45] - 2026-08-01
+
+### ↩️ Animasyon Renderer Geri Alındı
+
+- Birbirine fazla benzeyen son ortak renderer yaklaşımı kaldırıldı.
+- Her animasyonun özgün dalga, damla, plazma, sis, şimşek, güneş, fermuar ve
+  kara delik davranışları geri getirildi.
+- Ortak aura yalnızca hafif derinlik desteği olarak bırakıldı.
+
 ## [1.1.44] - 2026-08-01
 
 ### 🎬 Animasyon Renderer Baştan Yazıldı
