@@ -69,6 +69,17 @@ fun InteractivePhoneMap(
 
             val phoneBody = Rect(phoneLeft, phoneTop, phoneLeft + phoneW, phoneTop + phoneH)
 
+            // Quiet depth grid makes the map feel like a live control surface.
+            for (index in 1 until 6) {
+                val y = phoneTop + phoneH * index / 6f
+                drawLine(
+                    color = scheme.outline.copy(alpha = 0.10f),
+                    start = Offset(phoneLeft + 12f, y),
+                    end = Offset(phoneLeft + phoneW - 12f, y),
+                    strokeWidth = 1f,
+                )
+            }
+
             // ── 1. Outer Glow and Drop Shadow ──
             drawRoundRect(
                 brush = Brush.radialGradient(
@@ -172,7 +183,7 @@ fun InteractivePhoneMap(
             zones.forEach { zone ->
                 val zr = phoneZoneRect(zone, screenRect)
                 val zoneColor = zone.color
-                val zoneCorner = CornerRadius(10f)
+                val zoneCorner = CornerRadius(12f)
 
                 // Translucent fill
                 drawRoundRect(
@@ -196,6 +207,14 @@ fun InteractivePhoneMap(
                     size = Size((zr.width - 4f).coerceAtLeast(1f), (zr.height * 0.35f).coerceAtLeast(1f)),
                     cornerRadius = CornerRadius(6f)
                 )
+
+                // A small status bead shows whether the zone has a hold action.
+                val hasHold = zone.holdAction != null
+                drawCircle(
+                    color = if (hasHold) Color.White else Color.White.copy(alpha = 0.45f),
+                    radius = 3.5f,
+                    center = Offset(zr.center.x, zr.center.y),
+                )
             }
 
             // ── 7. Draw Action Symbols ──
@@ -205,7 +224,7 @@ fun InteractivePhoneMap(
                 if (action != null && action !is ActionNode.NoAction) {
                     val paint = android.graphics.Paint().apply {
                         color = android.graphics.Color.WHITE
-                        textSize = 20f
+                        textSize = 16f
                         textAlign = android.graphics.Paint.Align.CENTER
                         isFakeBoldText = true
                         isAntiAlias = true
@@ -213,8 +232,8 @@ fun InteractivePhoneMap(
                     }
                     drawContext.canvas.nativeCanvas.drawText(
                         actionSymbolShort(action),
-                        zr.center.x,
-                        zr.center.y + 7f,
+                        if (zone.edge == Edge.LEFT) zr.right + 19f else if (zone.edge == Edge.RIGHT) zr.left - 19f else zr.center.x,
+                        if (zone.edge == Edge.BOTTOM) zr.top - 8f else zr.center.y + 6f,
                         paint,
                     )
                 }

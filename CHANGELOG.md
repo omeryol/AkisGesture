@@ -2,6 +2,16 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.21] - 2026-08-01
+
+### 🗺️ Ana Harita ve Kural Panelleri Yenilendi
+
+- Ana ekran haritasına derinlik ızgarası, kenar eylem işaretleri ve bekletme
+  durumu göstergeleri eklendi.
+- Kural ekleme ve eylem seçme panelleri ayarlar sayfasındaki cam yüzey, renk ve
+  tipografi diliyle eşitlendi.
+- Eylem seçim satırları ve modal başlıkları daha belirgin hale getirildi.
+
 ## [1.1.20] - 2026-08-01
 
 ### 🧊 İkon Rozeti Uyumu
