@@ -4,6 +4,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [1.1.45] - 2026-08-01
 
+### 🕳️ Kara Delik Çekimi Güçlendirildi
+
+- Erken progress aşamasında da görünen düzleştirilmiş akresyon lensi eklendi.
+- Olay ufku ve çevresindeki turuncu/mor ışık ayrımı belirginleştirildi.
+
 ### ↩️ Animasyon Renderer Geri Alındı
 
 - Birbirine fazla benzeyen son ortak renderer yaklaşımı kaldırıldı.
