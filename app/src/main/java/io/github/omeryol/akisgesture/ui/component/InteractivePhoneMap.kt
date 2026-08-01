@@ -10,10 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import io.github.omeryol.akisgesture.model.ActionNode
@@ -179,7 +181,11 @@ fun InteractivePhoneMap(
                 cornerRadius = CornerRadius(3f)
             )
 
-            // ── 6. Draw Glowing Glass Gesture Zones aligned perfectly inside screen ──
+            // ── 6. Draw gesture zones inside the rounded display mask ──
+            val screenClip = androidx.compose.ui.graphics.Path().apply {
+                addRoundRect(RoundRect(screenRect, innerCorner))
+            }
+            clipPath(screenClip) {
             zones.forEach { zone ->
                 val zr = phoneZoneRect(zone, screenRect)
                 val zoneColor = zone.color
@@ -215,6 +221,7 @@ fun InteractivePhoneMap(
                     radius = 3.5f,
                     center = Offset(zr.center.x, zr.center.y),
                 )
+            }
             }
 
             // ── 7. Draw Action Symbols ──
