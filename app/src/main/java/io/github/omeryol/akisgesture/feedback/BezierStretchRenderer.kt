@@ -10,6 +10,7 @@ import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
 import io.github.omeryol.akisgesture.overlay.Edge
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -42,6 +43,10 @@ class BezierStretchRenderer {
     }
 
     private val highlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+    }
+
+    private val metalPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
 
@@ -140,25 +145,17 @@ class BezierStretchRenderer {
 
         // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
+            FeedbackAnimation.OCEAN_WAVE,
+            FeedbackAnimation.HYDRO_WIPE -> drawFluidHydroTide3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.ZIPPER_VOID -> drawRealisticZipperVoid3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.BLACK_HOLE_PULL -> drawAccretionBlackHole3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.PLASMA_FIRE -> drawVolumetricPlasmaFire3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.MATRIX_DISSOLVE,
+            FeedbackAnimation.STARFIELD -> drawMatrixCyberDissolve3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             FeedbackAnimation.MERCURY_TEARDROP,
-            FeedbackAnimation.PLASMA_FIRE,
             FeedbackAnimation.ATMOSPHERIC_MIST,
             FeedbackAnimation.ELECTRIC_STORM,
-            FeedbackAnimation.SOLAR_CORONA -> {
-                drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
-            }
-            FeedbackAnimation.OCEAN_WAVE -> {
-                drawRefractiveOceanWave3D(
-                    canvas,
-                    edge,
-                    stretch,
-                    effectiveTouchPos,
-                    canvasWidth,
-                    canvasHeight,
-                    progress,
-                    stateBoost,
-                )
-            }
+            FeedbackAnimation.SOLAR_CORONA -> drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
             FeedbackAnimation.AURORA_RIBBON,
             FeedbackAnimation.GLASS_RIPPLE,
             FeedbackAnimation.NEON_PULSE,
@@ -171,8 +168,6 @@ class BezierStretchRenderer {
             FeedbackAnimation.QUANTUM_RING,
             FeedbackAnimation.INK_FLOW,
             FeedbackAnimation.SOLAR_FLARE,
-            FeedbackAnimation.ZIPPER_VOID,
-            FeedbackAnimation.BLACK_HOLE_PULL,
             FeedbackAnimation.MATRIX_DISSOLVE,
             FeedbackAnimation.HYDRO_WIPE,
             FeedbackAnimation.DEWDROP_GLASS,
@@ -690,6 +685,119 @@ class BezierStretchRenderer {
         bodyPaint.color = Color.WHITE
         bodyPaint.alpha = (245 * opacity).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, r * 0.75f, bodyPaint)
+    }
+
+    private fun drawFluidHydroTide3D(
+        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
+        w: Float, h: Float, progress: Float, stateBoost: Float,
+    ) {
+        val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val span = halfSpan * (1.1f + progress * .3f) * animSize
+        val depth = (stretch * 1.15f).coerceAtLeast(45f * animSize)
+        val time = System.currentTimeMillis() / 240.0
+        path.reset()
+        for (i in 0..20) {
+            val t = i / 20f
+            val wave = (sin(time * 2.8 + i * .45) * 9f + cos(time * 1.4 - i * .3) * 6f).toFloat() * animSize
+            val along = touchPos - span + t * span * 2f
+            val envelope = sin(t * Math.PI).toFloat()
+            val offset = (depth + wave) * envelope
+            val point = when (edge) {
+                Edge.LEFT -> cx + offset to along
+                Edge.RIGHT -> w - (cx + offset) to along
+                Edge.BOTTOM -> along to h - offset
+            }
+            if (i == 0) path.moveTo(point.first, point.second) else path.lineTo(point.first, point.second)
+        }
+        when (edge) {
+            Edge.LEFT -> path.lineTo(0f, touchPos + span)
+            Edge.RIGHT -> path.lineTo(w, touchPos + span)
+            Edge.BOTTOM -> path.lineTo(touchPos + span, h)
+        }
+        path.close()
+        shadowPaint.color = Color.BLACK
+        shadowPaint.alpha = (110 * opacity).toInt().coerceIn(0, 255)
+        canvas.save(); canvas.translate(10f * animSize, 13f * animSize); canvas.drawPath(path, shadowPaint); canvas.restore()
+        val alpha = ((180 + progress * 70) * opacity * stateBoost).toInt().coerceIn(0, 255)
+        bodyPaint.shader = when (edge) {
+            Edge.LEFT -> LinearGradient(0f, cy, depth, cy, intColorWithAlpha(baseColor, alpha), intColorWithAlpha(Color.CYAN, (alpha * .7f).toInt()), Shader.TileMode.CLAMP)
+            Edge.RIGHT -> LinearGradient(w, cy, w - depth, cy, intColorWithAlpha(baseColor, alpha), intColorWithAlpha(Color.CYAN, (alpha * .7f).toInt()), Shader.TileMode.CLAMP)
+            Edge.BOTTOM -> LinearGradient(cx, h, cx, h - depth, intColorWithAlpha(baseColor, alpha), intColorWithAlpha(Color.CYAN, (alpha * .7f).toInt()), Shader.TileMode.CLAMP)
+        }
+        canvas.drawPath(path, bodyPaint); bodyPaint.shader = null
+        glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (210 * opacity).toInt())
+        glowStrokePaint.strokeWidth = 6f * animSize
+        canvas.drawPath(path, glowStrokePaint)
+        sparkPaint.color = Color.WHITE
+        for (i in 0 until 6) {
+            sparkPaint.alpha = ((150 + i * 15) * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx + cos(time + i).toFloat() * depth * .5f, cy + sin(time + i * .8).toFloat() * span * .3f, (3f + i % 3) * animSize, sparkPaint)
+        }
+    }
+
+    private fun drawRealisticZipperVoid3D(
+        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
+        w: Float, h: Float, progress: Float, stateBoost: Float,
+    ) {
+        val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val opening = (35f + progress * 85f) * animSize
+        val railLength = (90f + progress * 140f) * animSize
+        auraPaint.shader = RadialGradient(cx, cy, opening * 2.6f, intArrayOf(Color.BLACK, intColorWithAlpha(Color.rgb(15, 23, 42), (240 * opacity).toInt()), intColorWithAlpha(baseColor, (120 * opacity).toInt()), Color.TRANSPARENT), floatArrayOf(0f, .4f, .75f, 1f), Shader.TileMode.CLAMP)
+        canvas.drawCircle(cx, cy, opening * 2.6f, auraPaint); auraPaint.shader = null
+        bodyPaint.color = Color.BLACK; bodyPaint.alpha = (220 * opacity).toInt()
+        canvas.drawOval(RectF(cx - opening * .7f, cy - opening * 1.3f, cx + opening * .7f, cy + opening * 1.3f), bodyPaint)
+        val side = if (edge == Edge.RIGHT) -1f else 1f
+        path.reset()
+        when (edge) {
+            Edge.LEFT, Edge.RIGHT -> { val ex = if (edge == Edge.LEFT) cx - railLength else cx + railLength; path.moveTo(ex, cy-opening*1.8f); path.quadTo(cx-side*opening*1.2f, cy, ex, cy+opening*1.8f) }
+            Edge.BOTTOM -> { path.moveTo(cx-opening*1.8f, cy+railLength); path.quadTo(cx, cy-opening*1.2f, cx+opening*1.8f, cy+railLength) }
+        }
+        glowStrokePaint.color = intColorWithAlpha(Color.LTGRAY, (220 * opacity).toInt()); glowStrokePaint.strokeWidth = 10f * animSize; canvas.drawPath(path, glowStrokePaint)
+        glowStrokePaint.color = Color.WHITE; glowStrokePaint.strokeWidth = 3f * animSize; canvas.drawPath(path, glowStrokePaint)
+        for (i in 0..18) {
+            val t = i / 18f; val y = cy-opening*1.7f+t*opening*3.4f; val open = (1f-abs(y-cy)/(opening*1.7f)).coerceIn(0f,1f); val x = cx+open*opening*.9f*side
+            metalPaint.color = if (i%2==0) Color.rgb(226,232,240) else Color.rgb(71,85,105); metalPaint.alpha = (235*opacity).toInt()
+            rectF.set(x-10f*animSize,y-4f*animSize,x+10f*animSize,y+4f*animSize); canvas.drawRoundRect(rectF, 3f*animSize, 3f*animSize, metalPaint)
+        }
+    }
+
+    private fun drawAccretionBlackHole3D(
+        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
+        w: Float, h: Float, progress: Float, stateBoost: Float,
+    ) {
+        val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val horizon = (32f + progress * 62f) * animSize
+        val time = System.currentTimeMillis() / 1000.0
+        auraPaint.shader = RadialGradient(cx, cy, horizon*3.2f, intArrayOf(Color.BLACK, intColorWithAlpha(baseColor, (240*opacity).toInt()), intColorWithAlpha(Color.rgb(245,158,11), (140*opacity).toInt()), Color.TRANSPARENT), floatArrayOf(0f,.35f,.75f,1f), Shader.TileMode.CLAMP)
+        canvas.drawCircle(cx,cy,horizon*3.2f,auraPaint); auraPaint.shader=null
+        glowStrokePaint.color=intColorWithAlpha(Color.rgb(251,191,36),(230*opacity).toInt()); glowStrokePaint.strokeWidth=12f*animSize
+        rectF.set(cx-horizon*2.3f,cy-horizon*.65f,cx+horizon*2.3f,cy+horizon*.65f); canvas.drawOval(rectF,glowStrokePaint)
+        bodyPaint.color=Color.BLACK; bodyPaint.alpha=(255*opacity).toInt(); canvas.drawCircle(cx,cy,horizon,bodyPaint)
+        sparkPaint.color=Color.WHITE
+        for(i in 0 until 14){ val a=time*2.5+i*.45; val d=horizon*(1.2f+(i%4)*.35f); sparkPaint.alpha=((140+i*8)*opacity).toInt().coerceIn(0,255); canvas.drawCircle(cx+cos(a).toFloat()*d,cy+sin(a).toFloat()*d*.5f,(2f+i%3)*animSize,sparkPaint) }
+    }
+
+    private fun drawVolumetricPlasmaFire3D(
+        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
+        w: Float, h: Float, progress: Float, stateBoost: Float,
+    ) {
+        val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val flame = (42f + progress*48f)*animSize
+        val time=System.currentTimeMillis()
+        path.reset(); path.moveTo(0f,cy-flame*1.7f); path.cubicTo(cx*.5f,cy-flame*1.3f,cx+flame,cy-flame*.4f,cx+flame,cy); path.cubicTo(cx+flame,cy+flame*.4f,cx*.5f,cy+flame*1.3f,0f,cy+flame*1.7f); path.close()
+        bodyPaint.shader=RadialGradient(cx,cy,flame*2.5f,intArrayOf(Color.WHITE,Color.YELLOW,intColorWithAlpha(Color.rgb(239,68,68),(240*opacity).toInt()),Color.TRANSPARENT),floatArrayOf(0f,.28f,.7f,1f),Shader.TileMode.CLAMP); canvas.drawPath(path,bodyPaint); bodyPaint.shader=null
+        bodyPaint.shader=RadialGradient(cx,cy-flame*.15f,flame*.85f,Color.WHITE,Color.rgb(253,224,71),Shader.TileMode.CLAMP); canvas.drawCircle(cx,cy-flame*.1f,flame*.62f,bodyPaint); bodyPaint.shader=null
+        sparkPaint.color=Color.rgb(253,224,71); val rand=Random(time/100)
+        for(i in 0 until 14){ sparkPaint.alpha=((180+rand.nextInt(75))*opacity).toInt().coerceIn(0,255); canvas.drawCircle(cx+(rand.nextFloat()-.5f)*flame,cy-rand.nextFloat()*flame,(2.5f+rand.nextFloat()*3f)*animSize,sparkPaint) }
+    }
+
+    private fun drawMatrixCyberDissolve3D(
+        canvas: Canvas, edge: Edge, stretch: Float, touchPos: Float,
+        w: Float, h: Float, progress: Float, stateBoost: Float,
+    ) {
+        val (cx, cy)=center(edge,stretch,touchPos,w,h); val radius=(45f+progress*55f)*animSize; val time=System.currentTimeMillis()/1000.0; val green=Color.rgb(0,255,102)
+        for(col in 0 until 14){ val x=cx-radius*1.6f+col*radius*.25f; val top=cy-radius*1.5f+((time*2.5+col*.6)%1.0).toFloat()*radius*3f; for(row in 0 until 7){ val y=top-row*14f*animSize; sparkPaint.color=if(row==0)Color.WHITE else green; sparkPaint.alpha=((240-row*32)*opacity).toInt().coerceIn(0,255); rectF.set(x,y,x+7f*animSize,y+10f*animSize); canvas.drawRoundRect(rectF,2f*animSize,2f*animSize,sparkPaint) } }
+        glowStrokePaint.color=intColorWithAlpha(green,(240*opacity*stateBoost).toInt().coerceIn(0,255)); glowStrokePaint.strokeWidth=7f*animSize; canvas.drawLine(cx,cy-radius*1.6f,cx,cy+radius*1.6f,glowStrokePaint)
     }
 
     private fun drawSpecialAnimation(
