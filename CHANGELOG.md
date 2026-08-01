@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.36] - 2026-08-01
+
+### 🧰 Şablon Listesi Yenilendi
+
+- 20 şablon artık kaydırılabilir liste içinde gösteriliyor.
+- Her şablona sıra numarası ve ayrı vurgu rengi eklendi.
+- Açıklamalar korunarak satırların okunabilirliği artırıldı.
+
 ## [1.1.35] - 2026-08-01
 
 ### 🧾 Hareket Listesi Düzeni

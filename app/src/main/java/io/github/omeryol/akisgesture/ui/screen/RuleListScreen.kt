@@ -155,27 +155,52 @@ fun RuleListScreen(
                             onDismissRequest = { showPresetMenu = false },
                             modifier = Modifier.background(Color(0xEE161827)),
                         ) {
-                            RuleConfigViewModel.presets.forEach { (name, graph) ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(
-                                                name,
-                                                color = Color.White,
-                                                fontWeight = FontWeight.SemiBold,
-                                            )
-                                            Text(
-                                                Presets.DESCRIPTIONS[name].orEmpty(),
-                                                color = Color(0xFFB7B9C9),
-                                                style = MaterialTheme.typography.labelSmall,
-                                            )
-                                        }
-                                    },
-                                    onClick = {
-                                        viewModel.loadPreset(name, graph)
-                                        showPresetMenu = false
-                                    },
-                                )
+                            LazyColumn(
+                                modifier = Modifier.heightIn(max = 560.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                itemsIndexed(RuleConfigViewModel.presets) { index, (name, graph) ->
+                                    val templateColor = templateAccent(index)
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .clip(CircleShape)
+                                                    .background(templateColor.copy(alpha = 0.22f)),
+                                                contentAlignment = Alignment.Center,
+                                            ) {
+                                                Text(
+                                                    (index + 1).toString(),
+                                                    color = templateColor,
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                )
+                                            }
+                                        },
+                                        text = {
+                                            Column {
+                                                Text(
+                                                    name,
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                )
+                                                Text(
+                                                    Presets.DESCRIPTIONS[name].orEmpty(),
+                                                    color = Color(0xFFB7B9C9),
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(templateColor.copy(alpha = 0.10f)),
+                                        onClick = {
+                                            viewModel.loadPreset(name, graph)
+                                            showPresetMenu = false
+                                        },
+                                    )
+                                }
                             }
                         }
                     }
@@ -583,6 +608,13 @@ fun RuleListScreen(
         }
     }
 }
+
+private fun templateAccent(index: Int): Color = listOf(
+    Color(0xFF5B8CFF), Color(0xFFFF6B6B), Color(0xFFFFB74D),
+    Color(0xFF4DD0E1), Color(0xFFB39DDB), Color(0xFF66BB6A),
+    Color(0xFFFF8A65), Color(0xFF26C6DA), Color(0xFFEF5350),
+    Color(0xFF90A4AE),
+).getOrElse(index % 10) { Color(0xFF5B8CFF) }
 
 private data class RuleGroup(
     val quick: GestureRule?,
