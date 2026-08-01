@@ -12,8 +12,8 @@ android {
         applicationId = "io.github.omeryol.akisgesture"
         minSdk = 26
         targetSdk = 35
-        versionCode = 18
-        versionName = "1.1.30"
+        versionCode = 19
+        versionName = "1.1.31"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

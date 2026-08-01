@@ -2,6 +2,16 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.31] - 2026-08-01
+
+### 🧩 Eylem Seçici Dört Sekme ve Üç Sütun
+
+- Tüm aksiyonlar dört ana sekmede toplandı: Sık, Gezinme, Sistem ve Medya &
+  Araçlar.
+- Eylem kartları simetrik üç sütunlu ızgaraya geçirildi.
+- Seçili sekmenin rengi ikon, kart arka planı, çerçeve ve durum metnine
+  yansıtıldı.
+
 ## [1.1.30] - 2026-08-01
 
 ### 🧼 Eylem Seçici Yerleşimi Düzeltildi

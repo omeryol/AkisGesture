@@ -93,8 +93,18 @@ fun ActionPickerDialog(
             ActionNode.SendKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, "Medya oynat / duraklat"),
         )
     }
+    val categoryMap = remember(categories) { categories.toMap() }
     val pickerCategories = remember(categories, keyActions, frequentActions) {
-        listOf("Sık" to frequentActions) + categories + ("Tuşlar" to keyActions)
+        listOf(
+            "Sık" to frequentActions,
+            "Gezinme" to categoryMap["Gezinme"].orEmpty(),
+            "Sistem" to listOf(
+                "Sistem", "Paneller", "Asistan", "Ekran", "Sistem Arayüzü", "Root",
+            ).flatMap { categoryMap[it].orEmpty() },
+            "Medya & Araçlar" to listOf(
+                "Medya", "Döndürme", "Donanım", "Diğer",
+            ).flatMap { categoryMap[it].orEmpty() } + keyActions,
+        )
     }
     val fixedActions = remember(pickerCategories) {
         pickerCategories.flatMap { it.second }.distinctBy { it.id }
@@ -325,7 +335,7 @@ fun ActionPickerDialog(
                         .orEmpty()
                     item(key = "category_actions") {
                         Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
-                            selectedActions.chunked(2).forEach { rowActions ->
+                            selectedActions.chunked(3).forEach { rowActions ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
@@ -335,6 +345,9 @@ fun ActionPickerDialog(
                                             action = action,
                                             onSelect = onSelect,
                                             modifier = Modifier.weight(1f),
+                                            accentColor = pickerCategoryColor(
+                                                pickerCategories.indexOfFirst { it.first == selectedCategory },
+                                            ),
                                         )
                                     }
                                     if (rowActions.size == 1) Spacer(Modifier.weight(1f))
@@ -383,32 +396,36 @@ private fun ActionPickerItem(
     action: ActionNode,
     onSelect: (ActionNode) -> Unit,
     modifier: Modifier = Modifier,
+    accentColor: Color? = null,
 ) {
     val available = RuleConfigViewModel.isActionAvailable(action)
     val scheme = MaterialTheme.colorScheme
-    Row(
+    val accent = accentColor ?: scheme.primary
+    Column(
         modifier = Modifier
             .then(modifier)
             .fillMaxWidth()
+            .heightIn(min = 112.dp, max = 132.dp)
             .padding(vertical = 3.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(scheme.surfaceVariant.copy(alpha = if (available) 0.32f else 0.16f))
+            .background(accent.copy(alpha = if (available) 0.15f else 0.07f))
             .border(
                 1.dp,
-                if (available) scheme.outlineVariant.copy(alpha = 0.28f)
+                if (available) accent.copy(alpha = 0.42f)
                 else scheme.outlineVariant.copy(alpha = 0.12f),
                 RoundedCornerShape(14.dp),
             )
             .clickable(enabled = available) { onSelect(action) }
-            .padding(horizontal = 9.dp, vertical = 7.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(horizontal = 6.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(38.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(
-                    if (available) scheme.primary.copy(alpha = 0.16f)
+                    if (available) accent.copy(alpha = 0.24f)
                     else scheme.onSurfaceVariant.copy(alpha = 0.10f)
                 ),
             contentAlignment = Alignment.Center,
@@ -416,18 +433,18 @@ private fun ActionPickerItem(
             ActionIcon(
                 action = action,
                 contentDescription = null,
-                modifier = Modifier.size(27.dp),
-                tint = if (available) scheme.primary else scheme.onSurfaceVariant,
+                modifier = Modifier.size(25.dp),
+                tint = if (available) accent else scheme.onSurfaceVariant,
             )
         }
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 action.label,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = if (available) scheme.onSurface else scheme.onSurfaceVariant,
                 maxLines = 2,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
             Text(
                 when {
@@ -436,14 +453,15 @@ private fun ActionPickerItem(
                     else -> "Hareket eylemi"
                 },
                 style = MaterialTheme.typography.labelSmall,
-                color = scheme.onSurfaceVariant,
+                color = if (available) accent else scheme.onSurfaceVariant,
                 maxLines = 1,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
         }
         if (!available) {
             Text("Kapalı", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
-            Text("Seç", style = MaterialTheme.typography.labelSmall, color = scheme.primary)
+            Text("Seç", style = MaterialTheme.typography.labelSmall, color = accent)
         }
     }
 }
