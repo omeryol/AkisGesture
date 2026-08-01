@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.47] - 2026-08-01
+
+### 🔥 Plazma ve Fermuar Ayrıştırıldı
+
+- Plazma efektinin gövdesi büyütüldü ve sıcak iç alev çekirdeği eklendi.
+- Fermuar rayları uzatıldı, metal diş sayısı ve görünürlüğü artırıldı.
+
 ## [1.1.45] - 2026-08-01
 
 ### 🕳️ Kara Delik Çekimi Güçlendirildi
