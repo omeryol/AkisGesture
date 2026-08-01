@@ -142,6 +142,20 @@ class BezierStretchRenderer {
             FeedbackAnimation.SOLAR_CORONA -> {
                 drawMasterSolarCorona3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             }
+            FeedbackAnimation.AURORA_RIBBON,
+            FeedbackAnimation.GLASS_RIPPLE,
+            FeedbackAnimation.NEON_PULSE,
+            FeedbackAnimation.STARFIELD,
+            FeedbackAnimation.ICE_SHARDS,
+            FeedbackAnimation.VORTEX,
+            FeedbackAnimation.PRISM_FLOW,
+            FeedbackAnimation.EMBER_BLOOM,
+            FeedbackAnimation.COMET_TAIL,
+            FeedbackAnimation.QUANTUM_RING,
+            FeedbackAnimation.INK_FLOW,
+            FeedbackAnimation.SOLAR_FLARE -> {
+                drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
+            }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
         }
 
@@ -607,6 +621,156 @@ class BezierStretchRenderer {
         bodyPaint.color = Color.WHITE
         bodyPaint.alpha = (245 * opacity).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, r * 0.75f, bodyPaint)
+    }
+
+    private fun drawSpecialAnimation(
+        canvas: Canvas,
+        edge: Edge,
+        touchPos: Float,
+        w: Float,
+        h: Float,
+        progress: Float,
+        mode: FeedbackAnimation,
+    ) {
+        val (cx, cy) = center(edge, progress * 260f + 16f, touchPos, w, h)
+        val time = System.currentTimeMillis() / 1000.0
+        val radius = (30f + progress * 32f) * animSize
+        val alpha = (210f * opacity).toInt().coerceIn(0, 255)
+        val colors = intArrayOf(
+            Color.rgb(0, 229, 255), Color.rgb(124, 77, 255), Color.rgb(255, 64, 129),
+        )
+
+        when (mode) {
+            FeedbackAnimation.AURORA_RIBBON,
+            FeedbackAnimation.PRISM_FLOW -> {
+                for (band in 0 until 3) {
+                    path.reset()
+                    val offset = band * radius * 0.28f
+                    for (step in 0..12) {
+                        val t = step / 12f
+                        val wave = sin(time * 2.5 + t * 7.0 + band).toFloat() * radius * 0.32f
+                        val x = cx - radius * 1.5f + t * radius * 3f
+                        val y = cy + wave + offset - radius * 0.28f
+                        if (step == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    }
+                    glowStrokePaint.color = intColorWithAlpha(colors[band], (170 * opacity).toInt())
+                    glowStrokePaint.strokeWidth = (7f - band * 1.4f) * animSize
+                    canvas.drawPath(path, glowStrokePaint)
+                }
+            }
+            FeedbackAnimation.GLASS_RIPPLE,
+            FeedbackAnimation.QUANTUM_RING -> {
+                for (ring in 0 until 4) {
+                    val ringRadius = radius * (0.65f + ring * 0.34f + (time % 1.0).toFloat() * 0.16f)
+                    glowStrokePaint.color = intColorWithAlpha(colors[ring % colors.size], ((170 - ring * 25) * opacity).toInt())
+                    glowStrokePaint.strokeWidth = (3f - ring * 0.35f).coerceAtLeast(1.2f) * animSize
+                    rectF.set(cx - ringRadius, cy - ringRadius * 0.7f, cx + ringRadius, cy + ringRadius * 0.7f)
+                    canvas.drawOval(rectF, glowStrokePaint)
+                }
+            }
+            FeedbackAnimation.NEON_PULSE,
+            FeedbackAnimation.EMBER_BLOOM -> {
+                val pulse = (sin(time * 5.0).toFloat() * 0.16f + 1f)
+                auraPaint.shader = RadialGradient(
+                    cx, cy, radius * 2.4f,
+                    intArrayOf(Color.WHITE, intColorWithAlpha(colors[2], alpha), Color.TRANSPARENT),
+                    floatArrayOf(0f, 0.32f, 1f), Shader.TileMode.CLAMP,
+                )
+                canvas.drawCircle(cx, cy, radius * pulse * 1.35f, auraPaint)
+                auraPaint.shader = null
+                for (i in 0 until 12) {
+                    val angle = time * 1.4 + i * Math.PI / 6.0
+                    sparkPaint.color = colors[i % colors.size]
+                    sparkPaint.alpha = (180 * opacity).toInt()
+                    canvas.drawCircle(
+                        cx + cos(angle).toFloat() * radius * 1.55f,
+                        cy + sin(angle).toFloat() * radius * 1.55f,
+                        (2f + (i % 3)) * animSize,
+                        sparkPaint,
+                    )
+                }
+            }
+            FeedbackAnimation.STARFIELD -> {
+                val rand = Random((time * 8).toInt())
+                for (i in 0 until 24) {
+                    val angle = rand.nextFloat() * Math.PI * 2
+                    val distance = radius * (0.5f + rand.nextFloat() * 1.8f)
+                    sparkPaint.color = Color.WHITE
+                    sparkPaint.alpha = ((100 + rand.nextInt(155)) * opacity).toInt()
+                    canvas.drawCircle(
+                        cx + cos(angle).toFloat() * distance,
+                        cy + sin(angle).toFloat() * distance,
+                        (1.2f + rand.nextFloat() * 2.8f) * animSize,
+                        sparkPaint,
+                    )
+                }
+            }
+            FeedbackAnimation.ICE_SHARDS -> {
+                glowStrokePaint.color = intColorWithAlpha(Color.rgb(128, 222, 234), alpha)
+                glowStrokePaint.strokeWidth = 3f * animSize
+                for (i in 0 until 8) {
+                    val angle = time * 0.5 + i * Math.PI / 4.0
+                    val inner = radius * 0.35f
+                    val outer = radius * (1.3f + (i % 2) * 0.5f)
+                    canvas.drawLine(
+                        cx + cos(angle).toFloat() * inner,
+                        cy + sin(angle).toFloat() * inner,
+                        cx + cos(angle).toFloat() * outer,
+                        cy + sin(angle).toFloat() * outer,
+                        glowStrokePaint,
+                    )
+                }
+            }
+            FeedbackAnimation.VORTEX,
+            FeedbackAnimation.INK_FLOW -> {
+                path.reset()
+                for (step in 0..28) {
+                    val t = step / 28f
+                    val angle = time * 2.0 + t * Math.PI * 3.2
+                    val distance = radius * (0.1f + t * 1.8f)
+                    val x = cx + cos(angle).toFloat() * distance
+                    val y = cy + sin(angle).toFloat() * distance
+                    if (step == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                glowStrokePaint.color = intColorWithAlpha(
+                    if (mode == FeedbackAnimation.INK_FLOW) Color.rgb(63, 81, 181) else colors[1],
+                    alpha,
+                )
+                glowStrokePaint.strokeWidth = 7f * animSize
+                canvas.drawPath(path, glowStrokePaint)
+            }
+            FeedbackAnimation.COMET_TAIL -> {
+                val headX = cx + cos(time * 2.0).toFloat() * radius * 0.8f
+                val headY = cy + sin(time * 2.0).toFloat() * radius * 0.8f
+                path.reset()
+                path.moveTo(cx, cy)
+                path.cubicTo(cx - radius, cy - radius, headX - radius * 0.7f, headY - radius * 0.4f, headX, headY)
+                glowStrokePaint.color = intColorWithAlpha(Color.rgb(255, 193, 7), alpha)
+                glowStrokePaint.strokeWidth = 10f * animSize
+                canvas.drawPath(path, glowStrokePaint)
+                sparkPaint.color = Color.WHITE
+                sparkPaint.alpha = 240
+                canvas.drawCircle(headX, headY, radius * 0.32f, sparkPaint)
+            }
+            FeedbackAnimation.SOLAR_FLARE -> {
+                drawMasterSolarCorona3D(canvas, edge, radius * 3f, touchPos, w, h, progress, 1.35f)
+                glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (200 * opacity).toInt())
+                glowStrokePaint.strokeWidth = 5f * animSize
+                for (i in 0 until 6) {
+                    val angle = time * 0.8 + i * Math.PI / 3.0
+                    path.reset()
+                    path.moveTo(cx, cy)
+                    path.quadTo(
+                        cx + cos(angle).toFloat() * radius * 1.8f,
+                        cy + sin(angle).toFloat() * radius * 1.8f,
+                        cx + cos(angle + 0.35).toFloat() * radius * 2.4f,
+                        cy + sin(angle + 0.35).toFloat() * radius * 2.4f,
+                    )
+                    canvas.drawPath(path, glowStrokePaint)
+                }
+            }
+            else -> Unit
+        }
     }
 
     // =========================================================================
