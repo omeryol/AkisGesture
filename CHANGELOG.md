@@ -2,6 +2,13 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.19] - 2026-08-01
+
+### 🎨 Renkli Eylem İkonları Geri Getirildi
+
+- Eylemlerin hızlı ayırt edilmesini sağlayan renkli semboller geri getirildi.
+- İkonların daha dolgun görünmesi için önceki kalın renderer ayarları korundu.
+
 ## [1.1.18] - 2026-08-01
 
 ### 🎯 Geri Bildirim İkonları Güçlendirildi
