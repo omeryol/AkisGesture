@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import io.github.omeryol.akisgesture.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import io.github.omeryol.akisgesture.ui.theme.StatusConnected
@@ -62,11 +64,11 @@ fun PermissionGuideScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "İzinler",
+            text = stringResource(R.string.permissions_title),
             style = MaterialTheme.typography.headlineMedium,
         )
         Text(
-            text = "Akış Gesture düzgün çalışmak için aşağıdaki izinlere ihtiyaç duyar.",
+            text = stringResource(R.string.permissions_intro),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -76,8 +78,8 @@ fun PermissionGuideScreen(
         // Adım 1：Erişilebilirlik hizmeti（Gerekli）
         PermissionCard(
             step = 1,
-            title = "Erişilebilirlik hizmeti",
-            description = "Kenar hareketlerini algılar ve seçilen işlemleri uygular.\nAyarlar içinde Akış Gesture hizmetini etkinleştirin.",
+            title = stringResource(R.string.accessibility_service),
+            description = stringResource(R.string.accessibility_description),
             isGranted = isAccessibilityEnabled,
             required = true,
             onRequest = { PermissionHelper.openAccessibilitySettings(context) },
@@ -86,8 +88,8 @@ fun PermissionGuideScreen(
         // Adım 2: Pil kısıtlamasını kaldır
         PermissionCard(
             step = 2,
-            title = "Pil kısıtlamasını kaldır",
-            description = "HyperOS sisteminin hareket hizmetini arka planda durdurmasını önler.",
+            title = stringResource(R.string.battery_permission_title),
+            description = stringResource(R.string.battery_permission_description),
             isGranted = isBatteryOptimized,
             required = false,
             onRequest = { PermissionHelper.requestIgnoreBatteryOptimization(context) },
@@ -101,7 +103,7 @@ fun PermissionGuideScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
-                text = if (isAccessibilityEnabled) "Kullanmaya başla" else "Önce erişilebilirlik hizmetini açın",
+                text = if (isAccessibilityEnabled) stringResource(R.string.start_using) else stringResource(R.string.enable_accessibility_first),
             )
         }
     }
@@ -148,12 +150,12 @@ private fun PermissionCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Adım $step: $title",
+                            text = stringResource(R.string.step_title, step, title),
                             style = MaterialTheme.typography.titleMedium,
                         )
                         if (required) {
                             Text(
-                                text = "Gerekli",
+                                text = stringResource(R.string.required),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = StatusDisconnected,
                             )
@@ -174,14 +176,14 @@ private fun PermissionCard(
                         onClick = onRequest,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Ayarları aç")
+                        Text(stringResource(R.string.open_settings))
                     }
                 } else {
                     OutlinedButton(
                         onClick = onRequest,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Ayarları aç")
+                        Text(stringResource(R.string.open_settings))
                     }
                 }
             }

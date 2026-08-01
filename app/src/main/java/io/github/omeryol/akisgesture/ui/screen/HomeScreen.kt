@@ -29,6 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.AkisGestureApp
@@ -92,13 +95,13 @@ fun HomeScreen(
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        text = if (isConnected) "Akış Aktif" else "Servis Kapalı",
+                        text = if (isConnected) stringResource(R.string.home_active) else stringResource(R.string.home_service_off),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = scheme.onSurface
                     )
                     Text(
-                        text = if (isConnected) "$totalRules Hareket · $activeEdges Aktif Kenar · v1.1.0" else "Erişilebilirlik iznini aktifleştirin",
+                        text = if (isConnected) stringResource(R.string.home_summary, totalRules, activeEdges, "1.1.54") else stringResource(R.string.home_enable_accessibility),
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurfaceVariant
                     )
@@ -130,13 +133,13 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "📱 Kenar Haritası",
+                        text = stringResource(R.string.edge_map),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = scheme.onSurface
                     )
                     Text(
-                        text = "Düzenle →",
+                        text = stringResource(R.string.edit_arrow),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = scheme.primary,
@@ -167,10 +170,10 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("📐 Sol & Sağ", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.left_right_edges), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = "${ruleSet.ruleCountFor(Edge.LEFT) + ruleSet.ruleCountFor(Edge.RIGHT)} Hareket",
+                        text = pluralStringResource(R.plurals.gesture_count, ruleSet.ruleCountFor(Edge.LEFT) + ruleSet.ruleCountFor(Edge.RIGHT), ruleSet.ruleCountFor(Edge.LEFT) + ruleSet.ruleCountFor(Edge.RIGHT)),
                         style = MaterialTheme.typography.labelSmall,
                         color = scheme.onSurfaceVariant
                     )
@@ -186,10 +189,10 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("🔽 Alt Kenar", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.bottom_edge), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = "${ruleSet.ruleCountFor(Edge.BOTTOM)} Hareket",
+                        text = pluralStringResource(R.plurals.gesture_count, ruleSet.ruleCountFor(Edge.BOTTOM), ruleSet.ruleCountFor(Edge.BOTTOM)),
                         style = MaterialTheme.typography.labelSmall,
                         color = scheme.onSurfaceVariant
                     )
@@ -212,13 +215,13 @@ fun HomeScreen(
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            text = "Pil Kısıtlamasını Kaldır",
+                            text = stringResource(R.string.disable_battery_restriction),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = scheme.error
                         )
                         Text(
-                            text = "Arka planda kesintisiz çalışması için pil optimizasyonunu kapatın",
+                            text = stringResource(R.string.battery_restriction_description),
                             style = MaterialTheme.typography.labelSmall,
                             color = scheme.onSurfaceVariant
                         )

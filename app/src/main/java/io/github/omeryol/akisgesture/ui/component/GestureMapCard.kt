@@ -37,7 +37,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.gesture.GestureThresholds
 import io.github.omeryol.akisgesture.model.GestureRule
@@ -56,7 +59,8 @@ fun GestureMapCard(
 ) {
     var mode by remember { mutableStateOf(GestureMapMode.EDIT) }
     var expanded by remember { mutableStateOf(false) }
-    var rehearsalStatus by remember { mutableStateOf("Bir alanı kenardan içeri çek") }
+    val rehearsalStart = stringResource(R.string.rehearsal_start)
+    var rehearsalStatus by remember { mutableStateOf(rehearsalStart) }
     val zones = rules
         .filter { it.enabled }
         .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
@@ -77,14 +81,14 @@ fun GestureMapCard(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             ListItem(
-                headlineContent = { Text("Hareket alanları") },
+                headlineContent = { Text(stringResource(R.string.gesture_areas)) },
                 supportingContent = {
-                    Text(if (expanded) "Dokunarak düzenle veya canlı dene" else "${zones.size} etkin alan")
+                    Text(if (expanded) stringResource(R.string.map_expanded_hint) else stringResource(R.string.active_area_count, zones.size))
                 },
                 trailingContent = {
                     Icon(
                         if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                        contentDescription = if (expanded) "Daralt" else "Haritayı aç",
+                        contentDescription = stringResource(if (expanded) R.string.collapse else R.string.open_map),
                     )
                 },
                 modifier = Modifier.clickable { expanded = !expanded },
@@ -93,7 +97,7 @@ fun GestureMapCard(
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         if (mode == GestureMapMode.EDIT) {
-                            "Dokunarak düzenle · sürükleyerek taşı veya boyutlandır"
+                            stringResource(R.string.map_edit_hint)
                         } else {
                             rehearsalStatus
                         },
@@ -104,15 +108,15 @@ fun GestureMapCard(
                         FilterChip(
                             selected = mode == GestureMapMode.EDIT,
                             onClick = { mode = GestureMapMode.EDIT },
-                            label = { Text("Düzenle") },
+                            label = { Text(stringResource(R.string.edit)) },
                         )
                         FilterChip(
                             selected = mode == GestureMapMode.REHEARSE,
                             onClick = {
                                 mode = GestureMapMode.REHEARSE
-                                rehearsalStatus = "Bir alanı kenardan içeri çek"
+                                rehearsalStatus = rehearsalStart
                             },
-                            label = { Text("Dene") },
+                            label = { Text(stringResource(R.string.try_action)) },
                         )
                     }
                     GestureMapCanvas(
@@ -133,9 +137,9 @@ fun GestureMapCard(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        MapLegend(color = Color(0xFF5B8CFF), text = "Hızlı")
-                        MapLegend(color = Color(0xFFFFB74D), text = "Beklet")
-                        MapLegend(color = Color(0xFF8B5CF6), text = "İkisi")
+                        MapLegend(color = Color(0xFF5B8CFF), text = stringResource(R.string.quick_legend))
+                        MapLegend(color = Color(0xFFFFB74D), text = stringResource(R.string.hold_legend))
+                        MapLegend(color = Color(0xFF8B5CF6), text = stringResource(R.string.both_legend))
                     }
                 }
             }
@@ -162,6 +166,7 @@ private fun GestureMapCanvas(
     onRehearsalStatus: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val outline = MaterialTheme.colorScheme.outline
     val screen = MaterialTheme.colorScheme.surfaceContainerHighest
     var dragPreview by remember { mutableStateOf<DragPreview?>(null) }
@@ -187,7 +192,7 @@ private fun GestureMapCanvas(
                     var latestQuick = false
                     var latestHold = false
                     var pressed: Boolean
-                    onRehearsalStatus("İçeri doğru çek")
+                    onRehearsalStatus(context.getString(R.string.rehearsal_pull))
                     do {
                         val event = awaitPointerEvent()
                         val change = event.changes.firstOrNull { it.id == down.id } ?: break
@@ -223,9 +228,9 @@ private fun GestureMapCanvas(
                         )
                         onRehearsalStatus(
                             when {
-                                latestHold -> "Bekletme hazır · bırakınca önizleme biter"
-                                latestQuick -> "Hızlı çekme hazır · bekletirsen ikinci hareket"
-                                else -> "Biraz daha çek"
+                                latestHold -> context.getString(R.string.rehearsal_hold_ready)
+                                latestQuick -> context.getString(R.string.rehearsal_quick_ready)
+                                else -> context.getString(R.string.rehearsal_more)
                             },
                         )
                         change.consume()
@@ -233,9 +238,9 @@ private fun GestureMapCanvas(
                     gesturePreview = null
                     onRehearsalStatus(
                         when {
-                            latestHold -> "Bekletmeli hareket algılandı"
-                            latestQuick -> "Hızlı çekme algılandı"
-                            else -> "Hareket eşiğe ulaşmadı"
+                            latestHold -> context.getString(R.string.rehearsal_hold_detected)
+                            latestQuick -> context.getString(R.string.rehearsal_quick_detected)
+                            else -> context.getString(R.string.rehearsal_not_reached)
                         },
                     )
                     return@awaitEachGesture

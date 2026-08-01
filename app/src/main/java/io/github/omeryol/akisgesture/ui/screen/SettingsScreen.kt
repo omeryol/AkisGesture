@@ -2,6 +2,7 @@ package io.github.omeryol.akisgesture.ui.screen
 
 import android.graphics.Color as AndroidColor
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,11 +29,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Save
@@ -65,9 +68,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.AkisGestureApp
+import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.backup.SettingsBackupManager
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
@@ -81,10 +86,14 @@ import io.github.omeryol.akisgesture.ui.component.AkisSliderRow
 import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RootAccessState
+import io.github.omeryol.akisgesture.ui.util.edgeLabel
+import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,6 +116,11 @@ fun SettingsScreen(
     val app = context.applicationContext as AkisGestureApp
     val scope = rememberCoroutineScope()
     val scheme = MaterialTheme.colorScheme
+    val versionName = remember(context) {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrNull().orEmpty().ifBlank { "Bilinmiyor" }
+    }
 
     val exportBackup = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json"),
@@ -118,12 +132,12 @@ fun SettingsScreen(
                 withContext(Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use {
                         it.write(json)
-                    } ?: error("Dosya açılamadı")
+                    } ?: error(context.getString(R.string.file_open_failed))
                 }
             }.onSuccess {
-                Toast.makeText(context, "Yedek kaydedildi", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.backup_saved), Toast.LENGTH_SHORT).show()
             }.onFailure {
-                Toast.makeText(context, it.message ?: "Yedek kaydedilemedi", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, it.message ?: context.getString(R.string.backup_save_failed), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -137,11 +151,11 @@ fun SettingsScreen(
                 val json = withContext(Dispatchers.IO) {
                     context.contentResolver.openInputStream(uri)?.bufferedReader()?.use {
                         it.readText()
-                    } ?: error("Dosya açılamadı")
+                    } ?: error(context.getString(R.string.file_open_failed))
                 }
                 pendingImportJson = json
             }.onFailure {
-                Toast.makeText(context, it.message ?: "Yedek yüklenemedi", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, it.message ?: context.getString(R.string.backup_load_failed), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -178,9 +192,9 @@ fun SettingsScreen(
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
-                            "Hareket hizmeti hazır"
+                            stringResource(R.string.service_ready)
                         } else {
-                            "Hareket hizmeti bağlı değil"
+                            stringResource(R.string.service_disconnected)
                         },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
@@ -188,9 +202,9 @@ fun SettingsScreen(
                     )
                     Text(
                         text = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
-                            "Kenar hareketleri bu kullanıcı için etkin."
+                            stringResource(R.string.service_enabled_user)
                         } else {
-                            "Kenar hareketlerini etkinleştirmek için izin verin."
+                            stringResource(R.string.service_permission_prompt)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurfaceVariant,
@@ -203,7 +217,7 @@ fun SettingsScreen(
                         },
                         shape = RoundedCornerShape(10.dp),
                     ) {
-                        Text("İzin ver", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.grant_permission), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -217,7 +231,8 @@ fun SettingsScreen(
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            listOf("Hareket", "Görünüm", "Duraklatma", "Yedek").forEachIndexed { index, label ->
+            listOf(R.string.tab_motion, R.string.tab_appearance, R.string.tab_pause, R.string.tab_backup, R.string.tab_about).forEachIndexed { index, labelRes ->
+                val label = stringResource(labelRes)
                 val selected = selectedSection == index
                 Box(
                     modifier = Modifier
@@ -241,8 +256,8 @@ fun SettingsScreen(
         // ── 1. KENAR HASSASİYETİ VE HAREKET FİZİĞİ ──
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             AkisSectionHeader(
-                title = "Kenar ve Hareket Fiziği",
-                subtitle = "Tetik alanları, hassasiyet ve bekleme ayarları",
+                title = stringResource(R.string.motion_section),
+                subtitle = stringResource(R.string.motion_section_subtitle),
                 icon = Icons.Filled.Swipe
             )
             Spacer(Modifier.height(10.dp))
@@ -252,7 +267,8 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                listOf(Edge.LEFT to "Sol Kenar", Edge.RIGHT to "Sağ Kenar", Edge.BOTTOM to "Alt Kenar").forEach { (edge, label) ->
+                listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM).forEach { edge ->
+                    val label = edgeLabel(context, edge)
                     val selected = selectedEdge == edge
                     Box(
                         modifier = Modifier
@@ -292,56 +308,56 @@ fun SettingsScreen(
             }
 
             AkisSliderRow(
-                title = "Tetik Kalınlığı",
+                title = stringResource(R.string.trigger_thickness),
                 valueText = "${currentWidth.roundToInt()} dp",
                 value = currentWidth,
                 valueRange = 8f..60f,
                 onValueChange = { viewModel.setEdgeTriggerSize(selectedEdge, it) }
             )
             Text(
-                text = "Tetik: Kenardaki dokunma alanının kaplama kalınlığı (genişliği).",
+                text = stringResource(R.string.trigger_help),
                 style = MaterialTheme.typography.labelSmall,
                 color = scheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
 
             AkisSliderRow(
-                title = "Hassasiyet (Sönümleme)",
+                title = stringResource(R.string.sensitivity_damping),
                 valueText = "%.1fx".format(currentDamping),
                 value = currentDamping,
                 valueRange = 0.5f..4.0f,
                 onValueChange = { viewModel.setEdgeDamping(selectedEdge, it) }
             )
             Text(
-                text = "Hassasiyet: Sürükleme direnci. Düşük sönümleme = hassas tepki; Yüksek = daha fazla sürükleme gerektirir.",
+                text = stringResource(R.string.sensitivity_help),
                 style = MaterialTheme.typography.labelSmall,
                 color = scheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
 
             AkisSliderRow(
-                title = "Eşik Mesafesi",
+                title = stringResource(R.string.threshold_distance),
                 valueText = "${currentThreshold.roundToInt()} dp",
                 value = currentThreshold,
                 valueRange = 8f..40f,
                 onValueChange = { viewModel.setEdgeSwipeThreshold(selectedEdge, it) }
             )
             Text(
-                text = "Eşik: Hızlı çekmenin tetiklenmesi için kat edilmesi gereken minimum kaydırma mesafesi.",
+                text = stringResource(R.string.threshold_help),
                 style = MaterialTheme.typography.labelSmall,
                 color = scheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
 
             AkisSliderRow(
-                title = "L-Swipe Bükülme Eşiği",
+                title = stringResource(R.string.l_threshold),
                 valueText = "${config.lSwipeThresholdDp.roundToInt()} dp",
                 value = config.lSwipeThresholdDp,
                 valueRange = 15f..60f,
                 onValueChange = { viewModel.setLSwipeThreshold(it) }
             )
             Text(
-                text = "L-Eşiği: L hareketinin algılanması için gereken dikey bükülme mesafesi (Dikey kaydırma, yatay kaydırmanın en az 1 katı olmalıdır).",
+                text = stringResource(R.string.l_threshold_help),
                 style = MaterialTheme.typography.labelSmall,
                 color = scheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp)
@@ -350,7 +366,7 @@ fun SettingsScreen(
             HorizontalDivider(Modifier.padding(vertical = 6.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
 
             AkisSliderRow(
-                title = "Çekip Bekletme Süresi",
+                title = stringResource(R.string.hold_duration),
                 valueText = "${config.holdTimeMs} ms",
                 value = config.holdTimeMs.toFloat(),
                 valueRange = 150f..700f,
@@ -365,7 +381,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Bekletme Çalışma Modu",
+                    text = stringResource(R.string.hold_mode),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = scheme.onSurface
@@ -381,7 +397,7 @@ fun SettingsScreen(
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = mode.label,
+                                text = mode.localizedLabel(context),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
                                 color = if (active) scheme.onPrimaryContainer else scheme.onSurfaceVariant
@@ -395,15 +411,15 @@ fun SettingsScreen(
         // ── 2. GÖRSEL VE DOKUNSAL GERİ BİLDİRİM ──
         if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00E676)) {
             AkisSectionHeader(
-                title = "Görsel ve Dokunsal Geri Bildirim",
-                subtitle = "Animasyon stili, renk uzayı, saydamlık ve dokunsal titreşim",
+                title = stringResource(R.string.feedback_section),
+                subtitle = stringResource(R.string.feedback_section_subtitle),
                 icon = Icons.Filled.Palette
             )
             Spacer(Modifier.height(10.dp))
 
             // Animation Style Selector Grid
             Text(
-                text = "Animasyon Stili",
+                text = stringResource(R.string.animation_style),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = scheme.onSurface
@@ -449,7 +465,7 @@ fun SettingsScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = anim.label,
+                                text = anim.localizedLabel(context),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
                                 color = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
@@ -467,7 +483,7 @@ fun SettingsScreen(
 
             // 1. Birincil Hareket Rengi (Hızlı Çekme) - Infinite Custom Color Picker
             AkisInfiniteColorPicker(
-                title = "Hızlı çekme rengi",
+                title = stringResource(R.string.quick_color),
                 currentColorArgb = config.feedbackColorArgb,
                 onColorChanged = viewModel::setFeedbackColor
             )
@@ -476,7 +492,7 @@ fun SettingsScreen(
 
             // 2. İkincil Hareket Rengi (Çekip Bekletme) - Infinite Custom Color Picker
             AkisInfiniteColorPicker(
-                title = "Bekletme rengi",
+                title = stringResource(R.string.hold_color),
                 currentColorArgb = config.secondaryColorArgb,
                 onColorChanged = viewModel::setSecondaryColor
             )
@@ -484,7 +500,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             AkisInfiniteColorPicker(
-                title = "L hareketi rengi",
+                title = stringResource(R.string.l_color),
                 currentColorArgb = config.lSwipeColorArgb,
                 onColorChanged = viewModel::setLSwipeColor
             )
@@ -492,8 +508,8 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             AkisSwitchRow(
-                title = "Uygulamaya Duyarlı Otomatik Renk",
-                subtitle = "Uygulama rengini seçtiğin hızlı çekme rengiyle harmanlar",
+                title = stringResource(R.string.adaptive_color),
+                subtitle = stringResource(R.string.adaptive_color_subtitle),
                 checked = config.useAppAdaptiveColor,
                 onCheckedChange = viewModel::setUseAppAdaptiveColor
             )
@@ -501,7 +517,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             AkisSliderRow(
-                title = "Görünürlük (Saydamlık)",
+                title = stringResource(R.string.opacity),
                 valueText = "%${(config.feedbackOpacity * 100).roundToInt()}",
                 value = config.feedbackOpacity,
                 valueRange = 0.1f..1.0f,
@@ -509,7 +525,7 @@ fun SettingsScreen(
             )
 
             AkisSliderRow(
-                title = "Animasyon Hızı",
+                title = stringResource(R.string.animation_speed),
                 valueText = "%.1fx".format(config.animationSpeed),
                 value = config.animationSpeed,
                 valueRange = 0.5f..2.0f,
@@ -517,7 +533,7 @@ fun SettingsScreen(
             )
 
             AkisSliderRow(
-                title = "Animasyon Boyutu",
+                title = stringResource(R.string.animation_size),
                 valueText = "%.1fx".format(config.animationSize),
                 value = config.animationSize,
                 valueRange = 0.5f..2.0f,
@@ -527,14 +543,14 @@ fun SettingsScreen(
             HorizontalDivider(Modifier.padding(vertical = 6.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
 
             AkisSwitchRow(
-                title = "Dokunsal geri bildirim",
-                subtitle = "Hareket başlangıcı ve aksiyon eşiklerinde kısa titreşim",
+                title = stringResource(R.string.haptic_feedback),
+                subtitle = stringResource(R.string.haptic_feedback_subtitle),
                 checked = config.hapticEnabled,
                 onCheckedChange = viewModel::setHapticEnabled
             )
 
             AkisSliderRow(
-                title = "Titreşim Şiddeti",
+                title = stringResource(R.string.vibration_intensity),
                 valueText = "%${(config.hapticIntensity * 100).roundToInt()}",
                 value = config.hapticIntensity,
                 valueRange = 0.0f..1.0f,
@@ -543,8 +559,8 @@ fun SettingsScreen(
             )
 
             AkisSwitchRow(
-                title = "Tıklama Sesi",
-                subtitle = "Hareket tetiklendiğinde kısa ton sesi çal",
+                title = stringResource(R.string.click_sound),
+                subtitle = stringResource(R.string.click_sound_subtitle),
                 checked = config.hapticSoundEnabled,
                 onCheckedChange = viewModel::setHapticSoundEnabled
             )
@@ -553,43 +569,43 @@ fun SettingsScreen(
         // ── 3. ÇALIŞMA VE DURAKLATMA KURALLARI ──
         if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
             AkisSectionHeader(
-                title = "Çalışmayacağı Yerler",
-                subtitle = "Özel durum ve uygulamalarda hareketleri otomatik kapat",
+                title = stringResource(R.string.pause_section),
+                subtitle = stringResource(R.string.pause_section_subtitle),
                 icon = Icons.Filled.Security
             )
             Spacer(Modifier.height(6.dp))
 
             AkisSwitchRow(
-                title = "Kilit Ekranı",
-                subtitle = "Cihaz kilitliyken hareketleri duraklat",
+                title = stringResource(R.string.lock_screen),
+                subtitle = stringResource(R.string.lock_screen_subtitle),
                 checked = config.pauseOnLockScreen,
                 onCheckedChange = viewModel::setPauseOnLockScreen
             )
 
             AkisSwitchRow(
-                title = "Klavye Açıkken",
-                subtitle = "Metin girerken kenar dokunuşlarını yoksay",
+                title = stringResource(R.string.keyboard_open),
+                subtitle = stringResource(R.string.keyboard_open_subtitle),
                 checked = config.pauseWhenKeyboardVisible,
                 onCheckedChange = viewModel::setPauseWhenKeyboardVisible
             )
 
             AkisSwitchRow(
-                title = "Yatay Ekran",
-                subtitle = "Ekran yatay konumdayken hareketleri duraklat",
+                title = stringResource(R.string.landscape_screen),
+                subtitle = stringResource(R.string.landscape_screen_subtitle),
                 checked = config.pauseInLandscape,
                 onCheckedChange = viewModel::setPauseInLandscape
             )
 
             AkisSwitchRow(
-                title = "Tam Ekran Moda Geçince",
-                subtitle = "Video ve immersive tam ekran uygulamalarda kapat",
+                title = stringResource(R.string.immersive_fullscreen),
+                subtitle = stringResource(R.string.immersive_fullscreen_subtitle),
                 checked = config.pauseOnFullScreen,
                 onCheckedChange = viewModel::setPauseOnFullScreen
             )
 
             AkisSwitchRow(
-                title = "İzin ve Güvenlik Ekranları",
-                subtitle = "APK yükleme ve izin pencerelerinde kapat",
+                title = stringResource(R.string.permission_screens),
+                subtitle = stringResource(R.string.permission_screens_subtitle),
                 checked = config.pauseOnPermissionScreen,
                 onCheckedChange = viewModel::setPauseOnPermissionScreen
             )
@@ -604,13 +620,17 @@ fun SettingsScreen(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        text = "Uygulama Engelleri",
+                        text = stringResource(R.string.app_exclusions),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = scheme.onSurface
                     )
                     Text(
-                        text = if (pausedPackages.isEmpty()) "Hiçbir uygulamada duraklatılmıyor" else "${pausedPackages.size} uygulamada kapalı",
+                        text = if (pausedPackages.isEmpty()) {
+                            stringResource(R.string.no_paused_apps)
+                        } else {
+                            stringResource(R.string.paused_apps_count, pausedPackages.size)
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurfaceVariant
                     )
@@ -622,8 +642,8 @@ fun SettingsScreen(
         // ── 4. YEDEKLEME VE SİSTEM ──
         if (selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
             AkisSectionHeader(
-                title = "Yedekleme ve Sistem",
-                subtitle = "Kurallar, uygulama profilleri, ayarlar ve servis tercihi",
+                title = stringResource(R.string.backup_section),
+                subtitle = stringResource(R.string.backup_section_subtitle),
                 icon = Icons.Filled.Save
             )
             Spacer(Modifier.height(6.dp))
@@ -639,7 +659,7 @@ fun SettingsScreen(
                 ) {
                     Icon(Icons.Filled.Save, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Yedekle", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.backup_action), style = MaterialTheme.typography.labelMedium)
                 }
 
                 OutlinedButton(
@@ -649,7 +669,7 @@ fun SettingsScreen(
                 ) {
                     Icon(Icons.Filled.Restore, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Yükle", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.restore_action), style = MaterialTheme.typography.labelMedium)
                 }
             }
 
@@ -661,20 +681,107 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Root Durumu",
+                    text = stringResource(R.string.root_status),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = scheme.onSurface
                 )
                 Text(
                     text = when (rootAccess) {
-                        RootAccessState.CHECKING -> "Denetleniyor..."
-                        RootAccessState.AVAILABLE -> "Root Var (Aktif)"
-                        RootAccessState.UNAVAILABLE -> "Root Yok"
+                        RootAccessState.CHECKING -> stringResource(R.string.root_checking)
+                        RootAccessState.AVAILABLE -> stringResource(R.string.root_available)
+                        RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant
                 )
+            }
+        }
+
+        // ── 5. HAKKINDA ──
+        if (selectedSection == 4) AkisGlassCard(accentTint = Color(0xFF00B8D4)) {
+            AkisSectionHeader(
+                title = stringResource(R.string.about_title),
+                subtitle = stringResource(R.string.about_subtitle),
+                icon = Icons.Filled.Info,
+            )
+            Spacer(Modifier.height(10.dp))
+
+            AboutInfoRow(label = stringResource(R.string.version), value = versionName)
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.language),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = stringResource(R.string.language_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                listOf(
+                    "" to stringResource(R.string.language_system),
+                    "tr" to stringResource(R.string.language_turkish),
+                    "en" to stringResource(R.string.language_english),
+                ).forEach { (tag, label) ->
+                    OutlinedButton(
+                        onClick = {
+                            AppCompatDelegate.setApplicationLocales(
+                                LocaleListCompat.forLanguageTags(tag),
+                            )
+                        },
+                        modifier = Modifier.weight(1f),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
+                    ) {
+                        Text(label, maxLines = 1, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 10.dp),
+                color = scheme.outlineVariant.copy(alpha = 0.45f),
+            )
+
+            Text(
+                text = stringResource(R.string.about_support),
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.about_root),
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant,
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 10.dp),
+                color = scheme.outlineVariant.copy(alpha = 0.45f),
+            )
+            Text(
+                text = stringResource(R.string.about_upstream),
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(10.dp))
+
+            OutlinedButton(
+                onClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ARCJ137442/OpenSwipe")),
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+            ) {
+                Text(stringResource(R.string.open_upstream))
+                Spacer(Modifier.width(6.dp))
+                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
             }
         }
     }
@@ -683,20 +790,20 @@ fun SettingsScreen(
     pendingImportJson?.let { json ->
         AlertDialog(
             onDismissRequest = { pendingImportJson = null },
-            title = { Text("Yedeği yüklemek istiyor musunuz?") },
-            text = { Text("Mevcut tüm hareket kuralları ve ayarlar seçtiğiniz yedekle değiştirilecek.") },
+            title = { Text(stringResource(R.string.restore_confirm_title)) },
+            text = { Text(stringResource(R.string.restore_confirm_text)) },
             confirmButton = {
                 TextButton(onClick = {
                     pendingImportJson = null
                     scope.launch {
                         runCatching { SettingsBackupManager.import(app, json) }
-                            .onSuccess { Toast.makeText(context, "Yedek yüklendi", Toast.LENGTH_SHORT).show() }
-                            .onFailure { Toast.makeText(context, it.message ?: "Hata", Toast.LENGTH_LONG).show() }
+                            .onSuccess { Toast.makeText(context, context.getString(R.string.backup_loaded), Toast.LENGTH_SHORT).show() }
+                            .onFailure { Toast.makeText(context, it.message ?: context.getString(R.string.generic_error), Toast.LENGTH_LONG).show() }
                     }
-                }) { Text("Yükle", fontWeight = FontWeight.Bold) }
+                }) { Text(stringResource(R.string.restore_action), fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingImportJson = null }) { Text("Vazgeç") }
+                TextButton(onClick = { pendingImportJson = null }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -705,7 +812,7 @@ fun SettingsScreen(
     if (showAppPicker) {
         AlertDialog(
             onDismissRequest = { showAppPicker = false },
-            title = { Text("Hareketlerin Duraklatılacağı Uygulamalar") },
+            title = { Text(stringResource(R.string.paused_apps_title)) },
             text = {
                 LazyColumn(modifier = Modifier.height(300.dp)) {
                     items(selectableApps) { appInfo ->
@@ -728,8 +835,26 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showAppPicker = false }) { Text("Tamam", fontWeight = FontWeight.Bold) }
+                TextButton(onClick = { showAppPicker = false }) { Text(stringResource(R.string.done), fontWeight = FontWeight.Bold) }
             }
+        )
+    }
+}
+
+@Composable
+private fun AboutInfoRow(label: String, value: String) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = scheme.onSurface,
         )
     }
 }
@@ -784,7 +909,7 @@ fun AkisInfiniteColorPicker(
                         color = scheme.onSurface
                     )
                     Text(
-                        text = "HEX: $hexCode | Hue: ${hsv[0].toInt()}°",
+                        text = stringResource(R.string.hex_hue, hexCode, hsv[0].toInt()),
                         style = MaterialTheme.typography.labelSmall,
                         color = scheme.onSurfaceVariant
                     )
@@ -794,7 +919,7 @@ fun AkisInfiniteColorPicker(
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = "Renk Seçici Barı",
+                    contentDescription = stringResource(R.string.color_picker),
                     tint = scheme.onSurface
                 )
             }
@@ -803,7 +928,7 @@ fun AkisInfiniteColorPicker(
         AnimatedVisibility(visible = expanded) {
             Column(modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
                 Text(
-                    text = "Hazır renkler",
+                    text = stringResource(R.string.preset_colors),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = scheme.onSurface
@@ -837,7 +962,7 @@ fun AkisInfiniteColorPicker(
 
                 // Hue Slider (0 - 360)
                 Text(
-                    text = "Renk Tonu (Hue Bar): ${hsv[0].toInt()}°",
+                    text = stringResource(R.string.hue_value, hsv[0].toInt()),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = scheme.onSurface
@@ -857,7 +982,7 @@ fun AkisInfiniteColorPicker(
 
                 // Saturation Slider (0.0 - 1.0)
                 Text(
-                    text = "Doygunluk: %${(hsv[1] * 100).toInt()}",
+                    text = stringResource(R.string.saturation_value, (hsv[1] * 100).toInt()),
                     style = MaterialTheme.typography.bodySmall,
                     color = scheme.onSurface
                 )
@@ -872,7 +997,7 @@ fun AkisInfiniteColorPicker(
 
                 // Brightness / Value Slider (0.0 - 1.0)
                 Text(
-                    text = "Parlaklık: %${(hsv[2] * 100).toInt()}",
+                    text = stringResource(R.string.brightness_value, (hsv[2] * 100).toInt()),
                     style = MaterialTheme.typography.bodySmall,
                     color = scheme.onSurface
                 )

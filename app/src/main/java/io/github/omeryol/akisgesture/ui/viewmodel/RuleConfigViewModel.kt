@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import io.github.omeryol.akisgesture.AkisGestureApp
+import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.gestureLabel
 import kotlinx.coroutines.launch
@@ -288,7 +289,11 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
             Conflict(
                 ruleA = c.ruleA,
                 ruleB = c.ruleB,
-                message = "${edgeLabel(c.ruleA.trigger.edge)} ${gestureLabel(c.ruleA.trigger.gestureType)} alanı çakışıyor",
+                message = app.getString(
+                    R.string.rule_conflict,
+                    edgeLabel(app, c.ruleA.trigger.edge),
+                    gestureLabel(app, c.ruleA.trigger.gestureType),
+                ),
             )
         }
     }

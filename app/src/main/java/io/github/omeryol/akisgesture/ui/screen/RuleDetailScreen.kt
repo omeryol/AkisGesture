@@ -43,6 +43,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import io.github.omeryol.akisgesture.R
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.Alignment
@@ -60,6 +62,7 @@ import io.github.omeryol.akisgesture.ui.util.edgeIcon
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.gestureLabel
 import io.github.omeryol.akisgesture.ui.util.sectionLabel
+import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +72,7 @@ fun RuleDetailScreen(
     viewModel: RuleConfigViewModel,
     onNavigateBack: () -> Unit,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val rules by viewModel.rules.collectAsState()
     val rule = rules.find { it.id == ruleId }
 
@@ -84,21 +88,21 @@ fun RuleDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kural ayrıntısı") },
+                title = { Text(stringResource(R.string.rule_detail)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     IconButton(onClick = {
                         viewModel.applyRules()
                         scope.launch {
-                            snackbarHostState.showSnackbar("Kaydedildi")
+                            snackbarHostState.showSnackbar(context.getString(R.string.saved))
                         }
                         onNavigateBack()
                     }) {
-                        Icon(Icons.Filled.Check, contentDescription = "Kaydet")
+                        Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.save))
                     }
                 },
             )
@@ -113,7 +117,7 @@ fun RuleDetailScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("Kural bulunamadı", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.rule_not_found), style = MaterialTheme.typography.bodyLarge)
             }
             return@Scaffold
         }
@@ -129,9 +133,9 @@ fun RuleDetailScreen(
             // ── Enable/Disable ──
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
-                    headlineContent = { Text("Kuralı etkinleştir") },
+                    headlineContent = { Text(stringResource(R.string.enable_rule)) },
                     supportingContent = {
-                        Text(if (rule.enabled) "Etkin" else "Kapalı")
+                        Text(stringResource(if (rule.enabled) R.string.enabled else R.string.disabled))
                     },
                     trailingContent = {
                         Switch(
@@ -146,7 +150,7 @@ fun RuleDetailScreen(
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Hareket koşulu",
+                        text = stringResource(R.string.gesture_condition),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -157,10 +161,10 @@ fun RuleDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Kenar", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.edge), modifier = Modifier.weight(1f))
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showEdgeMenu = true }) {
-                                Text("${edgeIcon(rule.trigger.edge)} ${edgeLabel(rule.trigger.edge)}")
+                                Text("${edgeIcon(rule.trigger.edge)} ${edgeLabel(context, rule.trigger.edge)}")
                             }
                             DropdownMenu(
                                 expanded = showEdgeMenu,
@@ -168,7 +172,7 @@ fun RuleDetailScreen(
                             ) {
                                 Edge.entries.forEach { edge ->
                                     DropdownMenuItem(
-                                        text = { Text("${edgeIcon(edge)} ${edgeLabel(edge)}") },
+                                        text = { Text("${edgeIcon(edge)} ${edgeLabel(context, edge)}") },
                                         onClick = {
                                             viewModel.updateRuleTrigger(
                                                 ruleId,
@@ -184,9 +188,9 @@ fun RuleDetailScreen(
 
                     Text(
                         if (rule.trigger.edge == Edge.BOTTOM)
-                            "Sol ve sağ sınır"
+                            stringResource(R.string.horizontal_bounds)
                         else
-                            "Üst ve alt sınır",
+                            stringResource(R.string.vertical_bounds),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -217,11 +221,11 @@ fun RuleDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Alan", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.area), modifier = Modifier.weight(1f))
                         val sectionOptions = SectionRange.presets(rule.trigger.edge)
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showSectionMenu = true }) {
-                                Text(sectionLabel(rule.trigger.section, rule.trigger.edge))
+                                Text(sectionLabel(context, rule.trigger.section, rule.trigger.edge))
                             }
                             DropdownMenu(
                                 expanded = showSectionMenu,
@@ -249,10 +253,10 @@ fun RuleDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Hareket türü", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.gesture_type), modifier = Modifier.weight(1f))
                         androidx.compose.foundation.layout.Box {
                             OutlinedButton(onClick = { showGestureMenu = true }) {
-                                Text(gestureLabel(rule.trigger.gestureType))
+                                Text(gestureLabel(context, rule.trigger.gestureType))
                             }
                             DropdownMenu(
                                 expanded = showGestureMenu,
@@ -260,7 +264,7 @@ fun RuleDetailScreen(
                             ) {
                                 GestureType.entries.forEach { gestureType ->
                                     DropdownMenuItem(
-                                        text = { Text(gestureLabel(gestureType)) },
+                                        text = { Text(gestureLabel(context, gestureType)) },
                                         onClick = {
                                             viewModel.updateRuleTrigger(
                                                 ruleId,
@@ -280,7 +284,7 @@ fun RuleDetailScreen(
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Tetikleme biçimi",
+                        text = stringResource(R.string.trigger_mode),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -299,9 +303,9 @@ fun RuleDetailScreen(
                         ) {
                             RadioButton(selected = rule.triggerMode == TriggerMode.SWIPE, onClick = null)
                             Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text("Kaydırma", style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.swipe), style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    "Yalnızca kaydırınca çalışır; normal dokunuş uygulamaya geçer.",
+                                    stringResource(R.string.swipe_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -320,9 +324,9 @@ fun RuleDetailScreen(
                         ) {
                             RadioButton(selected = rule.triggerMode == TriggerMode.TOUCH, onClick = null)
                             Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text("Dokunma", style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.touch), style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    "Kenara dokunulduğu anda algılar.",
+                                    stringResource(R.string.touch_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -335,9 +339,9 @@ fun RuleDetailScreen(
             // ── Action ──
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 ListItem(
-                    headlineContent = { Text("Yapılacak işlem") },
+                    headlineContent = { Text(stringResource(R.string.assigned_action)) },
                     supportingContent = {
-                        Text(rule.action.label)
+                        Text(rule.action.localizedLabel(context))
                     },
                     leadingContent = {
                         ActionIcon(
@@ -348,7 +352,7 @@ fun RuleDetailScreen(
                     },
                     trailingContent = {
                         OutlinedButton(onClick = { showActionPicker = true }) {
-                            Text("Değiştir")
+                            Text(stringResource(R.string.change))
                         }
                     },
                 )
@@ -365,7 +369,7 @@ fun RuleDetailScreen(
             ) {
                 Icon(Icons.Filled.Delete, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("Kuralı sil")
+                Text(stringResource(R.string.delete_rule))
             }
         }
     }
@@ -385,20 +389,20 @@ fun RuleDetailScreen(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("OnaylaSil") },
-            text = { Text("Bu kural silinsin mi? Bu işlem geri alınamaz.") },
+            title = { Text(stringResource(R.string.confirm)) },
+            text = { Text(stringResource(R.string.delete_rule_confirm)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.removeRule(ruleId)
                     showDeleteConfirm = false
                     onNavigateBack()
                 }) {
-                    Text("Sil", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel))
                 }
             },
         )

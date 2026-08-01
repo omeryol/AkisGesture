@@ -59,7 +59,7 @@ class KeepAliveService : Service() {
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 setShowBadge(false)
-                description = "Hareket hizmetini arka planda kullanılabilir tutar"
+                description = getString(io.github.omeryol.akisgesture.R.string.service_channel_description)
             }
             getSystemService(NotificationManager::class.java)
                 .createNotificationChannel(channel)
@@ -76,8 +76,8 @@ class KeepAliveService : Service() {
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_gesture_24)
-            .setContentTitle("Akış Gesture hareket hizmeti çalışıyor")
-            .setContentText("Kenar hareketleri hazır. Ayarları açmak için dokunun.")
+            .setContentTitle(getString(io.github.omeryol.akisgesture.R.string.service_running))
+            .setContentText(getString(io.github.omeryol.akisgesture.R.string.service_ready_tap))
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true)

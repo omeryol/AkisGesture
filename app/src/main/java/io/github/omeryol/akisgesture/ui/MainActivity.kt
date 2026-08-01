@@ -1,7 +1,6 @@
 package io.github.omeryol.akisgesture.ui
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
@@ -28,6 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -48,8 +49,9 @@ import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
 import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
 import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,11 +93,11 @@ private fun AkisGestureApp() {
                     title = {
                         Text(
                             text = when {
-                                currentRoute == "home" -> "Akış Gesture"
-                                currentRoute == "permissions" -> "İzinler"
-                                currentRoute == "settings" -> "Ayarlar"
-                                isRulesRoute -> "Hareketler"
-                                else -> "Akış Gesture"
+                                currentRoute == "home" -> stringResource(R.string.app_name)
+                                currentRoute == "permissions" -> stringResource(R.string.permissions_title)
+                                currentRoute == "settings" -> stringResource(R.string.nav_settings)
+                                isRulesRoute -> stringResource(R.string.nav_gestures)
+                                else -> stringResource(R.string.app_name)
                             }
                         )
                     },
@@ -179,9 +181,9 @@ private fun AkisGestureBottomBar(
     currentRoute: String,
 ) {
     val navigationItems = listOf(
-        Triple("home", "Ana ekran", Icons.Filled.Home),
-        Triple("rules", "Hareketler", Icons.Filled.TouchApp),
-        Triple("settings", "Ayarlar", Icons.Filled.Settings),
+        Triple("home", stringResource(R.string.nav_home), Icons.Filled.Home),
+        Triple("rules", stringResource(R.string.nav_gestures), Icons.Filled.TouchApp),
+        Triple("settings", stringResource(R.string.nav_settings), Icons.Filled.Settings),
     )
 
     Surface(

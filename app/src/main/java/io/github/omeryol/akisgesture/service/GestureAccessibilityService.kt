@@ -156,7 +156,9 @@ class GestureAccessibilityService : AccessibilityService() {
                     foregroundHistory.addFirst(pkg)
                     while (foregroundHistory.size > 8) foregroundHistory.removeLast()
                 }
-                gestureEngine.onForegroundAppChanged(pkg, null)
+                if (::gestureEngine.isInitialized) {
+                    gestureEngine.onForegroundAppChanged(pkg, null)
+                }
                 serviceScope.launch {
                     val adaptiveColor = extractAppDominantColor(pkg)
                     Handler(Looper.getMainLooper()).post {
@@ -218,7 +220,9 @@ class GestureAccessibilityService : AccessibilityService() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        gestureEngine.onConfigurationChanged(newConfig)
+        if (::gestureEngine.isInitialized) {
+            gestureEngine.onConfigurationChanged(newConfig)
+        }
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
