@@ -35,6 +35,31 @@ Selected screenshots captured from the current device build:
   <img src="docs/screenshots/akis-rule-detail.jpg" width="180" alt="Rule details">
 </p>
 
+## Open source and permissions
+
+Akış Gesture is an open-source, personal hobby project. Its source code can be
+reviewed in the [GitHub repository](https://github.com/omeryol/AkisGesture). The
+app is provided as-is; ongoing development, device compatibility, and individual
+technical support are not guaranteed.
+
+The Android permissions are used for these purposes:
+
+- **Accessibility service:** Required to detect edge gestures and perform system
+  actions such as Back, Home, and Recents. This sensitive permission is explicitly
+  enabled by the user in Android settings.
+- **Vibration:** Used for haptic gesture feedback.
+- **Camera:** Declared only so the optional flashlight action can control the
+  device torch; the app does not take photos or record video.
+- **Notifications and foreground service:** Used to show that the gesture service
+  is active and keep its status visible under Android background restrictions.
+- **Boot completion and battery optimization exemption:** Used, when enabled by
+  the user, to keep the gesture service available after reboot and reduce the
+  chance of vendor battery management stopping it.
+
+Rules and app settings can be exported as a JSON file from `Settings > Backup`.
+Keeping that backup safe is the user's responsibility; automatic cloud backup and
+data recovery are not guaranteed.
+
 ## Project and release model
 
 Akış Gesture is developed as an independent open-source project rather than a
