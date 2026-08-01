@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.53] - 2026-08-01
+
+### 🧪 Beş Prototip Animasyon Test Seti
+
+- Test arayüzünde yalnızca Okyanus, Fermuar, Kara Delik, Plazma ve Matrix
+  animasyonları görünür bırakıldı.
+- Renderer bu beş ayrı fizik motorunu aktif olarak kullanıyor.
+- Eski kayıtlı animasyon değerleri bozulmadan güvenli hidro fallback'e düşüyor.
+
 ## [1.1.52] - 2026-08-01
 
 ### 🧪 Referans Prototip Motorları Uygulandı

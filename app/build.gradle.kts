@@ -14,8 +14,8 @@ android {
         targetSdk = 35
         versionCode = 33
         versionName = "1.1.45"
-        versionCode = 40
-        versionName = "1.1.52"
+        versionCode = 41
+        versionName = "1.1.53"
     }
 
     buildTypes {
