@@ -60,6 +60,29 @@ Rules and app settings can be exported as a JSON file from `Settings > Backup`.
 Keeping that backup safe is the user's responsibility; automatic cloud backup and
 data recovery are not guaranteed.
 
+## Before disabling system navigation
+
+Disabling the system navigation buttons or bar separately can leave the device
+temporarily unusable if Akış Gesture stops or its accessibility service is
+disabled. Akış Gesture does not perform this system modification, and it is
+outside the project's scope. Do not lock navigation until a recovery path is
+ready.
+
+Before testing:
+
+- Export the rules and settings as a JSON backup.
+- Keep ADB/USB debugging or the device's official recovery method available;
+  test computer-and-cable access beforehand when possible.
+- Keep system navigation enabled while testing a single gesture rule first.
+- Confirm how to stop Akış Gesture, disable its accessibility service, and
+  restore system navigation for the specific device.
+
+If Akış Gesture stops, restore system navigation or disable the accessibility
+service from Android Settings first. Then restart the app or restore the JSON
+backup. Recovery commands vary between vendors and third-party root tools. The
+user must accept the risk of being unable to recover the device before making
+these system changes.
+
 ## Project and release model
 
 Akış Gesture is developed as an independent open-source project rather than a
