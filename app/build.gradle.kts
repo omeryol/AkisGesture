@@ -14,8 +14,8 @@ android {
         targetSdk = 35
         versionCode = 33
         versionName = "1.1.45"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionCode = 34
+        versionName = "1.1.46"
     }
 
     buildTypes {
