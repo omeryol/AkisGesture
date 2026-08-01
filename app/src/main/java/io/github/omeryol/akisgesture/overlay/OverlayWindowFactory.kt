@@ -1,0 +1,73 @@
+package io.github.omeryol.akisgesture.overlay
+
+import android.content.Context
+import android.graphics.PixelFormat
+import android.view.Gravity
+import android.view.WindowManager.LayoutParams
+import io.github.omeryol.akisgesture.feedback.FeedbackView
+
+object OverlayWindowFactory {
+
+    private const val BASE_FLAGS =
+        LayoutParams.FLAG_NOT_FOCUSABLE or
+        LayoutParams.FLAG_LAYOUT_IN_SCREEN
+
+    /**
+     * Creates a transparent edge-touch sensor window (sensor layer).
+     */
+    fun createEdgeSensor(
+        context: Context,
+        edge: Edge,
+        widthPx: Int,
+        heightPx: Int,
+        offsetPx: Int = 0,
+        onTouchListener: EdgeSensorView.OnEdgeTouchListener? = null,
+    ): OverlayWindow {
+        val params = LayoutParams(
+            widthPx, heightPx,
+            LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            BASE_FLAGS or
+                LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            when (edge) {
+                Edge.LEFT -> {
+                    gravity = Gravity.TOP or Gravity.START
+                    x = 0
+                    y = offsetPx
+                }
+                Edge.RIGHT -> {
+                    gravity = Gravity.TOP or Gravity.END
+                    x = 0
+                    y = offsetPx
+                }
+                Edge.BOTTOM -> {
+                    gravity = Gravity.BOTTOM or Gravity.START
+                    x = offsetPx
+                    y = 0
+                }
+            }
+        }
+        val view = EdgeSensorView(context, edge).apply {
+            this.onEdgeTouchListener = onTouchListener
+        }
+        return OverlayWindow(view, params)
+    }
+
+    fun createFeedbackOverlay(context: Context): OverlayWindow {
+        val params = LayoutParams(
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            BASE_FLAGS or
+                LayoutParams.FLAG_NOT_TOUCHABLE or
+                LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+        }
+        return OverlayWindow(FeedbackView(context), params)
+    }
+}

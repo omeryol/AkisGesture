@@ -1,6 +1,11 @@
-# <img src="docs/icon.svg" width="48" align="center"/> OpenSwipe
+# <img src="docs/icon.svg" width="48" align="center"/> Akis Gesture
 
-**Open-source Android gesture navigation** — Custom gesture navigation powered by AccessibilityService. No root required.
+**Open-source Android edge gesture navigation** — Custom navigation powered by AccessibilityService. No root required.
+
+Akis Gesture started from [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe).
+The original MIT license and attribution are preserved in `LICENSE` and
+`UPSTREAM.md`. The Android package identity is independently maintained as
+`io.github.omeryol.akisgesture`.
 
 No ads · No tracking · Fully open-source · Free forever
 
@@ -41,7 +46,7 @@ No ads · No tracking · Fully open-source · Free forever
 ### Architecture
 
 ```
-com.openswipe/
+io.github.omeryol.akisgesture/
 ├── service/     → AccessibilityService + keep-alive + auto-start on boot
 ├── overlay/     → TYPE_ACCESSIBILITY_OVERLAY window management
 ├── gesture/     → State-machine gesture detection engine
@@ -64,8 +69,8 @@ performGlobalAction(GLOBAL_ACTION_RECENTS)  // Recents
 ### Build
 
 ```bash
-git clone https://github.com/ARCJ137442/OpenSwipe.git
-cd OpenSwipe
+git clone <repository-url>
+cd AkisGesture
 ./gradlew assembleDebug
 # APK output: app/build/outputs/apk/debug/app-debug.apk
 ```

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/accessibility_service_description"
-    android:settingsActivity="com.omer.akisgesture.ui.MainActivity"
+    android:settingsActivity="io.github.omeryol.akisgesture.ui.MainActivity"
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="true"
     android:canRequestTouchExplorationMode="false"
     android:notificationTimeout="200"
-    android:canPerformGestures="false" />
+    android:canPerformGestures="true" />
