@@ -21,6 +21,10 @@ enum class FeedbackAnimation(val label: String) {
     SOLAR_FLARE("Güneş Patlaması ✺"),
     ZIPPER_VOID("Fermuar Boşluğu ⦿"),
     BLACK_HOLE_PULL("Kara Delik Çekimi ◉"),
+    MATRIX_DISSOLVE("Matrix Erimesi ▦"),
+    HYDRO_WIPE("Hidro Dalga ≋"),
+    DEWDROP_GLASS("Buğulu Cam Damlası ◌"),
+    PRISM_SHATTER("Prizma Kırılması ◇"),
     ICON_ONLY("Sade Simge 🎯"),
     NONE("Kapalı 🚫"),
 }
