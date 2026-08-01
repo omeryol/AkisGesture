@@ -146,6 +146,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         _rules.value = _rules.value + additions
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun removeRule(ruleId: String) {
@@ -174,6 +175,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun toggleRuleEnabled(ruleId: String) {
@@ -268,6 +270,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         _rules.value = preset.rules
         _activePresetName.value = name
         revalidate()
+        applyRules()
     }
 
     private fun loadGraph(graph: GestureRuleGraph) {

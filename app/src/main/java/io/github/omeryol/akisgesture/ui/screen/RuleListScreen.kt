@@ -77,6 +77,7 @@ import io.github.omeryol.akisgesture.ui.util.appLabel
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
+import io.github.omeryol.akisgesture.rule.Presets
 import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,7 +144,7 @@ fun RuleListScreen(
                     Box {
                         TextButton(onClick = { showPresetMenu = true }) {
                             Text(
-                                activePreset ?: "Düzen",
+                                activePreset ?: "Şablonlar",
                                 style = MaterialTheme.typography.labelLarge,
                                 color = Color(0xFF00E5FF),
                             )
@@ -155,7 +156,20 @@ fun RuleListScreen(
                         ) {
                             RuleConfigViewModel.presets.forEach { (name, graph) ->
                                 DropdownMenuItem(
-                                    text = { Text(name, color = Color.White) },
+                                    text = {
+                                        Column {
+                                            Text(
+                                                name,
+                                                color = Color.White,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Text(
+                                                Presets.DESCRIPTIONS[name].orEmpty(),
+                                                color = Color(0xFFB7B9C9),
+                                                style = MaterialTheme.typography.labelSmall,
+                                            )
+                                        }
+                                    },
                                     onClick = {
                                         viewModel.loadPreset(name, graph)
                                         showPresetMenu = false
