@@ -2,6 +2,16 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.34] - 2026-08-01
+
+### 🧰 20 Şablon ve Otomatik Uygulama
+
+- 9 mevcut düzene 11 yeni, kullanım amacı açıklanmış şablon eklendi.
+- Şablon menüsünün başlığı **Şablonlar** olarak güncellendi.
+- Her şablon açıklamasıyla birlikte gösteriliyor ve uyumlu eylemler içeriyor.
+- Eylem seçimi, yeni hareket ekleme ve şablon seçimi artık ayrı bir **Uygula**
+  adımı beklemeden doğrudan kaydediliyor.
+
 ## [1.1.33] - 2026-08-01
 
 ### 🎯 Gesture İkon Geçişi Sabitlendi
