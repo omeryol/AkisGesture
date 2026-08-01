@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -147,6 +149,11 @@ fun ActionPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.fillMaxSize(),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
         title = {
@@ -171,8 +178,8 @@ fun ActionPickerDialog(
             LazyColumn(
                 state = listState,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 520.dp),
+                    .fillMaxSize()
+                    .padding(horizontal = 4.dp),
             ) {
                 if (browsingApps && !appSelectionOnly) {
                     item(key = "back_to_actions") {
