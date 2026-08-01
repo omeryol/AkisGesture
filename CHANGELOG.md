@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.30] - 2026-08-01
+
+### 🧼 Eylem Seçici Yerleşimi Düzeltildi
+
+- Tam ekran seçici artık opak yüzey kullanıyor; alttaki sayfa görünmüyor.
+- Kapatma düğmesi başlığa taşındı.
+- İçerik yüksekliği sınırlandı, alt boşluk azaltıldı.
+- Eylem kartlarının iç boşlukları ve metin satırları daha dengeli hale getirildi.
+
 ## [1.1.29] - 2026-08-01
 
 ### 🧾 Eylem Seçici Tablo Düzeni

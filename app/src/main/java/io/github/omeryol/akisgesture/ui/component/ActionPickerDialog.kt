@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -153,31 +154,35 @@ fun ActionPickerDialog(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false,
         ),
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
         title = {
-            Column {
-                Text(
-                    if (browsingApps) "Uygulama seç" else "Eylem seç",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                )
-                Text(
-                    if (browsingApps) {
-                        "Hareketle açmak istediğin uygulamayı seç."
-                    } else {
-                        "Ara veya sık kullanılanlardan birini seç."
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        if (browsingApps) "Uygulama seç" else "Eylem seç",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    )
+                    Text(
+                        if (browsingApps) "Hareketle açmak istediğin uygulamayı seç."
+                        else "Ara veya bir kategori seç.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                    )
+                }
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Filled.Close, contentDescription = "Kapat")
+                }
             }
         },
         text = {
             LazyColumn(
                 state = listState,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .heightIn(max = 720.dp)
                     .padding(horizontal = 4.dp),
             ) {
                 if (browsingApps && !appSelectionOnly) {
@@ -341,9 +346,7 @@ fun ActionPickerDialog(
             }
         },
         confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Kapat") }
-        },
+        dismissButton = {},
     )
 }
 
@@ -397,7 +400,7 @@ private fun ActionPickerItem(
                 RoundedCornerShape(14.dp),
             )
             .clickable(enabled = available) { onSelect(action) }
-            .padding(horizontal = 12.dp, vertical = 9.dp),
+            .padding(horizontal = 9.dp, vertical = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -424,6 +427,7 @@ private fun ActionPickerItem(
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = if (available) scheme.onSurface else scheme.onSurfaceVariant,
+                maxLines = 2,
             )
             Text(
                 when {
@@ -433,6 +437,7 @@ private fun ActionPickerItem(
                 },
                 style = MaterialTheme.typography.labelSmall,
                 color = scheme.onSurfaceVariant,
+                maxLines = 1,
             )
         }
         if (!available) {
