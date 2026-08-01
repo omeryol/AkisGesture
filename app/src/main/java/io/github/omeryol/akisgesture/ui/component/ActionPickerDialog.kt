@@ -255,8 +255,26 @@ fun ActionPickerDialog(
                             EmptyResult("Eşleşen uygulama bulunamadı")
                         }
                     } else {
-                        items(searchResults, key = { "app_${it.id}" }) { action ->
-                            ActionPickerItem(action = action, onSelect = onSelect)
+                        item(key = "app_grid") {
+                            Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+                                searchResults.chunked(3).forEach { rowApps ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
+                                    ) {
+                                        rowApps.forEach { action ->
+                                            ActionPickerItem(
+                                                action = action,
+                                                onSelect = onSelect,
+                                                modifier = Modifier.weight(1f),
+                                            )
+                                        }
+                                        repeat(3 - rowApps.size) {
+                                            Spacer(Modifier.weight(1f))
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 } else if (query.isNotBlank()) {
