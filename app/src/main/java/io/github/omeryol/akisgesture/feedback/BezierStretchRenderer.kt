@@ -140,13 +140,24 @@ class BezierStretchRenderer {
 
         // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
-            FeedbackAnimation.OCEAN_WAVE,
             FeedbackAnimation.MERCURY_TEARDROP,
             FeedbackAnimation.PLASMA_FIRE,
             FeedbackAnimation.ATMOSPHERIC_MIST,
             FeedbackAnimation.ELECTRIC_STORM,
             FeedbackAnimation.SOLAR_CORONA -> {
                 drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
+            }
+            FeedbackAnimation.OCEAN_WAVE -> {
+                drawRefractiveOceanWave3D(
+                    canvas,
+                    edge,
+                    stretch,
+                    effectiveTouchPos,
+                    canvasWidth,
+                    canvasHeight,
+                    progress,
+                    stateBoost,
+                )
             }
             FeedbackAnimation.AURORA_RIBBON,
             FeedbackAnimation.GLASS_RIPPLE,
