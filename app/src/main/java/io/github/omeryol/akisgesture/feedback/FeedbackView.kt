@@ -145,6 +145,9 @@ class FeedbackView(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!isActive || stretchDistance < 0.5f) return
+        // Natural motion uses a continuous time phase. Keep drawing while the
+        // finger is held still instead of only advancing on MOVE events.
+        postInvalidateOnAnimation()
         appSwitchDirection?.let { direction ->
             appSwitchRenderer.draw(
                 canvas = canvas,
@@ -180,15 +183,24 @@ class FeedbackView(context: Context) : View(context) {
         isLUp: Boolean = false,
         isLDown: Boolean = false,
         bendStartY: Float = 0f,
+        lColorProgress: Float = 0f,
     ) {
         this.edge = edge
-        this.touchPosition = touchPos
+        // During the vertical leg of an L gesture, keep the visual anchored at
+        // the bend. Finger travel controls color/progress without dragging the
+        // whole animation up or down the edge.
+        this.touchPosition = if (
+            lColorProgress > 0f &&
+            (edge == Edge.LEFT || edge == Edge.RIGHT) &&
+            bendStartY > 0f
+        ) bendStartY else touchPos
         this.isArmed = armed
         this.isHoldArmed = holdArmed
         this.appSwitchDirection = appSwitchDirection
         renderer.isLUp = isLUp
         renderer.isLDown = isLDown
         renderer.bendStartY = bendStartY
+        renderer.lColorProgress = lColorProgress
         if (active) {
             releaseAnimator?.cancel()
             isActive = true

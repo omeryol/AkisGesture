@@ -24,6 +24,7 @@ class EdgeGestureDetector(
     private val config: GestureConfig,
     private val scaledTouchSlop: Int,
     private val swipeThresholdPx: Float,
+    private val lSwipeThresholdPx: Float,
     private val onGestureResult: (GestureResult) -> Unit,
     private val triggerMode: TriggerMode = TriggerMode.TOUCH,
     private val onReplayTap: ((Float, Float) -> Unit)? = null,
@@ -57,7 +58,9 @@ class EdgeGestureDetector(
             Log.d(LOG_TAG, "hold_armed edge=$edge stretch=$lastStretch threshold=$swipeThresholdPx")
             publishProgress(active = true)
 
-            if (config.holdFireMode == HoldFireMode.ON_THRESHOLD) {
+            if (config.holdFireMode == HoldFireMode.ON_THRESHOLD &&
+                !hasLActionAt(initialTouchCoord())
+            ) {
                 holdFiredOnThreshold = true
                 val section = resolveSection(initialTouchCoord())
                 val result = GestureResult.EdgeSwipe(
@@ -165,6 +168,7 @@ class EdgeGestureDetector(
             downY = touchState.downY,
             currentInwardPx = currentInward,
             swipeThresholdPx = swipeThresholdPx,
+            lSwipeThresholdPx = lSwipeThresholdPx,
             hasLActionAtInitialTouch = hasLActionAt(initialTouchCoord()),
         )
 
@@ -192,10 +196,12 @@ class EdgeGestureDetector(
             }
         }
 
-        val inwardThreshold = swipeThresholdPx.coerceAtLeast(20f)
-        if (switchDirection == null &&
-            (state == GestureState.DETECTED || lSwipeDetector.inwardArmed) &&
-            (dampedDisplacement < swipeThresholdPx * 0.40f || currentInward < inwardThreshold * 0.5f)
+        if (switchDirection == null && GestureCancelPolicy.shouldCancel(
+                wasArmed = wasArmed || lSwipeDetector.inwardArmed,
+                inwardDisplacement = dampedDisplacement,
+                activationThreshold = swipeThresholdPx,
+                hysteresisRatio = config.hysteresisRatio,
+            )
         ) {
             state = GestureState.CANCELLED
             lSwipeDetector.reset()
@@ -320,6 +326,7 @@ class EdgeGestureDetector(
                 isLUp = isLUp,
                 isLDown = isLDown,
                 bendStartY = bendStartY,
+                lColorProgress = lSwipeDetector.turnProgress,
             )
         )
     }
@@ -347,7 +354,7 @@ class EdgeGestureDetector(
                     direction = if (rawDx < 0) SwipeDirection.LEFT else SwipeDirection.RIGHT,
                     touchAlongEdgePx = touchAlongEdgePx,
                 )
-            displacement > minThreshold -> {
+            displacement >= minThreshold -> {
                 val gestureType = when {
                     holdArmed -> GestureType.SWIPE_HOLD
                     else -> GestureType.QUICK_SWIPE
@@ -413,6 +420,7 @@ data class GestureProgress(
     val isLUp: Boolean = false,
     val isLDown: Boolean = false,
     val bendStartY: Float = 0f,
+    val lColorProgress: Float = 0f,
 )
 
 enum class GestureState {

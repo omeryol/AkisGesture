@@ -25,4 +25,10 @@ class GestureCancelPolicyTest {
     fun gestureThatWasNeverArmedCannotEnterCancelState() {
         assertFalse(GestureCancelPolicy.shouldCancel(false, 0f, 30f))
     }
+
+    @Test
+    fun configuredHysteresisControlsReturnDistance() {
+        assertTrue(GestureCancelPolicy.shouldCancel(true, 14f, 30f, hysteresisRatio = 0.5f))
+        assertFalse(GestureCancelPolicy.shouldCancel(true, 16f, 30f, hysteresisRatio = 0.5f))
+    }
 }

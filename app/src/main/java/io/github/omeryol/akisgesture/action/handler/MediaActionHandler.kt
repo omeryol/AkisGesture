@@ -13,25 +13,27 @@ class MediaActionHandler(
 
     fun handleMediaNext(): ActionResult = mediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
 
-    fun handleVolumeUp(): ActionResult {
+    fun handleVolumeUp(): ActionResult = audioAction {
         audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
-        ActionResult.Success
-        return ActionResult.Success
     }
 
-    fun handleVolumeDown(): ActionResult {
+    fun handleVolumeDown(): ActionResult = audioAction {
         audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
-        return ActionResult.Success
     }
 
-    fun handleToggleMute(): ActionResult {
+    fun handleToggleMute(): ActionResult = audioAction {
         audioManager.adjustVolume(AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
-        return ActionResult.Success
     }
 
-    private fun mediaKey(keyCode: Int): ActionResult {
+    private fun mediaKey(keyCode: Int): ActionResult = audioAction {
         audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
         audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
-        return ActionResult.Success
+    }
+
+    private inline fun audioAction(block: () -> Unit): ActionResult = try {
+        block()
+        ActionResult.Success
+    } catch (error: Exception) {
+        ActionResult.Failed(error.message ?: "Ses veya medya aksiyonu çalıştırılamadı")
     }
 }

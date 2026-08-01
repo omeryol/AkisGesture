@@ -2,9 +2,11 @@ package io.github.omeryol.akisgesture.action.handler
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
+import android.os.Process
 import android.view.KeyEvent
 import io.github.omeryol.akisgesture.action.ActionResult
 import io.github.omeryol.akisgesture.root.RootCommandExecutor
@@ -64,19 +66,12 @@ class HardwareAndAppHandler(
     }
 
     fun handleAppShortcut(packageName: String, shortcutId: String): ActionResult = try {
-        val shortcutManager = service.getSystemService(Context.SHORTCUT_SERVICE) as? android.content.pm.ShortcutManager
-            ?: return ActionResult.Failed("ShortcutManager kullanılamıyor")
-        val intent = shortcutManager.createShortcutResultIntent(
-            android.content.pm.ShortcutInfo.Builder(service, shortcutId)
-                .setShortLabel(shortcutId)
-                .build(),
-        )
-        service.startActivity(intent.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
+        val launcherApps = service.getSystemService(Context.LAUNCHER_APPS_SERVICE) as? LauncherApps
+            ?: return ActionResult.Failed("Uygulama kısayolları kullanılamıyor")
+        launcherApps.startShortcut(packageName, shortcutId, null, null, Process.myUserHandle())
         ActionResult.Success
     } catch (e: Exception) {
-        handleLaunchApp(packageName)
+        ActionResult.Failed(e.message ?: "Uygulama kısayolu açılamadı")
     }
 
     fun handleToggleAutoRotate(): ActionResult = try {
@@ -85,12 +80,12 @@ class HardwareAndAppHandler(
             android.provider.Settings.System.ACCELEROMETER_ROTATION,
             0,
         )
-        android.provider.Settings.System.putInt(
+        val written = android.provider.Settings.System.putInt(
             service.contentResolver,
             android.provider.Settings.System.ACCELEROMETER_ROTATION,
             if (current == 1) 0 else 1,
         )
-        ActionResult.Success
+        if (written) ActionResult.Success else ActionResult.Failed("Döndürme ayarı değiştirilemedi")
     } catch (e: SecurityException) {
         ActionResult.Failed("Döndürme izni için sistem ayarı gerekiyor")
     } catch (e: Exception) {
@@ -98,11 +93,11 @@ class HardwareAndAppHandler(
     }
 
     fun handleForceOrientation(orientation: Int): ActionResult = try {
-        android.provider.Settings.System.putInt(
+        val rotationDisabled = android.provider.Settings.System.putInt(
             service.contentResolver,
             android.provider.Settings.System.ACCELEROMETER_ROTATION, 0,
         )
-        android.provider.Settings.System.putInt(
+        val orientationWritten = android.provider.Settings.System.putInt(
             service.contentResolver,
             android.provider.Settings.System.USER_ROTATION,
             when (orientation) {
@@ -111,7 +106,8 @@ class HardwareAndAppHandler(
                 else -> 0
             },
         )
-        ActionResult.Success
+        if (rotationDisabled && orientationWritten) ActionResult.Success
+        else ActionResult.Failed("Yön ayarı değiştirilemedi")
     } catch (e: SecurityException) {
         ActionResult.Failed("Yön değiştirme izni yok")
     } catch (e: Exception) {
@@ -129,14 +125,25 @@ class HardwareAndAppHandler(
         ActionResult.Failed("Tek el modu yalnızca Xiaomi/MIUI/HyperOS cihazlarda desteklenir")
     }
 
-    fun handleSendKeyEvent(keyCode: Int): ActionResult {
-        service.doPerformGlobalAction(keyCode)
-        return try {
-            audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-            audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
-            ActionResult.Success
-        } catch (_: Exception) {
-            ActionResult.Failed("Tuş kodu gönderilemedi: $keyCode")
+    suspend fun handleSendKeyEvent(keyCode: Int): ActionResult = withContext(Dispatchers.IO) {
+        if (keyCode !in 0..KeyEvent.getMaxKeyCode()) {
+            return@withContext ActionResult.Failed("Geçersiz tuş kodu: $keyCode")
+        }
+        when (val rootResult = rootCommands.execute("input keyevent $keyCode")) {
+            RootResult.Success -> ActionResult.Success
+            is RootResult.Failure -> {
+                if (keyCode in MEDIA_KEY_CODES) {
+                    try {
+                        audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+                        audioManager.dispatchMediaKeyEvent(KeyEvent(KeyEvent.ACTION_UP, keyCode))
+                        ActionResult.Success
+                    } catch (_: Exception) {
+                        ActionResult.Failed(rootResult.reason)
+                    }
+                } else {
+                    ActionResult.Failed(rootResult.reason)
+                }
+            }
         }
     }
 
@@ -159,7 +166,7 @@ class HardwareAndAppHandler(
     }
 
     suspend fun handleForceStopForeground(): ActionResult = withContext(Dispatchers.IO) {
-        val packageName = service.foregroundPackage()
+        val packageName = service.foregroundAppPackage()
             ?: return@withContext ActionResult.Failed("Öndeki uygulama belirlenemedi")
         when (val result = rootCommands.forceStopPersonalProfile(packageName)) {
             RootResult.Success -> ActionResult.Success
@@ -172,5 +179,16 @@ class HardwareAndAppHandler(
             RootResult.Success -> ActionResult.Success
             is RootResult.Failure -> ActionResult.Failed(result.reason)
         }
+    }
+
+    companion object {
+        private val MEDIA_KEY_CODES = setOf(
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+            KeyEvent.KEYCODE_MEDIA_PLAY,
+            KeyEvent.KEYCODE_MEDIA_PAUSE,
+            KeyEvent.KEYCODE_MEDIA_NEXT,
+            KeyEvent.KEYCODE_MEDIA_PREVIOUS,
+            KeyEvent.KEYCODE_MEDIA_STOP,
+        )
     }
 }

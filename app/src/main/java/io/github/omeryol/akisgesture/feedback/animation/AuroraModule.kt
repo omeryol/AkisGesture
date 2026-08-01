@@ -1,0 +1,5 @@
+package io.github.omeryol.akisgesture.feedback.animation
+import android.graphics.*
+import io.github.omeryol.akisgesture.overlay.Edge
+import kotlin.math.sin
+class AuroraModule:NaturalAnimationModule{private val p=Paint(Paint.ANTI_ALIAS_FLAG).apply{style=Paint.Style.STROKE;strokeCap=Paint.Cap.ROUND};private val path=Path();override fun draw(f:AnimationFrame){val len=(20f+f.progress*240f)*f.size;val colors=intArrayOf(lighten(f.color,.42f),f.color,darken(f.color,.3f));for(b in 0..2){path.reset();for(i in 0..30){val u=i/30f;val along=f.touch+(b-1)*28f*f.size+sin(u*7+f.time*(.7+b*.1)).toFloat()*35f*f.progress;val depth=u*len;val q=when(f.edge){Edge.LEFT->depth to along;Edge.RIGHT->f.width-depth to along;Edge.BOTTOM->along to f.height-depth};if(i==0)path.moveTo(q.first,q.second)else path.lineTo(q.first,q.second)};p.maskFilter=BlurMaskFilter(12f,BlurMaskFilter.Blur.NORMAL);p.color=alpha(colors[b],(150*f.opacity).toInt());p.strokeWidth=(24f-b*4f)*f.size;f.canvas.drawPath(path,p);p.maskFilter=null}}}

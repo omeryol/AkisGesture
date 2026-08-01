@@ -2,6 +2,8 @@ package io.github.omeryol.akisgesture.root
 
 import android.content.Context
 import android.content.Intent
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 sealed interface RootResult {
     data object Success : RootResult
@@ -26,7 +28,17 @@ class RootCommandExecutor(private val context: Context) {
         if (packageName in protectedPackages()) {
             return RootResult.Failure("Bu uygulama güvenlik nedeniyle kapatılamaz")
         }
-        return execute("am force-stop --user 0 $packageName")
+        val command =
+            "task_ids=\$(dumpsys activity recents | " +
+                "sed -n 's/.*#\\([0-9][0-9]*\\).*type=standard A=[0-9][0-9]*:$packageName}.*/\\1/p'); " +
+                "am force-stop --user 0 $packageName; " +
+                "for task_id in \$task_ids; do am stack remove \$task_id; done; " +
+                "sleep 0.2; " +
+                "if pidof $packageName >/dev/null; then " +
+                "echo 'Uygulama işlemi kapanmadı'; exit 42; fi; " +
+                "if dumpsys activity recents | grep -F '$packageName' >/dev/null; then " +
+                "echo 'Uygulama son kullanılanlardan kaldırılamadı'; exit 43; fi"
+        return execute(command)
     }
 
     fun checkAccess(): RootResult = execute("id -u")
@@ -98,29 +110,39 @@ class RootCommandExecutor(private val context: Context) {
         }
     }
 
-    private fun executeForOutput(command: String): String? = try {
-        val process = ProcessBuilder("su", "-c", command)
-            .redirectErrorStream(true)
-            .start()
-        val output = process.inputStream.bufferedReader().use { it.readText() }
-        if (process.waitFor() == 0) output else null
-    } catch (_: Exception) {
-        null
-    }
+    private fun executeForOutput(command: String): String? =
+        runCommand(command)?.takeIf { it.exitCode == 0 }?.output
 
-    fun execute(command: String): RootResult = try {
-        val process = ProcessBuilder("su", "-c", command)
-            .redirectErrorStream(true)
-            .start()
-        val output = process.inputStream.bufferedReader().use { it.readText() }.trim()
-        val exitCode = process.waitFor()
-        if (exitCode == 0) {
+    fun execute(command: String): RootResult {
+        val result = runCommand(command)
+            ?: return RootResult.Failure("Root işlemi zaman aşımına uğradı veya başlatılamadı")
+        return if (result.exitCode == 0) {
             RootResult.Success
         } else {
-            RootResult.Failure(output.ifEmpty { "Root işlemi başarısız" })
+            RootResult.Failure(result.output.trim().ifEmpty { "Root işlemi başarısız" })
         }
-    } catch (error: Exception) {
-        RootResult.Failure(error.message ?: "Root erişimi kullanılamadı")
+    }
+
+    private fun runCommand(command: String): CommandResult? = try {
+        val process = ProcessBuilder("su", "-c", command)
+            .redirectErrorStream(true)
+            .start()
+        val output = StringBuilder()
+        val reader = thread(isDaemon = true, name = "akis-root-output") {
+            process.inputStream.bufferedReader().use { stream ->
+                stream.forEachLine { line -> output.appendLine(line) }
+            }
+        }
+        if (!process.waitFor(ROOT_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+            process.destroyForcibly()
+            reader.join(500L)
+            null
+        } else {
+            reader.join(500L)
+            CommandResult(process.exitValue(), output.toString())
+        }
+    } catch (_: Exception) {
+        null
     }
 
     private fun protectedPackages(): Set<String> {
@@ -144,6 +166,9 @@ class RootCommandExecutor(private val context: Context) {
     }
 
     companion object {
+        private const val ROOT_TIMEOUT_SECONDS = 8L
         private val PACKAGE_NAME = Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+$")
     }
+
+    private data class CommandResult(val exitCode: Int, val output: String)
 }
