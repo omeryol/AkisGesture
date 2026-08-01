@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Map
@@ -78,7 +80,6 @@ import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
 import io.github.omeryol.akisgesture.rule.Presets
-import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +93,6 @@ fun RuleListScreen(
     val rules by viewModel.rules.collectAsState()
     val gestureConfig by viewModel.gestureConfig.collectAsState()
     val conflicts by viewModel.conflicts.collectAsState()
-    val hasUnapplied by viewModel.hasUnappliedChanges.collectAsState()
     val activePreset by viewModel.activePresetName.collectAsState()
     val activeProfilePackage by viewModel.activeProfilePackage.collectAsState()
 
@@ -124,6 +124,7 @@ fun RuleListScreen(
             }
     }
     val visibleGroups = ruleGroups.filter { it.representative.trigger.edge == selectedEdge }
+    val ruleListState = rememberLazyListState()
 
     Scaffold(
         modifier = modifier,
@@ -177,27 +178,6 @@ fun RuleListScreen(
                                 )
                             }
                         }
-                    }
-                    val applyEnabled = hasUnapplied && conflicts.isEmpty()
-                    TextButton(
-                        onClick = {
-                            viewModel.applyRules()
-                            Toast.makeText(context, "Kurallar uygulandı", Toast.LENGTH_SHORT).show()
-                        },
-                        enabled = applyEnabled,
-                    ) {
-                        Icon(
-                            Icons.Filled.Check,
-                            contentDescription = null,
-                            tint = if (applyEnabled) Color(0xFF00E676) else Color(0x55FFFFFF),
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            "Uygula",
-                            color = if (applyEnabled) Color(0xFF00E676) else Color(0x55FFFFFF),
-                            fontWeight = FontWeight.Bold,
-                        )
                     }
                 },
             )
@@ -361,6 +341,7 @@ fun RuleListScreen(
                 }
             } else {
                 LazyColumn(
+                    state = ruleListState,
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -384,9 +365,10 @@ fun RuleListScreen(
                             }
                         }
                     }
-                    items(visibleGroups, key = { it.key }) { group ->
+                    itemsIndexed(visibleGroups, key = { _, group -> group.key }) { index, group ->
                         RuleTableRow(
                             group = group,
+                            number = index + 1,
                             onClick = { selectedGroupKey = group.key },
                             onDelete = { viewModel.removeRules(group.ids) },
                             onSelectAction = { gestureType, rule ->
@@ -655,6 +637,7 @@ private fun GestureSlotButton(
 @Composable
 private fun RuleTableRow(
     group: RuleGroup,
+    number: Int,
     onClick: () -> Unit,
     onDelete: () -> Unit,
     onSelectAction: (GestureType, GestureRule?) -> Unit,
@@ -662,6 +645,10 @@ private fun RuleTableRow(
 ) {
     val rule = group.representative
     val enabled = listOfNotNull(group.quick, group.hold, group.lUp, group.lDown).any { it.enabled }
+    val accent = listOf(
+        Color(0xFF5B8CFF), Color(0xFFFF6B6B), Color(0xFFFFB74D),
+        Color(0xFF4DD0E1), Color(0xFFB39DDB), Color(0xFF66BB6A),
+    )[number.minus(1) % 6]
     var contentAlpha = if (enabled) 1f else 0.45f
     var menuOpen by remember { mutableStateOf(false) }
 
@@ -673,10 +660,25 @@ private fun RuleTableRow(
         accentTint = if (enabled) Color(0xFF3D5AFE) else null,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(CircleShape)
+                    .background(accent.copy(alpha = if (enabled) 0.24f else 0.10f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    number.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (enabled) accent else Color(0xFF6F738A),
+                )
+            }
+            Spacer(Modifier.width(8.dp))
             EdgeZoneVisual(
                 edge = rule.trigger.edge,
                 section = rule.trigger.section,
-                zoneColor = if (enabled) Color(0xFF3D5AFE) else Color(0xFF4A4E69),
+                zoneColor = if (enabled) accent else Color(0xFF4A4E69),
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
