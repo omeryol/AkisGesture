@@ -145,36 +145,13 @@ class BezierStretchRenderer {
 
         // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
-            FeedbackAnimation.OCEAN_WAVE,
-            FeedbackAnimation.HYDRO_WIPE -> drawFluidHydroTide3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.OCEAN_WAVE -> drawFluidHydroTide3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             FeedbackAnimation.ZIPPER_VOID -> drawRealisticZipperVoid3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             FeedbackAnimation.BLACK_HOLE_PULL -> drawAccretionBlackHole3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
             FeedbackAnimation.PLASMA_FIRE -> drawVolumetricPlasmaFire3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.MATRIX_DISSOLVE,
-            FeedbackAnimation.STARFIELD -> drawMatrixCyberDissolve3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            FeedbackAnimation.MERCURY_TEARDROP,
-            FeedbackAnimation.ATMOSPHERIC_MIST,
-            FeedbackAnimation.ELECTRIC_STORM,
-            FeedbackAnimation.SOLAR_CORONA -> drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
-            FeedbackAnimation.AURORA_RIBBON,
-            FeedbackAnimation.GLASS_RIPPLE,
-            FeedbackAnimation.NEON_PULSE,
-            FeedbackAnimation.STARFIELD,
-            FeedbackAnimation.ICE_SHARDS,
-            FeedbackAnimation.VORTEX,
-            FeedbackAnimation.PRISM_FLOW,
-            FeedbackAnimation.EMBER_BLOOM,
-            FeedbackAnimation.COMET_TAIL,
-            FeedbackAnimation.QUANTUM_RING,
-            FeedbackAnimation.INK_FLOW,
-            FeedbackAnimation.SOLAR_FLARE,
-            FeedbackAnimation.MATRIX_DISSOLVE,
-            FeedbackAnimation.HYDRO_WIPE,
-            FeedbackAnimation.DEWDROP_GLASS,
-            FeedbackAnimation.PRISM_SHATTER -> {
-                drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
-            }
-            FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
+            FeedbackAnimation.MATRIX_DISSOLVE -> drawMatrixCyberDissolve3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+            FeedbackAnimation.NONE -> Unit
+            else -> drawFluidHydroTide3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
         }
 
         // Draw icon & action symbol with tight shape interaction

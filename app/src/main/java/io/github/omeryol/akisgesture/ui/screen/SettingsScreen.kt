@@ -409,7 +409,13 @@ fun SettingsScreen(
                 color = scheme.onSurface
             )
             Spacer(Modifier.height(4.dp))
-            val anims = FeedbackAnimation.entries.filter { it != FeedbackAnimation.NONE }
+            val anims = listOf(
+                FeedbackAnimation.OCEAN_WAVE,
+                FeedbackAnimation.ZIPPER_VOID,
+                FeedbackAnimation.BLACK_HOLE_PULL,
+                FeedbackAnimation.PLASMA_FIRE,
+                FeedbackAnimation.MATRIX_DISSOLVE,
+            )
             val chunkedAnims = anims.chunked(2)
             chunkedAnims.forEach { rowAnims ->
                 Row(
