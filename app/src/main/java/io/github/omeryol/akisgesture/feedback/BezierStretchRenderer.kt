@@ -121,6 +121,22 @@ class BezierStretchRenderer {
             armed -> 1.15f
             else -> 1.0f
         }
+        val visualScale = (animSize * stateBoost).coerceIn(0.85f, 2.8f)
+
+        // Every style gets a readable volumetric stage so small strokes never
+        // disappear behind the action icon.
+        drawVolumetricAura(
+            canvas = canvas,
+            edge = edge,
+            stretch = stretch,
+            touchPos = effectiveTouchPos,
+            w = canvasWidth,
+            h = canvasHeight,
+            color = baseColor,
+            opacity = opacity,
+            scale = visualScale,
+            progress = progress,
+        )
 
         // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
@@ -165,6 +181,37 @@ class BezierStretchRenderer {
         drawGestureIcon(
             canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, arrowAlpha, progress
         )
+    }
+
+    private fun drawVolumetricAura(
+        canvas: Canvas,
+        edge: Edge,
+        stretch: Float,
+        touchPos: Float,
+        w: Float,
+        h: Float,
+        color: Int,
+        opacity: Float,
+        scale: Float,
+        progress: Float,
+    ) {
+        val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val radius = (54f + progress * 54f) * scale
+        auraPaint.shader = RadialGradient(
+            cx,
+            cy,
+            radius * 2.2f,
+            intArrayOf(
+                intColorWithAlpha(Color.WHITE, (105 * opacity).toInt()),
+                intColorWithAlpha(color, (155 * opacity).toInt()),
+                intColorWithAlpha(color, (60 * opacity).toInt()),
+                Color.TRANSPARENT,
+            ),
+            floatArrayOf(0f, 0.24f, 0.58f, 1f),
+            Shader.TileMode.CLAMP,
+        )
+        canvas.drawCircle(cx, cy, radius * 2.2f, auraPaint)
+        auraPaint.shader = null
     }
 
     private fun center(edge: Edge, stretch: Float, touchPos: Float, w: Float, h: Float): Pair<Float, Float> {

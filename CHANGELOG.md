@@ -2,6 +2,16 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.43] - 2026-08-01
+
+### 🌌 Tüm Animasyonlar Yenilendi
+
+- Tüm geri bildirim modlarına ortak hacimli aura ve minimum görsel alan eklendi.
+- Animasyonlar düşük ilerleme değerlerinde de görünür kalıyor.
+- Armed, hold ve L-gesture durumlarında efekt ölçeği otomatik büyüyor.
+- Renkli gradient, parlak çekirdek ve yumuşak ışık katmanları tüm modlarda
+  tutarlı hale getirildi.
+
 ## [1.1.42] - 2026-08-01
 
 ### 🌌 Gerçekçi + Abstrakt Animasyon Dili
