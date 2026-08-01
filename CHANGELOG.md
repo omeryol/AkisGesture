@@ -2,6 +2,16 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.41] - 2026-08-01
+
+### 🧲 Gerçekçi Fermuar Boşluğu Animasyonu
+
+- Fermuar animasyonuna iki metal ray, sıralı dişler ve derin karadelik benzeri
+  merkez boşluğu eklendi.
+- Dişler açılış sırasında merkeze yaklaşarak kayboluyor; parlak parçacıklar
+  boşluğa çekiliyor.
+- Abstrakt ışık/renk dili, gerçek fermuar hareketiyle birleştirildi.
+
 ## [1.1.40] - 2026-08-01
 
 ### 🖌️ Animasyon Çizgi Ağırlıkları Yenilendi

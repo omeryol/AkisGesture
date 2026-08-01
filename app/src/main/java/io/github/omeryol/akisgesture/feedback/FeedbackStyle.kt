@@ -19,6 +19,7 @@ enum class FeedbackAnimation(val label: String) {
     QUANTUM_RING("Kuantum Halkası ◎"),
     INK_FLOW("Mürekkep Akışı ◒"),
     SOLAR_FLARE("Güneş Patlaması ✺"),
+    ZIPPER_VOID("Fermuar Boşluğu ⦿"),
     ICON_ONLY("Sade Simge 🎯"),
     NONE("Kapalı 🚫"),
 }
