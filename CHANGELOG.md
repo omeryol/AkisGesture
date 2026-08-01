@@ -4,6 +4,11 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [1.1.47] - 2026-08-01
 
+### 🌫️ Sis ve Güneş Efektleri Güçlendirildi
+
+- Sis bulutlarının hacmi ve görünürlüğü artırıldı.
+- Güneş koronası daha büyük ve kalın kavisli yaylarla güçlendirildi.
+
 ### 🔥 Plazma ve Fermuar Ayrıştırıldı
 
 - Plazma efektinin gövdesi büyütüldü ve sıcak iç alev çekirdeği eklendi.
