@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.16] - 2026-08-01
+
+### 💾 Yedekleme Kapsamı Düzeltildi
+
+- Erişilebilirlik servisinin kullanıcı tercihi olan etkin/pasif durumu artık
+  yedeğe dahil ediliyor.
+- Yeni yedek biçimi önceki sürüm yedeklerini de içe aktarabiliyor.
+
 ## [1.1.15] - 2026-08-01
 
 ### 🧰 Kimlik ve Dayanıklılık Düzenlemeleri
