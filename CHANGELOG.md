@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.32] - 2026-08-01
+
+### 📱 Uygulama Seçimi Üç Sütuna Taşındı
+
+- Uygulama seçme ekranı da aksiyonlarla aynı üç sütunlu simetrik grid düzenini
+  kullanıyor.
+- Eksik son satır hücreleri boş alanla dengeleniyor.
+
 ## [1.1.31] - 2026-08-01
 
 ### 🧩 Eylem Seçici Dört Sekme ve Üç Sütun
