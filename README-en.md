@@ -20,6 +20,21 @@ can be added through Android resources: English is in
 supported locale list is in `res/xml/locales_config.xml`. A unit test verifies
 that locale resource keys stay aligned.
 
+## Screenshots
+
+Selected screenshots captured from the current device build:
+
+<p align="center">
+  <img src="docs/screenshots/akis-home.jpg" width="180" alt="Home screen">
+  <img src="docs/screenshots/akis-gestures.jpg" width="180" alt="Gestures screen">
+  <img src="docs/screenshots/akis-appearance.jpg" width="180" alt="Appearance settings">
+</p>
+<p align="center">
+  <img src="docs/screenshots/akis-about.jpg" width="180" alt="About screen">
+  <img src="docs/screenshots/akis-actions.jpg" width="180" alt="Action picker">
+  <img src="docs/screenshots/akis-rule-detail.jpg" width="180" alt="Rule details">
+</p>
+
 ## Project and release model
 
 Akış Gesture is developed as an independent open-source project rather than a
