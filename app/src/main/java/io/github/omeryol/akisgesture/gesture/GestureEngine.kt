@@ -404,7 +404,11 @@ class GestureEngine(
             activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
         } else null
 
-        view.actionSymbol = ActionSymbols.symbolFor(matchedAction)
+        // Keep the selected action visible through the release animation. Clearing
+        // it on ACTION_UP makes the renderer fall back to intermediate icons.
+        if (progress.active) {
+            view.actionSymbol = ActionSymbols.symbolFor(matchedAction)
+        }
         view.updateGestureState(
             edge = progress.edge,
             stretch = progress.stretch,
