@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.49] - 2026-08-01
+
+### 🌊 Geçiş Laboratuvarı Fikirleri Eklendi
+
+- Matrix piksel erimesi, hidro dalga, buğulu cam damlası ve prizma kırılması
+  animasyonları eklendi.
+- Her yeni mod ayrı geometri, renk dağılımı ve hareket davranışı kullanıyor.
+- Web prototipindeki fikirler Android Canvas'a özgün biçimde uyarlandı.
+
 ## [1.1.47] - 2026-08-01
 
 ### 🌫️ Sis ve Güneş Efektleri Güçlendirildi

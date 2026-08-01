@@ -171,7 +171,11 @@ class BezierStretchRenderer {
             FeedbackAnimation.INK_FLOW,
             FeedbackAnimation.SOLAR_FLARE,
             FeedbackAnimation.ZIPPER_VOID,
-            FeedbackAnimation.BLACK_HOLE_PULL -> {
+            FeedbackAnimation.BLACK_HOLE_PULL,
+            FeedbackAnimation.MATRIX_DISSOLVE,
+            FeedbackAnimation.HYDRO_WIPE,
+            FeedbackAnimation.DEWDROP_GLASS,
+            FeedbackAnimation.PRISM_SHATTER -> {
                 drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
             }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
@@ -835,7 +839,98 @@ class BezierStretchRenderer {
             }
             FeedbackAnimation.ZIPPER_VOID -> drawZipperVoidAnimation(canvas, edge, touchPos, w, h, progress)
             FeedbackAnimation.BLACK_HOLE_PULL -> drawBlackHolePullAnimation(canvas, edge, touchPos, w, h, progress)
+            FeedbackAnimation.MATRIX_DISSOLVE -> drawMatrixDissolve(canvas, cx, cy, radius, progress, baseColor, time)
+            FeedbackAnimation.HYDRO_WIPE -> drawHydroWipe(canvas, edge, cx, cy, touchPos, w, h, radius, baseColor, secondaryColor, time)
+            FeedbackAnimation.DEWDROP_GLASS -> drawDewdropGlass(canvas, cx, cy, radius, baseColor, progress, time)
+            FeedbackAnimation.PRISM_SHATTER -> drawPrismShatter(canvas, cx, cy, radius, baseColor, secondaryColor, progress, time)
             else -> Unit
+        }
+    }
+
+    private fun drawMatrixDissolve(canvas: Canvas, cx: Float, cy: Float, radius: Float, progress: Float, color: Int, time: Double) {
+        val columns = 12
+        for (column in 0 until columns) {
+            val x = cx - radius * 1.5f + column * radius * 0.27f
+            val phase = (time * 2.2 + column * 0.7) % 1.0
+            val top = cy - radius * 1.4f + (phase.toFloat() * radius * 2.8f)
+            for (row in 0 until 6) {
+                val y = top - row * 13f * animSize
+                sparkPaint.color = if (row == 0) Color.WHITE else color
+                sparkPaint.alpha = ((210 - row * 28) * opacity).toInt().coerceIn(0, 255)
+                canvas.drawRect(x, y, x + 5f * animSize, y + 9f * animSize, sparkPaint)
+            }
+        }
+        glowStrokePaint.color = intColorWithAlpha(color, (170 * opacity).toInt())
+        glowStrokePaint.strokeWidth = 5f * animSize
+        canvas.drawLine(cx - radius * progress, cy - radius * 1.5f, cx - radius * progress, cy + radius * 1.5f, glowStrokePaint)
+    }
+
+    private fun drawHydroWipe(canvas: Canvas, edge: Edge, cx: Float, cy: Float, touchPos: Float, w: Float, h: Float, radius: Float, primary: Int, secondary: Int, time: Double) {
+        path.reset()
+        val span = radius * 2.4f
+        when (edge) {
+            Edge.LEFT, Edge.RIGHT -> {
+                val side = if (edge == Edge.LEFT) 0f else w
+                path.moveTo(side, cy - span)
+                for (i in 0..18) {
+                    val t = i / 18f
+                    val wave = sin(time * 2.1 + t * 10.0).toFloat() * radius * 0.22f
+                    path.lineTo(cx + if (edge == Edge.LEFT) wave else -wave, cy - span + t * span * 2f)
+                }
+                path.lineTo(side, cy + span)
+            }
+            Edge.BOTTOM -> {
+                path.moveTo(cx - span, h)
+                for (i in 0..18) {
+                    val t = i / 18f
+                    val wave = sin(time * 2.1 + t * 10.0).toFloat() * radius * 0.22f
+                    path.lineTo(cx - span + t * span * 2f, cy + wave)
+                }
+                path.lineTo(cx + span, h)
+            }
+        }
+        path.close()
+        bodyPaint.shader = LinearGradient(cx, cy - span, cx, cy + span, primary, secondary, Shader.TileMode.MIRROR)
+        canvas.drawPath(path, bodyPaint)
+        bodyPaint.shader = null
+        sparkPaint.color = Color.WHITE
+        for (i in 0 until 8) {
+            val x = cx - radius + i * radius * 0.28f
+            canvas.drawCircle(x, cy + sin(time * 2 + i).toFloat() * radius * .4f, 3f * animSize, sparkPaint)
+        }
+    }
+
+    private fun drawDewdropGlass(canvas: Canvas, cx: Float, cy: Float, radius: Float, color: Int, progress: Float, time: Double) {
+        val drops = 5
+        for (i in 0 until drops) {
+            val x = cx - radius * 1.2f + i * radius * .6f + sin(time + i).toFloat() * radius * .12f
+            val y = cy - radius * 1.1f + ((time * (0.25 + i * .04)) % 2.0).toFloat() * radius * 1.2f
+            val drop = radius * (.18f + progress * .14f)
+            bodyPaint.shader = RadialGradient(x - drop * .3f, y - drop * .35f, drop * 1.8f, Color.WHITE, intColorWithAlpha(color, (160 * opacity).toInt()), Shader.TileMode.CLAMP)
+            canvas.drawCircle(x, y, drop, bodyPaint)
+            bodyPaint.shader = null
+        }
+        glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (180 * opacity).toInt())
+        glowStrokePaint.strokeWidth = 4f * animSize
+        rectF.set(cx - radius * 1.4f, cy - radius * .65f, cx + radius * 1.4f, cy + radius * .65f)
+        canvas.drawOval(rectF, glowStrokePaint)
+    }
+
+    private fun drawPrismShatter(canvas: Canvas, cx: Float, cy: Float, radius: Float, primary: Int, secondary: Int, progress: Float, time: Double) {
+        for (i in 0 until 6) {
+            val angle = time * .35 + i * Math.PI / 3.0
+            val inner = radius * .22f
+            val outer = radius * (1.0f + progress * .8f + i % 2 * .2f)
+            path.reset()
+            path.moveTo(cx + cos(angle).toFloat() * inner, cy + sin(angle).toFloat() * inner)
+            path.lineTo(cx + cos(angle - .18).toFloat() * outer, cy + sin(angle - .18).toFloat() * outer)
+            path.lineTo(cx + cos(angle + .12).toFloat() * outer * .85f, cy + sin(angle + .12).toFloat() * outer * .85f)
+            path.close()
+            bodyPaint.color = intColorWithAlpha(if (i % 2 == 0) primary else secondary, (145 * opacity).toInt())
+            canvas.drawPath(path, bodyPaint)
+            glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (150 * opacity).toInt())
+            glowStrokePaint.strokeWidth = 3f * animSize
+            canvas.drawPath(path, glowStrokePaint)
         }
     }
 
