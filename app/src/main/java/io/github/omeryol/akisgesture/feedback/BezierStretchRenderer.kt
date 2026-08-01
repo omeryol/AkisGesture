@@ -196,15 +196,17 @@ class BezierStretchRenderer {
         progress: Float,
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val radius = (54f + progress * 54f) * scale
+        // Keep this layer as a quiet depth cue. The selected animation must
+        // own the silhouette; a large shared lens makes every mode look alike.
+        val radius = (26f + progress * 30f) * scale
         auraPaint.shader = RadialGradient(
             cx,
             cy,
             radius * 2.2f,
             intArrayOf(
-                intColorWithAlpha(Color.WHITE, (105 * opacity).toInt()),
-                intColorWithAlpha(color, (155 * opacity).toInt()),
-                intColorWithAlpha(color, (60 * opacity).toInt()),
+                intColorWithAlpha(Color.WHITE, (28 * opacity).toInt()),
+                intColorWithAlpha(color, (72 * opacity).toInt()),
+                intColorWithAlpha(color, (24 * opacity).toInt()),
                 Color.TRANSPARENT,
             ),
             floatArrayOf(0f, 0.24f, 0.58f, 1f),
