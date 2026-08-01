@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import io.github.omeryol.akisgesture.AkisGestureApp
+import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.service.AccessibilityControl
 import io.github.omeryol.akisgesture.rule.RuleSerializer.toGestureRuleGraph
@@ -113,9 +114,9 @@ object SettingsBackupManager {
 
     suspend fun import(app: AkisGestureApp, json: String) {
         val root = JSONObject(json)
-        require(root.optString("format") == FORMAT) { "Bu dosya Akış Gesture yedeği değil" }
+        require(root.optString("format") == FORMAT) { app.getString(R.string.invalid_backup) }
         val version = root.optInt("version")
-        require(version in 1..VERSION) { "Yedek sürümü desteklenmiyor" }
+        require(version in 1..VERSION) { app.getString(R.string.unsupported_backup_version) }
         val entries = root.getJSONArray("entries")
 
         // Validate rules before replacing any current setting.
@@ -146,7 +147,7 @@ object SettingsBackupManager {
                         prefs[stringSetPreferencesKey(key)] =
                             (0 until values.length()).map(values::getString).toSet()
                     }
-                    else -> error("Bilinmeyen yedek alanı")
+                    else -> error(app.getString(R.string.unknown_backup_field))
                 }
             }
         }

@@ -224,7 +224,7 @@ sealed interface ActionNode {
                 MediaPlayPause, MediaNext, MediaPrevious, VolumeUp, VolumeDown, ToggleMute,
                 BrightnessUp, BrightnessDown,
                 VoiceSearch, VoiceAssistant,
-                ToggleFlashlight, ToggleNavBar,
+                ToggleFlashlight,
                 ForceStopForeground,
                 NoAction,
             )
@@ -234,7 +234,7 @@ sealed interface ActionNode {
         fun allFixed(): List<ActionNode> = allFixed
 
         private val fixedById: Map<String, ActionNode> by lazy {
-            allFixed.associateBy { it.id }
+            (allFixed + ToggleNavBar).associateBy { it.id }
         }
 
         fun fromId(id: String): ActionNode? {

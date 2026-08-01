@@ -10,17 +10,21 @@ import android.os.Bundle
 class MacroDroidPluginActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val labels = arrayOf("Hareketleri başlat", "Hareketleri durdur", "Durumu değiştir")
+        val labels = arrayOf(
+            getString(io.github.omeryol.akisgesture.R.string.macro_start),
+            getString(io.github.omeryol.akisgesture.R.string.macro_stop),
+            getString(io.github.omeryol.akisgesture.R.string.macro_toggle),
+        )
         val commands = arrayOf("start", "stop", "toggle")
         AlertDialog.Builder(this)
-            .setTitle("Akış Gesture işlemi")
+            .setTitle(getString(io.github.omeryol.akisgesture.R.string.macro_title))
             .setItems(labels) { _, which ->
                 val bundle = Bundle().apply { putString(KEY_COMMAND, commands[which]) }
                 setResult(
                     RESULT_OK,
                     Intent()
                         .putExtra(EXTRA_BUNDLE, bundle)
-                        .putExtra(EXTRA_BLURB, "Akış Gesture · ${labels[which]}"),
+                        .putExtra(EXTRA_BLURB, getString(io.github.omeryol.akisgesture.R.string.macro_blurb, labels[which])),
                 )
                 finish()
             }

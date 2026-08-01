@@ -56,10 +56,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.ui.util.actionCategories
 import io.github.omeryol.akisgesture.ui.util.filterActions
+import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
 import java.text.Collator
 import kotlinx.coroutines.Dispatchers
@@ -85,12 +88,12 @@ fun ActionPickerDialog(
     }
     val keyActions = remember {
         listOf(
-            ActionNode.SendKeyCode(KeyEvent.KEYCODE_BACK, "Geri tuşu"),
-            ActionNode.SendKeyCode(KeyEvent.KEYCODE_HOME, "Ana ekran tuşu"),
-            ActionNode.SendKeyCode(KeyEvent.KEYCODE_APP_SWITCH, "Son uygulamalar tuşu"),
-            ActionNode.SendKeyCode(KeyEvent.KEYCODE_VOLUME_UP, "Ses artırma tuşu"),
-            ActionNode.SendKeyCode(KeyEvent.KEYCODE_VOLUME_DOWN, "Ses azaltma tuşu"),
-            ActionNode.SendKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, "Medya oynat / duraklat"),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_BACK, context.getString(R.string.key_back)),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_HOME, context.getString(R.string.key_home)),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_APP_SWITCH, context.getString(R.string.key_recents)),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_VOLUME_UP, context.getString(R.string.key_volume_up)),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_VOLUME_DOWN, context.getString(R.string.key_volume_down)),
+            ActionNode.SendKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, context.getString(R.string.key_media_toggle)),
         )
     }
     val categoryMap = remember(categories) { categories.toMap() }
@@ -139,7 +142,7 @@ fun ActionPickerDialog(
                 @Suppress("DEPRECATION")
                 packageManager.queryIntentActivities(launcherIntent, 0)
             }
-            val collator = Collator.getInstance(java.util.Locale("tr", "TR"))
+            val collator = Collator.getInstance(context.resources.configuration.locales[0])
             resolved
                 .mapNotNull { info ->
                     val packageName = info.activityInfo?.packageName ?: return@mapNotNull null
@@ -170,13 +173,12 @@ fun ActionPickerDialog(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (browsingApps) "Uygulama seç" else "Eylem seç",
+                        stringResource(if (browsingApps) R.string.choose_app else R.string.choose_action),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                     )
                     Text(
-                        if (browsingApps) "Hareketle açmak istediğin uygulamayı seç."
-                        else "Ara veya bir kategori seç.",
+                        stringResource(if (browsingApps) R.string.choose_app_hint else R.string.choose_action_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -198,7 +200,7 @@ fun ActionPickerDialog(
                 if (browsingApps && !appSelectionOnly) {
                     item(key = "back_to_actions") {
                         ListItem(
-                            headlineContent = { Text("Tüm eylemlere dön") },
+                            headlineContent = { Text(stringResource(R.string.back_to_actions)) },
                             leadingContent = {
                                 Icon(
                                     Icons.AutoMirrored.Filled.ArrowBack,
@@ -223,7 +225,7 @@ fun ActionPickerDialog(
                             .padding(bottom = 8.dp),
                         singleLine = true,
                         label = {
-                            Text(if (browsingApps) "Uygulama ara" else "Eylem veya uygulama ara")
+                            Text(stringResource(if (browsingApps) R.string.search_apps else R.string.search_actions))
                         },
                         leadingIcon = {
                             Icon(Icons.Filled.Search, contentDescription = null)
@@ -233,7 +235,7 @@ fun ActionPickerDialog(
                                 IconButton(onClick = { query = "" }) {
                                     Icon(
                                         Icons.Filled.Clear,
-                                        contentDescription = "Aramayı temizle",
+                                        contentDescription = stringResource(R.string.clear_search),
                                     )
                                 }
                             }
@@ -252,7 +254,7 @@ fun ActionPickerDialog(
                         }
                     } else if (searchResults.isEmpty()) {
                         item(key = "empty_apps") {
-                            EmptyResult("Eşleşen uygulama bulunamadı")
+                            EmptyResult(stringResource(R.string.no_matching_app))
                         }
                     } else {
                         item(key = "app_grid") {
@@ -280,7 +282,7 @@ fun ActionPickerDialog(
                 } else if (query.isNotBlank()) {
                     if (searchResults.isEmpty()) {
                         item(key = "empty_search") {
-                            EmptyResult("Eşleşen eylem veya uygulama bulunamadı")
+                            EmptyResult(stringResource(R.string.no_matching_action))
                         }
                     } else {
                         items(searchResults, key = { "search_${it.id}" }) { action ->
@@ -290,11 +292,11 @@ fun ActionPickerDialog(
                 } else {
                     item(key = "launch_app") {
                         ListItem(
-                            headlineContent = { Text("Uygulama aç") },
+                            headlineContent = { Text(stringResource(R.string.launch_app)) },
                             supportingContent = {
                                 Text(
-                                    if (appsLoaded) "${installedApps.size} uygulamadan seç"
-                                    else "Uygulamalar hazırlanıyor",
+                                    if (appsLoaded) stringResource(R.string.choose_from_apps, installedApps.size)
+                                    else stringResource(R.string.apps_loading),
                                 )
                             },
                             leadingContent = {
@@ -381,9 +383,12 @@ fun ActionPickerDialog(
     )
 }
 
+@Composable
 private fun pickerCategoryLabel(category: String): String = when (category) {
-    "Sistem Arayüzü" -> "Arayüz"
-    "Döndürme" -> "Yön"
+    "Sık" -> stringResource(R.string.category_frequent)
+    "Gezinme" -> stringResource(R.string.category_navigation)
+    "Sistem" -> stringResource(R.string.category_system)
+    "Medya & Araçlar" -> stringResource(R.string.category_media_tools)
     else -> category
 }
 
@@ -416,6 +421,7 @@ private fun ActionPickerItem(
     modifier: Modifier = Modifier,
     accentColor: Color? = null,
 ) {
+    val context = LocalContext.current
     val available = RuleConfigViewModel.isActionAvailable(action)
     val scheme = MaterialTheme.colorScheme
     val accent = accentColor ?: scheme.primary
@@ -457,7 +463,7 @@ private fun ActionPickerItem(
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                action.label,
+                action.localizedLabel(context),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = if (available) scheme.onSurface else scheme.onSurfaceVariant,
@@ -466,8 +472,8 @@ private fun ActionPickerItem(
             )
             Text(
                 when {
-                    !available -> "Bu Android sürümünde kullanılamıyor"
-                    action is ActionNode.LaunchApp -> "Uygulamayı aç"
+                    !available -> stringResource(R.string.unavailable_android)
+                    action is ActionNode.LaunchApp -> stringResource(R.string.launch_app)
                     else -> "Hareket eylemi"
                 },
                 style = MaterialTheme.typography.labelSmall,
@@ -477,9 +483,9 @@ private fun ActionPickerItem(
             )
         }
         if (!available) {
-            Text("Kapalı", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+            Text(stringResource(R.string.disabled), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
-            Text("Seç", style = MaterialTheme.typography.labelSmall, color = accent)
+            Text(stringResource(R.string.select), style = MaterialTheme.typography.labelSmall, color = accent)
         }
     }
 }

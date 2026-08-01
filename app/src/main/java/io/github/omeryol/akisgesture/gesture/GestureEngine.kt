@@ -198,7 +198,7 @@ class GestureEngine(
         SystemPausePolicy.shouldPause(
             config = currentConfig,
             lockScreenVisible = lockScreenVisible,
-            keyboardVisible = false, // Handled dynamically via keyboardTopRatio clipping
+            keyboardVisible = keyboardVisible,
             landscape = landscape,
             fullScreen = fullScreen,
             permissionScreen = permissionScreen,
@@ -299,7 +299,11 @@ class GestureEngine(
         when (edge) {
             Edge.LEFT -> {
                 val (vStart, vEnd) = currentConfig.verticalRangeFor(Edge.LEFT) ?: (0f to 1f)
-                val effectiveVEnd = if (keyboardVisible) minOf(vEnd, currentKeyboardTopRatio) else vEnd
+                val effectiveVEnd = if (currentConfig.pauseWhenKeyboardVisible && keyboardVisible) {
+                    minOf(vEnd, currentKeyboardTopRatio)
+                } else {
+                    vEnd
+                }
                 val sensorHeight = ((effectiveVEnd - vStart) * screenHeight).toInt().coerceAtLeast(1)
                 val verticalOffset = (vStart * screenHeight).toInt()
 
@@ -314,7 +318,11 @@ class GestureEngine(
             }
             Edge.RIGHT -> {
                 val (vStart, vEnd) = currentConfig.verticalRangeFor(Edge.RIGHT) ?: (0f to 1f)
-                val effectiveVEnd = if (keyboardVisible) minOf(vEnd, currentKeyboardTopRatio) else vEnd
+                val effectiveVEnd = if (currentConfig.pauseWhenKeyboardVisible && keyboardVisible) {
+                    minOf(vEnd, currentKeyboardTopRatio)
+                } else {
+                    vEnd
+                }
                 val sensorHeight = ((effectiveVEnd - vStart) * screenHeight).toInt().coerceAtLeast(1)
                 val verticalOffset = (vStart * screenHeight).toInt()
 

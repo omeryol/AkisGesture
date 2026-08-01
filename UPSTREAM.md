@@ -12,9 +12,10 @@ değişiklikler otomatik olarak birleştirilmez. Her güncelleme önce lisans,
 uyumluluk, test ve yerel değişikliklerle çakışma açısından incelenir.
 
 Akış Gesture'ın paket kimliği `io.github.omeryol.akisgesture` olarak ayrıdır.
-`com.openswipe` action adı gibi OpenSwipe uyumluluk tanımları geriye dönük
-entegrasyon için korunabilir; bu durum kaynak projenin paket kimliğinin
-kullanıldığı anlamına gelmez.
+Akış Gesture'ın dış otomasyon adları `io.github.omeryol.akisgesture` alanını
+kullanır. Eski `com.openswipe` tetikleme adı yalnızca mevcut kullanıcıların
+otomasyonlarını bozmayan geçici bir uyumluluk takma adı olarak kabul edilir;
+yeni entegrasyonlarda kullanılmaz.
 
 ## Diğer referanslar
 

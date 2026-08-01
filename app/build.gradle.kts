@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
+    implementation("androidx.appcompat:appcompat:1.7.1")
     implementation(libs.androidx.navigation.compose)
 
     implementation(platform(libs.androidx.compose.bom))

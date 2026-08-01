@@ -10,6 +10,52 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
+## Dil desteği
+
+Uygulama arayüzü Türkçe ve İngilizce olarak eksiksiz yerelleştirilmiştir. Dil,
+`Ayarlar > Hakkında > Dil` bölümünden `Sistem varsayılanı`, `Türkçe` veya
+`English` olarak seçilebilir. Yeni diller Android kaynak yapısıyla eklenir:
+varsayılan İngilizce metinler `res/values/strings.xml`, Türkçe metinler
+`res/values-tr/strings.xml`, desteklenen diller ise `res/xml/locales_config.xml`
+dosyasındadır. Kaynak anahtarı eşitliği birim testiyle denetlenir.
+
+## Proje ve yayın modeli
+
+Akış Gesture, OpenSwipe'a gönderilecek tek ve büyük bir çekme isteği olarak değil,
+bağımsız bir açık kaynak projesi olarak geliştirilmektedir. Proje; paket kimliği,
+arayüzü, hareket motoru, doğal geri bildirim modülleri ve isteğe bağlı root
+eylemleri bakımından kaynak tabandan önemli ölçüde ayrılmıştır.
+
+- Akış Gesture için bağımsız bir GitHub deposu kullanılacaktır.
+- Bu depo `origin`, OpenSwipe ise kaynak geçmişini izlemek için salt okunur
+  `upstream` olacaktır.
+- OpenSwipe'a uygun olabilecek küçük ve genel düzeltmeler, gerekirse daha sonra
+  ayrı ve sınırlı çekme istekleri olarak sunulabilir.
+- OpenSwipe'ın MIT telif ve lisans bildirimi korunur; Akış Gesture katkıları da
+  aynı MIT lisansı altında yayımlanır.
+- APK dosyaları kaynak ağacına eklenmez; doğrulanmış yayın paketleri GitHub
+  Releases bölümünde sürüm etiketi ve sürüm notlarıyla sunulur.
+
+Henüz herkese açık GitHub deposu veya resmi GitHub Release yayımlanmış değildir.
+İlk yayın öncesinde Git geçmişi gizli bilgi, kişisel yol ve büyük dosyalar için
+taranacak; derleme ve test denetimleri tamamlanacaktır.
+
+## Destek, katkı ve kullanım sınırları
+
+Akış Gesture bağımsız bir hobi ve topluluk projesidir. Güncelleme sıklığı, cihaz
+uyumluluğu, hata düzeltme süresi veya bireysel teknik destek garantisi verilmez.
+Tekrarlanabilir hata bildirimleri, iyileştirme önerileri ve kod katkıları
+memnuniyetle karşılanır.
+
+Temel kenar hareketleri Android Accessibility Service ile root olmadan çalışır.
+Root yalnızca açıkça işaretlenmiş ileri düzey veya deneysel eylemler için
+isteğe bağlıdır ve cihaz, ROM, APatch/Magisk sürümü ile üretici kısıtlamalarına
+göre farklı davranabilir.
+
+Akış Gesture sistem gezinme çubuğunu gizlemez. Tam ekran kullanım için gereken
+sistem değişiklikleri ve üçüncü taraf root çözümleri projenin parçası değildir;
+kullanıcı kendi cihazına ve ROM'una uygun yöntemi araştırmalıdır.
+
 ## Hedef
 
 - Sol, sağ ve alt kenarda gecikmesiz hareket algılama
@@ -249,7 +295,7 @@ dosyasına kaydedilip geri yüklenebilir.
 
 ## Yol Haritası
 
-Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md)
+Ayrıntılı işlev eşliği ve geliştirici çalışma notları yerel geliştirme belgelerinde tutulur.
 
 - [x] Temel projeyi temiz biçimde derle
 - [x] Akış kimliği, adı ve görsel sistemini ayır

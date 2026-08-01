@@ -45,9 +45,9 @@ class GestureTileService : TileService() {
         val enabled = AccessibilityControl.isEnabled(this)
         qsTile?.apply {
             state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-            label = "Akış"
+            label = getString(io.github.omeryol.akisgesture.R.string.tile_label)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                subtitle = if (enabled) "Hareketler açık" else "Hareketler kapalı"
+                subtitle = getString(if (enabled) io.github.omeryol.akisgesture.R.string.tile_on else io.github.omeryol.akisgesture.R.string.tile_off)
             }
             updateTile()
         }

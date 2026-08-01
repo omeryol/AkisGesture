@@ -9,7 +9,14 @@ The original MIT license and attribution are preserved in `LICENSE` and
 
 No ads · No tracking · Fully open-source · Free forever
 
-**English** | [中文](README.md)
+**English** | [Türkçe](README.md)
+
+### Languages
+
+The complete app interface is available in English and Turkish. Choose System
+default, Türkçe, or English under `Settings > About > Language`. Additional
+languages can be added through Android resources (`res/values-xx/strings.xml`)
+and `res/xml/locales_config.xml`; a unit test keeps locale resource keys aligned.
 
 ---
 
@@ -38,7 +45,7 @@ No ads · No tracking · Fully open-source · Free forever
 
 ### Installation
 
-1. Download APK from [Releases](https://github.com/ARCJ137442/OpenSwipe/releases)
+1. Download the APK from this project's Releases page when public builds are available.
 2. Install on your device
 3. Open the app → Follow the permission guide to enable AccessibilityService
 4. Swipe from screen edges and enjoy!

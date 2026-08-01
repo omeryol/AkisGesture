@@ -11,4 +11,24 @@ local.properties
 
 app/build/
 *.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+.env
 local.properties
+
+# Local verification and generated media
+/tmp/
+/animation-frames/
+/screen-recording-frames/
+
+# Local development notes and internal reports
+/docs/ENGINEERING_RULES.md
+/docs/plan/
+/FNG_KARSILASTIRMA_RAPORU.md
+/FNG_PARITY_TARGET.md
+/NAVIGASYON_VE_JEST_ENTEGRASYON_RAPORU.md
+/OTURUM4_ANALIZ_RAPORU.md
+/PROJECT_DEVELOPMENT_REPORT.md
+/SIMDIKI_HEDEFLER.md

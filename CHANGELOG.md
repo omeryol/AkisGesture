@@ -1,5 +1,50 @@
 # Değişiklik Günlüğü
 
+## Yayına hazırlık
+
+- Uygulamanın kullanıcıya görünen arayüzü, servis bildirimleri, hızlı ayarlar
+  kutucuğu, MacroDroid metinleri, yedekleme hataları, hareket/eylem adları ve
+  hazır şablonları Türkçe ve İngilizce Android kaynaklarına taşındı.
+- `Sistem varsayılanı`, `Türkçe` ve `English` seçenekli uygulama dili ayarı;
+  Android 13 uygulama dili bildirimi ve eski sürümler için AppCompat yerel ayar
+  saklama altyapısı eklendi. Dil kaynaklarının anahtar eşitliği test kapsamına alındı.
+- AppCompat tabanlı etkinlik için tema uyumu sağlandı. Dil değişimi sırasında
+  erişilebilirlik servisi henüz kurulmadan gelen yapılandırma/foreground olayları
+  güvenli biçimde yok sayılarak iki cihaz çökmesi giderildi.
+- GitHub yayın modeli netleştirildi: Akış Gesture bağımsız depo olarak
+  yayımlanacak; proje deposu `origin`, OpenSwipe ise salt okunur `upstream`
+  olarak tutulacak. OpenSwipe'a yalnızca uygun küçük düzeltmelerin ayrı çekme
+  istekleri olarak sunulabileceği belgelendi.
+- MIT lisansının ve OpenSwipe telif/atfının korunacağı; doğrulanmış APK'ların
+  kaynak ağacına değil GitHub Releases bölümüne sürüm etiketi ve notlarıyla
+  ekleneceği README'ye yazıldı.
+- İlk herkese açık yayın öncesinde Git geçmişinin gizli bilgi, kişisel yol ve
+  büyük dosya taramasından geçirilmesi ve derleme/test denetimlerinin
+  tamamlanması gerektiği kaydedildi.
+- Projenin hobi ve topluluk çalışması olduğu, güncelleme veya bireysel destek
+  garantisi vermediği ve tekrarlanabilir hata bildirimleriyle katkıları kabul
+  ettiği açıklandı.
+- Temel kullanımın rootsuz olduğu; root eylemlerinin isteğe bağlı ve deneysel
+  sayıldığı; gezinme çubuğu gizleme ve üçüncü taraf tam ekran çözümlerinin proje
+  kapsamına girmediği netleştirildi.
+- Ayarlar ekranına uygulama sürümünü otomatik gösteren Hakkında bölümü eklendi.
+- Hobi projesi ve destek durumu, rootsuz temel kullanım, isteğe bağlı root
+  eylemleri ve gezinme çubuğu sınırı uygulama içinde açıklandı.
+- OpenSwipe kökeni ve MIT atfı uygulama içinde görünür hale getirildi.
+- Yeni dış otomasyon eylemleri Akış Gesture paket alanına taşındı; eski
+  OpenSwipe tetikleme adı mevcut otomasyonları bozmamak için uyumluluk takma
+  adı olarak korundu.
+- İngilizce README'deki yanlış OpenSwipe Releases indirme bağlantısı kaldırıldı.
+- Cihaz ve ROM'larda güvenilir çalışmayan eski gezinme çubuğu eylemi yeni eylem
+  seçimlerinden kaldırıldı; mevcut yedeklerin okunabilmesi için eski kimliği
+  yalnızca geriye dönük uyumluluk kapsamında korunuyor.
+- OpenSwipe'dan kalan launcher simgesi kaldırıldı. Uygulamadaki Aurora Akışı
+  geri bildiriminden türetilen; sol kenardan doğup aksiyon noktasında birleşen
+  üç turkuaz-mor şeritli özgün adaptive icon ImageGen ile üretildi.
+- Ayarlardaki "Klavye Açıkken" seçeneğinin çalışma motorunda yok sayılması
+  düzeltildi. Seçenek açıkken hareketler gerçekten duraklıyor; kapalıyken
+  klavye kenar tetik alanlarını artık kendiliğinden değiştirmiyor.
+
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
 ## [1.1.54] - 2026-08-01

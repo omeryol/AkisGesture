@@ -36,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.SectionRange
@@ -44,6 +46,7 @@ import io.github.omeryol.akisgesture.model.TriggerMode
 import io.github.omeryol.akisgesture.model.TriggerNode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
+import io.github.omeryol.akisgesture.ui.util.localizedLabel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -52,6 +55,7 @@ fun AddRuleForEdgeDialog(
     onDismiss: () -> Unit,
     onConfirm: (Edge, SectionRange, ActionNode?, ActionNode?, ActionNode?, ActionNode?, TriggerMode) -> Unit,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var selectedSection by remember { mutableStateOf<SectionRange>(SectionRange.ALL) }
     var actionPickerTarget by remember { mutableStateOf<GestureType?>(null) }
     var quickAction by remember { mutableStateOf<ActionNode?>(null) }
@@ -67,12 +71,12 @@ fun AddRuleForEdgeDialog(
         title = {
             Column {
                 Text(
-                    "${edgeLabel(edge)} · Kural Ekle",
+                    "${edgeLabel(context, edge)} · Kural Ekle",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )
                 Text(
-                    "Bir alan seçin, sonra hareket eylemlerini atayın.",
+                    stringResource(R.string.choose_area_intro),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -85,7 +89,7 @@ fun AddRuleForEdgeDialog(
                     .verticalScroll(rememberScrollState()),
             ) {
                 Text(
-                    "Alanı seçin ve hareketleri atayın.",
+                    stringResource(R.string.assign_area_intro),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -103,39 +107,39 @@ fun AddRuleForEdgeDialog(
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
-                    title = "Hızlı çekme ⚡",
-                    description = "Parmağını çekip hemen bıraktığında",
+                    title = stringResource(R.string.quick_with_icon),
+                    description = stringResource(R.string.quick_description),
                     action = quickAction,
                     onSelect = { actionPickerTarget = GestureType.QUICK_SWIPE },
                     onClear = { quickAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
-                    title = "Çekip bekletme ⏱️",
-                    description = "Eşik dolduktan sonra bıraktığında",
+                    title = stringResource(R.string.hold_with_icon),
+                    description = stringResource(R.string.hold_description),
                     action = holdAction,
                     onSelect = { actionPickerTarget = GestureType.SWIPE_HOLD },
                     onClear = { holdAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
-                    title = "L-Çekme (Yukarı) ↗️",
-                    description = "İçeri çekip parmağı yukarı kaydırdığında",
+                    title = stringResource(R.string.l_up_with_icon),
+                    description = stringResource(R.string.l_up_description),
                     action = lUpAction,
                     onSelect = { actionPickerTarget = GestureType.SWIPE_UP_L },
                     onClear = { lUpAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
-                    title = "L-Çekme (Aşağı) ↘️",
-                    description = "İçeri çekip parmağı aşağı kaydırdığında",
+                    title = stringResource(R.string.l_down_with_icon),
+                    description = stringResource(R.string.l_down_description),
                     action = lDownAction,
                     onSelect = { actionPickerTarget = GestureType.SWIPE_DOWN_L },
                     onClear = { lDownAction = null },
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    text = "Tetikleme biçimi",
+                    text = stringResource(R.string.trigger_mode),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -146,7 +150,7 @@ fun AddRuleForEdgeDialog(
                     FilterChip(
                         selected = selectedTriggerMode == TriggerMode.SWIPE,
                         onClick = { selectedTriggerMode = TriggerMode.SWIPE },
-                        label = { Text("Kaydırma (önerilen)") },
+                        label = { Text(stringResource(R.string.swipe_recommended)) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                         ),
@@ -155,7 +159,7 @@ fun AddRuleForEdgeDialog(
                     FilterChip(
                         selected = selectedTriggerMode == TriggerMode.TOUCH,
                         onClick = { selectedTriggerMode = TriggerMode.TOUCH },
-                        label = { Text("Dokunma") },
+                        label = { Text(stringResource(R.string.touch)) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                         ),
@@ -182,12 +186,12 @@ fun AddRuleForEdgeDialog(
                 enabled = quickAction != null || holdAction != null || lUpAction != null || lDownAction != null,
                 shape = RoundedCornerShape(12.dp),
             ) {
-                Text("Kaydet")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("İptal")
+                Text(stringResource(R.string.cancel))
             }
         },
     )
@@ -225,7 +229,7 @@ fun AddRuleDialog(
     var lDownAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
 
-    val stepTitles = listOf("Alanı seç", "Hareketleri ata")
+    val stepTitles = listOf(stringResource(R.string.choose_area), stringResource(R.string.assign_gestures))
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -239,7 +243,7 @@ fun AddRuleDialog(
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )
                 Text(
-                    "Adım ${step + 1} / 2",
+                    stringResource(R.string.step_progress, step + 1, 2),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -253,7 +257,7 @@ fun AddRuleDialog(
             ) {
                 // Step indicator
                 Text(
-                    text = "Adım ${step + 1} / 2",
+                    text = stringResource(R.string.step_progress, step + 1, 2),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -279,13 +283,13 @@ fun AddRuleDialog(
                     }
                     1 -> {
                         Text(
-                            "Bu alan için hareketleri (Hızlı, Bekletme, L-Çekme) ata.",
+                            stringResource(R.string.assign_area_gestures),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Spacer(Modifier.height(12.dp))
                         ActionChoiceButton(
-                            title = "Hızlı çekme ⚡",
-                            description = "Parmağını çekip hemen bıraktığında",
+                            title = stringResource(R.string.quick_with_icon),
+                            description = stringResource(R.string.quick_description),
                             action = quickAction,
                             onSelect = {
                                 actionPickerTarget = GestureType.QUICK_SWIPE
@@ -294,8 +298,8 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
-                            title = "Çekip bekletme ⏱️",
-                            description = "Eşik dolduktan sonra bıraktığında",
+                            title = stringResource(R.string.hold_with_icon),
+                            description = stringResource(R.string.hold_description),
                             action = holdAction,
                             onSelect = {
                                 actionPickerTarget = GestureType.SWIPE_HOLD
@@ -304,8 +308,8 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
-                            title = "L-Çekme (Yukarı) ↗️",
-                            description = "İçeri çekip parmağı yukarı kaydırdığında",
+                            title = stringResource(R.string.l_up_with_icon),
+                            description = stringResource(R.string.l_up_description),
                             action = lUpAction,
                             onSelect = {
                                 actionPickerTarget = GestureType.SWIPE_UP_L
@@ -314,8 +318,8 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
-                            title = "L-Çekme (Aşağı) ↘️",
-                            description = "İçeri çekip parmağı aşağı kaydırdığında",
+                            title = stringResource(R.string.l_down_with_icon),
+                            description = stringResource(R.string.l_down_description),
                             action = lDownAction,
                             onSelect = {
                                 actionPickerTarget = GestureType.SWIPE_DOWN_L
@@ -324,7 +328,7 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "Tetikleme biçimi",
+                            text = stringResource(R.string.trigger_mode),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -335,7 +339,7 @@ fun AddRuleDialog(
                             FilterChip(
                                 selected = selectedTriggerMode == TriggerMode.SWIPE,
                                 onClick = { selectedTriggerMode = TriggerMode.SWIPE },
-                                label = { Text("Kaydırma (önerilen)") },
+                                label = { Text(stringResource(R.string.swipe_recommended)) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                                 ),
@@ -344,7 +348,7 @@ fun AddRuleDialog(
                             FilterChip(
                                 selected = selectedTriggerMode == TriggerMode.TOUCH,
                                 onClick = { selectedTriggerMode = TriggerMode.TOUCH },
-                                label = { Text("Dokunma") },
+                                label = { Text(stringResource(R.string.touch)) },
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                                 ),
@@ -362,7 +366,7 @@ fun AddRuleDialog(
                     enabled = selectedEdge != null && selectedSection != null,
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text("Hareketleri seç")
+                    Text(stringResource(R.string.choose_gestures))
                 }
             } else {
                 Button(
@@ -384,18 +388,18 @@ fun AddRuleDialog(
                     enabled = quickAction != null || holdAction != null || lUpAction != null || lDownAction != null,
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text("Kaydet")
+                    Text(stringResource(R.string.save))
                 }
             }
         },
         dismissButton = {
             if (step > 0) {
                 OutlinedButton(onClick = { step-- }) {
-                    Text("Geri")
+                    Text(stringResource(R.string.back))
                 }
             } else {
                 TextButton(onClick = onDismiss) {
-                    Text("İptal")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         },
@@ -424,6 +428,7 @@ private fun ActionChoiceButton(
     onSelect: () -> Unit,
     onClear: () -> Unit,
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     OutlinedButton(
         onClick = onSelect,
         modifier = Modifier.fillMaxWidth(),
@@ -457,7 +462,7 @@ private fun ActionChoiceButton(
         ) {
             Text(title, style = MaterialTheme.typography.labelMedium)
             Text(
-                action?.label ?: description,
+                action?.localizedLabel(context) ?: description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (action == null) {
                     MaterialTheme.colorScheme.onSurfaceVariant
@@ -470,7 +475,7 @@ private fun ActionChoiceButton(
             IconButton(onClick = onClear, modifier = Modifier.size(36.dp)) {
                 Icon(
                     Icons.Filled.Close,
-                    contentDescription = "$title eylemini kaldır",
+                    contentDescription = stringResource(R.string.remove_action, title),
                 )
             }
         }
@@ -484,9 +489,9 @@ private fun EdgeSelector(
     onSelect: (Edge) -> Unit,
 ) {
     val edges = listOf(
-        Triple(Edge.LEFT, "\u2190 Sol kenar", "Sol kenardan içeri kaydır"),
-        Triple(Edge.RIGHT, "\u2192 Sağ kenar", "Sağ kenardan içeri kaydır"),
-        Triple(Edge.BOTTOM, "\u2193 Alt kenar", "Alt kenardan yukarı kaydır"),
+        Triple(Edge.LEFT, stringResource(R.string.edge_left_arrow), stringResource(R.string.edge_left_hint)),
+        Triple(Edge.RIGHT, stringResource(R.string.edge_right_arrow), stringResource(R.string.edge_right_hint)),
+        Triple(Edge.BOTTOM, stringResource(R.string.edge_bottom_arrow), stringResource(R.string.edge_bottom_hint)),
     )
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -540,13 +545,12 @@ private fun SectionSelector(
 
     Spacer(Modifier.height(16.dp))
     Text(
-        "Alan sınırları",
+        stringResource(R.string.area_bounds),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.primary,
     )
     Text(
-        if (edge == Edge.BOTTOM) "Başlangıç ve bitiş noktasını sürükle."
-        else "Üst ve alt sınırı sürükle.",
+        stringResource(if (edge == Edge.BOTTOM) R.string.drag_horizontal_bounds else R.string.drag_vertical_bounds),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -562,7 +566,7 @@ private fun SectionSelector(
         steps = 9,
     )
     Text(
-        "Seçili alan: %${(range.start * 100).toInt()} – %${(range.end * 100).toInt()}",
+        stringResource(R.string.selected_area_percent, (range.start * 100).toInt(), (range.end * 100).toInt()),
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.fillMaxWidth(),
     )
