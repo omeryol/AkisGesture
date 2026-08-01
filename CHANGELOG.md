@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.35] - 2026-08-01
+
+### 🧾 Hareket Listesi Düzeni
+
+- Hareket listesine açık `LazyListState` bağlandı; liste kaydırma davranışı
+  sabitlendi.
+- Hareket kartlarına sıra numarası ve kart bazlı renk vurgusu eklendi.
+- Otomatik kayıt akışı nedeniyle üstteki gereksiz **Uygula** etiketi kaldırıldı.
+
 ## [1.1.34] - 2026-08-01
 
 ### 🧰 20 Şablon ve Otomatik Uygulama
