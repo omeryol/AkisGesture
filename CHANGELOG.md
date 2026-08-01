@@ -2,6 +2,17 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.39] - 2026-08-01
+
+### 🌌 20 Animasyonlu Geri Bildirim Motoru
+
+- Mevcut 8 animasyon korunarak toplam sayı 20’ye çıkarıldı.
+- Aurora şeritleri, cam halkalar, neon nabız, yıldız alanı, buz kristalleri,
+  vortex, prizma akışı, kor çiçeği, kuyruklu yıldız, kuantum halkası, mürekkep
+  akışı ve güneş patlaması eklendi.
+- Her yeni mod farklı parçacık, ışık, dalga veya geometrik hareket davranışıyla
+  renderer’a bağlandı.
+
 ## [1.1.38] - 2026-08-01
 
 ### ✨ Geri Bildirim Animasyonları Güçlendirildi
