@@ -2,6 +2,24 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.15] - 2026-08-01
+
+### 🧰 Kimlik ve Dayanıklılık Düzenlemeleri
+
+- **Özgün Android paket kimliği:** `com.omer.akisgesture` yerine
+  `io.github.omeryol.akisgesture` kullanıldı. OpenSwipe lisans ve kaynak
+  proje atfı korunurken uygulamanın paket kimliği ayrıştırıldı.
+- **Tap replay yetkisi:** Alt kenar SWIPE modunun kullandığı
+  `dispatchGesture()` için erişilebilirlik servisinde gesture yürütme yetkisi
+  etkinleştirildi.
+- **Ana thread yükü azaltıldı:** Uygulama ikonundan adaptif renk çıkarma
+  servis scope'unda arka planda çalışacak şekilde taşındı.
+- **Servis yeniden bağlanması:** Erişilebilirlik yeniden bağlama beklemesi
+  bloklayıcı `Thread.sleep()` yerine coroutine `delay()` kullanıyor.
+- **Gesture eşik akışı:** Detector artık deprecated global threshold alanı
+  yerine hesaplanan per-edge piksel eşiğini doğrudan alıyor.
+- **Sürüm kimliği:** Android sürümü `1.1.15` olarak güncellendi.
+
 ## [1.1.14] - 2026-08-01
 
 ### 🐛 Alt Kenar (Ana Ekran) Sol-Yukarı Üçgen Gölge Hatası Düzeltildi
@@ -487,7 +505,7 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Kaynak projedeki makineye özel ve geçersiz Gradle proxy ayarı kaldırıldı.
 - Proje ve kullanıcıya görünen uygulama adı Akış Gesture olarak değiştirildi.
 - Eski manifest paket bildirimi kaldırılarak Android Gradle Plugin uyarısı giderildi.
-- Uygulama kimliği kaynak projeden ayrılarak `com.omer.akisgesture` yapıldı.
+- Uygulama kimliği kaynak projeden ayrılarak `io.github.omeryol.akisgesture` yapıldı.
 - Erişilebilirlik bağlanırken ana iş parçacığını kilitleyen senkron DataStore
   okuması kaldırıldı; güvenli varsayılanlar anında, kayıtlı kurallar asenkron
   yükleniyor.

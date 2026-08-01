@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "com.omer.akisgesture"
+    namespace = "io.github.omeryol.akisgesture"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.omer.akisgesture"
+        applicationId = "io.github.omeryol.akisgesture"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.1.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

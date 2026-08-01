@@ -58,12 +58,13 @@
         </service>
 
         <receiver
-            android:name=".service.GestureCommandReceiver"
+            android:name=".receiver.GestureCommandReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.omer.akisgesture.action.START" />
-                <action android:name="com.omer.akisgesture.action.STOP" />
-                <action android:name="com.omer.akisgesture.action.TOGGLE" />
+                <action android:name="com.openswipe.ACTION_TRIGGER_GESTURE" />
+                <action android:name="io.github.omeryol.akisgesture.action.START" />
+                <action android:name="io.github.omeryol.akisgesture.action.STOP" />
+                <action android:name="io.github.omeryol.akisgesture.action.TOGGLE" />
             </intent-filter>
         </receiver>
 

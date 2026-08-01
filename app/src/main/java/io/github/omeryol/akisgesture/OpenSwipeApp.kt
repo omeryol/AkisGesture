@@ -1,0 +1,403 @@
+package io.github.omeryol.akisgesture
+
+import android.app.Application
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import io.github.omeryol.akisgesture.gesture.GestureConfig
+import io.github.omeryol.akisgesture.gesture.HoldFireMode
+import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
+import io.github.omeryol.akisgesture.feedback.FeedbackIcon
+import io.github.omeryol.akisgesture.rule.CompiledRuleSet
+import io.github.omeryol.akisgesture.rule.AppRuleProfilesSerializer
+import io.github.omeryol.akisgesture.rule.GestureRuleGraph
+import io.github.omeryol.akisgesture.rule.Presets
+import io.github.omeryol.akisgesture.rule.RuleSerializer.toGestureRuleGraph
+import io.github.omeryol.akisgesture.rule.RuleSerializer.toJson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+class AkisGestureApp : Application() {
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    lateinit var gestureConfigFlow: StateFlow<GestureConfig>
+        private set
+
+    private val _compiledRuleSet = MutableStateFlow(CompiledRuleSet.EMPTY)
+    val compiledRuleSet: StateFlow<CompiledRuleSet> = _compiledRuleSet.asStateFlow()
+
+    lateinit var pausedPackagesFlow: StateFlow<Set<String>>
+        private set
+
+    lateinit var ruleProfilesFlow: StateFlow<Map<String, GestureRuleGraph>>
+        private set
+
+    lateinit var compiledRuleProfilesFlow: StateFlow<Map<String, CompiledRuleSet>>
+        private set
+
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+
+        gestureConfigFlow = settingsDataStore.data
+            .map { prefs ->
+                GestureConfig(
+                    leftEnabled = prefs[GestureConfig.KEY_LEFT_ENABLED] ?: true,
+                    rightEnabled = prefs[GestureConfig.KEY_RIGHT_ENABLED] ?: true,
+                    bottomEnabled = prefs[GestureConfig.KEY_BOTTOM_ENABLED] ?: true,
+                    leftTriggerWidthDp = prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] ?: 20f,
+                    rightTriggerWidthDp = prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] ?: 20f,
+                    bottomTriggerHeightDp = prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] ?: 40f,
+                    holdTimeMs = prefs[GestureConfig.KEY_HOLD_TIME] ?: 280L,
+                    holdFireMode = prefs[GestureConfig.KEY_HOLD_FIRE_MODE]
+                        ?.let { runCatching { HoldFireMode.valueOf(it) }.getOrNull() }
+                        ?: HoldFireMode.ON_RELEASE,
+                    leftDamping = prefs[GestureConfig.KEY_LEFT_DAMPING] ?: 2.0f,
+                    rightDamping = prefs[GestureConfig.KEY_RIGHT_DAMPING] ?: 2.0f,
+                    bottomDamping = prefs[GestureConfig.KEY_BOTTOM_DAMPING] ?: 2.0f,
+                    leftSwipeThresholdDp = prefs[GestureConfig.KEY_LEFT_SWIPE_THRESHOLD_DP] ?: 14f,
+                    rightSwipeThresholdDp = prefs[GestureConfig.KEY_RIGHT_SWIPE_THRESHOLD_DP] ?: 14f,
+                    bottomSwipeThresholdDp = prefs[GestureConfig.KEY_BOTTOM_SWIPE_THRESHOLD_DP] ?: 14f,
+                    leftVerticalStart = prefs[GestureConfig.KEY_LEFT_VERTICAL_START] ?: 0f,
+                    leftVerticalEnd = prefs[GestureConfig.KEY_LEFT_VERTICAL_END] ?: 1f,
+                    rightVerticalStart = prefs[GestureConfig.KEY_RIGHT_VERTICAL_START] ?: 0f,
+                    rightVerticalEnd = prefs[GestureConfig.KEY_RIGHT_VERTICAL_END] ?: 1f,
+                    directionToleranceDegrees = prefs[GestureConfig.KEY_DIRECTION_TOLERANCE] ?: 35f,
+                    hysteresisRatio = prefs[GestureConfig.KEY_HYSTERESIS_RATIO] ?: 0.25f,
+                    lSwipeThresholdDp = prefs[GestureConfig.KEY_L_SWIPE_THRESHOLD_DP] ?: 30f,
+                    feedbackColorArgb = prefs[GestureConfig.KEY_FEEDBACK_COLOR]
+                        ?: 0xFF3D5AFE.toInt(),
+                    secondaryColorArgb = prefs[GestureConfig.KEY_SECONDARY_COLOR]
+                        ?: 0xFFFF9100.toInt(),
+                    lSwipeColorArgb = prefs[GestureConfig.KEY_L_SWIPE_COLOR]
+                        ?: 0xFF00E676.toInt(),
+                    useAppAdaptiveColor = prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] ?: false,
+                    feedbackOpacity = prefs[GestureConfig.KEY_FEEDBACK_OPACITY] ?: 0.57f,
+                    feedbackAnimation = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION]
+                        ?.let { str ->
+                            runCatching { FeedbackAnimation.valueOf(str) }.getOrNull()
+                                ?: when (str) {
+                                    "FLUID", "WATER", "OCEAN_LIQUID", "MINIMAL_PADDLE" -> FeedbackAnimation.OCEAN_WAVE
+                                    "TEARDROP", "BUBBLE", "MERCURY_TEARDROP" -> FeedbackAnimation.MERCURY_TEARDROP
+                                    "FIRE", "PLASMA_FIRE" -> FeedbackAnimation.PLASMA_FIRE
+                                    "STEAM", "ATMOSPHERIC_MIST" -> FeedbackAnimation.ATMOSPHERIC_MIST
+                                    "LIGHTNING", "NEON_PULSE", "CYBER_HEX", "ELECTRIC_STORM" -> FeedbackAnimation.ELECTRIC_STORM
+                                    "SUN", "ORB_GLOW", "SOLAR_CORONA" -> FeedbackAnimation.SOLAR_CORONA
+                                    else -> FeedbackAnimation.OCEAN_WAVE
+                                }
+                        }
+                        ?: FeedbackAnimation.OCEAN_WAVE,
+                    quickFeedbackIcon = prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON]
+                        ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
+                        ?: FeedbackIcon.CHEVRON,
+                    holdFeedbackIcon = prefs[GestureConfig.KEY_HOLD_FEEDBACK_ICON]
+                        ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
+                        ?: FeedbackIcon.STAR,
+                    pauseOnLockScreen = prefs[GestureConfig.KEY_PAUSE_ON_LOCK_SCREEN] ?: true,
+                    pauseWhenKeyboardVisible =
+                        prefs[GestureConfig.KEY_PAUSE_WHEN_KEYBOARD_VISIBLE] ?: false,
+                    pauseInLandscape = prefs[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] ?: false,
+                    pauseOnFullScreen = prefs[GestureConfig.KEY_PAUSE_ON_FULL_SCREEN] ?: true,
+                    pauseOnPermissionScreen = prefs[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] ?: true,
+                    hapticIntensity = prefs[GestureConfig.KEY_HAPTIC_INTENSITY] ?: 1f,
+                    hapticSoundEnabled = prefs[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] ?: false,
+                    hapticEnabled = prefs[GestureConfig.KEY_HAPTIC_ENABLED] ?: true,
+                    animationSpeed = prefs[GestureConfig.KEY_ANIMATION_SPEED] ?: 1f,
+                    animationSize = prefs[GestureConfig.KEY_ANIMATION_SIZE] ?: 1f,
+                )
+            }
+            .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
+
+        pausedPackagesFlow = settingsDataStore.data
+            .map { prefs -> prefs[KEY_PAUSED_PACKAGES] ?: emptySet() }
+            .stateIn(appScope, SharingStarted.Eagerly, emptySet())
+
+        ruleProfilesFlow = settingsDataStore.data
+            .map { prefs ->
+                prefs[KEY_RULE_PROFILES_JSON]
+                    ?.let { json ->
+                        runCatching { AppRuleProfilesSerializer.fromJson(json) }
+                            .getOrDefault(emptyMap())
+                    }
+                    .orEmpty()
+            }
+            .stateIn(appScope, SharingStarted.Eagerly, emptyMap())
+
+        compiledRuleProfilesFlow = ruleProfilesFlow
+            .map { profiles -> profiles.mapValues { (_, graph) -> graph.compile() } }
+            .stateIn(appScope, SharingStarted.Eagerly, emptyMap())
+
+        // Load rules from DataStore on startup
+        appScope.launch(Dispatchers.IO) {
+            val prefs = settingsDataStore.data.first()
+            val json = prefs[KEY_RULES_JSON]
+            val graph = if (json != null) {
+                runCatching { json.toGestureRuleGraph() }.getOrElse { Presets.DEFAULT }
+            } else {
+                Presets.DEFAULT
+            }
+            _compiledRuleSet.value = graph.compile()
+        }
+    }
+
+    suspend fun applyRules(graph: GestureRuleGraph) {
+        val json = graph.toJson()
+        settingsDataStore.edit { prefs ->
+            prefs[KEY_RULES_JSON] = json
+        }
+        _compiledRuleSet.value = graph.compile()
+    }
+
+    suspend fun applyProfileRules(packageName: String, graph: GestureRuleGraph) {
+        if (packageName == this.packageName) return
+        settingsDataStore.edit { prefs ->
+            val current = prefs[KEY_RULE_PROFILES_JSON]
+                ?.let { runCatching { AppRuleProfilesSerializer.fromJson(it) }.getOrNull() }
+                .orEmpty()
+            prefs[KEY_RULE_PROFILES_JSON] =
+                AppRuleProfilesSerializer.toJson(current + (packageName to graph))
+        }
+    }
+
+    suspend fun removeRuleProfile(packageName: String) {
+        settingsDataStore.edit { prefs ->
+            val current = prefs[KEY_RULE_PROFILES_JSON]
+                ?.let { runCatching { AppRuleProfilesSerializer.fromJson(it) }.getOrNull() }
+                .orEmpty()
+            val updated = current - packageName
+            if (updated.isEmpty()) {
+                prefs.remove(KEY_RULE_PROFILES_JSON)
+            } else {
+                prefs[KEY_RULE_PROFILES_JSON] = AppRuleProfilesSerializer.toJson(updated)
+            }
+        }
+    }
+
+    suspend fun loadRuleProfile(packageName: String): GestureRuleGraph? {
+        return ruleProfilesFlow.value[packageName]
+            ?: settingsDataStore.data.first()[KEY_RULE_PROFILES_JSON]
+                ?.let { runCatching { AppRuleProfilesSerializer.fromJson(it)[packageName] }.getOrNull() }
+    }
+
+    suspend fun updateEdgeTriggerWidth(dp: Float) {
+        settingsDataStore.edit { prefs ->
+            // Write to both per-edge keys (legacy function kept for ViewModel compatibility)
+            prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] = dp
+            prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] = dp
+        }
+    }
+
+    suspend fun updateEdgeTriggerSize(edge: io.github.omeryol.akisgesture.overlay.Edge, dp: Float) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                io.github.omeryol.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] = dp
+                io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] = dp
+                io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] = dp
+            }
+        }
+    }
+
+    suspend fun updateBottomTriggerHeight(dp: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] = dp
+        }
+    }
+
+    suspend fun loadSavedRules(): GestureRuleGraph? {
+        val prefs = settingsDataStore.data.first()
+        val json = prefs[KEY_RULES_JSON] ?: return null
+        return runCatching { json.toGestureRuleGraph() }.getOrNull()
+    }
+
+    /**
+     * Kuralları senkron yükler — onServiceConnected içinde çağrılarak servis başladığında kuralların hazır olmasını sağlar.
+     */
+    fun ensureRulesLoadedSync() {
+        if (_compiledRuleSet.value !== CompiledRuleSet.EMPTY) return
+        // AccessibilityService connects on the main thread. Blocking for
+        // DataStore here can deadlock initialization and produce an ANR.
+        // Safe defaults are available immediately; onCreate replaces them
+        // asynchronously with persisted rules.
+        _compiledRuleSet.value = Presets.DEFAULT.compile()
+    }
+
+    suspend fun updateHoldTime(milliseconds: Long) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_HOLD_TIME] = milliseconds.coerceIn(150L, 700L)
+        }
+    }
+
+    suspend fun setPackagePaused(packageName: String, paused: Boolean) {
+        if (packageName == this.packageName) return
+        settingsDataStore.edit { prefs ->
+            val current = prefs[KEY_PAUSED_PACKAGES].orEmpty()
+            prefs[KEY_PAUSED_PACKAGES] =
+                if (paused) current + packageName else current - packageName
+        }
+    }
+
+    suspend fun updateFeedbackOpacity(opacity: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_OPACITY] = opacity.coerceIn(0.1f, 1f)
+        }
+    }
+
+    suspend fun updateFeedbackAnimation(animation: FeedbackAnimation) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_ANIMATION] = animation.name
+        }
+    }
+
+    suspend fun updateQuickFeedbackIcon(icon: FeedbackIcon) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON] = icon.name
+        }
+    }
+
+    suspend fun updateFeedbackColor(colorArgb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_COLOR] = colorArgb
+            prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] = false
+        }
+    }
+
+    suspend fun updateSecondaryColor(colorArgb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_SECONDARY_COLOR] = colorArgb
+        }
+    }
+
+    suspend fun updateLSwipeColor(colorArgb: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_L_SWIPE_COLOR] = colorArgb
+        }
+    }
+
+    suspend fun updateUseAppAdaptiveColor(enabled: Boolean) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] = enabled
+        }
+    }
+
+    suspend fun updateHoldFeedbackIcon(icon: FeedbackIcon) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_HOLD_FEEDBACK_ICON] = icon.name
+        }
+    }
+
+    suspend fun updatePauseOnLockScreen(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_LOCK_SCREEN] = enabled }
+    }
+
+    suspend fun updatePauseWhenKeyboardVisible(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_WHEN_KEYBOARD_VISIBLE] = enabled }
+    }
+
+    suspend fun updatePauseInLandscape(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] = enabled }
+    }
+
+    suspend fun updatePauseOnFullScreen(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_FULL_SCREEN] = enabled }
+    }
+
+    suspend fun updatePauseOnPermissionScreen(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] = enabled }
+    }
+
+    suspend fun updateHapticIntensity(intensity: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_INTENSITY] = intensity.coerceIn(0f, 1f) }
+    }
+
+    suspend fun updateHapticSoundEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] = enabled }
+    }
+
+    suspend fun updateAnimationSpeed(speed: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ANIMATION_SPEED] = speed.coerceIn(0.5f, 2f) }
+    }
+
+    suspend fun updateAnimationSize(size: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ANIMATION_SIZE] = size.coerceIn(0.5f, 2f) }
+    }
+
+    suspend fun updateHapticEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_ENABLED] = enabled }
+    }
+
+    // ── Per-edge sensitivity ──
+
+    suspend fun updateEdgeDamping(edge: io.github.omeryol.akisgesture.overlay.Edge, value: Float) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                io.github.omeryol.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_DAMPING] = value
+                io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_DAMPING] = value
+                io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_DAMPING] = value
+            }
+        }
+    }
+
+    suspend fun updateEdgeSwipeThreshold(edge: io.github.omeryol.akisgesture.overlay.Edge, dp: Float) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                io.github.omeryol.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_SWIPE_THRESHOLD_DP] = dp
+                io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_SWIPE_THRESHOLD_DP] = dp
+                io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_SWIPE_THRESHOLD_DP] = dp
+            }
+        }
+    }
+
+    suspend fun updateLSwipeThreshold(dp: Float) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_L_SWIPE_THRESHOLD_DP] = dp.coerceIn(15f, 60f)
+        }
+    }
+
+    suspend fun updateEdgeVerticalRange(
+        edge: io.github.omeryol.akisgesture.overlay.Edge,
+        start: Float,
+        end: Float,
+    ) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                io.github.omeryol.akisgesture.overlay.Edge.LEFT -> {
+                    prefs[GestureConfig.KEY_LEFT_VERTICAL_START] = start
+                    prefs[GestureConfig.KEY_LEFT_VERTICAL_END] = end
+                }
+                io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> {
+                    prefs[GestureConfig.KEY_RIGHT_VERTICAL_START] = start
+                    prefs[GestureConfig.KEY_RIGHT_VERTICAL_END] = end
+                }
+                io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> { /* no vertical range for bottom */ }
+            }
+        }
+    }
+
+    suspend fun updateHoldFireMode(mode: HoldFireMode) {
+        settingsDataStore.edit { it[GestureConfig.KEY_HOLD_FIRE_MODE] = mode.name }
+    }
+
+    companion object {
+        private val KEY_RULES_JSON = stringPreferencesKey("gesture_rules_json")
+        private val KEY_RULE_PROFILES_JSON = stringPreferencesKey("app_rule_profiles_json")
+        private val KEY_PAUSED_PACKAGES = stringSetPreferencesKey("paused_packages")
+        private lateinit var instance: AkisGestureApp
+        fun getInstance(): AkisGestureApp = instance
+    }
+}

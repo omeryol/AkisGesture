@@ -6,6 +6,9 @@ sunmak için geliştirilen kişisel, açık kaynaklı bir navigasyon uygulaması
 Proje, MIT lisanslı
 [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe) tabanından başlamıştır.
 OpenSwipe telif ve lisans bildirimi `LICENSE` dosyasında korunur.
+Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
+özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
+korunur.
 
 ## Hedef
 
@@ -64,7 +67,7 @@ uygulamalar ada göre aranabilir; atanan uygulama kendi simgesiyle gösterilir.
 ## Kaynak Ağacı
 
 ```
-app/src/main/java/com/openswipe/
+app/src/main/java/io/github/omeryol/akisgesture/
 │
 ├── OpenSwipeApp.kt               # Application sınıfı, DataStore akışları, ayar yazma
 │
@@ -206,12 +209,12 @@ Akış'ın kendi erişilebilirlik hizmetini başlatmak, durdurmak veya durumunu
 değiştirmek için:
 
 ```text
-com.omer.akisgesture.action.START
-com.omer.akisgesture.action.STOP
-com.omer.akisgesture.action.TOGGLE
+io.github.omeryol.akisgesture.action.START
+io.github.omeryol.akisgesture.action.STOP
+io.github.omeryol.akisgesture.action.TOGGLE
 ```
 
-Intentler yayın (`Broadcast`) olarak `com.omer.akisgesture` paketine gönderilir.
+Intentler yayın (`Broadcast`) olarak `io.github.omeryol.akisgesture` paketine gönderilir.
 Bu komutlar diğer erişilebilirlik hizmetlerini değiştirmez. Root varsa Hızlı
 Ayarlar'daki `Akış` kutucuğu da aynı güvenli denetleyiciyi kullanır.
 

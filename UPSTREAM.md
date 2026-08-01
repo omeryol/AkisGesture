@@ -11,6 +11,11 @@ Akış Gesture bağımsız bir ürün olarak geliştirilecektir. Kaynak projeden
 değişiklikler otomatik olarak birleştirilmez. Her güncelleme önce lisans,
 uyumluluk, test ve yerel değişikliklerle çakışma açısından incelenir.
 
+Akış Gesture'ın paket kimliği `io.github.omeryol.akisgesture` olarak ayrıdır.
+`com.openswipe` action adı gibi OpenSwipe uyumluluk tanımları geriye dönük
+entegrasyon için korunabilir; bu durum kaynak projenin paket kimliğinin
+kullanıldığı anlamına gelmez.
+
 ## Diğer referanslar
 
 - Ogesture: hareket davranışı araştırması, AGPL-3.0
