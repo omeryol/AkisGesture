@@ -2,6 +2,18 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.38] - 2026-08-01
+
+### ✨ Geri Bildirim Animasyonları Güçlendirildi
+
+- İkon arkasındaki ortak ışık çekirdeği büyütüldü.
+- Atmosferik sis daha yoğun ve görünür hale getirildi.
+- Plazma animasyonuna sıcak iç alev katmanı eklendi.
+- Kopan damlaya okyanus yüzeyinden ayrılma hissi veren küçük parçacıklar
+  eklendi.
+- Şimşek daha kalın, beyaz çekirdekli ve çatallı hale getirildi.
+- Güneş koronası kavisli patlama yaylarıyla yeniden tasarlandı.
+
 ## [1.1.37] - 2026-08-01
 
 ### 🛠️ Şablon Seçimi Çökme Düzeltmesi
