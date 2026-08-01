@@ -150,59 +150,6 @@ fun RuleListScreen(
                                 color = Color(0xFF00E5FF),
                             )
                         }
-                        DropdownMenu(
-                            expanded = showPresetMenu,
-                            onDismissRequest = { showPresetMenu = false },
-                            modifier = Modifier.background(Color(0xEE161827)),
-                        ) {
-                            LazyColumn(
-                                modifier = Modifier.heightIn(max = 560.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                itemsIndexed(RuleConfigViewModel.presets) { index, (name, graph) ->
-                                    val templateColor = templateAccent(index)
-                                    DropdownMenuItem(
-                                        leadingIcon = {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(30.dp)
-                                                    .clip(CircleShape)
-                                                    .background(templateColor.copy(alpha = 0.22f)),
-                                                contentAlignment = Alignment.Center,
-                                            ) {
-                                                Text(
-                                                    (index + 1).toString(),
-                                                    color = templateColor,
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                )
-                                            }
-                                        },
-                                        text = {
-                                            Column {
-                                                Text(
-                                                    name,
-                                                    color = Color.White,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                )
-                                                Text(
-                                                    Presets.DESCRIPTIONS[name].orEmpty(),
-                                                    color = Color(0xFFB7B9C9),
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                )
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(12.dp))
-                                            .background(templateColor.copy(alpha = 0.10f)),
-                                        onClick = {
-                                            viewModel.loadPreset(name, graph)
-                                            showPresetMenu = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
                     }
                 },
             )
@@ -412,6 +359,72 @@ fun RuleListScreen(
                 }
             }
         }
+    }
+
+    if (showPresetMenu) {
+        AlertDialog(
+            onDismissRequest = { showPresetMenu = false },
+            containerColor = Color(0xFF161827),
+            shape = RoundedCornerShape(22.dp),
+            title = {
+                Column {
+                    Text("Şablonlar", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Hazır hareket düzenlerinden birini seçin",
+                        color = Color(0xFFB7B9C9),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            text = {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 560.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    itemsIndexed(RuleConfigViewModel.presets) { index, (name, graph) ->
+                        val templateColor = templateAccent(index)
+                        DropdownMenuItem(
+                            leadingIcon = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape)
+                                        .background(templateColor.copy(alpha = 0.22f)),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        (index + 1).toString(),
+                                        color = templateColor,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            },
+                            text = {
+                                Column {
+                                    Text(name, color = Color.White, fontWeight = FontWeight.SemiBold)
+                                    Text(
+                                        Presets.DESCRIPTIONS[name].orEmpty(),
+                                        color = Color(0xFFB7B9C9),
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(templateColor.copy(alpha = 0.10f)),
+                            onClick = {
+                                viewModel.loadPreset(name, graph)
+                                showPresetMenu = false
+                            },
+                        )
+                    }
+                }
+            },
+            confirmButton = {},
+        )
     }
 
     // ── Modals & Dialogs ──

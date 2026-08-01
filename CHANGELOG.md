@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.37] - 2026-08-01
+
+### 🛠️ Şablon Seçimi Çökme Düzeltmesi
+
+- Nested scroll ölçüm çakışmasına neden olabilen `DropdownMenu` içindeki liste
+  kaldırıldı.
+- Şablonlar güvenli, kaydırılabilir bir dialog panelinde gösteriliyor.
+- 20 şablonun numara, renk ve açıklama görünümü korundu.
+
 ## [1.1.36] - 2026-08-01
 
 ### 🧰 Şablon Listesi Yenilendi
