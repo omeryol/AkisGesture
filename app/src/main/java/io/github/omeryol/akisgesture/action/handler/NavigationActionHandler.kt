@@ -28,7 +28,9 @@ class NavigationActionHandler(
     fun handleRecents(): ActionResult = globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
 
     suspend fun handleSwitchLastApp(): ActionResult {
-        val targetPkg = service.previousForegroundPackage()
+        val targetPkg = service.recentForegroundPackages()
+            .firstOrNull { it != service.foregroundPackage() && it != service.packageName }
+            ?: service.previousForegroundPackage()
         if (!targetPkg.isNullOrBlank() && targetPkg != service.packageName) {
             val res = launchApp(targetPkg)
             if (res is ActionResult.Success) return ActionResult.Success
