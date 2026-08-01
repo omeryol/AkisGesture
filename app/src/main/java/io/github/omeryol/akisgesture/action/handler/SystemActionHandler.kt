@@ -60,8 +60,12 @@ class SystemActionHandler(
         val delta = if (increase) 30 else -30
         val next = (current + delta).coerceIn(15, 255)
         if (android.provider.Settings.System.canWrite(service)) {
-            android.provider.Settings.System.putInt(resolver, android.provider.Settings.System.SCREEN_BRIGHTNESS, next)
-            ActionResult.Success
+            if (android.provider.Settings.System.putInt(
+                    resolver,
+                    android.provider.Settings.System.SCREEN_BRIGHTNESS,
+                    next,
+                )
+            ) ActionResult.Success else ActionResult.Failed("Parlaklık ayarı değiştirilemedi")
         } else {
             val res = rootCommands.execute("settings put system screen_brightness $next")
             if (res is RootResult.Success) ActionResult.Success

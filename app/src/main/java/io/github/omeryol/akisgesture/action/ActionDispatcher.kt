@@ -12,6 +12,8 @@ import io.github.omeryol.akisgesture.action.handler.SystemActionHandler
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.root.RootCommandExecutor
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 interface ActionDispatcher {
     suspend fun dispatch(action: ActionNode): ActionResult
@@ -35,6 +37,8 @@ class ActionDispatcherImpl(
     private val service: GestureAccessibilityService,
 ) : ActionDispatcher {
 
+    private val dispatchMutex = Mutex()
+
     private val audioManager by lazy {
         service.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
@@ -43,12 +47,20 @@ class ActionDispatcherImpl(
         service.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
-    private val navHandler by lazy { NavigationActionHandler(service, rootCommands) }
+    private val navHandler by lazy { NavigationActionHandler(service) }
     private val systemHandler by lazy { SystemActionHandler(service, rootCommands, audioManager) }
     private val mediaHandler by lazy { MediaActionHandler(audioManager) }
     private val hardwareHandler by lazy { HardwareAndAppHandler(service, rootCommands, audioManager, cameraManager) }
 
-    override suspend fun dispatch(action: ActionNode): ActionResult = when (action) {
+    override suspend fun dispatch(action: ActionNode): ActionResult = dispatchMutex.withLock {
+        try {
+            dispatchInternal(action)
+        } catch (error: Exception) {
+            ActionResult.Failed(error.message ?: "Aksiyon çalıştırılamadı")
+        }
+    }
+
+    private suspend fun dispatchInternal(action: ActionNode): ActionResult = when (action) {
         is ActionNode.NoAction -> ActionResult.Success
 
         // ═══ Navigation ═══

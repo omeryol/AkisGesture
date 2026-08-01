@@ -160,7 +160,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setHapticEnabled(enabled: Boolean) {
-        viewModelScope.launch { app.updateHapticEnabled(enabled) }
+        io.github.omeryol.akisgesture.feedback.HapticHelper.enabled = enabled
+        viewModelScope.launch {
+            app.updateHapticEnabled(enabled)
+            if (enabled) {
+                io.github.omeryol.akisgesture.feedback.HapticHelper.intensity = configState.value.hapticIntensity
+                io.github.omeryol.akisgesture.feedback.HapticHelper.performHaptic(
+                    app,
+                    io.github.omeryol.akisgesture.feedback.HapticHelper.HapticType.MEDIUM,
+                )
+            }
+        }
     }
 
     fun setFeedbackColor(colorArgb: Int) {

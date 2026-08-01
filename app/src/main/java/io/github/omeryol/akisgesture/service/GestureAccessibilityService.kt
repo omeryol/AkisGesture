@@ -281,6 +281,10 @@ class GestureAccessibilityService : AccessibilityService() {
 
     fun foregroundPackage(): String? = currentForegroundPackage
 
+    fun foregroundAppPackage(): String? =
+        currentForegroundPackage?.takeIf(::isAppHistoryCandidate)
+            ?: foregroundHistory.firstOrNull()
+
     fun recentForegroundPackages(): List<String> = foregroundHistory.toList()
 
     fun previousForegroundPackage(): String? =
@@ -301,7 +305,7 @@ class GestureAccessibilityService : AccessibilityService() {
 
     fun dispatchActionFromExternal(actionNode: io.github.omeryol.akisgesture.model.ActionNode) {
         if (::actionDispatcher.isInitialized) {
-            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+            serviceScope.launch(kotlinx.coroutines.Dispatchers.Main) {
                 actionDispatcher.dispatch(actionNode)
             }
         }

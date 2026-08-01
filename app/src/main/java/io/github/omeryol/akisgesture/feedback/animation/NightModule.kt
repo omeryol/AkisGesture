@@ -1,0 +1,4 @@
+package io.github.omeryol.akisgesture.feedback.animation
+import android.graphics.*
+import io.github.omeryol.akisgesture.overlay.Edge
+class NightModule:NaturalAnimationModule{private val p=Paint(Paint.ANTI_ALIAS_FLAG);override fun draw(f:AnimationFrame){val d=(10f+f.stretch*.58f).coerceAtMost(175f);val c=when(f.edge){Edge.LEFT->d to f.touch;Edge.RIGHT->f.width-d to f.touch;Edge.BOTTOM->f.touch to f.height-d};val r=(12f+f.progress*82f)*f.size;p.shader=RadialGradient(c.first,c.second,r*2.4f,intArrayOf(alpha(f.color,(210*f.opacity).toInt()),alpha(darken(f.color,.55f),(125*f.opacity).toInt()),Color.TRANSPARENT),floatArrayOf(0f,.55f,1f),Shader.TileMode.CLAMP);f.canvas.drawCircle(c.first,c.second,r*2.4f,p);p.shader=null;p.color=alpha(lighten(f.color,.72f),(235*f.opacity).toInt());f.canvas.drawCircle(c.first,c.second,r,p);p.color=darken(f.color,.62f);f.canvas.drawCircle(c.first+r*.42f,c.second-r*.15f,r*.9f,p)}}

@@ -23,6 +23,24 @@ korunur.
 Root ile öndeki uygulamayı kapatma eylemi yalnızca kişisel profili hedefler ve
 kritik sistem uygulamalarını korur.
 
+## 1.1.54 ile gelen davranışlar
+
+- Hareket durumları **birincil → bekletme → yukarı/aşağı L** sırasını izler.
+  Geri çekiş aynı sırayı tersine çevirerek ikinci eyleme, birincil eyleme ve
+  ardından iptale döner.
+- L hareketinde animasyon dönüş başlangıcında sabit kalır; renk ve eylem ikonu
+  L ilerlemesiyle büyüyüp L rengine yaklaşır. İlk tamamlanan L yönü aynı dokunuş
+  boyunca kilitlenir.
+- Görsel geri bildirim 15 bağımsız doğal animasyon modülünden oluşur. Hızlı
+  çekme, bekletme ve L renkleri ayrıdır; siyah dahil seçilen renkler korunur.
+- Uygulamaya duyarlı renk, seçilen hızlı çekme rengini ezmek yerine uygulama
+  simgesinin baskın rengiyle harmanlar.
+- Dokunsal geri bildirim açılıp kapatılabilir. Şiddet sürgüsü bırakıldığında tek
+  kez kaydedilir ve önizleme titreşimi üretir.
+- Önceki/sonraki uygulama tek bir geçmiş oturumunda birbirinin tersidir. Root
+  zorla kapatma hedef süreci ve yalnızca o uygulamanın Son Uygulamalar kartlarını
+  temizleyip sonucu doğrular.
+
 ## Mimari İlkeler
 
 1. Hareket motorunun tek bir doğruluk kaynağı vardır.
@@ -85,7 +103,8 @@ app/src/main/java/io/github/omeryol/akisgesture/
 ├── feedback/
 │   ├── ActionSymbols.kt          # Eylem → Standart Unicode simge eşlemesi
 │   ├── AppSwitchFeedbackRenderer.kt  # Alt kenar yön kapsülü animasyonu
-│   ├── BezierStretchRenderer.kt  # 8 animasyon modu (Fluid, Neon, Hex, Orb, …)
+│   ├── BezierStretchRenderer.kt  # Bağımsız doğal animasyon modüllerinin orkestrasyonu
+│   ├── animation/                # 15 ayrı su, doğa, ışık ve atmosfer modülü
 │   ├── FeedbackStyle.kt          # Görsel stil sabitleri
 │   ├── FeedbackView.kt           # Dokunmayı engellemez overlay View
 │   └── HapticHelper.kt           # ⭐ Baştan yazılmış modüler haptik ve ses motoru
@@ -261,4 +280,3 @@ Ayrıntılı işlev eşliği hedefi: [FNG_PARITY_TARGET.md](FNG_PARITY_TARGET.md
 Projenin OpenSwipe kaynaklı bölümleri MIT lisansı altındadır. Yeni kodların
 lisans durumu değiştirilmedikçe aynı lisans uygulanır. Ayrıntılar `LICENSE`
 dosyasındadır.
-

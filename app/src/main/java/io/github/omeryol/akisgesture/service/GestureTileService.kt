@@ -1,6 +1,9 @@
 package io.github.omeryol.akisgesture.service
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -18,14 +21,24 @@ class GestureTileService : TileService() {
         Thread {
             when (AccessibilityControl.setEnabled(this, enable)) {
                 RootResult.Success -> refresh()
-                is RootResult.Failure -> {
-                    startActivityAndCollapse(
-                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    )
-                }
+                is RootResult.Failure -> openAccessibilitySettings()
             }
         }.start()
+    }
+
+    @SuppressLint("StartActivityAndCollapseDeprecated")
+    private fun openAccessibilitySettings() {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (Build.VERSION.SDK_INT >= 34) {
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            startActivityAndCollapse(pendingIntent)
+        } else {
+            startActivityAndCollapse(intent)
+        }
     }
 
     private fun refresh() {
@@ -33,7 +46,9 @@ class GestureTileService : TileService() {
         qsTile?.apply {
             state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
             label = "Akış"
-            subtitle = if (enabled) "Hareketler açık" else "Hareketler kapalı"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                subtitle = if (enabled) "Hareketler açık" else "Hareketler kapalı"
+            }
             updateTile()
         }
     }

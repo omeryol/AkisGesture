@@ -20,12 +20,17 @@ class LSwipeDetector {
         private set
     var detectedLGesture: GestureType? = null
         private set
+    var turnProgress: Float = 0f
+        private set
+    private var completedDirection: GestureType? = null
 
     fun reset() {
         maxInwardPx = 0f
         inwardArmed = false
         bendStartY = 0f
         detectedLGesture = null
+        turnProgress = 0f
+        completedDirection = null
     }
 
     fun onDown() {
@@ -39,6 +44,7 @@ class LSwipeDetector {
         downY: Float,
         currentInwardPx: Float,
         swipeThresholdPx: Float,
+        lSwipeThresholdPx: Float,
         hasLActionAtInitialTouch: Boolean,
     ) {
         maxInwardPx = maxOf(maxInwardPx, currentInwardPx)
@@ -53,11 +59,23 @@ class LSwipeDetector {
             val turnDyRaw = event.rawY - bendStartY
             val turnDy = abs(turnDyRaw)
             val turnDx = abs(event.rawX - downX).coerceAtLeast(1f)
-            val turnThreshold = (swipeThresholdPx * 1.5f).coerceAtLeast(70f)
+            val turnThreshold = lSwipeThresholdPx.coerceAtLeast(1f)
+            val candidateDirection = if (turnDyRaw <= 0f) {
+                GestureType.SWIPE_UP_L
+            } else {
+                GestureType.SWIPE_DOWN_L
+            }
+            val directionAllowed = completedDirection == null || completedDirection == candidateDirection
+            turnProgress = if (directionAllowed) {
+                (turnDy / turnThreshold).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
 
-            if (turnDy >= turnThreshold && turnDy >= turnDx * 1.0f) {
-                detectedLGesture = if (turnDyRaw <= 0f) GestureType.SWIPE_UP_L else GestureType.SWIPE_DOWN_L
-            } else if (turnDy < turnThreshold * 0.5f) {
+            if (directionAllowed && turnDy >= turnThreshold && turnDy >= turnDx * 1.0f) {
+                completedDirection = candidateDirection
+                detectedLGesture = candidateDirection
+            } else if (!directionAllowed || turnDy < turnThreshold * 0.78f) {
                 detectedLGesture = null
             }
         }

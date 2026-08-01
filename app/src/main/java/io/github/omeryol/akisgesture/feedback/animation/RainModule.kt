@@ -1,0 +1,4 @@
+package io.github.omeryol.akisgesture.feedback.animation
+import android.graphics.*
+import io.github.omeryol.akisgesture.overlay.Edge
+class RainModule:NaturalAnimationModule{private val p=Paint(Paint.ANTI_ALIAS_FLAG);override fun draw(f:AnimationFrame){val len=(6f+f.progress*f.progress*245f)*f.size;for(i in 0 until 18){val phase=((f.time*(.55+i%3*.04)+i*.067)%1).toFloat();val lateral=(i-9)*14f*f.size;val depth=phase*len;val q=when(f.edge){Edge.LEFT->depth to f.touch+lateral;Edge.RIGHT->f.width-depth to f.touch+lateral;Edge.BOTTOM->f.touch+lateral to f.height-depth};val r=(4f+i%3*1.8f)*f.size;p.shader=RadialGradient(q.first-r*.25f,q.second-r*.4f,r*2f,intArrayOf(alpha(lighten(f.color,.62f),(190*f.opacity).toInt()),alpha(f.color,(125*f.opacity).toInt()),Color.TRANSPARENT),floatArrayOf(0f,.55f,1f),Shader.TileMode.CLAMP);f.canvas.drawOval(RectF(q.first-r,q.second-r*2.2f,q.first+r,q.second+r*2.2f),p)};p.shader=null}}

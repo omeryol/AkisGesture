@@ -12,10 +12,8 @@ android {
         applicationId = "io.github.omeryol.akisgesture"
         minSdk = 26
         targetSdk = 35
-        versionCode = 33
-        versionName = "1.1.45"
-        versionCode = 41
-        versionName = "1.1.53"
+        versionCode = 42
+        versionName = "1.1.54"
     }
 
     buildTypes {

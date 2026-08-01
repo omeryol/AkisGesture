@@ -268,8 +268,8 @@ fun AkisFluidSlider(
         value = internalValue,
         onValueChange = { newValue ->
             internalValue = newValue
-            onValueChange(newValue)
         },
+        onValueChangeFinished = { onValueChange(internalValue) },
         valueRange = valueRange,
         modifier = modifier.fillMaxWidth().height(18.dp),
         thumb = {

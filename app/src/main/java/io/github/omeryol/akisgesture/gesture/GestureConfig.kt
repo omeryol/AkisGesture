@@ -110,6 +110,12 @@ data class GestureConfig(
         io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> bottomTriggerHeightDp
     }
 
+    fun isEnabled(edge: io.github.omeryol.akisgesture.overlay.Edge): Boolean = when (edge) {
+        io.github.omeryol.akisgesture.overlay.Edge.LEFT -> leftEnabled
+        io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> rightEnabled
+        io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> bottomEnabled
+    }
+
     companion object {
         val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")
         val KEY_RIGHT_ENABLED = booleanPreferencesKey("edge_right_enabled")

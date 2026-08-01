@@ -229,13 +229,23 @@ class GestureEngine(
             old.rightSwipeThresholdDp != new.rightSwipeThresholdDp ||
             old.bottomSwipeThresholdDp != new.bottomSwipeThresholdDp ||
             old.holdTimeMs != new.holdTimeMs ||
+            old.holdFireMode != new.holdFireMode ||
+            old.directionToleranceDegrees != new.directionToleranceDegrees ||
+            old.hysteresisRatio != new.hysteresisRatio ||
+            old.lSwipeThresholdDp != new.lSwipeThresholdDp ||
             old.sectionCount != new.sectionCount
 
+        val sideRangeNeedsRebuild =
+            old.leftVerticalStart != new.leftVerticalStart ||
+            old.leftVerticalEnd != new.leftVerticalEnd ||
+            old.rightVerticalStart != new.rightVerticalStart ||
+            old.rightVerticalEnd != new.rightVerticalEnd
+
         for (edge in Edge.entries) {
-            val hasRules = ruleSet.hasRulesFor(edge)
+            val hasRules = ruleSet.hasRulesFor(edge) && new.isEnabled(edge)
             val hadOverlay = detectors.containsKey(edge)
             val needsRebuild = behaviorNeedsRebuild || when (edge) {
-                Edge.LEFT, Edge.RIGHT -> sideNeedsRebuild
+                Edge.LEFT, Edge.RIGHT -> sideNeedsRebuild || sideRangeNeedsRebuild
                 Edge.BOTTOM -> bottomNeedsRebuild
             }
 
@@ -254,7 +264,7 @@ class GestureEngine(
         clearOverlays()
         addFeedbackOverlay()
         for (edge in Edge.entries) {
-            if (ruleSet.hasRulesFor(edge)) {
+            if (ruleSet.hasRulesFor(edge) && currentConfig.isEnabled(edge)) {
                 addEdgeOverlay(edge)
             }
         }
@@ -337,6 +347,11 @@ class GestureEngine(
             currentConfig.swipeThresholdDpFor(edge),
             displayMetrics,
         )
+        val lSwipeThresholdPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            currentConfig.lSwipeThresholdDp,
+            displayMetrics,
+        )
         val configCopy = currentConfig.copy(
             sensorLength = sensorLength,
         )
@@ -348,6 +363,7 @@ class GestureEngine(
             config = configCopy,
             scaledTouchSlop = touchSlop,
             swipeThresholdPx = perEdgeThresholdPx,
+            lSwipeThresholdPx = lSwipeThresholdPx,
             onGestureResult = { result -> handleGestureResult(result) },
             triggerMode = edgeTriggerMode,
             onReplayTap = if (edgeTriggerMode == TriggerMode.SWIPE) { x, y ->
@@ -378,7 +394,7 @@ class GestureEngine(
         )
 
         val effectivePrimaryColor = if (currentConfig.useAppAdaptiveColor && adaptiveAppColor != null) {
-            adaptiveAppColor!!
+            blendColor(currentConfig.feedbackColorArgb, adaptiveAppColor!!, 0.72f)
         } else {
             currentConfig.feedbackColorArgb
         }
@@ -420,10 +436,12 @@ class GestureEngine(
             isLUp = progress.isLUp,
             isLDown = progress.isLDown,
             bendStartY = progress.bendStartY,
+            lColorProgress = progress.lColorProgress,
         )
 
         // Haptic and sound execution
         HapticHelper.intensity = currentConfig.hapticIntensity
+        HapticHelper.enabled = currentConfig.hapticEnabled
         HapticHelper.soundEnabled = currentConfig.hapticSoundEnabled
 
         if (progress.active && !lastProgressActive) {
@@ -432,8 +450,6 @@ class GestureEngine(
             HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
         } else if (progress.holdArmed && !lastHoldArmed) {
             HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
-        } else if (!progress.active && lastArmed) {
-            HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
         }
 
         lastArmed = progress.armed
@@ -441,21 +457,26 @@ class GestureEngine(
         lastProgressActive = progress.active
     }
 
-    private fun handleGestureResult(result: GestureResult) {
-        // Trigger vibration when finger is released and gesture executes (1st or 2nd action)
-        val view = feedbackView
-        if (view != null) {
-            HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
-        } else {
-            HapticHelper.performHaptic(overlayManager.context, HapticHelper.HapticType.MEDIUM)
+    private fun blendColor(base: Int, overlay: Int, amount: Float): Int {
+        val t = amount.coerceIn(0f, 1f)
+        fun channel(shift: Int): Int {
+            val from = base shr shift and 0xFF
+            val to = overlay shr shift and 0xFF
+            return (from + (to - from) * t).toInt().coerceIn(0, 255)
         }
+        return android.graphics.Color.argb(
+            channel(24), channel(16), channel(8), channel(0),
+        )
+    }
 
+    private fun handleGestureResult(result: GestureResult) {
         if (result is GestureResult.BottomHorizontalSwipe) {
             val action = when (result.direction) {
                 io.github.omeryol.akisgesture.gesture.model.SwipeDirection.RIGHT -> ActionNode.SwitchLastApp
                 io.github.omeryol.akisgesture.gesture.model.SwipeDirection.LEFT -> ActionNode.SwitchNextApp
                 else -> return
             }
+            performResultHapticIfNeeded()
             scope.launch {
                 val dispatchResult = actionDispatcher.dispatch(action)
                 Log.d("AkisGesture", "bottom_app_switch direction=${result.direction} result=$dispatchResult")
@@ -467,10 +488,21 @@ class GestureEngine(
         Log.d("AkisGesture", "matched_result result=$result action=$actionNode")
         if (actionNode == null) return
 
+        performResultHapticIfNeeded()
+
         scope.launch {
             val dispatchResult = actionDispatcher.dispatch(actionNode)
             Log.d("AkisGesture", "dispatch_result action=$actionNode result=$dispatchResult")
         }
+    }
+
+    private fun performResultHapticIfNeeded() {
+        if (lastArmed) return
+        HapticHelper.enabled = currentConfig.hapticEnabled
+        HapticHelper.intensity = currentConfig.hapticIntensity
+        HapticHelper.soundEnabled = currentConfig.hapticSoundEnabled
+        feedbackView?.let { HapticHelper.performHaptic(it, HapticHelper.HapticType.MEDIUM) }
+            ?: HapticHelper.performHaptic(overlayManager.context, HapticHelper.HapticType.MEDIUM)
     }
 
     private fun matchViaRuleSet(result: GestureResult): ActionNode? {

@@ -4,16 +4,16 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import io.github.omeryol.akisgesture.action.ActionResult
 import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
-import io.github.omeryol.akisgesture.root.RootCommandExecutor
-import io.github.omeryol.akisgesture.root.RootResult
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import android.os.SystemClock
 
 class NavigationActionHandler(
     private val service: GestureAccessibilityService,
-    private val rootCommands: RootCommandExecutor,
 ) {
+    private var switchSession = emptyList<String>()
+    private var switchIndex = 0
+    private var expectedPackage: String? = null
+    private var lastSwitchAt = 0L
     fun handleBack(): ActionResult {
         return if (service.foregroundPackage() == service.packageName) {
             if (InternalNavigationBus.requestBack()) ActionResult.Success
@@ -27,34 +27,39 @@ class NavigationActionHandler(
 
     fun handleRecents(): ActionResult = globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
 
-    suspend fun handleSwitchLastApp(): ActionResult {
-        val targetPkg = service.recentForegroundPackages()
-            .firstOrNull { it != service.foregroundPackage() && it != service.packageName }
-            ?: service.previousForegroundPackage()
-        if (!targetPkg.isNullOrBlank() && targetPkg != service.packageName) {
-            val res = launchApp(targetPkg)
-            if (res is ActionResult.Success) return ActionResult.Success
+    suspend fun handleSwitchLastApp(): ActionResult = switchApp(delta = 1)
+
+    suspend fun handleSwitchNextApp(): ActionResult = switchApp(delta = -1)
+
+    private fun switchApp(delta: Int): ActionResult {
+        val current = service.foregroundPackage()
+        val now = SystemClock.elapsedRealtime()
+        val sessionInvalid = switchSession.isEmpty() ||
+            now - lastSwitchAt > SWITCH_SESSION_TIMEOUT_MS ||
+            (expectedPackage != null && current != expectedPackage)
+
+        if (sessionInvalid) {
+            switchSession = service.recentForegroundPackages()
+                .asSequence()
+                .filter { it != service.packageName }
+                .distinct()
+                .toList()
+            switchIndex = switchSession.indexOf(current).takeIf { it >= 0 } ?: 0
         }
-        val rootRes = switchRecentTask(1)
-        if (rootRes is ActionResult.Success) return ActionResult.Success
 
-        return globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
-    }
-
-    suspend fun handleSwitchNextApp(): ActionResult {
-        val rootRes = switchRecentTask(-1)
-        if (rootRes is ActionResult.Success) return ActionResult.Success
-
-        return globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
-    }
-
-    private suspend fun switchRecentTask(direction: Int): ActionResult =
-        withContext(Dispatchers.IO) {
-            when (val result = rootCommands.switchRecentTask(direction)) {
-                RootResult.Success -> ActionResult.Success
-                is RootResult.Failure -> ActionResult.Failed(result.reason)
-            }
+        val targetIndex = switchIndex + delta
+        val targetPackage = switchSession.getOrNull(targetIndex)
+            ?: return ActionResult.Failed(
+                if (delta > 0) "Önceki uygulama bulunamadı" else "Sonraki uygulama bulunamadı",
+            )
+        val result = launchApp(targetPackage)
+        if (result is ActionResult.Success) {
+            switchIndex = targetIndex
+            expectedPackage = targetPackage
+            lastSwitchAt = now
         }
+        return result
+    }
 
     private fun launchApp(pkg: String): ActionResult = try {
         val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
@@ -70,5 +75,9 @@ class NavigationActionHandler(
     private fun globalAction(id: Int): ActionResult {
         return if (service.doPerformGlobalAction(id)) ActionResult.Success
         else ActionResult.Failed("performGlobalAction($id) returned false")
+    }
+
+    companion object {
+        private const val SWITCH_SESSION_TIMEOUT_MS = 15_000L
     }
 }

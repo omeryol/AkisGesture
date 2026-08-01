@@ -2,6 +2,45 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.54] - 2026-08-01
+
+### Hareket durumları ve güvenilir eylemler
+
+- Hareket sırası birincil, bekletme, yukarı/aşağı L olarak netleştirildi; geri
+  çekiş ikinci eylem, birincil eylem ve iptal yönünde simetrik çalışıyor.
+- İlk tamamlanan L yönü dokunuş boyunca kilitlenerek geri dönüşte karşı yönde
+  yanlış L oluşması engellendi.
+- L ilerlemesine bağlı renk ve ikon büyümesi eklendi; animasyon L dönüş
+  noktasında sabitleniyor.
+- Aksiyonlar tek sıra üzerinde çalıştırılıyor, beklenmeyen hatalar kontrollü
+  sonuca çevriliyor ve root komutlarına zaman aşımı uygulanıyor.
+- Önceki/sonraki uygulama aynı sabit geçmiş oturumunu kullanacak şekilde
+  birleştirildi.
+- Root zorla kapatma gerçek uygulamayı hedefliyor; süreçle birlikte yalnızca
+  hedef uygulamanın Son Uygulamalar kartları kaldırılıp sonuç doğrulanıyor.
+- Menü, tuş kodu, medya, döndürme, yön ve parlaklık eylemlerindeki sahte başarı
+  ve yanlış çalıştırma yolları düzeltildi.
+
+### Renk, haptik ve doğal animasyonlar
+
+- Seçilen renkleri ezen sabit modül paletleri kaldırıldı; 15 bağımsız animasyon
+  seçilen rengin açık, ana ve koyu tonlarını kullanıyor.
+- Siyah ve düşük doygunluklu renkleri turuncuya dönüştüren zorunlu canlılık
+  işlemi kaldırıldı.
+- Hızlı çekme, bekletme ve L renkleri ayrıldı; uygulamaya duyarlı renk manuel
+  renkle kontrollü biçimde harmanlanıyor.
+- Hazır renkler ve bırakınca tek sefer kaydeden akıcı renk/ayar sürgüleri eklendi.
+- Eksik dokunsal geri bildirim anahtarı geri getirildi; titreşimler kısa,
+  hissedilir ve tek fiziksel darbe yoluna indirildi.
+- Su yüzeyi, basınç, damla, girdap, mürekkep, sis, cam, rüzgar, yıldız, ateş,
+  güneş, gece, yağmur, baloncuk ve aurora ayrı animasyon modüllerine taşındı.
+
+### Doğrulama
+
+- Birim testleri, debug APK ve release APK derlemeleri başarıyla tamamlandı.
+- POCO F5 Pro üzerinde kurulum, erişilebilirlik servis bağlantısı ve çöken servis
+  durumu doğrulandı.
+
 ## [1.1.53] - 2026-08-01
 
 ### 🧪 Beş Prototip Animasyon Test Seti

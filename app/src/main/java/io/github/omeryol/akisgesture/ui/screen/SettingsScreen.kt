@@ -401,7 +401,7 @@ fun SettingsScreen(
             )
             Spacer(Modifier.height(10.dp))
 
-            // Animation Style Selector Grid (All 8 animations)
+            // Animation Style Selector Grid
             Text(
                 text = "Animasyon Stili",
                 style = MaterialTheme.typography.bodySmall,
@@ -411,10 +411,20 @@ fun SettingsScreen(
             Spacer(Modifier.height(4.dp))
             val anims = listOf(
                 FeedbackAnimation.OCEAN_WAVE,
-                FeedbackAnimation.ZIPPER_VOID,
-                FeedbackAnimation.BLACK_HOLE_PULL,
+                FeedbackAnimation.HYDRO_WIPE,
+                FeedbackAnimation.MERCURY_TEARDROP,
+                FeedbackAnimation.VORTEX,
+                FeedbackAnimation.INK_FLOW,
+                FeedbackAnimation.ATMOSPHERIC_MIST,
+                FeedbackAnimation.GLASS_RIPPLE,
+                FeedbackAnimation.COMET_TAIL,
+                FeedbackAnimation.STARFIELD,
                 FeedbackAnimation.PLASMA_FIRE,
-                FeedbackAnimation.MATRIX_DISSOLVE,
+                FeedbackAnimation.SOLAR_CORONA,
+                FeedbackAnimation.BLACK_HOLE_PULL,
+                FeedbackAnimation.PRISM_FLOW,
+                FeedbackAnimation.QUANTUM_RING,
+                FeedbackAnimation.AURORA_RIBBON,
             )
             val chunkedAnims = anims.chunked(2)
             chunkedAnims.forEach { rowAnims ->
@@ -457,7 +467,7 @@ fun SettingsScreen(
 
             // 1. Birincil Hareket Rengi (Hızlı Çekme) - Infinite Custom Color Picker
             AkisInfiniteColorPicker(
-                title = "Birincil Hareket Rengi (Hızlı Çekme)",
+                title = "Hızlı çekme rengi",
                 currentColorArgb = config.feedbackColorArgb,
                 onColorChanged = viewModel::setFeedbackColor
             )
@@ -466,16 +476,24 @@ fun SettingsScreen(
 
             // 2. İkincil Hareket Rengi (Çekip Bekletme) - Infinite Custom Color Picker
             AkisInfiniteColorPicker(
-                title = "İkincil Hareket Rengi (Çekip Bekletme)",
+                title = "Bekletme rengi",
                 currentColorArgb = config.secondaryColorArgb,
                 onColorChanged = viewModel::setSecondaryColor
             )
 
             Spacer(Modifier.height(8.dp))
 
+            AkisInfiniteColorPicker(
+                title = "L hareketi rengi",
+                currentColorArgb = config.lSwipeColorArgb,
+                onColorChanged = viewModel::setLSwipeColor
+            )
+
+            Spacer(Modifier.height(8.dp))
+
             AkisSwitchRow(
                 title = "Uygulamaya Duyarlı Otomatik Renk",
-                subtitle = "Öndeki uygulamanın baskın simge rengini otomatik kullan",
+                subtitle = "Uygulama rengini seçtiğin hızlı çekme rengiyle harmanlar",
                 checked = config.useAppAdaptiveColor,
                 onCheckedChange = viewModel::setUseAppAdaptiveColor
             )
@@ -508,12 +526,20 @@ fun SettingsScreen(
 
             HorizontalDivider(Modifier.padding(vertical = 6.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
 
+            AkisSwitchRow(
+                title = "Dokunsal geri bildirim",
+                subtitle = "Hareket başlangıcı ve aksiyon eşiklerinde kısa titreşim",
+                checked = config.hapticEnabled,
+                onCheckedChange = viewModel::setHapticEnabled
+            )
+
             AkisSliderRow(
                 title = "Titreşim Şiddeti",
                 valueText = "%${(config.hapticIntensity * 100).roundToInt()}",
                 value = config.hapticIntensity,
                 valueRange = 0.0f..1.0f,
-                onValueChange = viewModel::setHapticIntensity
+                onValueChange = viewModel::setHapticIntensity,
+                modifier = Modifier.then(if (config.hapticEnabled) Modifier else Modifier.padding(horizontal = 0.dp))
             )
 
             AkisSwitchRow(
@@ -715,11 +741,17 @@ fun AkisInfiniteColorPicker(
     onColorChanged: (Int) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val hsv = remember(currentColorArgb) {
+    var hsv by remember(currentColorArgb) { mutableStateOf(
         FloatArray(3).also { AndroidColor.colorToHSV(currentColorArgb, it) }
-    }
-    val hexCode = String.format("#%06X", 0xFFFFFF and currentColorArgb)
+    ) }
+    val previewColorArgb = AndroidColor.HSVToColor(hsv)
+    val hexCode = String.format("#%06X", 0xFFFFFF and previewColorArgb)
     val scheme = MaterialTheme.colorScheme
+    val presets = listOf(
+        0xFF3D5AFE.toInt(), 0xFF00B8D4.toInt(), 0xFF00C853.toInt(), 0xFFFFD600.toInt(),
+        0xFFFF6D00.toInt(), 0xFFD500F9.toInt(), 0xFFFF1744.toInt(), 0xFFFFFFFF.toInt(),
+    )
+    fun commitColor() = onColorChanged(AndroidColor.HSVToColor(hsv))
 
     Column(
         modifier = Modifier
@@ -740,7 +772,7 @@ fun AkisInfiniteColorPicker(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(Color(currentColorArgb))
+                        .background(Color(previewColorArgb))
                         .border(2.dp, scheme.onSurface.copy(alpha = 0.3f), CircleShape)
                 )
                 Spacer(Modifier.width(12.dp))
@@ -770,6 +802,39 @@ fun AkisInfiniteColorPicker(
 
         AnimatedVisibility(visible = expanded) {
             Column(modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+                Text(
+                    text = "Hazır renkler",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface
+                )
+                presets.chunked(4).forEach { rowColors ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        rowColors.forEach { preset ->
+                            Box(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(preset))
+                                    .border(
+                                        if (preset == currentColorArgb) 3.dp else 1.dp,
+                                        if (preset == currentColorArgb) scheme.primary else scheme.outline,
+                                        CircleShape,
+                                    )
+                                    .clickable {
+                                        hsv = FloatArray(3).also { AndroidColor.colorToHSV(preset, it) }
+                                        onColorChanged(preset)
+                                    }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
                 // Hue Slider (0 - 360)
                 Text(
                     text = "Renk Tonu (Hue Bar): ${hsv[0].toInt()}°",
@@ -780,9 +845,13 @@ fun AkisInfiniteColorPicker(
                 Slider(
                     value = hsv[0],
                     onValueChange = { newHue ->
-                        val newColor = AndroidColor.HSVToColor(floatArrayOf(newHue, hsv[1].coerceAtLeast(0.1f), hsv[2].coerceAtLeast(0.1f)))
-                        onColorChanged(newColor)
+                        hsv = hsv.copyOf().also {
+                            it[0] = newHue
+                            it[1] = it[1].coerceAtLeast(0.1f)
+                            it[2] = it[2].coerceAtLeast(0.1f)
+                        }
                     },
+                    onValueChangeFinished = ::commitColor,
                     valueRange = 0f..360f
                 )
 
@@ -795,9 +864,9 @@ fun AkisInfiniteColorPicker(
                 Slider(
                     value = hsv[1],
                     onValueChange = { newSat ->
-                        val newColor = AndroidColor.HSVToColor(floatArrayOf(hsv[0], newSat, hsv[2]))
-                        onColorChanged(newColor)
+                        hsv = hsv.copyOf().also { it[1] = newSat }
                     },
+                    onValueChangeFinished = ::commitColor,
                     valueRange = 0f..1f
                 )
 
@@ -810,9 +879,9 @@ fun AkisInfiniteColorPicker(
                 Slider(
                     value = hsv[2],
                     onValueChange = { newVal ->
-                        val newColor = AndroidColor.HSVToColor(floatArrayOf(hsv[0], hsv[1], newVal))
-                        onColorChanged(newColor)
+                        hsv = hsv.copyOf().also { it[2] = newVal }
                     },
+                    onValueChangeFinished = ::commitColor,
                     valueRange = 0f..1f
                 )
             }
