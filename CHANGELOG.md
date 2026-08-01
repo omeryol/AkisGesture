@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.23] - 2026-08-01
+
+### 🎛️ Eylem Seçici Paneli Yenilendi
+
+- Eylem seçme modalındaki eski düz liste satırları cam seçim kartlarına
+  dönüştürüldü.
+- Renkli ikon rozeti, açıklama satırı ve kullanılabilirlik durumu eklendi.
+- Panelin ayarlar sayfasıyla görsel bütünlüğü güçlendirildi.
+
 ## [1.1.22] - 2026-08-01
 
 ### 🖼️ Harita Bölge Kenarları Düzeltildi

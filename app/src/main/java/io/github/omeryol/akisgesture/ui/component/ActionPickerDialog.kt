@@ -4,14 +4,21 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Apps
@@ -37,6 +44,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -309,29 +318,62 @@ private fun ActionPickerItem(
     onSelect: (ActionNode) -> Unit,
 ) {
     val available = RuleConfigViewModel.isActionAvailable(action)
-    ListItem(
-        headlineContent = { Text(action.label) },
-        supportingContent = when {
-            !available -> {
-                { Text("Bu Android sürümünde kullanılamıyor") }
-            }
-            action is ActionNode.LaunchApp -> {
-                { Text("Uygulamayı aç") }
-            }
-            else -> null
-        },
-        leadingContent = {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(scheme.surfaceVariant.copy(alpha = if (available) 0.32f else 0.16f))
+            .border(
+                1.dp,
+                if (available) scheme.outlineVariant.copy(alpha = 0.28f)
+                else scheme.outlineVariant.copy(alpha = 0.12f),
+                RoundedCornerShape(14.dp),
+            )
+            .clickable(enabled = available) { onSelect(action) }
+            .padding(horizontal = 12.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    if (available) scheme.primary.copy(alpha = 0.16f)
+                    else scheme.onSurfaceVariant.copy(alpha = 0.10f)
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
             ActionIcon(
                 action = action,
                 contentDescription = null,
-                modifier = if (action is ActionNode.LaunchApp) Modifier.size(32.dp) else Modifier,
-                tint = if (available) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(27.dp),
+                tint = if (available) scheme.primary else scheme.onSurfaceVariant,
             )
-        },
-        modifier = Modifier.clickable(enabled = available) {
-            onSelect(action)
-        },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-    )
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                action.label,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                color = if (available) scheme.onSurface else scheme.onSurfaceVariant,
+            )
+            Text(
+                when {
+                    !available -> "Bu Android sürümünde kullanılamıyor"
+                    action is ActionNode.LaunchApp -> "Uygulamayı aç"
+                    else -> "Hareket eylemi"
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = scheme.onSurfaceVariant,
+            )
+        }
+        if (!available) {
+            Text("Kapalı", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+        } else {
+            Text("Seç", style = MaterialTheme.typography.labelSmall, color = scheme.primary)
+        }
+    }
 }
