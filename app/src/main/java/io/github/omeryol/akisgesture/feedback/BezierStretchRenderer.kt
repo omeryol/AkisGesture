@@ -153,7 +153,8 @@ class BezierStretchRenderer {
             FeedbackAnimation.COMET_TAIL,
             FeedbackAnimation.QUANTUM_RING,
             FeedbackAnimation.INK_FLOW,
-            FeedbackAnimation.SOLAR_FLARE -> {
+            FeedbackAnimation.SOLAR_FLARE,
+            FeedbackAnimation.ZIPPER_VOID -> {
                 drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
             }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
@@ -769,7 +770,85 @@ class BezierStretchRenderer {
                     canvas.drawPath(path, glowStrokePaint)
                 }
             }
+            FeedbackAnimation.ZIPPER_VOID -> drawZipperVoidAnimation(canvas, edge, touchPos, w, h, progress)
             else -> Unit
+        }
+    }
+
+    private fun drawZipperVoidAnimation(
+        canvas: Canvas,
+        edge: Edge,
+        touchPos: Float,
+        w: Float,
+        h: Float,
+        progress: Float,
+    ) {
+        val (cx, cy) = center(edge, progress * 260f + 16f, touchPos, w, h)
+        val time = System.currentTimeMillis() / 1000.0
+        val opening = (18f + progress * 58f) * animSize
+        val railLength = (42f + progress * 110f) * animSize
+        val metal = Color.rgb(185, 205, 224)
+
+        auraPaint.shader = RadialGradient(
+            cx, cy, opening * 2.4f,
+            intArrayOf(Color.BLACK, intColorWithAlpha(Color.rgb(12, 22, 42), 230), Color.TRANSPARENT),
+            floatArrayOf(0f, 0.42f, 1f), Shader.TileMode.CLAMP,
+        )
+        canvas.drawCircle(cx, cy, opening * 2.4f, auraPaint)
+        auraPaint.shader = null
+        bodyPaint.color = Color.rgb(3, 5, 12)
+        bodyPaint.alpha = (235 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawOval(RectF(cx - opening * 0.72f, cy - opening * 1.28f, cx + opening * 0.72f, cy + opening * 1.28f), bodyPaint)
+
+        val direction = if (edge == Edge.RIGHT) -1f else 1f
+        glowStrokePaint.color = intColorWithAlpha(metal, (210 * opacity).toInt())
+        glowStrokePaint.strokeWidth = 7f * animSize
+        path.reset()
+        when (edge) {
+            Edge.LEFT, Edge.RIGHT -> {
+                val edgeX = if (edge == Edge.LEFT) cx - railLength else cx + railLength
+                path.moveTo(edgeX, cy - opening * 1.8f)
+                path.cubicTo(edgeX - direction * railLength * 0.35f, cy - opening, cx - direction * railLength * 0.15f, cy - opening * 0.4f, cx, cy)
+                path.cubicTo(cx + direction * railLength * 0.15f, cy + opening * 0.4f, edgeX - direction * railLength * 0.35f, cy + opening, edgeX, cy + opening * 1.8f)
+            }
+            Edge.BOTTOM -> {
+                path.moveTo(cx - opening * 1.8f, cy + railLength)
+                path.cubicTo(cx - opening, cy + railLength * 0.35f, cx - opening * 0.4f, cy + railLength * 0.15f, cx, cy)
+                path.cubicTo(cx + opening * 0.4f, cy + railLength * 0.15f, cx + opening, cy + railLength * 0.35f, cx + opening * 1.8f, cy + railLength)
+            }
+        }
+        canvas.drawPath(path, glowStrokePaint)
+        glowStrokePaint.color = Color.WHITE
+        glowStrokePaint.strokeWidth = 2f * animSize
+        canvas.drawPath(path, glowStrokePaint)
+
+        for (i in 0 until 12) {
+            val t = i / 11f
+            val pulse = sin(time * 1.8 + i * 0.42).toFloat() * 2.5f * animSize
+            val along = railLength * (1f - t) + opening * 0.7f
+            val tooth = 6f * animSize
+            glowStrokePaint.color = intColorWithAlpha(if (i % 2 == 0) Color.WHITE else metal, (210 * opacity).toInt())
+            glowStrokePaint.strokeWidth = tooth * 1.25f
+            when (edge) {
+                Edge.LEFT, Edge.RIGHT -> {
+                    val x = cx + if (edge == Edge.LEFT) -along else along
+                    val y = cy - opening * 1.55f + t * opening * 3.1f + pulse
+                    canvas.drawLine(x, y, x + if (edge == Edge.LEFT) tooth else -tooth, y + tooth * 0.7f, glowStrokePaint)
+                }
+                Edge.BOTTOM -> {
+                    val x = cx - opening * 1.55f + t * opening * 3.1f + pulse
+                    val y = cy + along
+                    canvas.drawLine(x, y, x + tooth * 0.7f, y - tooth, glowStrokePaint)
+                }
+            }
+        }
+
+        sparkPaint.color = Color.rgb(90, 190, 255)
+        for (i in 0 until 7) {
+            val angle = time * (1.3 + i * 0.08) + i
+            val distance = opening * (1.8f - progress * 0.8f) * (0.5f + i / 10f)
+            sparkPaint.alpha = (170 * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(cx + cos(angle).toFloat() * distance, cy + sin(angle).toFloat() * distance, (1.8f + i % 3) * animSize, sparkPaint)
         }
     }
 
