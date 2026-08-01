@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.33] - 2026-08-01
+
+### 🎯 Gesture İkon Geçişi Sabitlendi
+
+- Geri hareketi sırasında başlangıç, eşik ve bırakma aşamalarında ikonun
+  gereksizce değişmesi engellendi.
+- Seçili eylem, kısa çıkış animasyonu boyunca korunuyor ve animasyon sonunda
+  temizleniyor.
+
 ## [1.1.32] - 2026-08-01
 
 ### 📱 Uygulama Seçimi Üç Sütuna Taşındı

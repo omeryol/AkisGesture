@@ -203,6 +203,7 @@ class FeedbackView(context: Context) : View(context) {
         if (stretchDistance < 0.5f) {
             isActive = false
             appSwitchDirection = null
+            actionSymbol = ""
             return
         }
         releaseAnimator = ValueAnimator.ofFloat(stretchDistance, 0f).apply {
@@ -213,6 +214,7 @@ class FeedbackView(context: Context) : View(context) {
                 if (stretchDistance < 0.5f) {
                     isActive = false
                     appSwitchDirection = null
+                    actionSymbol = ""
                 }
             }
             start()
