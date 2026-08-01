@@ -2,6 +2,18 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.44] - 2026-08-01
+
+### 🎬 Animasyon Renderer Baştan Yazıldı
+
+- Tüm animasyonlar yeni bir ortak Canvas pipeline'ından geçirildi.
+- Her mod fiziksel siluet, 3D gölge, hacim, renk dağılımı ve hareketli detay
+  katmanlarıyla çiziliyor.
+- Ortak cam efekt yerine seçili animasyonun kendi malzeme ve davranışı öne
+  çıkarılıyor.
+- Kara delik, fermuar, dalga, plazma, sis, şimşek ve güneş modları birbirinden
+  ayrışan gerçekçi + abstrakt görsel dile taşındı.
+
 ## [1.1.43] - 2026-08-01
 
 ### 🌌 Tüm Animasyonlar Yenilendi
