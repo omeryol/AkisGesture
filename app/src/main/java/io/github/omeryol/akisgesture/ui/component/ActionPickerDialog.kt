@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -71,7 +73,7 @@ fun ActionPickerDialog(
     var installedApps by remember { mutableStateOf<List<ActionNode.LaunchApp>>(emptyList()) }
     var appsLoaded by remember { mutableStateOf(false) }
     var browsingApps by remember(appSelectionOnly) { mutableStateOf(appSelectionOnly) }
-    var openCategory by remember { mutableStateOf(categories.firstOrNull()?.first) }
+    var selectedCategory by remember { mutableStateOf(categories.firstOrNull()?.first) }
     var query by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val allSearchableActions = remember(fixedActions, installedApps) {
@@ -266,32 +268,27 @@ fun ActionPickerDialog(
                         ActionPickerItem(action = action, onSelect = onSelect)
                     }
 
-                    categories.forEach { (category, actions) ->
-                        item(key = "header_$category") {
-                            ListItem(
-                                headlineContent = { Text(category) },
-                                supportingContent = { Text("${actions.size} seçenek") },
-                                trailingContent = {
-                                    Icon(
-                                        if (openCategory == category) Icons.Filled.ExpandLess
-                                        else Icons.Filled.ExpandMore,
-                                        contentDescription = null,
-                                    )
-                                },
-                                modifier = Modifier.clickable {
-                                    openCategory =
-                                        if (openCategory == category) null else category
-                                },
-                            )
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                            )
-                        }
-                        if (openCategory == category) {
-                            items(actions, key = { it.id }) { action ->
-                                ActionPickerItem(action = action, onSelect = onSelect)
+                    item(key = "category_tabs") {
+                        LazyRow(
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        ) {
+                            items(categories, key = { "tab_${it.first}" }) { (category, actions) ->
+                                FilterChip(
+                                    selected = selectedCategory == category,
+                                    onClick = { selectedCategory = category },
+                                    label = { Text(category) },
+                                    trailingIcon = { Text("${actions.size}") },
+                                )
                             }
                         }
+                    }
+                    val selectedActions = categories
+                        .firstOrNull { it.first == selectedCategory }
+                        ?.second
+                        .orEmpty()
+                    items(selectedActions, key = { "category_${it.id}" }) { action ->
+                        ActionPickerItem(action = action, onSelect = onSelect)
                     }
                 }
             }

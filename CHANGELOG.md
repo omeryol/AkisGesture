@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.24] - 2026-08-01
+
+### 🗂️ Eylem Seçiminde Sekmeli Yapı
+
+- Eylem kategorileri açılır liste yerine yatay sekmelere dönüştürüldü.
+- Sekmelerde kategori adı ve seçenek sayısı gösteriliyor.
+- Aynı cam eylem kartları korunarak seçim akışı kısaltıldı.
+
 ## [1.1.23] - 2026-08-01
 
 ### 🎛️ Eylem Seçici Paneli Yenilendi
