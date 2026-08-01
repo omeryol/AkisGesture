@@ -154,7 +154,8 @@ class BezierStretchRenderer {
             FeedbackAnimation.QUANTUM_RING,
             FeedbackAnimation.INK_FLOW,
             FeedbackAnimation.SOLAR_FLARE,
-            FeedbackAnimation.ZIPPER_VOID -> {
+            FeedbackAnimation.ZIPPER_VOID,
+            FeedbackAnimation.BLACK_HOLE_PULL -> {
                 drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
             }
             FeedbackAnimation.ICON_ONLY, FeedbackAnimation.NONE -> Unit
@@ -771,7 +772,82 @@ class BezierStretchRenderer {
                 }
             }
             FeedbackAnimation.ZIPPER_VOID -> drawZipperVoidAnimation(canvas, edge, touchPos, w, h, progress)
+            FeedbackAnimation.BLACK_HOLE_PULL -> drawBlackHolePullAnimation(canvas, edge, touchPos, w, h, progress)
             else -> Unit
+        }
+    }
+
+    private fun drawBlackHolePullAnimation(
+        canvas: Canvas,
+        edge: Edge,
+        touchPos: Float,
+        w: Float,
+        h: Float,
+        progress: Float,
+    ) {
+        val (cx, cy) = center(edge, progress * 260f + 18f, touchPos, w, h)
+        val time = System.currentTimeMillis() / 1000.0
+        val eventHorizon = (22f + progress * 56f) * animSize
+        val pull = (0.35f + progress * 0.65f)
+
+        // A physically readable dark core surrounded by an abstract color lens.
+        auraPaint.shader = RadialGradient(
+            cx, cy, eventHorizon * 3.2f,
+            intArrayOf(
+                Color.BLACK,
+                intColorWithAlpha(Color.rgb(42, 16, 78), (220 * opacity).toInt()),
+                intColorWithAlpha(baseColor, (125 * opacity).toInt()),
+                Color.TRANSPARENT,
+            ),
+            floatArrayOf(0f, 0.28f, 0.62f, 1f),
+            Shader.TileMode.CLAMP,
+        )
+        canvas.drawCircle(cx, cy, eventHorizon * 3.2f, auraPaint)
+        auraPaint.shader = null
+        bodyPaint.color = Color.BLACK
+        bodyPaint.alpha = (250 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, eventHorizon, bodyPaint)
+
+        // Accretion disk: light bends into a flattened orbit around the void.
+        glowStrokePaint.strokeWidth = 7f * animSize
+        for (ring in 0 until 3) {
+            val orbit = eventHorizon * (1.35f + ring * 0.32f)
+            rectF.set(cx - orbit * 1.7f, cy - orbit * 0.42f, cx + orbit * 1.7f, cy + orbit * 0.42f)
+            glowStrokePaint.color = intColorWithAlpha(
+                if (ring % 2 == 0) Color.rgb(255, 112, 67) else Color.rgb(124, 77, 255),
+                ((185 - ring * 35) * opacity).toInt(),
+            )
+            canvas.drawOval(rectF, glowStrokePaint)
+        }
+
+        // Matter streaks visibly curve inward as the gesture stretches.
+        path.reset()
+        for (i in 0 until 12) {
+            val angle = time * (1.2 + i * 0.03) + i * Math.PI / 6.0
+            val outer = eventHorizon * (2.2f + (i % 3) * 0.45f)
+            val inner = eventHorizon * (0.75f + pull * 0.35f)
+            val startX = cx + cos(angle).toFloat() * outer * 1.5f
+            val startY = cy + sin(angle).toFloat() * outer * 0.7f
+            val endX = cx + cos(angle + 0.8).toFloat() * inner
+            val endY = cy + sin(angle + 0.8).toFloat() * inner
+            path.moveTo(startX, startY)
+            path.quadTo(cx, cy, endX, endY)
+        }
+        glowStrokePaint.color = intColorWithAlpha(Color.rgb(255, 213, 79), (150 * opacity).toInt())
+        glowStrokePaint.strokeWidth = 4f * animSize
+        canvas.drawPath(path, glowStrokePaint)
+
+        sparkPaint.color = Color.WHITE
+        for (i in 0 until 10) {
+            val angle = time * 2.0 + i * 0.63
+            val distance = eventHorizon * (1.15f + ((i * 17) % 100) / 100f * 2.2f)
+            sparkPaint.alpha = ((120 + i * 10) * opacity).toInt().coerceIn(0, 255)
+            canvas.drawCircle(
+                cx + cos(angle).toFloat() * distance,
+                cy + sin(angle).toFloat() * distance * 0.65f,
+                (1.5f + i % 3) * animSize,
+                sparkPaint,
+            )
         }
     }
 

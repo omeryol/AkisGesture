@@ -20,6 +20,7 @@ enum class FeedbackAnimation(val label: String) {
     INK_FLOW("Mürekkep Akışı ◒"),
     SOLAR_FLARE("Güneş Patlaması ✺"),
     ZIPPER_VOID("Fermuar Boşluğu ⦿"),
+    BLACK_HOLE_PULL("Kara Delik Çekimi ◉"),
     ICON_ONLY("Sade Simge 🎯"),
     NONE("Kapalı 🚫"),
 }

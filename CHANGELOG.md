@@ -2,6 +2,16 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.42] - 2026-08-01
+
+### 🌌 Gerçekçi + Abstrakt Animasyon Dili
+
+- Animasyon ailesi gerçek dünya davranışlarıyla abstrakt renk ve ışık
+  katmanlarını birlikte kullanacak şekilde genişletildi.
+- Yeni **Kara Delik Çekimi** modu eklendi: çektikçe merkez boşluğu büyüyor,
+  akresyon diski dönüyor ve madde izleri merkeze kıvrılarak çekiliyor.
+- Kara delik modu seçim ekranından doğrudan kullanılabilir.
+
 ## [1.1.41] - 2026-08-01
 
 ### 🧲 Gerçekçi Fermuar Boşluğu Animasyonu
