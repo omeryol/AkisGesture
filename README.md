@@ -1,5 +1,7 @@
 # Akış Gesture
 
+**Türkçe** | [English](README-en.md)
+
 Akış Gesture, Android ve özellikle HyperOS cihazlarda doğal kenar hareketleri
 sunmak için geliştirilen kişisel, açık kaynaklı bir navigasyon uygulamasıdır.
 
@@ -36,9 +38,9 @@ eylemleri bakımından kaynak tabandan önemli ölçüde ayrılmıştır.
 - APK dosyaları kaynak ağacına eklenmez; doğrulanmış yayın paketleri GitHub
   Releases bölümünde sürüm etiketi ve sürüm notlarıyla sunulur.
 
-Henüz herkese açık GitHub deposu veya resmi GitHub Release yayımlanmış değildir.
-İlk yayın öncesinde Git geçmişi gizli bilgi, kişisel yol ve büyük dosyalar için
-taranacak; derleme ve test denetimleri tamamlanacaktır.
+Kaynak kod [omeryol/AkisGesture](https://github.com/omeryol/AkisGesture)
+deposunda yayımlanır. Doğrulanmış ve imzalı APK dosyaları yalnızca GitHub
+Releases bölümünde sürüm etiketi ve SHA-256 özetiyle sunulur.
 
 ## Destek, katkı ve kullanım sınırları
 
@@ -62,7 +64,7 @@ kullanıcı kendi cihazına ve ROM'una uygun yöntemi araştırmalıdır.
 - Hızlı çekme, çekip bekletme ve **L-şeklinde çekme** için bağımsız eylemler
 - Geri, ana ekran, son uygulamalar ve kullanıcı eylemleri
 - Uygulamaya ve ekran yönüne göre farklı profiller
-- Kullanıcıyı teknik ayrıntılarla yormayan sade Türkçe arayüz
+- Kullanıcıyı teknik ayrıntılarla yormayan Türkçe ve İngilizce arayüz
 - HyperOS tarafından durdurulduğunda güvenli toparlanma
 - Root/APatch desteğini ana uygulamadan ayrılmış yardımcı katmanda tutma
 

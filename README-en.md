@@ -1,111 +1,190 @@
-# <img src="docs/icon.svg" width="48" align="center"/> Akis Gesture
+# Akış Gesture
 
-**Open-source Android edge gesture navigation** — Custom navigation powered by AccessibilityService. No root required.
+Akış Gesture is a personal, open-source navigation app designed to provide
+natural edge gestures on Android, with particular attention to HyperOS devices.
 
-Akis Gesture started from [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe).
-The original MIT license and attribution are preserved in `LICENSE` and
-`UPSTREAM.md`. The Android package identity is independently maintained as
-`io.github.omeryol.akisgesture`.
-
-No ads · No tracking · Fully open-source · Free forever
+The project started from the MIT-licensed
+[OpenSwipe](https://github.com/ARCJ137442/OpenSwipe) codebase. The original
+copyright and license notice is preserved in `LICENSE`. Akış Gesture has its own
+Android package identity, `io.github.omeryol.akisgesture`, and is maintained as
+an independent project.
 
 **English** | [Türkçe](README.md)
 
-### Languages
+## Language support
 
-The complete app interface is available in English and Turkish. Choose System
-default, Türkçe, or English under `Settings > About > Language`. Additional
-languages can be added through Android resources (`res/values-xx/strings.xml`)
-and `res/xml/locales_config.xml`; a unit test keeps locale resource keys aligned.
+The full interface is available in English and Turkish. Choose System default,
+Türkçe, or English under `Settings > About > Language`. Additional languages
+can be added through Android resources: English is in
+`res/values/strings.xml`, Turkish is in `res/values-tr/strings.xml`, and the
+supported locale list is in `res/xml/locales_config.xml`. A unit test verifies
+that locale resource keys stay aligned.
 
----
+## Project and release model
 
-### Features
+Akış Gesture is developed as an independent open-source project rather than a
+single large pull request to OpenSwipe. Its package identity, interface,
+gesture engine, natural feedback modules, and optional root actions have
+diverged substantially from the upstream base.
 
-| Category | Feature | Status |
-|----------|---------|--------|
-| **Rule Engine** | Bipartite-graph gesture rule engine (Trigger → Action configurable mapping) | ✅ |
-| **Rule Control** | Enable/disable each rule independently | ✅ |
-| **Trigger Mode** | Per-rule trigger mode (Tap / Swipe with click pass-through) | ✅ |
-| **Persistence** | Rule persistence via DataStore | ✅ |
-| **Presets** | Built-in presets (iOS-style / Android Classic / Media Control) | ✅ |
-| **Bottom Segments** | Bottom edge split into 3 zones (Left 1/3, Center 1/3, Right 1/3) with independent actions | ✅ |
-| **System Actions** | 18 system actions available | ✅ |
-| **Edge Config** | Adjustable edge trigger width & height | ✅ |
-| **Rule Editor** | Rule detail editing page (Save + Delete) | ✅ |
-| **Modern UI** | Jetpack Compose Material3 | ✅ |
-| **Branding** | Custom vector icon | ✅ |
+- This repository is the project `origin`; OpenSwipe remains the read-only
+  historical `upstream`.
+- Small and generally useful fixes may be proposed to OpenSwipe separately.
+- OpenSwipe attribution is preserved, and new Akış Gesture contributions are
+  released under the same MIT license.
+- APK files are not committed to the source tree. Verified, signed packages are
+  published through GitHub Releases with a version tag and SHA-256 checksum.
 
-### Privacy Promise
+Source code is published at
+[omeryol/AkisGesture](https://github.com/omeryol/AkisGesture).
 
-- ❌ **Zero ads** — No AdMob, AppLovin, or Facebook Ads
-- ❌ **Zero tracking** — No Firebase Analytics or Crashlytics
-- ❌ **Zero network** — The app never connects to the internet
-- ✅ **Fully open-source** — Every line of code is auditable
+## Support, contributions, and limitations
 
-### Installation
+Akış Gesture is an independent hobby and community project. Update frequency,
+device compatibility, fix times, and individual support are not guaranteed.
+Reproducible bug reports, improvements, and contributions are welcome.
 
-1. Download the APK from this project's Releases page when public builds are available.
-2. Install on your device
-3. Open the app → Follow the permission guide to enable AccessibilityService
-4. Swipe from screen edges and enjoy!
+Core edge gestures use Android Accessibility Service and do not require root.
+Root is optional and used only for clearly marked advanced or experimental
+actions; behavior can vary by device, ROM, APatch/Magisk version, and vendor
+restrictions.
 
-### Architecture
+Akış Gesture does not hide the system navigation bar. System modifications and
+third-party root solutions needed for full-screen setups are outside the
+project scope.
 
+## Goals
+
+- Low-latency detection on the left, right, and bottom edges
+- Independent actions for quick swipe, swipe-and-hold, and L-shaped swipe
+- Back, Home, Recents, app launching, media, and other user actions
+- Per-app profiles and orientation-aware behavior
+- A clear English and Turkish interface
+- Safe recovery when HyperOS stops the service
+- An isolated helper layer for optional root/APatch actions
+
+The root force-stop action targets only the foreground personal-profile app and
+protects critical system packages.
+
+## Behavior in 1.1.54
+
+- Gesture states progress from primary to hold and then up/down L-swipe. Pulling
+  back reverses this sequence through the secondary action, primary action, and
+  cancellation.
+- L-swipe feedback stays anchored at the bend point; color and action icon grow
+  with progress, and the first completed L direction is locked for that touch.
+- Visual feedback includes 15 independent natural animation modules with
+  separate quick, hold, and L colors.
+- App-adaptive color blends the selected quick-swipe color with the dominant app
+  icon color instead of replacing it.
+- Haptic feedback can be disabled. Intensity is saved once when the slider is
+  released and provides a preview pulse.
+- Previous/next app actions share one reversible history session. Root force-stop
+  verifies the target process and removes only that app's Recents cards.
+
+## Architecture principles
+
+1. The gesture engine has one source of truth.
+2. Root is a fallback helper when normal Android APIs cannot provide an action.
+3. The app is not converted into a system application.
+4. Work profiles such as Island are never targeted automatically.
+5. The app avoids continuous process killing, foreground launches, and frequent polling.
+6. Every behavior change is accompanied by tests and a CHANGELOG entry.
+
+## Current status
+
+Left, right, and bottom gestures are working on a HyperOS/Android 15 device.
+Quick swipe, swipe-and-hold, and L-swipe can run independent actions in the same
+area. The phone-shaped rule map supports moving and resizing areas, grouped
+action assignment, and live gesture rehearsal. Pause conditions cover the lock
+screen, keyboard, landscape, full screen, permission screens, and selected apps.
+
+### How L-swipe works
+
+An L gesture starts by pulling inward from an edge and then bending the finger
+up or down. Detection has two phases:
+
+- **Phase 1 — Inward:** once `maxInwardPx ≥ threshold`, `inwardArmed` is locked
+  and the bend origin (`bendStartY`) is recorded.
+- **Phase 2 — Turn:** `turnDy = event.rawY − bendStartY`
+  - `turnDy ≤ −35 px` → `SWIPE_UP_L`
+  - `turnDy ≥ +35 px` → `SWIPE_DOWN_L`
+
+Rule matching uses the initial edge contact coordinate rather than the finger's
+final position. Hold is ready after 280 ms by default and fires on release. Any
+gesture can be cancelled by moving the finger back toward the edge.
+
+## Source layout
+
+```text
+app/src/main/java/io/github/omeryol/akisgesture/
+├── action/       Modular navigation, system, media, hardware, and app actions
+├── backup/       JSON settings and rule backup/restore
+├── feedback/     Natural animation renderers, icons, haptics, and sound
+├── gesture/      Gesture state machine, thresholds, detectors, and pause policy
+├── model/        Actions, rules, triggers, and gesture types
+├── navigation/   Internal navigation bridge
+├── overlay/      Accessibility overlay windows and edge sensors
+├── receiver/     External START, STOP, TOGGLE, and action broadcasts
+├── root/         Optional APatch/Magisk command helper
+├── rule/         Rule graph, profiles, presets, serialization, and validation
+├── service/      Accessibility, keep-alive, boot, tile, and MacroDroid services
+└── ui/           Jetpack Compose screens, components, theme, and view models
 ```
-io.github.omeryol.akisgesture/
-├── service/     → AccessibilityService + keep-alive + auto-start on boot
-├── overlay/     → TYPE_ACCESSIBILITY_OVERLAY window management
-├── gesture/     → State-machine gesture detection engine
-├── rule/        → Bipartite-graph rule engine (Trigger ↔ Action mapping)
-├── action/      → Sealed class action dispatch (18 system actions)
-├── feedback/    → Bézier curve stretch + haptic feedback
-└── ui/          → Jetpack Compose Material3
+
+## Build
+
+Requirements:
+
+- JDK 21
+- Android SDK 35
+
+Windows:
+
+```powershell
+.\gradlew.bat assembleDebug
 ```
 
-**Tech Stack**: Kotlin 2.1 · Jetpack Compose · Material3 · DataStore · Coroutines
+Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
 
-**Core Principle**:
-```kotlin
-// System-level actions via AccessibilityService, no Root needed
-performGlobalAction(GLOBAL_ACTION_BACK)     // Back
-performGlobalAction(GLOBAL_ACTION_HOME)     // Home
-performGlobalAction(GLOBAL_ACTION_RECENTS)  // Recents
+Install only for the personal profile:
+
+```powershell
+adb install --user 0 -r app\build\outputs\apk\debug\app-debug.apk
 ```
 
-### Build
+A general `adb install -r` can also register the app in an active Island work
+profile and is therefore not recommended for this project.
 
-```bash
-git clone <repository-url>
-cd AkisGesture
-./gradlew assembleDebug
-# APK output: app/build/outputs/apk/debug/app-debug.apk
+## Automation intents
+
+Use these package-scoped broadcasts to start, stop, or toggle Akış Gesture:
+
+```text
+io.github.omeryol.akisgesture.action.START
+io.github.omeryol.akisgesture.action.STOP
+io.github.omeryol.akisgesture.action.TOGGLE
 ```
 
-Requirements: Android Studio 2024.2+ · JDK 21 · Android SDK 35
+They do not modify other accessibility services. MacroDroid can also use the
+Akış Gesture plugin entries or its three exported activity targets. Rules and
+settings can be backed up to and restored from one JSON file in Settings.
 
-### Roadmap
+## Roadmap
 
-- [x] MVP: Left / Right / Bottom gesture navigation
-- [x] Independent toggle + real-time effect
-- [x] Adjustable bottom height + Tap/Swipe mode
-- [x] Bipartite-graph rule engine with configurable mapping
-- [x] Rule persistence + per-rule enable/disable
-- [x] Preset schemes (iOS-style / Android Classic / Media Control)
-- [x] Bottom 3-segment zones with independent actions
-- [x] 18 system actions
-- [x] Rule detail editor (Save + Delete)
-- [x] Brand vector icon
-- [ ] Bézier curve visual feedback ([#3](https://github.com/ARCJ137442/OpenSwipe/issues/3))
-- [ ] Per-app configuration
-- [ ] F-Droid listing
+- [x] Independent left, right, and bottom gesture areas
+- [x] Quick, hold, and two-direction L-swipe state machine
+- [x] Configurable rule engine and built-in presets
+- [x] Per-edge sensitivity, thresholds, position, and size
+- [x] Natural visual feedback, haptics, sound, and cancellation
+- [x] Interactive phone map with live rehearsal
+- [x] HyperOS service-health recovery
+- [x] App launching, app switching, and protected root actions
+- [x] Complete English and Turkish localization
+- [ ] Extended real-device latency and false-trigger measurements
+- [ ] Additional per-app profile workflows
 
-### License
+## License
 
-[MIT](LICENSE)
-
----
-
-> Last updated: 2026-03-31
-
-> ✨ *DIY your gesture navigation — open source saves the world* 🚀
+OpenSwipe-derived portions and new Akış Gesture contributions are licensed
+under the MIT License. See `LICENSE` and `UPSTREAM.md` for attribution details.
