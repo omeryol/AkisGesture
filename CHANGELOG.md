@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.52] - 2026-08-01
+
+### 🧪 Referans Prototip Motorları Uygulandı
+
+- Hidro dalga, mekanik fermuar, akresyon diski kara delik, volumetrik plazma
+  ve Matrix çözülmesi ayrı Canvas motorları olarak uygulandı.
+- Her motor kendi geometri, malzeme, renk dağılımı ve hareket davranışını
+  kullanıyor.
+
 ## [1.1.51] - 2026-08-01
 
 ### 🌊 Okyanus Dalgası Geri Getirildi
