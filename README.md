@@ -36,6 +36,32 @@ Son cihaz ekranlarından seçilmiş örnekler:
   <img src="docs/screenshots/akis-rule-detail.jpg" width="180" alt="Kural ayrıntısı">
 </p>
 
+## Açık kaynak ve izinler
+
+Akış Gesture açık kaynaklı, kişisel ve hobi amaçlı bir projedir. Kaynak kodu
+[GitHub deposunda](https://github.com/omeryol/AkisGesture) incelenebilir. Uygulama
+olduğu haliyle sunulur; sürekli geliştirme, cihaz uyumluluğu veya bireysel teknik
+destek garantisi verilmez.
+
+İstenen Android izinlerinin amaçları:
+
+- **Erişilebilirlik hizmeti:** Kenar hareketlerini algılamak, geri/ana ekran/son
+  uygulamalar gibi sistem eylemlerini gerçekleştirmek ve seçilen hareketleri
+  uygulamak için gereklidir. Bu hassas izin Android ayarlarından kullanıcı
+  tarafından açıkça etkinleştirilir.
+- **Titreşim:** Haptik hareket geri bildirimi için kullanılır.
+- **Kamera:** Yalnızca seçilebilen fener eyleminin cihaz flaşını kontrol etmesi
+  için bildirilir; uygulamanın fotoğraf veya video çekme özelliği yoktur.
+- **Bildirim ve ön plan servisi:** Hareket hizmetinin çalıştığını göstermek ve
+  Android'in arka plan kısıtlamaları altında hizmet durumunu korumak içindir.
+- **Açılışta çalıştırma ve pil optimizasyonu istisnası:** Kullanıcı etkinleştirirse
+  cihaz yeniden başladıktan sonra hizmeti sürdürebilmek ve üretici pil yönetiminin
+  hareket hizmetini durdurma ihtimalini azaltmak içindir.
+
+Kurallar ve uygulama ayarları `Ayarlar > Yedek` bölümünden JSON dosyasına
+aktarılabilir. Bu yedeği güvenli bir yerde saklamak kullanıcının sorumluluğundadır;
+otomatik bulut yedekleme veya veri kurtarma garantisi yoktur.
+
 ## Proje ve yayın modeli
 
 Akış Gesture, OpenSwipe'a gönderilecek tek ve büyük bir çekme isteği olarak değil,
