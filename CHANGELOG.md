@@ -2,6 +2,17 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.17] - 2026-08-01
+
+### ✨ Hareket Geri Bildirimleri Yenilendi
+
+- Emoji ağırlıklı eylem işaretleri yerine daha temiz, tek renkli semboller
+  kullanıldı.
+- Jest göstergelerindeki rozet daha yumuşak ışık geçişli bir çekirdeğe
+  dönüştürüldü.
+- İnce çizgi ve ağır gölge etkileri azaltılarak geri bildirim daha modern ve
+  okunabilir hale getirildi.
+
 ## [1.1.16] - 2026-08-01
 
 ### 💾 Yedekleme Kapsamı Düzeltildi

@@ -579,7 +579,8 @@ class BezierStretchRenderer {
         canvas.save()
         canvas.scale(scale * animSize, scale * animSize, cx, cy)
 
-        // 3D Floating Glass Orb Badge with 3D Round Drop Shadow
+        // A compact luminous core keeps the feedback expressive without turning
+        // the action symbol into a cartoon sticker.
         if (armed || holdArmed || isLUp || isLDown) {
             val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
 
@@ -588,23 +589,29 @@ class BezierStretchRenderer {
             shadowPaint.alpha = (105 * opacity * alpha).toInt().coerceIn(0, 255)
             canvas.drawCircle(cx + 5f, cy + 7f, auraRadius * 1.06f, shadowPaint)
 
-            // 2. 3D Glass Orb Body
-            auraPaint.color = when {
+            val coreColor = when {
                 isLUp || isLDown -> lSwipeColor
                 holdArmed -> secondaryColor
                 else -> baseColor
             }
-            auraPaint.alpha = ((if (isLUp || isLDown) 215 else if (holdArmed) 195 else 140) * opacity * alpha).toInt().coerceIn(0, 255)
+            auraPaint.shader = RadialGradient(
+                cx - auraRadius * 0.28f,
+                cy - auraRadius * 0.32f,
+                auraRadius * 1.35f,
+                intArrayOf(
+                    Color.WHITE,
+                    intColorWithAlpha(coreColor, (225 * opacity * alpha).toInt()),
+                    intColorWithAlpha(coreColor, (125 * opacity * alpha).toInt()),
+                ),
+                floatArrayOf(0f, 0.28f, 1f),
+                Shader.TileMode.CLAMP,
+            )
             canvas.drawCircle(cx, cy, auraRadius, auraPaint)
-
-            // 3. Top-Left 3D Specular Light Refraction Lens
-            highlightPaint.color = Color.WHITE
-            highlightPaint.alpha = (165 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx - auraRadius * 0.35f, cy - auraRadius * 0.35f, auraRadius * 0.38f, highlightPaint)
+            auraPaint.shader = null
         }
 
         iconPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-        iconPaint.setShadowLayer(9f, 0f, 2.5f, Color.argb(170, 0, 0, 0))
+        iconPaint.setShadowLayer(5f, 0f, 1.5f, Color.argb(150, 0, 0, 0))
 
         val symbolStr = when {
             actionSymbol.isNotEmpty() -> actionSymbol
@@ -617,13 +624,13 @@ class BezierStretchRenderer {
         }
 
         if (symbolStr.isNotEmpty()) {
-            val popSize = if (isLUp || isLDown || holdArmed) 44f else if (armed) 40f else 34f
+            val popSize = if (isLUp || isLDown || holdArmed) 38f else if (armed) 35f else 31f
             iconPaint.textSize = popSize
             val baseline = cy - (iconPaint.ascent() + iconPaint.descent()) / 2f
             canvas.drawText(symbolStr, cx, baseline, iconPaint)
         } else {
             arrowPaint.alpha = (alpha * opacity * 255).toInt().coerceIn(0, 255)
-            arrowPaint.strokeWidth = if (armed) 6.5f else 5f
+            arrowPaint.strokeWidth = if (armed) 7.5f else 6f
             drawChevron(canvas, cx, cy, 24f, edge)
         }
 
