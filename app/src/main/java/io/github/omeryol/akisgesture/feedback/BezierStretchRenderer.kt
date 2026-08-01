@@ -542,15 +542,15 @@ class BezierStretchRenderer {
         }
 
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (240 * opacity * stateBoost).toInt().coerceIn(0, 255))
-        glowStrokePaint.strokeWidth = (9f + progress * 5f) * animSize
+        glowStrokePaint.strokeWidth = (14f + progress * 7f) * animSize
         canvas.drawPath(path, glowStrokePaint)
 
         glowStrokePaint.color = Color.WHITE
-        glowStrokePaint.strokeWidth = 3.2f * animSize
+        glowStrokePaint.strokeWidth = 5f * animSize
         canvas.drawPath(path, glowStrokePaint)
 
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (235 * opacity).toInt().coerceIn(0, 255))
-        glowStrokePaint.strokeWidth = 3.5f * animSize
+        glowStrokePaint.strokeWidth = 7f * animSize
         canvas.drawPath(secondaryPath, glowStrokePaint)
     }
 
@@ -583,7 +583,7 @@ class BezierStretchRenderer {
         auraPaint.shader = null
 
         glowStrokePaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
-        glowStrokePaint.strokeWidth = 2.6f * animSize
+        glowStrokePaint.strokeWidth = 6f * animSize
         val rotAngle = (timeMs / 40.0) % 360.0
 
         for (i in 0 until 16) {
@@ -599,7 +599,7 @@ class BezierStretchRenderer {
 
         // Curved prominence arcs make the corona feel like an eruption, not a
         // static radial badge.
-        glowStrokePaint.strokeWidth = 4f * animSize
+        glowStrokePaint.strokeWidth = 8f * animSize
         glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (180 * opacity).toInt())
         for (i in 0 until 4) {
             val arcAngle = Math.toRadians(rotAngle + i * 90.0)
@@ -654,7 +654,7 @@ class BezierStretchRenderer {
                         if (step == 0) path.moveTo(x, y) else path.lineTo(x, y)
                     }
                     glowStrokePaint.color = intColorWithAlpha(colors[band], (170 * opacity).toInt())
-                    glowStrokePaint.strokeWidth = (7f - band * 1.4f) * animSize
+                    glowStrokePaint.strokeWidth = (14f - band * 2f) * animSize
                     canvas.drawPath(path, glowStrokePaint)
                 }
             }
@@ -663,7 +663,7 @@ class BezierStretchRenderer {
                 for (ring in 0 until 4) {
                     val ringRadius = radius * (0.65f + ring * 0.34f + (time % 1.0).toFloat() * 0.16f)
                     glowStrokePaint.color = intColorWithAlpha(colors[ring % colors.size], ((170 - ring * 25) * opacity).toInt())
-                    glowStrokePaint.strokeWidth = (3f - ring * 0.35f).coerceAtLeast(1.2f) * animSize
+                    glowStrokePaint.strokeWidth = (7f - ring * 0.7f).coerceAtLeast(3f) * animSize
                     rectF.set(cx - ringRadius, cy - ringRadius * 0.7f, cx + ringRadius, cy + ringRadius * 0.7f)
                     canvas.drawOval(rectF, glowStrokePaint)
                 }
@@ -707,7 +707,7 @@ class BezierStretchRenderer {
             }
             FeedbackAnimation.ICE_SHARDS -> {
                 glowStrokePaint.color = intColorWithAlpha(Color.rgb(128, 222, 234), alpha)
-                glowStrokePaint.strokeWidth = 3f * animSize
+                glowStrokePaint.strokeWidth = 8f * animSize
                 for (i in 0 until 8) {
                     val angle = time * 0.5 + i * Math.PI / 4.0
                     val inner = radius * 0.35f
@@ -736,7 +736,7 @@ class BezierStretchRenderer {
                     if (mode == FeedbackAnimation.INK_FLOW) Color.rgb(63, 81, 181) else colors[1],
                     alpha,
                 )
-                glowStrokePaint.strokeWidth = 7f * animSize
+                glowStrokePaint.strokeWidth = 13f * animSize
                 canvas.drawPath(path, glowStrokePaint)
             }
             FeedbackAnimation.COMET_TAIL -> {
@@ -746,7 +746,7 @@ class BezierStretchRenderer {
                 path.moveTo(cx, cy)
                 path.cubicTo(cx - radius, cy - radius, headX - radius * 0.7f, headY - radius * 0.4f, headX, headY)
                 glowStrokePaint.color = intColorWithAlpha(Color.rgb(255, 193, 7), alpha)
-                glowStrokePaint.strokeWidth = 10f * animSize
+                glowStrokePaint.strokeWidth = 16f * animSize
                 canvas.drawPath(path, glowStrokePaint)
                 sparkPaint.color = Color.WHITE
                 sparkPaint.alpha = 240
