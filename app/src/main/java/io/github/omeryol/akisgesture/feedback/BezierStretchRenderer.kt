@@ -584,10 +584,16 @@ class BezierStretchRenderer {
         if (armed || holdArmed || isLUp || isLDown) {
             val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
 
-            // 1. 3D Round Drop Shadow
+            // 1. Soft 3D shadow for the icon-friendly glass squircle.
             shadowPaint.color = Color.BLACK
             shadowPaint.alpha = (105 * opacity * alpha).toInt().coerceIn(0, 255)
-            canvas.drawCircle(cx + 5f, cy + 7f, auraRadius * 1.06f, shadowPaint)
+            rectF.set(
+                cx - auraRadius * 1.25f + 5f,
+                cy - auraRadius * 1.1f + 7f,
+                cx + auraRadius * 1.25f + 5f,
+                cy + auraRadius * 1.1f + 7f,
+            )
+            canvas.drawRoundRect(rectF, auraRadius * 0.42f, auraRadius * 0.42f, shadowPaint)
 
             val coreColor = when {
                 isLUp || isLDown -> lSwipeColor
@@ -606,7 +612,13 @@ class BezierStretchRenderer {
                 floatArrayOf(0f, 0.28f, 1f),
                 Shader.TileMode.CLAMP,
             )
-            canvas.drawCircle(cx, cy, auraRadius, auraPaint)
+            rectF.set(
+                cx - auraRadius * 1.25f,
+                cy - auraRadius * 1.1f,
+                cx + auraRadius * 1.25f,
+                cy + auraRadius * 1.1f,
+            )
+            canvas.drawRoundRect(rectF, auraRadius * 0.42f, auraRadius * 0.42f, auraPaint)
             auraPaint.shader = null
         }
 

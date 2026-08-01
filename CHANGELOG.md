@@ -2,6 +2,14 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.20] - 2026-08-01
+
+### 🧊 İkon Rozeti Uyumu
+
+- Renkli eylem ikonlarının arkasındaki küresel rozet, ikon geometrisiyle daha
+  uyumlu 3D cam squircle forma dönüştürüldü.
+- Işık geçişi ve yumuşak gölge korunarak ikonların renkli karakteri öne çıkarıldı.
+
 ## [1.1.19] - 2026-08-01
 
 ### 🎨 Renkli Eylem İkonları Geri Getirildi
