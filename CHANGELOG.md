@@ -2,6 +2,17 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.25] - 2026-08-01
+
+### 🧭 Eylem Erişimi ve Uygulama Geçişi
+
+- Parlaklık artırma ve azaltma eylemleri seçim panelindeki ayrı Ekran
+  sekmesine eklendi.
+- Önceki uygulama geçişi son 8 foreground uygulamayı izleyen geçmiş fallback'i
+  kullanacak şekilde güçlendirildi.
+- Root ile görev geçişi başarısız olduğunda uygulama geçmişinden güvenilir
+  hedef seçimi yapılır.
+
 ## [1.1.24] - 2026-08-01
 
 ### 🗂️ Eylem Seçiminde Sekmeli Yapı

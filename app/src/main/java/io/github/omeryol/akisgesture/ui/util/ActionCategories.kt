@@ -28,6 +28,9 @@ fun actionCategories(actions: List<ActionNode> = ActionNode.allFixed()): List<Pa
             it is ActionNode.MediaPrevious || it is ActionNode.VolumeUp ||
             it is ActionNode.VolumeDown || it is ActionNode.ToggleMute
     },
+    "Ekran" to actions.filter {
+        it is ActionNode.BrightnessUp || it is ActionNode.BrightnessDown
+    },
     "Donanım" to actions.filter { it is ActionNode.ToggleFlashlight },
     "Sistem Arayüzü" to actions.filter { it is ActionNode.ToggleNavBar },
     "Root" to actions.filter { it is ActionNode.ForceStopForeground },

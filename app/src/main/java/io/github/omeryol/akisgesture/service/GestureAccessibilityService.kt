@@ -59,6 +59,7 @@ class GestureAccessibilityService : AccessibilityService() {
     private lateinit var actionDispatcher: ActionDispatcher
     private var currentForegroundPackage: String? = null
     private var previousForegroundPackage: String? = null
+    private val foregroundHistory = ArrayDeque<String>()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     // 1x1px saydam overlay penceresi — süreç önceliğini korur
@@ -150,6 +151,11 @@ class GestureAccessibilityService : AccessibilityService() {
                     ?.takeIf(::isAppHistoryCandidate)
                     ?.let { previousForegroundPackage = it }
                 currentForegroundPackage = pkg
+                if (isAppHistoryCandidate(pkg)) {
+                    foregroundHistory.remove(pkg)
+                    foregroundHistory.addFirst(pkg)
+                    while (foregroundHistory.size > 8) foregroundHistory.removeLast()
+                }
                 gestureEngine.onForegroundAppChanged(pkg, null)
                 serviceScope.launch {
                     val adaptiveColor = extractAppDominantColor(pkg)
@@ -275,8 +281,11 @@ class GestureAccessibilityService : AccessibilityService() {
 
     fun foregroundPackage(): String? = currentForegroundPackage
 
+    fun recentForegroundPackages(): List<String> = foregroundHistory.toList()
+
     fun previousForegroundPackage(): String? =
-        previousForegroundPackage?.takeIf { it != currentForegroundPackage }
+        foregroundHistory.firstOrNull { it != currentForegroundPackage }
+            ?: previousForegroundPackage?.takeIf { it != currentForegroundPackage }
 
     private fun isAppHistoryCandidate(packageName: String): Boolean =
         packageName != this.packageName &&
