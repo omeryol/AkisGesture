@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.40] - 2026-08-01
+
+### 🖌️ Animasyon Çizgi Ağırlıkları Yenilendi
+
+- İnce, karalama benzeri çizgiler kalın ışık bantlarına dönüştürüldü.
+- Şimşek, aurora, halka, kristal, vortex ve güneş efektleri daha dolgun hale
+  getirildi.
+- İkon arkasındaki animasyonların okunabilirliği ve görsel ağırlığı artırıldı.
+
 ## [1.1.39] - 2026-08-01
 
 ### 🌌 20 Animasyonlu Geri Bildirim Motoru
