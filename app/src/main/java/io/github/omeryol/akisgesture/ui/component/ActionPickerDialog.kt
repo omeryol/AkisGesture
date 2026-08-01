@@ -9,6 +9,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -60,6 +62,7 @@ import java.text.Collator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ActionPickerDialog(
     onDismiss: () -> Unit,
@@ -283,16 +286,36 @@ fun ActionPickerDialog(
                     }
 
                     item(key = "category_tabs") {
-                        LazyRow(
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                        FlowRow(
+                            maxItemsInEachRow = 4,
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
+                            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
                             modifier = Modifier.padding(vertical = 8.dp),
                         ) {
-                            items(pickerCategories, key = { "tab_${it.first}" }) { (category, actions) ->
+                            pickerCategories.forEachIndexed { index, (category, actions) ->
+                                val accent = pickerCategoryColor(index)
                                 FilterChip(
                                     selected = selectedCategory == category,
                                     onClick = { selectedCategory = category },
-                                    label = { Text(category) },
-                                    trailingIcon = { Text("${actions.size}") },
+                                    label = {
+                                        Text(
+                                            pickerCategoryLabel(category),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            maxLines = 1,
+                                        )
+                                    },
+                                    trailingIcon = { Text("${actions.size}", style = MaterialTheme.typography.labelSmall) },
+                                    colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = accent.copy(alpha = 0.24f),
+                                        selectedLabelColor = accent,
+                                        selectedTrailingIconColor = accent,
+                                        containerColor = accent.copy(alpha = 0.08f),
+                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        1.dp,
+                                        accent.copy(alpha = if (selectedCategory == category) 0.85f else 0.28f),
+                                    ),
                                 )
                             }
                         }
@@ -313,6 +336,25 @@ fun ActionPickerDialog(
         },
     )
 }
+
+private fun pickerCategoryLabel(category: String): String = when (category) {
+    "Sistem Arayüzü" -> "Arayüz"
+    "Döndürme" -> "Yön"
+    else -> category
+}
+
+private fun pickerCategoryColor(index: Int): Color = listOf(
+    Color(0xFF5B8CFF),
+    Color(0xFFFF6B6B),
+    Color(0xFFFFB74D),
+    Color(0xFF4DD0E1),
+    Color(0xFFB39DDB),
+    Color(0xFF66BB6A),
+    Color(0xFFFF8A65),
+    Color(0xFF26C6DA),
+    Color(0xFFEF5350),
+    Color(0xFF90A4AE),
+).getOrElse(index % 10) { Color(0xFF5B8CFF) }
 
 @Composable
 private fun EmptyResult(message: String) {

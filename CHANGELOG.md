@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.27] - 2026-08-01
+
+### 🎨 Eylem Kategorileri Görünür Hale Getirildi
+
+- Yatay kaydırmalı kategori sekmeleri kaldırıldı.
+- Tüm kategoriler iki satırlı grid içinde aynı anda görünür hale getirildi.
+- Her kategoriye ayarlar sayfasındaki bölüm yaklaşımına uygun ayrı vurgu rengi
+  verildi.
+
 ## [1.1.26] - 2026-08-01
 
 ### ⌨️ Tuş Kodları Seçilebilir Hale Getirildi
