@@ -265,6 +265,7 @@ class BezierStretchRenderer {
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
+        val timeMs = System.currentTimeMillis()
         val bulbR = (22f + progress * 16f) * animSize
         val baseSpan = (42f + progress * 24f) * animSize
         val alphaVal = (225 * opacity * stateBoost).toInt().coerceIn(0, 255)
@@ -329,6 +330,18 @@ class BezierStretchRenderer {
             highlightPaint.color = Color.WHITE
             highlightPaint.alpha = (230 * opacity).toInt().coerceIn(0, 255)
             canvas.drawCircle(dropX - dropR * 0.38f, dropY - dropR * 0.38f, dropR * 0.36f, highlightPaint)
+
+            // Small satellites make the bulb read as a drop breaking away from
+            // the stretched wave instead of a second unrelated icon.
+            sparkPaint.color = Color.WHITE
+            for (i in 0 until 3) {
+                val orbit = dropR * (1.35f + i * 0.22f)
+                val angle = timeMs / 600.0 + i * 2.1
+                val particleX = dropX + cos(angle).toFloat() * orbit
+                val particleY = dropY + sin(angle).toFloat() * orbit
+                sparkPaint.alpha = (150 * opacity).toInt().coerceIn(0, 255)
+                canvas.drawCircle(particleX, particleY, dropR * (0.08f + i * 0.025f), sparkPaint)
+            }
         }
     }
 
@@ -386,6 +399,18 @@ class BezierStretchRenderer {
         canvas.drawPath(path, bodyPaint)
         bodyPaint.shader = null
 
+        // A hot inner tongue gives the outer silhouette a readable flame shape.
+        val innerColor = Color.rgb(255, 238, 130)
+        val innerShader = RadialGradient(
+            cx, cy - flameR * 0.18f, flameR * 0.9f,
+            intArrayOf(Color.WHITE, innerColor, intColorWithAlpha(flameColor, 0)),
+            floatArrayOf(0f, 0.38f, 1f),
+            Shader.TileMode.CLAMP,
+        )
+        bodyPaint.shader = innerShader
+        canvas.drawCircle(cx, cy - flameR * 0.12f, flameR * 0.72f, bodyPaint)
+        bodyPaint.shader = null
+
         val rand = Random(timeMs / 120)
         sparkPaint.color = Color.rgb(255, 214, 0)
         for (i in 0 until 9) {
@@ -413,18 +438,18 @@ class BezierStretchRenderer {
         val timeSec = System.currentTimeMillis() / 400.0
 
         val alphaVal = (105 * opacity * stateBoost).toInt().coerceIn(0, 255)
-        val cloudletCount = 8
+        val cloudletCount = 14
 
         for (i in 0 until cloudletCount) {
             val angle = timeSec * (0.8 + i * 0.2) + i * (Math.PI / 4)
-            val orbitDist = (i * 4f) * animSize
+            val orbitDist = (i * 6f) * animSize
             val cloudletX = cx + (orbitDist * cos(angle)).toFloat()
             val cloudletY = cy + (orbitDist * sin(angle)).toFloat()
-            val cloudletR = r * (0.6f + (i % 4) * 0.18f)
+            val cloudletR = r * (0.42f + (i % 4) * 0.14f)
 
             val mistShader = RadialGradient(
                 cloudletX, cloudletY, cloudletR,
-                intColorWithAlpha(baseColor, alphaVal),
+                intColorWithAlpha(baseColor, (alphaVal * 1.45f).toInt()),
                 Color.TRANSPARENT,
                 Shader.TileMode.CLAMP
             )
@@ -434,8 +459,8 @@ class BezierStretchRenderer {
         auraPaint.shader = null
 
         highlightPaint.color = Color.WHITE
-        highlightPaint.alpha = (85 * opacity).toInt().coerceIn(0, 255)
-        canvas.drawCircle(cx, cy, r * 0.4f, highlightPaint)
+        highlightPaint.alpha = (125 * opacity).toInt().coerceIn(0, 255)
+        canvas.drawCircle(cx, cy, r * 0.52f, highlightPaint)
     }
 
     // =========================================================================
@@ -503,11 +528,15 @@ class BezierStretchRenderer {
         }
 
         glowStrokePaint.color = intColorWithAlpha(lightningColor, (240 * opacity * stateBoost).toInt().coerceIn(0, 255))
-        glowStrokePaint.strokeWidth = (5f + progress * 3f) * animSize
+        glowStrokePaint.strokeWidth = (9f + progress * 5f) * animSize
         canvas.drawPath(path, glowStrokePaint)
 
-        glowStrokePaint.color = intColorWithAlpha(lightningColor, (200 * opacity).toInt().coerceIn(0, 255))
-        glowStrokePaint.strokeWidth = 2.5f * animSize
+        glowStrokePaint.color = Color.WHITE
+        glowStrokePaint.strokeWidth = 3.2f * animSize
+        canvas.drawPath(path, glowStrokePaint)
+
+        glowStrokePaint.color = intColorWithAlpha(lightningColor, (235 * opacity).toInt().coerceIn(0, 255))
+        glowStrokePaint.strokeWidth = 3.5f * animSize
         canvas.drawPath(secondaryPath, glowStrokePaint)
     }
 
@@ -554,6 +583,27 @@ class BezierStretchRenderer {
             canvas.drawLine(rx1, ry1, rx2, ry2, glowStrokePaint)
         }
 
+        // Curved prominence arcs make the corona feel like an eruption, not a
+        // static radial badge.
+        glowStrokePaint.strokeWidth = 4f * animSize
+        glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (180 * opacity).toInt())
+        for (i in 0 until 4) {
+            val arcAngle = Math.toRadians(rotAngle + i * 90.0)
+            val arcX = cx + (r * 1.12f * cos(arcAngle)).toFloat()
+            val arcY = cy + (r * 1.12f * sin(arcAngle)).toFloat()
+            path.reset()
+            path.moveTo(arcX, arcY)
+            path.cubicTo(
+                cx + (r * 1.85f * cos(arcAngle + 0.55)).toFloat(),
+                cy + (r * 1.85f * sin(arcAngle + 0.55)).toFloat(),
+                cx + (r * 1.85f * cos(arcAngle - 0.55)).toFloat(),
+                cy + (r * 1.85f * sin(arcAngle - 0.55)).toFloat(),
+                arcX,
+                arcY,
+            )
+            canvas.drawPath(path, glowStrokePaint)
+        }
+
         bodyPaint.color = Color.WHITE
         bodyPaint.alpha = (245 * opacity).toInt().coerceIn(0, 255)
         canvas.drawCircle(cx, cy, r * 0.75f, bodyPaint)
@@ -581,8 +631,8 @@ class BezierStretchRenderer {
 
         // A compact luminous core keeps the feedback expressive without turning
         // the action symbol into a cartoon sticker.
-        if (armed || holdArmed || isLUp || isLDown) {
-            val auraRadius = if (isLUp || isLDown || holdArmed) 34f else 28f
+        if (armed || holdArmed || isLUp || isLDown || actionSymbol.isNotEmpty()) {
+            val auraRadius = if (isLUp || isLDown || holdArmed) 42f else 36f
 
             // 1. Soft 3D shadow for the icon-friendly glass squircle.
             shadowPaint.color = Color.BLACK
