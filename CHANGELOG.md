@@ -2,6 +2,15 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.51] - 2026-08-01
+
+### 🌊 Okyanus Dalgası Geri Getirildi
+
+- Okyanus modu yeni hidro geçiş geometrisinden ayrılarak özgün dalga
+  renderer'ına geri bağlandı.
+- Önceki sıvı dalga karakteri korunurken mevcut 3D ışık ve derinlik desteği
+  bırakıldı.
+
 ## [1.1.50] - 2026-08-01
 
 ### 🎞️ Mevcut Animasyonlara Geçiş Mantığı Taşındı
