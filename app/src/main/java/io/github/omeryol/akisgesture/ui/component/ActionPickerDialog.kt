@@ -73,6 +73,15 @@ fun ActionPickerDialog(
 ) {
     val context = LocalContext.current
     val categories = actionCategories()
+    val frequentActions = remember {
+        listOf(
+            ActionNode.Back,
+            ActionNode.Home,
+            ActionNode.Recents,
+            ActionNode.SwitchLastApp,
+            ActionNode.ForceStopForeground,
+        )
+    }
     val keyActions = remember {
         listOf(
             ActionNode.SendKeyCode(KeyEvent.KEYCODE_BACK, "Geri tuşu"),
@@ -83,8 +92,8 @@ fun ActionPickerDialog(
             ActionNode.SendKeyCode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, "Medya oynat / duraklat"),
         )
     }
-    val pickerCategories = remember(categories, keyActions) {
-        categories + ("Tuşlar" to keyActions)
+    val pickerCategories = remember(categories, keyActions, frequentActions) {
+        listOf("Sık" to frequentActions) + categories + ("Tuşlar" to keyActions)
     }
     val fixedActions = remember(pickerCategories) {
         pickerCategories.flatMap { it.second }.distinctBy { it.id }
@@ -104,16 +113,6 @@ fun ActionPickerDialog(
             query,
         )
     }
-    val frequentActions = remember {
-        listOf(
-            ActionNode.Back,
-            ActionNode.Home,
-            ActionNode.Recents,
-            ActionNode.SwitchLastApp,
-            ActionNode.ForceStopForeground,
-        )
-    }
-
     LaunchedEffect(context.packageName) {
         installedApps = withContext(Dispatchers.IO) {
             val launcherIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -280,18 +279,6 @@ fun ActionPickerDialog(
                         )
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     }
-                    item(key = "frequent_header") {
-                        Text(
-                            "Sık kullanılanlar",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        )
-                    }
-                    items(frequentActions, key = { "frequent_${it.id}" }) { action ->
-                        ActionPickerItem(action = action, onSelect = onSelect)
-                    }
-
                     item(key = "category_tabs") {
                         FlowRow(
                             maxItemsInEachRow = 4,
@@ -331,8 +318,24 @@ fun ActionPickerDialog(
                         .firstOrNull { it.first == selectedCategory }
                         ?.second
                         .orEmpty()
-                    items(selectedActions, key = { "category_${it.id}" }) { action ->
-                        ActionPickerItem(action = action, onSelect = onSelect)
+                    item(key = "category_actions") {
+                        Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+                            selectedActions.chunked(2).forEach { rowActions ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
+                                ) {
+                                    rowActions.forEach { action ->
+                                        ActionPickerItem(
+                                            action = action,
+                                            onSelect = onSelect,
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                    }
+                                    if (rowActions.size == 1) Spacer(Modifier.weight(1f))
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -376,11 +379,13 @@ private fun EmptyResult(message: String) {
 private fun ActionPickerItem(
     action: ActionNode,
     onSelect: (ActionNode) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val available = RuleConfigViewModel.isActionAvailable(action)
     val scheme = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
+            .then(modifier)
             .fillMaxWidth()
             .padding(vertical = 3.dp)
             .clip(RoundedCornerShape(14.dp))
