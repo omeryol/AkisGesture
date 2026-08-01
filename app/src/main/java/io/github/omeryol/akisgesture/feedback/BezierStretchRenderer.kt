@@ -512,10 +512,10 @@ class BezierStretchRenderer {
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (36f + progress * 26f) * animSize
+        val r = (54f + progress * 46f) * animSize
         val timeSec = System.currentTimeMillis() / 400.0
 
-        val alphaVal = (105 * opacity * stateBoost).toInt().coerceIn(0, 255)
+        val alphaVal = (145 * opacity * stateBoost).toInt().coerceIn(0, 255)
         val cloudletCount = 14
 
         for (i in 0 until cloudletCount) {
@@ -626,7 +626,7 @@ class BezierStretchRenderer {
         w: Float, h: Float, progress: Float, stateBoost: Float
     ) {
         val (cx, cy) = center(edge, stretch, touchPos, w, h)
-        val r = (24f + progress * 16f) * animSize
+        val r = (38f + progress * 34f) * animSize
         val timeMs = System.currentTimeMillis()
 
         val sunColor = if (isLUp || isLDown || holdArmed) baseColor else Color.rgb(255, 179, 0)
@@ -647,7 +647,7 @@ class BezierStretchRenderer {
         auraPaint.shader = null
 
         glowStrokePaint.color = intColorWithAlpha(sunColor, (alphaVal * 0.85f).toInt())
-        glowStrokePaint.strokeWidth = 6f * animSize
+        glowStrokePaint.strokeWidth = 9f * animSize
         val rotAngle = (timeMs / 40.0) % 360.0
 
         for (i in 0 until 16) {
