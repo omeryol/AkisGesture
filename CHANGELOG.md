@@ -2,6 +2,17 @@
 
 Bu projedeki önemli değişiklikler bu dosyada tutulur.
 
+## [1.1.50] - 2026-08-01
+
+### 🎞️ Mevcut Animasyonlara Geçiş Mantığı Taşındı
+
+- Dalga, damla, plazma, sis, şimşek ve güneş animasyonları yeni geçiş
+  yaklaşımına taşındı.
+- Her mod kendi fiziksel siluetini, malzeme kütlesini ve hareket detayını
+  koruyor; ortak efektle birbirine benzemiyor.
+- Yeni modlarla birlikte gerçekçi yüzey, renk dağılımı ve abstrakt parçacık
+  katmanları birlikte kullanılıyor.
+
 ## [1.1.49] - 2026-08-01
 
 ### 🌊 Geçiş Laboratuvarı Fikirleri Eklendi

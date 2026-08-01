@@ -140,23 +140,13 @@ class BezierStretchRenderer {
 
         // Execute 3D Spatial Optics Nature Simulation Engines
         when (animation) {
-            FeedbackAnimation.OCEAN_WAVE -> {
-                drawRefractiveOceanWave3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            }
-            FeedbackAnimation.MERCURY_TEARDROP -> {
-                drawDetachingPinchTeardrop3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            }
-            FeedbackAnimation.PLASMA_FIRE -> {
-                drawPlasmaFireSimulation3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            }
-            FeedbackAnimation.ATMOSPHERIC_MIST -> {
-                drawAtmosphericMistSimulation3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            }
-            FeedbackAnimation.ELECTRIC_STORM -> {
-                drawMultiStageElectricStorm3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
-            }
+            FeedbackAnimation.OCEAN_WAVE,
+            FeedbackAnimation.MERCURY_TEARDROP,
+            FeedbackAnimation.PLASMA_FIRE,
+            FeedbackAnimation.ATMOSPHERIC_MIST,
+            FeedbackAnimation.ELECTRIC_STORM,
             FeedbackAnimation.SOLAR_CORONA -> {
-                drawMasterSolarCorona3D(canvas, edge, stretch, effectiveTouchPos, canvasWidth, canvasHeight, progress, stateBoost)
+                drawSpecialAnimation(canvas, edge, effectiveTouchPos, canvasWidth, canvasHeight, progress, animation)
             }
             FeedbackAnimation.AURORA_RIBBON,
             FeedbackAnimation.GLASS_RIPPLE,
@@ -709,6 +699,79 @@ class BezierStretchRenderer {
         )
 
         when (mode) {
+            FeedbackAnimation.OCEAN_WAVE -> {
+                path.reset()
+                val span = radius * 2.7f
+                for (i in 0..20) {
+                    val t = i / 20f
+                    val crest = sin(time * 2.2 + t * 8.0).toFloat() * radius * 0.24f
+                    val x = cx - radius * 1.9f + t * radius * 3.8f
+                    if (i == 0) path.moveTo(x, cy - span * .32f + crest)
+                    else path.lineTo(x, cy - span * .32f + crest)
+                }
+                for (i in 20 downTo 0) {
+                    val t = i / 20f
+                    val crest = sin(time * 2.2 + t * 8.0 + .7).toFloat() * radius * .24f
+                    path.lineTo(cx - radius * 1.9f + t * radius * 3.8f, cy + span * .32f + crest)
+                }
+                path.close()
+                bodyPaint.shader = LinearGradient(cx - radius, cy, cx + radius, cy, baseColor, secondaryColor, Shader.TileMode.MIRROR)
+                canvas.drawPath(path, bodyPaint)
+                bodyPaint.shader = null
+                glowStrokePaint.color = intColorWithAlpha(Color.WHITE, (150 * opacity).toInt())
+                glowStrokePaint.strokeWidth = 6f * animSize
+                canvas.drawPath(path, glowStrokePaint)
+            }
+            FeedbackAnimation.MERCURY_TEARDROP -> {
+                val drop = radius * (.72f + progress * .22f)
+                bodyPaint.shader = RadialGradient(cx - drop*.35f, cy-drop*.35f, drop*1.5f, Color.WHITE, baseColor, Shader.TileMode.CLAMP)
+                canvas.drawOval(RectF(cx-drop*1.3f, cy-drop*.78f, cx+drop*1.1f, cy+drop*.78f), bodyPaint)
+                bodyPaint.shader = null
+                sparkPaint.color = Color.WHITE
+                for (i in 0 until 5) {
+                    val angle = time * 1.4 + i * 1.2
+                    canvas.drawCircle(cx + cos(angle).toFloat()*drop*1.35f, cy + sin(angle).toFloat()*drop*.7f, (2f+i)*animSize, sparkPaint)
+                }
+            }
+            FeedbackAnimation.PLASMA_FIRE -> {
+                path.reset()
+                val flame = radius * 1.25f
+                path.moveTo(cx-flame*.8f, cy+flame*.8f)
+                path.cubicTo(cx-flame*1.2f, cy, cx-flame*.35f, cy-flame*.7f, cx, cy-flame*1.35f)
+                path.cubicTo(cx+flame*.25f, cy-flame*.65f, cx+flame*1.15f, cy-.1f, cx+flame*.8f, cy+flame*.8f)
+                path.close()
+                bodyPaint.shader = RadialGradient(cx, cy-flame*.3f, flame*1.4f, intArrayOf(Color.WHITE, Color.YELLOW, baseColor, Color.TRANSPARENT), floatArrayOf(0f,.25f,.62f,1f), Shader.TileMode.CLAMP)
+                canvas.drawPath(path, bodyPaint)
+                bodyPaint.shader = null
+                sparkPaint.color = secondaryColor
+                for (i in 0 until 16) canvas.drawCircle(cx + cos(time*1.5+i).toFloat()*flame*(.7f+i%3*.15f), cy-flame*(.2f+i%5*.16f), (2f+i%4)*animSize, sparkPaint)
+            }
+            FeedbackAnimation.ATMOSPHERIC_MIST -> {
+                for (i in 0 until 11) {
+                    val dx = cos(time*.55+i*.72).toFloat()*radius*.7f
+                    val dy = sin(time*.72+i*.51).toFloat()*radius*.5f
+                    auraPaint.shader = RadialGradient(cx+dx, cy+dy, radius*.9f, intColorWithAlpha(baseColor, (115*opacity).toInt()), Color.TRANSPARENT, Shader.TileMode.CLAMP)
+                    canvas.drawCircle(cx+dx, cy+dy, radius*.9f, auraPaint)
+                }
+                auraPaint.shader = null
+            }
+            FeedbackAnimation.ELECTRIC_STORM -> {
+                glowStrokePaint.color = Color.WHITE
+                glowStrokePaint.strokeWidth = 8f*animSize
+                for (i in 0 until 7) {
+                    val angle = time*.8+i*Math.PI/3.5
+                    path.reset(); path.moveTo(cx,cy)
+                    path.lineTo(cx+cos(angle).toFloat()*radius*.65f, cy+sin(angle).toFloat()*radius*.65f)
+                    path.lineTo(cx+cos(angle+.15).toFloat()*radius*1.45f, cy+sin(angle+.15).toFloat()*radius*1.45f)
+                    canvas.drawPath(path, glowStrokePaint)
+                }
+            }
+            FeedbackAnimation.SOLAR_CORONA -> {
+                bodyPaint.shader = RadialGradient(cx,cy,radius*1.7f, intArrayOf(Color.WHITE, Color.YELLOW, baseColor, Color.TRANSPARENT), floatArrayOf(0f,.25f,.6f,1f), Shader.TileMode.CLAMP)
+                canvas.drawCircle(cx,cy,radius*1.45f,bodyPaint); bodyPaint.shader=null
+                glowStrokePaint.color = intColorWithAlpha(secondaryColor,(190*opacity).toInt()); glowStrokePaint.strokeWidth=9f*animSize
+                for(i in 0 until 6){ rectF.set(cx-radius*1.7f,cy-radius*1.7f,cx+radius*1.7f,cy+radius*1.7f); canvas.drawArc(rectF,(time*20+i*60).toFloat(),72f,false,glowStrokePaint) }
+            }
             FeedbackAnimation.AURORA_RIBBON,
             FeedbackAnimation.PRISM_FLOW -> {
                 for (band in 0 until 3) {
