@@ -101,6 +101,7 @@ fun SettingsScreen(
     var showAppPicker by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
+    var selectedSection by remember { mutableStateOf(0) }
 
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
@@ -208,8 +209,37 @@ fun SettingsScreen(
             }
         }
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            listOf("Hareket", "Görünüm", "Duraklatma", "Yedek").forEachIndexed { index, label ->
+                val selected = selectedSection == index
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (selected) scheme.primary else Color.Transparent)
+                        .clickable { selectedSection = index }
+                        .padding(vertical = 9.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                        color = if (selected) scheme.onPrimary else scheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
         // ── 1. KENAR HASSASİYETİ VE HAREKET FİZİĞİ ──
-        AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
+        if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             AkisSectionHeader(
                 title = "Kenar ve Hareket Fiziği",
                 subtitle = "Tetik alanları, hassasiyet ve bekleme ayarları",
@@ -363,7 +393,7 @@ fun SettingsScreen(
         }
 
         // ── 2. GÖRSEL VE DOKUNSAL GERİ BİLDİRİM ──
-        AkisGlassCard(accentTint = Color(0xFF00E676)) {
+        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00E676)) {
             AkisSectionHeader(
                 title = "Görsel ve Dokunsal Geri Bildirim",
                 subtitle = "Animasyon stili, renk uzayı, saydamlık ve dokunsal titreşim",
@@ -489,7 +519,7 @@ fun SettingsScreen(
         }
 
         // ── 3. ÇALIŞMA VE DURAKLATMA KURALLARI ──
-        AkisGlassCard(accentTint = Color(0xFFFF9100)) {
+        if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
             AkisSectionHeader(
                 title = "Çalışmayacağı Yerler",
                 subtitle = "Özel durum ve uygulamalarda hareketleri otomatik kapat",
@@ -558,7 +588,7 @@ fun SettingsScreen(
         }
 
         // ── 4. YEDEKLEME VE SİSTEM ──
-        AkisGlassCard(accentTint = Color(0xFFD500F9)) {
+        if (selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
             AkisSectionHeader(
                 title = "Yedekleme ve Sistem",
                 subtitle = "Kurallar, uygulama profilleri, ayarlar ve servis tercihi",
