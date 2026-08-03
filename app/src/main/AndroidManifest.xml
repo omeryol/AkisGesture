@@ -75,11 +75,14 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="io.github.omeryol.akisgesture.action.TRIGGER_GESTURE" />
-                <!-- Eski OpenSwipe otomasyonlarını bozmamak için geçici uyumluluk adı. -->
+                <!-- Eski OpenSwipe otomasyonlarını bozmamak için geçici uyumluluk adları. -->
                 <action android:name="com.openswipe.ACTION_TRIGGER_GESTURE" />
                 <action android:name="io.github.omeryol.akisgesture.action.START" />
                 <action android:name="io.github.omeryol.akisgesture.action.STOP" />
                 <action android:name="io.github.omeryol.akisgesture.action.TOGGLE" />
+                <action android:name="com.openswipe.action.START" />
+                <action android:name="com.openswipe.action.STOP" />
+                <action android:name="com.openswipe.action.TOGGLE" />
             </intent-filter>
         </receiver>
 
