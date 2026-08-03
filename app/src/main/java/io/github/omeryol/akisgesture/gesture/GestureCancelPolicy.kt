@@ -12,7 +12,7 @@ object GestureCancelPolicy {
         wasArmed: Boolean,
         inwardDisplacement: Float,
         activationThreshold: Float,
-        hysteresisRatio: Float = 0.45f,
+        hysteresisRatio: Float = 0.75f,
     ): Boolean {
         if (!wasArmed || activationThreshold <= 0f) return false
         return inwardDisplacement <= activationThreshold * hysteresisRatio.coerceIn(0.1f, 0.9f)
