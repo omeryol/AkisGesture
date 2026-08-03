@@ -189,9 +189,10 @@ class EdgeGestureDetector(
         }
         if (quickArmed) wasArmed = true
 
-        // Multi-tier Hysteresis logic
+        // Multi-tier Hysteresis logic:
+        // Hold cancels at 88% of threshold (pulling back ~12% of the distance)
         if (holdArmed || holdScheduled) {
-            if (dampedDisplacement < swipeThresholdPx * 0.65f) {
+            if (dampedDisplacement < swipeThresholdPx * 0.88f) {
                 cancelHold()
             }
         }
@@ -259,6 +260,13 @@ class EdgeGestureDetector(
         val dy = event.rawY - touchState.downY
         val rawDisplacement = inwardDisplacement(dx, dy)
         val dampedDisplacement = GestureThresholds.dampedDisplacement(rawDisplacement, edgeDamping)
+
+        if (dampedDisplacement < swipeThresholdPx * config.hysteresisRatio && !holdFiredOnThreshold) {
+            Log.d(LOG_TAG, "handleUp_cancelled_below_hysteresis displacement=$dampedDisplacement threshold=$swipeThresholdPx")
+            finishProgress(event)
+            reset()
+            return
+        }
 
         if (state == GestureState.DETECTED) {
             state = GestureState.EXECUTING

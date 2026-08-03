@@ -45,7 +45,7 @@ data class GestureConfig(
 
     // Direction accuracy and L-swipe threshold
     val directionToleranceDegrees: Float = 35f,
-    val hysteresisRatio: Float = 0.45f,
+    val hysteresisRatio: Float = 0.75f,
     val lSwipeThresholdDp: Float = 30f,
 
     // Hold behavior
