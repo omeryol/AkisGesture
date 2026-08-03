@@ -27,9 +27,23 @@ class NavigationActionHandler(
 
     fun handleRecents(): ActionResult = globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
 
-    suspend fun handleSwitchLastApp(): ActionResult = switchApp(delta = 1)
+    suspend fun handleSwitchLastApp(): ActionResult {
+        val rootExecutor = io.github.omeryol.akisgesture.root.RootCommandExecutor(service)
+        val rootResult = rootExecutor.switchRecentTask(1)
+        if (rootResult is io.github.omeryol.akisgesture.root.RootResult.Success) {
+            return ActionResult.Success
+        }
+        return switchApp(delta = 1)
+    }
 
-    suspend fun handleSwitchNextApp(): ActionResult = switchApp(delta = -1)
+    suspend fun handleSwitchNextApp(): ActionResult {
+        val rootExecutor = io.github.omeryol.akisgesture.root.RootCommandExecutor(service)
+        val rootResult = rootExecutor.switchRecentTask(-1)
+        if (rootResult is io.github.omeryol.akisgesture.root.RootResult.Success) {
+            return ActionResult.Success
+        }
+        return switchApp(delta = -1)
+    }
 
     private fun switchApp(delta: Int): ActionResult {
         val current = service.foregroundPackage()
