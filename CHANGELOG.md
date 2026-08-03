@@ -1,6 +1,8 @@
 # Değişiklik Günlüğü
 
-## Yayına hazırlık
+## [1.1.55] - 2026-08-03
+
+### Haptik, Kademeli İptal ve Uygulama Geçiş İyileştirmeleri
 
 - Haptik titreşimin overlay yenilenmelerinde ve hızlı olay akışlarında takılı
   kalması önlendi (`suppressHaptic` ve 80ms minimum aralık koruması eklendi).

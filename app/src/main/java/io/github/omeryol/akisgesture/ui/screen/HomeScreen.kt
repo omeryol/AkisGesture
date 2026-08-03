@@ -101,7 +101,7 @@ fun HomeScreen(
                         color = scheme.onSurface
                     )
                     Text(
-                        text = if (isConnected) stringResource(R.string.home_summary, totalRules, activeEdges, "1.1.54") else stringResource(R.string.home_enable_accessibility),
+                        text = if (isConnected) stringResource(R.string.home_summary, totalRules, activeEdges, io.github.omeryol.akisgesture.BuildConfig.VERSION_NAME) else stringResource(R.string.home_enable_accessibility),
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurfaceVariant
                     )
