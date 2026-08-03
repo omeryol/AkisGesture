@@ -54,6 +54,11 @@ class GestureEngine(
     private var lastProgressActive = false
     private var lastHoldArmed = false
 
+    /** Suppresses haptic retriggering after overlay rebuilds while a touch is still active. */
+    private var suppressHaptic = false
+    private var lastHapticMs = 0L
+    private val HAPTIC_MIN_INTERVAL_MS = 80L
+
     private var foregroundPackage: String? = null
     private var adaptiveAppColor: Int? = null
     private var pausedPackages: Set<String> = pausedPackagesFlow.value
@@ -214,6 +219,7 @@ class GestureEngine(
         lastArmed = false
         lastProgressActive = false
         lastHoldArmed = false
+        suppressHaptic = true
     }
 
     private fun applyConfigDiff(old: GestureConfig, new: GestureConfig, ruleSet: CompiledRuleSet) {
@@ -452,12 +458,26 @@ class GestureEngine(
         HapticHelper.enabled = currentConfig.hapticEnabled
         HapticHelper.soundEnabled = currentConfig.hapticSoundEnabled
 
-        if (progress.active && !lastProgressActive) {
-            HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
-        } else if (progress.armed && !lastArmed) {
-            HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
-        } else if (progress.holdArmed && !lastHoldArmed) {
-            HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
+        // Clear suppress flag on a genuine new touch start (was idle → now active).
+        if (progress.active && !lastProgressActive && suppressHaptic) {
+            suppressHaptic = false
+        }
+
+        val now = System.currentTimeMillis()
+        if (!suppressHaptic && (now - lastHapticMs >= HAPTIC_MIN_INTERVAL_MS)) {
+            if (progress.active && !lastProgressActive) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
+                lastHapticMs = now
+            } else if (progress.armed && !lastArmed) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
+                lastHapticMs = now
+            } else if (progress.holdArmed && !lastHoldArmed) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.HEAVY)
+                lastHapticMs = now
+            } else if (lastHoldArmed && !progress.holdArmed && progress.active) {
+                HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
+                lastHapticMs = now
+            }
         }
 
         lastArmed = progress.armed

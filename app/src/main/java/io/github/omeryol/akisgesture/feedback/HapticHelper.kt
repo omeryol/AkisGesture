@@ -31,15 +31,17 @@ object HapticHelper {
         if (enabled && intensity > 0f) {
             getVibrator(context)?.takeIf { it.hasVibrator() }?.let { vibrator ->
                 val strength = intensity.coerceIn(0f, 1f)
+                // Quadratic curve: perceived intensity scales better with strength²
+                val curve = strength * strength
                 val durationMs = when (type) {
-                    HapticType.LIGHT -> (14 + 12 * strength).toLong()
-                    HapticType.MEDIUM -> (20 + 16 * strength).toLong()
-                    HapticType.HEAVY -> (28 + 20 * strength).toLong()
+                    HapticType.LIGHT  -> (5 + 30 * curve).toLong()    // 5ms → 35ms
+                    HapticType.MEDIUM -> (8 + 40 * curve).toLong()    // 8ms → 48ms
+                    HapticType.HEAVY  -> (12 + 48 * curve).toLong()   // 12ms → 60ms
                 }
                 val amplitude = when (type) {
-                    HapticType.LIGHT -> (85 + 115 * strength).toInt()
-                    HapticType.MEDIUM -> (125 + 120 * strength).toInt()
-                    HapticType.HEAVY -> (175 + 80 * strength).toInt()
+                    HapticType.LIGHT  -> (15 + 200 * curve).toInt()   // 15 → 215
+                    HapticType.MEDIUM -> (25 + 220 * curve).toInt()   // 25 → 245
+                    HapticType.HEAVY  -> (40 + 215 * curve).toInt()   // 40 → 255
                 }.coerceIn(1, 255)
                 vibrateOnce(vibrator, durationMs, amplitude)
             }
