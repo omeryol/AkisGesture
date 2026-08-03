@@ -34,29 +34,66 @@ class NavigationActionHandler(
     private fun switchApp(delta: Int): ActionResult {
         val current = service.foregroundPackage()
         val now = SystemClock.elapsedRealtime()
-        val sessionInvalid = switchSession.isEmpty() ||
+
+        // 1. Resolve candidate packages list
+        var session = switchSession
+        val sessionInvalid = session.isEmpty() ||
             now - lastSwitchAt > SWITCH_SESSION_TIMEOUT_MS ||
             (expectedPackage != null && current != expectedPackage)
 
         if (sessionInvalid) {
-            switchSession = service.recentForegroundPackages()
-                .asSequence()
-                .filter { it != service.packageName }
+            val history = service.recentForegroundPackages()
+                .filter { it != service.packageName && service.packageManager.getLaunchIntentForPackage(it) != null }
                 .distinct()
-                .toList()
-            switchIndex = switchSession.indexOf(current).takeIf { it >= 0 } ?: 0
+
+            session = if (history.size >= 2) {
+                history
+            } else {
+                val prev = service.previousForegroundPackage()
+                val list = mutableListOf<String>()
+                if (current != null && current != service.packageName) list.add(current)
+                if (prev != null && prev != current && prev != service.packageName) list.add(prev)
+                list
+            }
+            switchSession = session
+            switchIndex = if (current != null) session.indexOf(current).coerceAtLeast(0) else 0
         }
 
-        val targetIndex = switchIndex + delta
-        val targetPackage = switchSession.getOrNull(targetIndex)
-            ?: return ActionResult.Failed(
-                if (delta > 0) "Önceki uygulama bulunamadı" else "Sonraki uygulama bulunamadı",
-            )
+        if (session.isEmpty()) {
+            // No app history yet — fallback to Recents screen
+            return globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
+        }
+
+        // 2. Cyclic target index calculation
+        val targetIndex = if (session.size > 1) {
+            (switchIndex + delta + session.size) % session.size
+        } else 0
+
+        val targetPackage = session.getOrNull(targetIndex)
+            ?: service.previousForegroundPackage()
+            ?: return globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
+
+        if (targetPackage == current && session.size > 1) {
+            // Target is same as current — try previous package fallback
+            val altPackage = service.previousForegroundPackage()?.takeIf { it != current }
+            if (altPackage != null) {
+                val altResult = launchApp(altPackage)
+                if (altResult is ActionResult.Success) {
+                    expectedPackage = altPackage
+                    lastSwitchAt = now
+                    return altResult
+                }
+            }
+        }
+
         val result = launchApp(targetPackage)
         if (result is ActionResult.Success) {
             switchIndex = targetIndex
             expectedPackage = targetPackage
             lastSwitchAt = now
+        } else {
+            // Fallback to Recents if launch app failed
+            return globalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
         }
         return result
     }
@@ -65,7 +102,7 @@ class NavigationActionHandler(
         val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
             ?: return ActionResult.Failed("Uygulamanın açılış ekranı bulunamadı")
         service.startActivity(launchIntent.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         })
         ActionResult.Success
     } catch (e: Exception) {
