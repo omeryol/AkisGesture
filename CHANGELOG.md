@@ -9,10 +9,11 @@
 - Kademeli geri dönüş mantığı (Multi-tier Hysteresis) güçlendirildi: Parmağı geri
   çekerken 2. kademeden (Bekletme) 1. kademeye (Hızlı Çekme) düşüşte hafif haptik
   darbe eklendi.
-- Ekran kaydı videosu analiziyle tespit edilen L-Swipe kilitlenme ve geri çekilme
-  hatası giderildi: `LSwipeDetector` parmak geri kaydığında `inwardArmed` durumunu
-  sıfırlayacak şekilde düzeltildi; parmak eşiğe ulaşmasa bile geri çekildiğinde
-  hareket ve görsel baloncuk anında kaybolur.
+- Ekran kaydı ve canlı logcat analiziyle tespit edilen kritik iptal hatası çözüldü:
+  Önceki sürümde parmak geri çekilip bırakıldığında iptal edilen hareket yanlışlıkla
+  `Tap` eylemine (`Geri` tuşu) düşüyordu; `wasArmed` durumunda geriye çekilip parmak
+  kaldırıldığında hareket hiçbir eylem tetiklemeden temiz bir şekilde iptal olur.
+- DataStore varsayılan `hysteresisRatio` kaydı otomatik olarak %75 seviyesine geçirildi.
 - Tamamlanmayan yarım çekmelerde de parmağın tepe noktasından %50 geri dönmesiyle
   anında iptal sağlandı.
 - Dış otomasyon alıcısı (`GestureCommandReceiver`) root ile gerçek erişilebilirlik
