@@ -55,6 +55,12 @@ class LSwipeDetector {
             bendStartY = event.rawY
         }
 
+        if (inwardArmed && currentInwardPx < inwardThreshold * 0.75f) {
+            inwardArmed = false
+            detectedLGesture = null
+            completedDirection = null
+        }
+
         if (inwardArmed && (edge == Edge.LEFT || edge == Edge.RIGHT)) {
             val turnDyRaw = event.rawY - bendStartY
             val turnDy = abs(turnDyRaw)

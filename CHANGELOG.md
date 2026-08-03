@@ -9,9 +9,12 @@
 - Kademeli geri dönüş mantığı (Multi-tier Hysteresis) güçlendirildi: Parmağı geri
   çekerken 2. kademeden (Bekletme) 1. kademeye (Hızlı Çekme) düşüşte hafif haptik
   darbe eklendi.
-- İptal hassasiyeti varsayılanı (`hysteresisRatio`) %75'e çekildi ve `handleUp`
-  içerisinde parmak bırakma kontrolü eklendi: Parmağı sadece %25 geriye çekmek
-  hareketi anında iptal eder; kenara kadar sıfıra dönme zorunluluğu kaldırıldı.
+- Ekran kaydı videosu analiziyle tespit edilen L-Swipe kilitlenme ve geri çekilme
+  hatası giderildi: `LSwipeDetector` parmak geri kaydığında `inwardArmed` durumunu
+  sıfırlayacak şekilde düzeltildi; parmak eşiğe ulaşmasa bile geri çekildiğinde
+  hareket ve görsel baloncuk anında kaybolur.
+- Tamamlanmayan yarım çekmelerde de parmağın tepe noktasından %50 geri dönmesiyle
+  anında iptal sağlandı.
 - Dış otomasyon alıcısı (`GestureCommandReceiver`) root ile gerçek erişilebilirlik
   servisi başlatma/durdurma yeteneğine kavuşturuldu ve eski OpenSwipe intent
   eylem adları Manifest'e eklendi.
