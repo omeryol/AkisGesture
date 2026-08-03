@@ -45,6 +45,7 @@ class EdgeGestureDetector(
     private var lastTouchAlongEdge = 0f
     private var lastSwitchDirection: SwipeDirection? = null
     private var wasArmed = false
+    private var maxDampedDisplacement = 0f
 
     private val edgeDamping: Float get() = config.dampingFor(edge)
 
@@ -155,6 +156,7 @@ class EdgeGestureDetector(
 
         val currentInward = inwardDisplacement(dx, dy).coerceAtLeast(0f)
         val dampedDisplacement = GestureThresholds.dampedDisplacement(currentInward, edgeDamping)
+        maxDampedDisplacement = maxOf(maxDampedDisplacement, dampedDisplacement)
 
         lastSwitchDirection = switchDirection
         lastStretch = if (switchDirection != null) abs(dx) else dampedDisplacement
@@ -202,6 +204,7 @@ class EdgeGestureDetector(
                 inwardDisplacement = dampedDisplacement,
                 activationThreshold = swipeThresholdPx,
                 hysteresisRatio = config.hysteresisRatio,
+                maxInwardDisplacement = maxDampedDisplacement,
             )
         ) {
             state = GestureState.CANCELLED
@@ -407,6 +410,7 @@ class EdgeGestureDetector(
         lastTouchAlongEdge = 0f
         lastSwitchDirection = null
         wasArmed = false
+        maxDampedDisplacement = 0f
         lSwipeDetector.reset()
         state = GestureState.IDLE
         touchState.reset()
