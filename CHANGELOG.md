@@ -13,10 +13,10 @@
   Önceki sürümde parmak geri çekilip bırakıldığında iptal edilen hareket yanlışlıkla
   `Tap` eylemine (`Geri` tuşu) düşüyordu; `wasArmed` durumunda geriye çekilip parmak
   kaldırıldığında hareket hiçbir eylem tetiklemeden temiz bir şekilde iptal olur.
-- Önceki/Sonraki uygulama geçişi (`SwitchLastApp` / `SwitchNextApp`) baştan düzenlendi:
-  İndeks sınır aşımında çökmek yerine döngüsel (cyclic) uygulama oturum geçişi,
-  `FLAG_ACTIVITY_REORDER_TO_FRONT` ile anlık uygulama öne getirme ve geçmiş
-  bulunamadığında otomatik Son Uygulamalar (`Recents`) ekranı yedeklemesi sağlandı.
+- HyperOS / MIUI arka plan uygulama açma engellemesini (BAL) aşmak için
+  `SwitchLastApp` / `SwitchNextApp` eylemlerine Root öncelikli geçiş katmanı eklendi.
+  `dumpsys activity recents` ve Root kabuk komutuyla uygulamalar arası geçiş engelsiz
+  ve anında gerçekleşir.
 - Tamamlanmayan yarım çekmelerde de parmağın tepe noktasından %50 geri dönmesiyle
   anında iptal sağlandı.
 - Dış otomasyon alıcısı (`GestureCommandReceiver`) root ile gerçek erişilebilirlik
