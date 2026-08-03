@@ -115,12 +115,35 @@ class NavigationActionHandler(
     private fun launchApp(pkg: String): ActionResult = try {
         val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
             ?: return ActionResult.Failed("Uygulamanın açılış ekranı bulunamadı")
-        service.startActivity(launchIntent.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-        })
+        
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            service,
+            0,
+            launchIntent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
+        if (android.os.Build.VERSION.SDK_INT >= 34) { // Android 14+
+            val options = android.app.ActivityOptions.makeBasic()
+            options.setPendingIntentBackgroundActivityStartMode(android.app.ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED)
+            pendingIntent.send(service, 0, null, null, null, null, options.toBundle())
+        } else {
+            pendingIntent.send()
+        }
         ActionResult.Success
-    } catch (e: Exception) {
-        ActionResult.Failed(e.message ?: "Uygulama açılamadı")
+    } catch (_: Exception) {
+        try {
+            val launchIntent = service.packageManager.getLaunchIntentForPackage(pkg)
+                ?: return ActionResult.Failed("Uygulamanın açılış ekranı bulunamadı")
+            service.startActivity(launchIntent.apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            })
+            ActionResult.Success
+        } catch (e: Exception) {
+            ActionResult.Failed(e.message ?: "Uygulama açılamadı")
+        }
     }
 
     private fun globalAction(id: Int): ActionResult {
