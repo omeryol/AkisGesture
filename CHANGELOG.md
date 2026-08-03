@@ -13,10 +13,9 @@
   Önceki sürümde parmak geri çekilip bırakıldığında iptal edilen hareket yanlışlıkla
   `Tap` eylemine (`Geri` tuşu) düşüyordu; `wasArmed` durumunda geriye çekilip parmak
   kaldırıldığında hareket hiçbir eylem tetiklemeden temiz bir şekilde iptal olur.
-- HyperOS / MIUI arka plan uygulama açma engellemesini (BAL) aşmak için
-  `SwitchLastApp` / `SwitchNextApp` eylemlerine Root öncelikli geçiş katmanı eklendi.
-  `dumpsys activity recents` ve Root kabuk komutuyla uygulamalar arası geçiş engelsiz
-  ve anında gerçekleşir.
+- Rootsuz cihazlar için `PendingIntent` ve `MODE_BACKGROUND_ACTIVITY_START_ALLOWED` (Android 14/15)
+  sayesinde arka planda pencere açma kısıtlaması aşılmıştır; kısıtlama içeren ROM'larda ise
+  otomatik `GLOBAL_ACTION_RECENTS` yedeklemesiyle kesintisiz çalışma garantilenmiştir.
 - Tamamlanmayan yarım çekmelerde de parmağın tepe noktasından %50 geri dönmesiyle
   anında iptal sağlandı.
 - Dış otomasyon alıcısı (`GestureCommandReceiver`) root ile gerçek erişilebilirlik
