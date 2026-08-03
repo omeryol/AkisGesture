@@ -78,8 +78,9 @@ class AkisGestureApp : Application() {
                     leftVerticalEnd = prefs[GestureConfig.KEY_LEFT_VERTICAL_END] ?: 1f,
                     rightVerticalStart = prefs[GestureConfig.KEY_RIGHT_VERTICAL_START] ?: 0f,
                     rightVerticalEnd = prefs[GestureConfig.KEY_RIGHT_VERTICAL_END] ?: 1f,
-                    directionToleranceDegrees = prefs[GestureConfig.KEY_DIRECTION_TOLERANCE] ?: 35f,
-                    hysteresisRatio = prefs[GestureConfig.KEY_HYSTERESIS_RATIO] ?: 0.25f,
+                    hysteresisRatio = (prefs[GestureConfig.KEY_HYSTERESIS_RATIO] ?: 0.75f).let { ratio ->
+                        if (ratio < 0.50f) 0.75f else ratio
+                    },
                     lSwipeThresholdDp = prefs[GestureConfig.KEY_L_SWIPE_THRESHOLD_DP] ?: 30f,
                     feedbackColorArgb = prefs[GestureConfig.KEY_FEEDBACK_COLOR]
                         ?: 0xFF3D5AFE.toInt(),

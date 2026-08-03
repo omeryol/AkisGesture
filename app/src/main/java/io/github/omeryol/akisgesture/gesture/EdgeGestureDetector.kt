@@ -189,12 +189,16 @@ class EdgeGestureDetector(
         } else {
             GestureThresholds.isQuickArmed(dampedDisplacement, swipeThresholdPx)
         }
-        if (quickArmed) wasArmed = true
+        if (quickArmed && !wasArmed) {
+            wasArmed = true
+            Log.d(LOG_TAG, "GESTURE_ARMED edge=$edge damped=$dampedDisplacement threshold=$swipeThresholdPx")
+        }
 
         // Multi-tier Hysteresis logic:
         // Hold cancels at 88% of threshold (pulling back ~12% of the distance)
         if (holdArmed || holdScheduled) {
             if (dampedDisplacement < swipeThresholdPx * 0.88f) {
+                if (holdArmed) Log.d(LOG_TAG, "HOLD_CANCELLED edge=$edge damped=$dampedDisplacement threshold=$swipeThresholdPx")
                 cancelHold()
             }
         }
@@ -207,6 +211,7 @@ class EdgeGestureDetector(
                 maxInwardDisplacement = maxDampedDisplacement,
             )
         ) {
+            Log.d(LOG_TAG, "GESTURE_CANCELLED edge=$edge damped=$dampedDisplacement maxDamped=$maxDampedDisplacement threshold=$swipeThresholdPx ratio=${config.hysteresisRatio}")
             state = GestureState.CANCELLED
             lSwipeDetector.reset()
             cancelHold()
@@ -284,8 +289,12 @@ class EdgeGestureDetector(
                 onGestureResult(result)
             } else {
                 val result = resolveGestureResult(dampedDisplacement, section, dx, dy, initialTouchPx)
-                Log.d(LOG_TAG, "gesture_result edge=$edge result=${result::class.simpleName} section=$section")
-                onGestureResult(result)
+                if (result != null) {
+                    Log.d(LOG_TAG, "gesture_result edge=$edge result=${result::class.simpleName} section=$section")
+                    onGestureResult(result)
+                } else {
+                    Log.d(LOG_TAG, "gesture_result edge=$edge -> CANCELLED (no emission)")
+                }
             }
         }
 
@@ -354,7 +363,7 @@ class EdgeGestureDetector(
         rawDx: Float,
         rawDy: Float,
         touchAlongEdgePx: Float,
-    ): GestureResult {
+    ): GestureResult? {
         val minThreshold = swipeThresholdPx
 
         return when {
@@ -377,7 +386,12 @@ class EdgeGestureDetector(
                     touchAlongEdgePx = touchAlongEdgePx,
                 )
             }
-            displacement <= minThreshold && edge != Edge.BOTTOM -> {
+            wasArmed -> {
+                // Was once armed (swipe initiated & pulled back): DO NOT convert to Tap!
+                Log.d(LOG_TAG, "resolveGestureResult_cancelled_swipe edge=$edge displacement=$displacement threshold=$minThreshold")
+                null
+            }
+            edge != Edge.BOTTOM -> {
                 when {
                     rawDy < -minThreshold ->
                         GestureResult.VerticalSwipe(edge, section, SwipeDirection.UP, touchAlongEdgePx = touchAlongEdgePx)

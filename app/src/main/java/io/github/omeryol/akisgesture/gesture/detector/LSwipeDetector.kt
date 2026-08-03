@@ -53,12 +53,14 @@ class LSwipeDetector {
         if (!inwardArmed && maxInwardPx >= inwardThreshold && hasLActionAtInitialTouch) {
             inwardArmed = true
             bendStartY = event.rawY
+            android.util.Log.d("AkisGesture", "L_INWARD_ARMED edge=$edge maxInward=$maxInwardPx threshold=$inwardThreshold")
         }
 
         if (inwardArmed && currentInwardPx < inwardThreshold * 0.75f) {
             inwardArmed = false
             detectedLGesture = null
             completedDirection = null
+            android.util.Log.d("AkisGesture", "L_INWARD_UNARMED edge=$edge currentInward=$currentInwardPx threshold=$inwardThreshold")
         }
 
         if (inwardArmed && (edge == Edge.LEFT || edge == Edge.RIGHT)) {
