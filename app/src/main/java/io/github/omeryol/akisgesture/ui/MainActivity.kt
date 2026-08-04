@@ -44,6 +44,7 @@ import io.github.omeryol.akisgesture.ui.screen.PermissionGuideScreen
 import io.github.omeryol.akisgesture.ui.screen.RuleDetailScreen
 import io.github.omeryol.akisgesture.ui.screen.RuleListScreen
 import io.github.omeryol.akisgesture.ui.screen.SettingsScreen
+import io.github.omeryol.akisgesture.ui.component.ActionPickerScreen
 import io.github.omeryol.akisgesture.ui.theme.AkisGestureTheme
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
@@ -75,6 +76,7 @@ private fun AkisGestureApp() {
     val currentRoute = currentBackStackEntry?.destination?.route ?: "home"
     val isRulesRoute = currentRoute.startsWith("rules")
     val isRuleDetailRoute = currentRoute.startsWith("rule_detail")
+    val isActionPickerRoute = currentRoute.startsWith("action_picker")
     val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || currentRoute == "settings"
     val activity = LocalContext.current as? Activity
 
@@ -86,9 +88,18 @@ private fun AkisGestureApp() {
         }
     }
 
+    LaunchedEffect(navController) {
+        InternalNavigationBus.actionPickerRequests.collect { request ->
+            navController.navigate(
+                "action_picker?token=${request.token}&apps=${request.appSelectionOnly}",
+            )
+        }
+    }
+
     Scaffold(
+        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         topBar = {
-            if (!isRulesRoute && !isRuleDetailRoute) {
+            if (!isRulesRoute && !isRuleDetailRoute && !isActionPickerRoute) {
                 TopAppBar(
                     title = {
                         Text(
@@ -101,11 +112,14 @@ private fun AkisGestureApp() {
                             }
                         )
                     },
+                    colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
+                    ),
                 )
             }
         },
         bottomBar = {
-            if (isMainNavigationRoute) {
+            if (isMainNavigationRoute && !isActionPickerRoute) {
                 AkisGestureBottomBar(navController = navController, currentRoute = currentRoute)
             }
         },
@@ -171,6 +185,28 @@ private fun AkisGestureApp() {
                     onNavigateBack = { navController.popBackStack() },
                 )
             }
+            composable(
+                "action_picker?token={token}&apps={apps}",
+                arguments = listOf(
+                    navArgument("token") { type = NavType.StringType },
+                    navArgument("apps") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
+            ) { backStackEntry ->
+                val token = backStackEntry.arguments?.getString("token") ?: return@composable
+                ActionPickerScreen(
+                    appSelectionOnly = backStackEntry.arguments?.getBoolean("apps") ?: false,
+                    onDismiss = { navController.popBackStack() },
+                    onSelect = { action ->
+                        InternalNavigationBus.publishActionPickerResult(
+                            InternalNavigationBus.ActionPickerResult(token, action),
+                        )
+                        navController.popBackStack()
+                    },
+                )
+            }
         }
     }
 }
@@ -190,13 +226,13 @@ private fun AkisGestureBottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        color = androidx.compose.ui.graphics.Color(0xF2181B2B),
+        shape = RoundedCornerShape(14.dp),
+        color = androidx.compose.material3.MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,
         shadowElevation = 10.dp,
         border = BorderStroke(
             1.dp,
-            androidx.compose.ui.graphics.Color.White.copy(alpha = 0.08f),
+            androidx.compose.material3.MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
         ),
     ) {
         Row(
@@ -214,16 +250,17 @@ private fun AkisGestureBottomBar(
                     modifier = Modifier.weight(1f),
                     onClick = {
                         if (!selected) {
-                            navController.navigate(route) {
+                            val destination = if (route == "rules") "rules?edge=LEFT" else route
+                            navController.navigate(destination) {
                                 popUpTo("home") { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
                         }
                     },
-                    shape = RoundedCornerShape(18.dp),
+                    shape = RoundedCornerShape(14.dp),
                     color = if (selected) {
-                        androidx.compose.ui.graphics.Color(0xFF3346A8).copy(alpha = 0.72f)
+                        androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer
                     } else {
                         androidx.compose.ui.graphics.Color.Transparent
                     },
@@ -238,9 +275,9 @@ private fun AkisGestureBottomBar(
                             contentDescription = label,
                             modifier = Modifier.size(20.dp),
                             tint = if (selected)
-                                androidx.compose.ui.graphics.Color(0xFF8DF5FF)
+                                androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
                             else
-                                androidx.compose.ui.graphics.Color(0xFFA8ADC4),
+                                androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
@@ -248,9 +285,9 @@ private fun AkisGestureBottomBar(
                             maxLines = 1,
                             style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
                             color = if (selected)
-                                androidx.compose.ui.graphics.Color.White
+                                androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
                             else
-                                androidx.compose.ui.graphics.Color(0xFFA8ADC4),
+                                androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }

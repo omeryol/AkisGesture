@@ -29,6 +29,7 @@ import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +48,8 @@ import io.github.omeryol.akisgesture.model.TriggerNode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
+import java.util.UUID
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -63,11 +66,38 @@ fun AddRuleForEdgeDialog(
     var lUpAction by remember { mutableStateOf<ActionNode?>(null) }
     var lDownAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
+    var actionPickerToken by remember { mutableStateOf<String?>(null) }
+
+    fun openActionPicker(target: GestureType) {
+        actionPickerTarget = target
+        val token = UUID.randomUUID().toString()
+        actionPickerToken = token
+        InternalNavigationBus.requestActionPicker(
+            InternalNavigationBus.ActionPickerRequest(token),
+        )
+    }
+
+    LaunchedEffect(actionPickerToken) {
+        val token = actionPickerToken ?: return@LaunchedEffect
+        InternalNavigationBus.actionPickerResults.collect { result ->
+            if (result.token == token) {
+                when (actionPickerTarget) {
+                    GestureType.QUICK_SWIPE -> quickAction = result.action
+                    GestureType.SWIPE_HOLD -> holdAction = result.action
+                    GestureType.SWIPE_UP_L -> lUpAction = result.action
+                    GestureType.SWIPE_DOWN_L -> lDownAction = result.action
+                    null -> Unit
+                }
+                actionPickerTarget = null
+                actionPickerToken = null
+            }
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         title = {
             Column {
                 Text(
@@ -110,7 +140,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(R.string.quick_with_icon),
                     description = stringResource(R.string.quick_description),
                     action = quickAction,
-                    onSelect = { actionPickerTarget = GestureType.QUICK_SWIPE },
+                    onSelect = { openActionPicker(GestureType.QUICK_SWIPE) },
                     onClear = { quickAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
@@ -118,7 +148,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(R.string.hold_with_icon),
                     description = stringResource(R.string.hold_description),
                     action = holdAction,
-                    onSelect = { actionPickerTarget = GestureType.SWIPE_HOLD },
+                    onSelect = { openActionPicker(GestureType.SWIPE_HOLD) },
                     onClear = { holdAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
@@ -126,7 +156,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(R.string.l_up_with_icon),
                     description = stringResource(R.string.l_up_description),
                     action = lUpAction,
-                    onSelect = { actionPickerTarget = GestureType.SWIPE_UP_L },
+                    onSelect = { openActionPicker(GestureType.SWIPE_UP_L) },
                     onClear = { lUpAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
@@ -134,7 +164,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(R.string.l_down_with_icon),
                     description = stringResource(R.string.l_down_description),
                     action = lDownAction,
-                    onSelect = { actionPickerTarget = GestureType.SWIPE_DOWN_L },
+                    onSelect = { openActionPicker(GestureType.SWIPE_DOWN_L) },
                     onClear = { lDownAction = null },
                 )
                 Spacer(Modifier.height(16.dp))
@@ -184,7 +214,7 @@ fun AddRuleForEdgeDialog(
                     }
                 },
                 enabled = quickAction != null || holdAction != null || lUpAction != null || lDownAction != null,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
             ) {
                 Text(stringResource(R.string.save))
             }
@@ -196,20 +226,6 @@ fun AddRuleForEdgeDialog(
         },
     )
 
-    actionPickerTarget?.let { target ->
-        ActionPickerDialog(
-            onDismiss = { actionPickerTarget = null },
-            onSelect = { action ->
-                when (target) {
-                    GestureType.QUICK_SWIPE -> quickAction = action
-                    GestureType.SWIPE_HOLD -> holdAction = action
-                    GestureType.SWIPE_UP_L -> lUpAction = action
-                    GestureType.SWIPE_DOWN_L -> lDownAction = action
-                }
-                actionPickerTarget = null
-            },
-        )
-    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -228,13 +244,40 @@ fun AddRuleDialog(
     var lUpAction by remember { mutableStateOf<ActionNode?>(null) }
     var lDownAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
+    var actionPickerToken by remember { mutableStateOf<String?>(null) }
+
+    fun openActionPicker(target: GestureType) {
+        actionPickerTarget = target
+        val token = UUID.randomUUID().toString()
+        actionPickerToken = token
+        InternalNavigationBus.requestActionPicker(
+            InternalNavigationBus.ActionPickerRequest(token),
+        )
+    }
+
+    LaunchedEffect(actionPickerToken) {
+        val token = actionPickerToken ?: return@LaunchedEffect
+        InternalNavigationBus.actionPickerResults.collect { result ->
+            if (result.token == token) {
+                when (actionPickerTarget) {
+                    GestureType.QUICK_SWIPE -> quickAction = result.action
+                    GestureType.SWIPE_HOLD -> holdAction = result.action
+                    GestureType.SWIPE_UP_L -> lUpAction = result.action
+                    GestureType.SWIPE_DOWN_L -> lDownAction = result.action
+                    null -> Unit
+                }
+                actionPickerTarget = null
+                actionPickerToken = null
+            }
+        }
+    }
 
     val stepTitles = listOf(stringResource(R.string.choose_area), stringResource(R.string.assign_gestures))
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.98f),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         title = {
             Column {
                 Text(
@@ -292,7 +335,7 @@ fun AddRuleDialog(
                             description = stringResource(R.string.quick_description),
                             action = quickAction,
                             onSelect = {
-                                actionPickerTarget = GestureType.QUICK_SWIPE
+                                openActionPicker(GestureType.QUICK_SWIPE)
                             },
                             onClear = { quickAction = null },
                         )
@@ -302,7 +345,7 @@ fun AddRuleDialog(
                             description = stringResource(R.string.hold_description),
                             action = holdAction,
                             onSelect = {
-                                actionPickerTarget = GestureType.SWIPE_HOLD
+                                openActionPicker(GestureType.SWIPE_HOLD)
                             },
                             onClear = { holdAction = null },
                         )
@@ -312,7 +355,7 @@ fun AddRuleDialog(
                             description = stringResource(R.string.l_up_description),
                             action = lUpAction,
                             onSelect = {
-                                actionPickerTarget = GestureType.SWIPE_UP_L
+                                openActionPicker(GestureType.SWIPE_UP_L)
                             },
                             onClear = { lUpAction = null },
                         )
@@ -322,7 +365,7 @@ fun AddRuleDialog(
                             description = stringResource(R.string.l_down_description),
                             action = lDownAction,
                             onSelect = {
-                                actionPickerTarget = GestureType.SWIPE_DOWN_L
+                                openActionPicker(GestureType.SWIPE_DOWN_L)
                             },
                             onClear = { lDownAction = null },
                         )
@@ -364,7 +407,7 @@ fun AddRuleDialog(
                 Button(
                     onClick = { step = 1 },
                     enabled = selectedEdge != null && selectedSection != null,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
                 ) {
                     Text(stringResource(R.string.choose_gestures))
                 }
@@ -386,7 +429,7 @@ fun AddRuleDialog(
                         }
                     },
                     enabled = quickAction != null || holdAction != null || lUpAction != null || lDownAction != null,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
                 ) {
                     Text(stringResource(R.string.save))
                 }
@@ -394,7 +437,7 @@ fun AddRuleDialog(
         },
         dismissButton = {
             if (step > 0) {
-                OutlinedButton(onClick = { step-- }) {
+                OutlinedButton(onClick = { step-- }, shape = RoundedCornerShape(14.dp)) {
                     Text(stringResource(R.string.back))
                 }
             } else {
@@ -405,20 +448,6 @@ fun AddRuleDialog(
         },
     )
 
-    actionPickerTarget?.let { target ->
-        ActionPickerDialog(
-            onDismiss = { actionPickerTarget = null },
-            onSelect = { action ->
-                when (target) {
-                    GestureType.QUICK_SWIPE -> quickAction = action
-                    GestureType.SWIPE_HOLD -> holdAction = action
-                    GestureType.SWIPE_UP_L -> lUpAction = action
-                    GestureType.SWIPE_DOWN_L -> lDownAction = action
-                }
-                actionPickerTarget = null
-            },
-        )
-    }
 }
 @Composable
 private fun ActionChoiceButton(

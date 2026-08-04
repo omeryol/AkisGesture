@@ -19,7 +19,8 @@ object GestureCancelPolicy {
         if (activationThreshold <= 0f) return false
 
         if (wasArmed) {
-            return inwardDisplacement <= activationThreshold * hysteresisRatio.coerceIn(0.1f, 0.95f)
+            val returnRatio = (1f - hysteresisRatio).coerceIn(0.1f, 0.95f)
+            return inwardDisplacement < activationThreshold * returnRatio
         }
 
         // Cancel partially-pulled gesture if finger retreats 50% back toward edge from peak

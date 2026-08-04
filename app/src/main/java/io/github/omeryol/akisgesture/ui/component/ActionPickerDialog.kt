@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -44,7 +43,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.window.DialogProperties
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,6 +63,7 @@ import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.ui.util.actionCategories
+import io.github.omeryol.akisgesture.ui.util.actionEmoji
 import io.github.omeryol.akisgesture.ui.util.filterActions
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
@@ -68,9 +71,12 @@ import java.text.Collator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(
+    ExperimentalLayoutApi::class,
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+)
 @Composable
-fun ActionPickerDialog(
+fun ActionPickerScreen(
     onDismiss: () -> Unit,
     onSelect: (ActionNode) -> Unit,
     appSelectionOnly: Boolean = false,
@@ -160,43 +166,42 @@ fun ActionPickerDialog(
         listState.scrollToItem(0)
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        modifier = Modifier.fillMaxSize(),
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
-        ),
-        containerColor = MaterialTheme.colorScheme.surface,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        stringResource(if (browsingApps) R.string.choose_app else R.string.choose_action),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+    Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text(
+                                    stringResource(if (browsingApps) R.string.choose_app else R.string.choose_action),
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                )
+                                Text(
+                                    stringResource(if (browsingApps) R.string.choose_app_hint else R.string.choose_action_hint),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onDismiss) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                        ),
                     )
-                    Text(
-                        stringResource(if (browsingApps) R.string.choose_app_hint else R.string.choose_action_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                    )
-                }
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Filled.Close, contentDescription = "Kapat")
-                }
-            }
-        },
-        text = {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 720.dp)
-                    .padding(horizontal = 4.dp),
-            ) {
+                },
+            ) { innerPadding ->
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 16.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp),
+                ) {
                 if (browsingApps && !appSelectionOnly) {
                     item(key = "back_to_actions") {
                         ListItem(
@@ -312,7 +317,7 @@ fun ActionPickerDialog(
                             modifier = Modifier.clickable { browsingApps = true },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                         )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
                     }
                     item(key = "category_tabs") {
                         FlowRow(
@@ -376,11 +381,8 @@ fun ActionPickerDialog(
                         }
                     }
                 }
-            }
-        },
-        confirmButton = {},
-        dismissButton = {},
-    )
+    }
+}
 }
 
 @Composable
@@ -447,7 +449,7 @@ private fun ActionPickerItem(
         Box(
             modifier = Modifier
                 .size(38.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(14.dp))
                 .background(
                     if (available) accent.copy(alpha = 0.24f)
                     else scheme.onSurfaceVariant.copy(alpha = 0.10f)
@@ -463,7 +465,7 @@ private fun ActionPickerItem(
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                action.localizedLabel(context),
+                "${actionEmoji(action)} ${action.localizedLabel(context)}",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = if (available) scheme.onSurface else scheme.onSurfaceVariant,

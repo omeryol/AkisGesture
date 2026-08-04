@@ -1,5 +1,27 @@
 # Değişiklik Günlüğü
 
+## [1.2.0] - 2026-08-04
+
+### İnce Ayar Ekranı Redizaynı ve Tasarım Bütünlüğü
+- **İnce Ayar Ekranı (`RuleDetailScreen`) Yenilendi**: Genel Ayarlar (`SettingsScreen`) ile tam görsel uyum sağlandı.
+- **Glassmorphism Bileşenleri**: Kart tasarımları, switchler, segmented pill segmentleri ve slider bileşenleri `AkisGlassCard`, `AkisSectionHeader`, `AkisFluidSwitch` ve `AkisRangeSliderRow` ile tipografi ve renk standartlarına kavuşturuldu.
+- **Dengeli Sliderlar (`AkisFluidRangeSlider`)**: 2.5dp ince çizgi izi ve 12dp beyaz yuvarlak başlıklar (thumb) ile hassas tetikleme mesafesi ve hassasiyet ayarı sağlandı.
+
+### Görsel Anasayfa & Canlı Kullanım Analiz Grafiği
+- **Gerçek Kullanım Takibi (`GestureTracker`)**: Statik kural sayısı yerine cihaz üzerinde yapılan gerçek jest tetiklemelerini sayan kalıcı canlı takip modülü eklendi (`SharedPreferences` kalıcılığı ile).
+- **Kenar ve Hareket Dağılım Grafiği (`AkisSummaryChartCard`)**:
+  - Sol (Mavi), Sağ (Yeşil) ve Alt (Turuncu) kenarlardaki canlı kullanım oranlarını gösteren çoklu segment çubuğu.
+  - Hızlı Çekme (⚡), Çek ve Tut (⏱️) ve L-Swipe (↗️/↘️) hareket türlerinin gerçek kullanım sayaçları.
+- **Genişletilmiş Görkemli Telefon Haritası (`InteractivePhoneMap`)**:
+  - Telefon kasası genişletildi (`340.dp` kart yüksekliği, `%52` ekran oranı), dikey ve yatay sıkışıklık giderildi.
+  - Kenar eylemleri dış marjin alanına taşınarak neon lider çizgileriyle (callout leader lines) gösterildi.
+  - Alt kısma `Sol Kenar`, `Sağ Kenar` ve `Alt Kenar` için 3'lü hızlı etkileşim kartları eklendi.
+
+### Anahtar (Master Switch) Mantık Düzeltmesi
+- **Master Toggle (`masterEnabled`)**: `GestureConfig` içerisine global `masterEnabled` kontrolü eklendi.
+- **Kesintisiz Kontrol**: Anahtar kapatıldığında artık izin rehberi sayfasına yönlendirilmez; uygulama içerisinden tüm ekran üstü kenar katmanları (`overlay windows`) anında ekrandan kaldırılır ve jest algılama durdurulur (`PAUSED`).
+- Anahtar tekrar açıldığında jest katmanları anında geri yüklenir. İzin rehberi yalnızca cihaz erişilebilirlik izni hiç verilmemişse (`!isConnected`) tetiklenir.
+
 ## [1.1.55] - 2026-08-03
 
 ### Haptik, Kademeli İptal ve Uygulama Geçiş İyileştirmeleri

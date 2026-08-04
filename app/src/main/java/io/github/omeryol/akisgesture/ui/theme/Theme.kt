@@ -70,17 +70,17 @@ private val DarkColors = darkColorScheme(
 )
 
 private val AkisShapes = Shapes(
-    extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(10.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(22.dp),
-    extraLarge = RoundedCornerShape(28.dp),
+    extraSmall = RoundedCornerShape(14.dp),
+    small = RoundedCornerShape(14.dp),
+    medium = RoundedCornerShape(14.dp),
+    large = RoundedCornerShape(14.dp),
+    extraLarge = RoundedCornerShape(14.dp),
 )
 
 @Composable
 fun AkisGestureTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {

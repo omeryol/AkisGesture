@@ -14,6 +14,7 @@ enum class HoldFireMode(val label: String) {
 }
 
 data class GestureConfig(
+    val masterEnabled: Boolean = true,
     // Per-edge trigger width/height in dp
     val leftTriggerWidthDp: Float = 20f,
     val rightTriggerWidthDp: Float = 20f,
@@ -110,13 +111,14 @@ data class GestureConfig(
         io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> bottomTriggerHeightDp
     }
 
-    fun isEnabled(edge: io.github.omeryol.akisgesture.overlay.Edge): Boolean = when (edge) {
+    fun isEnabled(edge: io.github.omeryol.akisgesture.overlay.Edge): Boolean = masterEnabled && when (edge) {
         io.github.omeryol.akisgesture.overlay.Edge.LEFT -> leftEnabled
         io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> rightEnabled
         io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> bottomEnabled
     }
 
     companion object {
+        val KEY_MASTER_ENABLED = booleanPreferencesKey("master_enabled")
         val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")
         val KEY_RIGHT_ENABLED = booleanPreferencesKey("edge_right_enabled")
         val KEY_BOTTOM_ENABLED = booleanPreferencesKey("edge_bottom_enabled")
