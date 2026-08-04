@@ -111,18 +111,32 @@ fun HomeScreen(
     val masterEnabled = gestureConfig.masterEnabled
     val isMasterActive = isConnected && masterEnabled
 
+    val visibleState = remember {
+        androidx.compose.animation.core.MutableTransitionState(false).apply { targetState = true }
+    }
+
     Scaffold(
         containerColor = scheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+        androidx.compose.animation.AnimatedVisibility(
+            visibleState = visibleState,
+            enter = androidx.compose.animation.fadeIn(tween(400)) + androidx.compose.animation.slideInVertically(
+                initialOffsetY = { 80 },
+                animationSpec = androidx.compose.animation.core.spring(
+                    dampingRatio = 0.78f,
+                    stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow,
+                ),
+            ),
         ) {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
             // ── 1. Live Master Service Status Card ──
             AkisGlassCard(
                 onClick = {
@@ -356,6 +370,7 @@ fun HomeScreen(
             }
         }
     }
+}
 }
 
 @Composable
