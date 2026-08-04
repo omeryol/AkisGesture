@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -98,26 +99,6 @@ private fun AkisGestureApp() {
 
     Scaffold(
         containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
-        topBar = {
-            if (!isRulesRoute && !isRuleDetailRoute && !isActionPickerRoute) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = when {
-                                currentRoute == "home" -> stringResource(R.string.app_name)
-                                currentRoute == "permissions" -> stringResource(R.string.permissions_title)
-                                currentRoute == "settings" -> stringResource(R.string.nav_settings)
-                                isRulesRoute -> stringResource(R.string.nav_gestures)
-                                else -> stringResource(R.string.app_name)
-                            }
-                        )
-                    },
-                    colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-                        containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
-                    ),
-                )
-            }
-        },
         bottomBar = {
             if (isMainNavigationRoute && !isActionPickerRoute) {
                 AkisGestureBottomBar(navController = navController, currentRoute = currentRoute)
@@ -249,10 +230,12 @@ private fun AkisGestureBottomBar(
                 Surface(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        if (!selected) {
-                            val destination = if (route == "rules") "rules?edge=LEFT" else route
+                        val destination = if (route == "rules") "rules?edge=LEFT" else route
+                        if (currentRoute != route && !(route == "rules" && currentRoute.startsWith("rules"))) {
                             navController.navigate(destination) {
-                                popUpTo("home") { saveState = true }
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
                                 launchSingleTop = true
                                 restoreState = true
                             }
