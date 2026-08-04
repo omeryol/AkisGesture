@@ -11,6 +11,14 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
+## Version v1.2.0 Release Highlights
+
+- **📱 55% Enlarged Interactive Phone Map**: Features Cyberpunk OLED radial wallpaper, simulated launcher dock icons, and direct action overlay badges attached right on top of colored gesture strips.
+- **🏠 Home Screen Customization & Minimalism**: Toggle switches in Settings for hiding/showing the Phone Map, Live Usage Chart, and Preset Template cards.
+- **🎨 Vibrant Multi-Color Settings Cards & 5-Category Tabs**: Rich accent-tinted cards (`accentTint`) organized into 5 clean tabs: `Motion`, `Appearance`, `Pause`, `Backup`, and `About`.
+- **⚡ Seamless Master Switch**: Toggling off pauses gesture detection in-app and removes screen overlays immediately without navigating away.
+- **🌍 Full Dual-Language Localization (English & Turkish)**: Complete localization across all UI screens, setting cards, charts, and navigation elements.
+
 ## Language support
 
 The full interface is available in English and Turkish. Choose System default,

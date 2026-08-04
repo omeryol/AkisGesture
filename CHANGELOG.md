@@ -2,25 +2,23 @@
 
 ## [1.2.0] - 2026-08-04
 
-### İnce Ayar Ekranı Redizaynı ve Tasarım Bütünlüğü
-- **İnce Ayar Ekranı (`RuleDetailScreen`) Yenilendi**: Genel Ayarlar (`SettingsScreen`) ile tam görsel uyum sağlandı.
-- **Glassmorphism Bileşenleri**: Kart tasarımları, switchler, segmented pill segmentleri ve slider bileşenleri `AkisGlassCard`, `AkisSectionHeader`, `AkisFluidSwitch` ve `AkisRangeSliderRow` ile tipografi ve renk standartlarına kavuşturuldu.
-- **Dengeli Sliderlar (`AkisFluidRangeSlider`)**: 2.5dp ince çizgi izi ve 12dp beyaz yuvarlak başlıklar (thumb) ile hassas tetikleme mesafesi ve hassasiyet ayarı sağlandı.
+### Üst Başlık & Düzen İyileştirmeleri (Header & Layout Polish)
+- **Sıfır Hayalet Boşluk (Zero Header Waste)**: `MainActivity` üzerindeki gereksiz çift başlık boşlukları kaldırıldı, `statusBarsPadding` çakışması temizlendi. **Akış aktif** durum kartı doğrudan Android durum çubuğunun hemen altına çekildi.
+- **Sadeleştirilmiş 5-Katmanlı Ayarlar Sekmesi**: Ayarlar sayfasındaki kalabalık yaratan "Tümü" sekmesi kaldırıldı. Arayüz `[ Hareket ]`, `[ Görünüm ]`, `[ Duraklat ]`, `[ Yedek ]` ve `[ Hakkında ]` olmak üzere 5 odaklanmış sekmeye bölündü.
 
-### Görsel Anasayfa & Canlı Kullanım Analiz Grafiği
-- **Gerçek Kullanım Takibi (`GestureTracker`)**: Statik kural sayısı yerine cihaz üzerinde yapılan gerçek jest tetiklemelerini sayan kalıcı canlı takip modülü eklendi (`SharedPreferences` kalıcılığı ile).
-- **Kenar ve Hareket Dağılım Grafiği (`AkisSummaryChartCard`)**:
-  - Sol (Mavi), Sağ (Yeşil) ve Alt (Turuncu) kenarlardaki canlı kullanım oranlarını gösteren çoklu segment çubuğu.
-  - Hızlı Çekme (⚡), Çek ve Tut (⏱️) ve L-Swipe (↗️/↘️) hareket türlerinin gerçek kullanım sayaçları.
-- **Genişletilmiş Görkemli Telefon Haritası (`InteractivePhoneMap`)**:
-  - Telefon kasası genişletildi (`340.dp` kart yüksekliği, `%52` ekran oranı), dikey ve yatay sıkışıklık giderildi.
-  - Kenar eylemleri dış marjin alanına taşınarak neon lider çizgileriyle (callout leader lines) gösterildi.
-  - Alt kısma `Sol Kenar`, `Sağ Kenar` ve `Alt Kenar` için 3'lü hızlı etkileşim kartları eklendi.
+### Canlı Kenar Haritası Redizaynı (%55 Büyütülmüş Interaktif Harita)
+- **%55 Büyütülmüş Telefon Kasası (`InteractivePhoneMap`)**: Telefon görseli kart alanını kaplayacak şekilde %55 büyütüldü (`360.dp` kart yüksekliği).
+- **Siberpunk OLED Görsel Teması**: Derin mor/lacivert radyal duvar kağıdı gradyanı ve ekran altı 4'lü neon dock uygulama simgeleri eklendi.
+- **Doğrudan Renkli Şerit Üzeri Etiketler**: Bağlantı çizgileri (leader lines) tamamen kaldırıldı; eylem etiketleri doğrudan renkli neon şeritlerin üzerine ve bitişiğine şık glassmorphism rozetler olarak taşındı.
+- **Hizalanmış Alt Kenar Çipleri**: `Sol Kenar`, `Sağ Kenar` ve `Alt Kenar` için canlı eylem özetli tıklanabilir 3'lü hızlı erişim kartları tam hizalandı.
 
-### Anahtar (Master Switch) Mantık Düzeltmesi
-- **Master Toggle (`masterEnabled`)**: `GestureConfig` içerisine global `masterEnabled` kontrolü eklendi.
-- **Kesintisiz Kontrol**: Anahtar kapatıldığında artık izin rehberi sayfasına yönlendirilmez; uygulama içerisinden tüm ekran üstü kenar katmanları (`overlay windows`) anında ekrandan kaldırılır ve jest algılama durdurulur (`PAUSED`).
-- Anahtar tekrar açıldığında jest katmanları anında geri yüklenir. İzin rehberi yalnızca cihaz erişilebilirlik izni hiç verilmemişse (`!isConnected`) tetiklenir.
+### Kişiselleştirilebilir Ana Sayfa & Minimalizm Ayarları
+- **Kart Göster/Gizle Düğmeleri**: Ayarlar > Görünüm sekmesine **Ana Sayfa Görünüm Düzeni** kartı eklendi. Sade görünüm seven kullanıcılar için `Kenar Haritası`, `Kullanım Grafiği` ve `Şablon Kartları` tek tıkla gizlenebilir hale getirildi.
+- **Renkli Canlı Kullanım Analizi (`AkisSummaryChartCard`)**: Sol, Sağ ve Alt kenar canlı kullanım sayaçları ile Hızlı Çekme, Çek ve Tut ve L-Swipe hareket türü grafik kartı eklendi.
+
+### Renkli Kart Temaları ve Eksiksiz Çift Dil Desteği
+- **Canlı Multi-Color Ayar Kartları**: Monokrom gri görünüm sonlandırılarak her ayar kartına özel renk tonları (`accentTint`) atandı.
+- **Eksiksiz İngilizce ve Türkçe Yerelleştirme**: Yeni tüm arayüz metinleri, grafik başlıkları ve sekmeler `values/strings.xml` (İngilizce) ve `values-tr/strings.xml` (Türkçe) dosyalarına eklendi.
 
 ## [1.1.55] - 2026-08-03
 
