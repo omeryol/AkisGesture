@@ -247,6 +247,7 @@ fun HomeScreen(
                                 title = stringResource(R.string.edge_map),
                                 subtitle = stringResource(R.string.map_expanded_hint),
                                 icon = Icons.Filled.Smartphone,
+                                modifier = Modifier.weight(1f),
                             )
                             Text(
                                 text = stringResource(R.string.edit_arrow),
@@ -260,7 +261,7 @@ fun HomeScreen(
                             onZoneClick = { zone -> onNavigateToRules(zone.edge) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(260.dp),
+                                .height(290.dp),
                         )
                     }
                 }

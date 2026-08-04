@@ -87,7 +87,7 @@ fun InteractivePhoneMap(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(),
+                .weight(1f),
         ) {
             Canvas(
                 modifier = Modifier
@@ -156,9 +156,16 @@ fun InteractivePhoneMap(
                     phoneBody.bottom - screenMargin,
                 )
 
+                // Rich Cyberpunk Wallpaper Background
                 drawRoundRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF090A12), Color(0xFF121524), Color(0xFF05060A)),
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF1E1B4B),
+                            Color(0xFF0F172A),
+                            Color(0xFF020617),
+                        ),
+                        center = Offset(screenRect.center.x, screenRect.top + screenRect.height * 0.35f),
+                        radius = screenRect.width * 1.5f,
                     ),
                     topLeft = screenRect.topLeft,
                     size = screenRect.size,
@@ -169,10 +176,33 @@ fun InteractivePhoneMap(
                 for (i in 1 until 6) {
                     val y = screenRect.top + screenRect.height * i / 6f
                     drawLine(
-                        color = scheme.outline.copy(alpha = 0.09f),
+                        color = scheme.outline.copy(alpha = 0.08f),
                         start = Offset(screenRect.left + 12f, y),
                         end = Offset(screenRect.right - 12f, y),
                         strokeWidth = 1f,
+                    )
+                }
+
+                // Simulated Dock App Icons near bottom
+                val dockY = screenRect.bottom - 32f
+                val iconW = 11f
+                val iconSpacing = 7f
+                val totalDockW = (iconW * 4) + (iconSpacing * 3)
+                val dockStart = screenRect.center.x - totalDockW / 2f
+
+                val appColors = listOf(
+                    Color(0xFF38BDF8),
+                    Color(0xFF818CF8),
+                    Color(0xFF34D399),
+                    Color(0xFFF472B6),
+                )
+                appColors.forEachIndexed { index, color ->
+                    val ix = dockStart + index * (iconW + iconSpacing)
+                    drawRoundRect(
+                        color = color.copy(alpha = 0.65f),
+                        topLeft = Offset(ix, dockY),
+                        size = Size(iconW, iconW),
+                        cornerRadius = CornerRadius(3f),
                     )
                 }
 
@@ -395,7 +425,7 @@ private fun drawCalloutPill(
     }
     val paintText = android.graphics.Paint().apply {
         color = android.graphics.Color.WHITE
-        textSize = 15f
+        textSize = 19f
         textAlign = android.graphics.Paint.Align.CENTER
         isFakeBoldText = true
         isAntiAlias = true
@@ -403,8 +433,8 @@ private fun drawCalloutPill(
 
     val fontMetrics = paintText.fontMetrics
     val textWidth = paintText.measureText(text)
-    val paddingH = 10f
-    val paddingV = 6f
+    val paddingH = 12f
+    val paddingV = 7f
 
     val pillRect = android.graphics.RectF(
         x - textWidth / 2f - paddingH,
