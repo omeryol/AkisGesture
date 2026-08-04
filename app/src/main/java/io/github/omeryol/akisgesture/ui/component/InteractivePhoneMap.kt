@@ -106,9 +106,9 @@ fun InteractivePhoneMap(
                 val w = size.width
                 val h = size.height
 
-                // Prominent, large phone dimensions
-                val phoneH = h * 0.92f
-                val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.55f)
+                // Prominent, large phone dimensions (55% enlarged)
+                val phoneH = h * 0.96f
+                val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.78f)
                 val phoneLeft = (w - phoneW) / 2f
                 val phoneTop = (h - phoneH) / 2f
                 val outerCorner = CornerRadius(42f)
@@ -303,48 +303,25 @@ fun InteractivePhoneMap(
                     }
                 }
 
-                // ── 6. Leader Lines & Side Callout Badges (Left & Right) ──
-                val representativeLeft = leftZones.firstOrNull { it.quickAction != null || it.holdAction != null }
-                if (representativeLeft != null) {
-                    val action = representativeLeft.quickAction ?: representativeLeft.holdAction
+                // ── 6. Direct On-Zone Action Overlay Badges (Zero Lines, Direct Overlay) ──
+                zones.forEach { zone ->
+                    val action = zone.quickAction ?: zone.holdAction
                     if (action != null && action !is ActionNode.NoAction) {
-                        val zr = phoneZoneRect(representativeLeft, screenRect)
-                        val badgeX = (phoneLeft * 0.45f).coerceAtLeast(40f)
-                        val badgeY = zr.center.y
+                        val zr = phoneZoneRect(zone, screenRect)
                         val labelText = "${actionEmoji(action)} ${actionSymbolShort(action)}"
 
-                        drawLine(
-                            color = representativeLeft.color.copy(alpha = 0.85f),
-                            start = Offset(badgeX + 34f, badgeY),
-                            end = Offset(zr.left, zr.center.y),
-                            strokeWidth = 2f,
-                        )
-                        drawCircle(color = representativeLeft.color, radius = 3.5f, center = Offset(zr.left, zr.center.y))
-                        drawCircle(color = representativeLeft.color, radius = 3.5f, center = Offset(badgeX + 34f, badgeY))
+                        val badgeX = when (zone.edge) {
+                            Edge.LEFT -> zr.left + 40f
+                            Edge.RIGHT -> zr.right - 40f
+                            Edge.BOTTOM -> zr.center.x
+                        }
+                        val badgeY = when (zone.edge) {
+                            Edge.LEFT -> zr.center.y
+                            Edge.RIGHT -> zr.center.y
+                            Edge.BOTTOM -> (zr.top - 14f).coerceAtLeast(screenRect.top + 20f)
+                        }
 
-                        drawCalloutPill(badgeX, badgeY, labelText, representativeLeft.color, this)
-                    }
-                }
-
-                val representativeRight = rightZones.firstOrNull { it.quickAction != null || it.holdAction != null }
-                if (representativeRight != null) {
-                    val action = representativeRight.quickAction ?: representativeRight.holdAction
-                    if (action != null && action !is ActionNode.NoAction) {
-                        val zr = phoneZoneRect(representativeRight, screenRect)
-                        val badgeX = w - (phoneLeft * 0.45f).coerceAtLeast(40f)
-                        val badgeY = zr.center.y
-                        val labelText = "${actionEmoji(action)} ${actionSymbolShort(action)}"
-
-                        drawLine(
-                            color = representativeRight.color.copy(alpha = 0.85f),
-                            start = Offset(badgeX - 34f, badgeY),
-                            end = Offset(zr.right, zr.center.y),
-                            strokeWidth = 2f,
-                        )
-                        drawCircle(color = representativeRight.color, radius = 3.5f, center = Offset(zr.right, zr.center.y))
-                        drawCircle(color = representativeRight.color, radius = 3.5f, center = Offset(badgeX - 34f, badgeY))
-
-                        drawCalloutPill(badgeX, badgeY, labelText, representativeRight.color, this)
+                        drawCalloutPill(badgeX, badgeY, labelText, zone.color, this)
                     }
                 }
             }

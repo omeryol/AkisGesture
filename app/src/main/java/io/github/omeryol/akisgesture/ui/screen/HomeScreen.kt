@@ -261,7 +261,7 @@ fun HomeScreen(
                             onZoneClick = { zone -> onNavigateToRules(zone.edge) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(290.dp),
+                                .height(360.dp),
                         )
                     }
                 }
