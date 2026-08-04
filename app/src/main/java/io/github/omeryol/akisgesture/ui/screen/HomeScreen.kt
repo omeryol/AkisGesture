@@ -224,114 +224,120 @@ fun HomeScreen(
             }
 
             // ── 2. Redesigned Interactive Phone Map ──
-            AkisGlassCard(
-                onClick = { onNavigateToRules(Edge.LEFT) },
-                modifier = Modifier.fillMaxWidth(),
-                accentTint = scheme.primary,
-            ) {
-                Column(
+            if (gestureConfig.showPhoneMap) {
+                AkisGlassCard(
+                    onClick = { onNavigateToRules(Edge.LEFT) },
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    accentTint = scheme.primary,
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        AkisSectionHeader(
-                            title = stringResource(R.string.edge_map),
-                            subtitle = stringResource(R.string.map_expanded_hint),
-                            icon = Icons.Filled.Smartphone,
-                        )
-                        Text(
-                            text = stringResource(R.string.edit_arrow),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = scheme.primary,
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            AkisSectionHeader(
+                                title = stringResource(R.string.edge_map),
+                                subtitle = stringResource(R.string.map_expanded_hint),
+                                icon = Icons.Filled.Smartphone,
+                            )
+                            Text(
+                                text = stringResource(R.string.edit_arrow),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.primary,
+                            )
+                        }
+                        InteractivePhoneMap(
+                            rules = rules,
+                            onZoneClick = { zone -> onNavigateToRules(zone.edge) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(340.dp),
                         )
                     }
-                    InteractivePhoneMap(
-                        rules = rules,
-                        onZoneClick = { zone -> onNavigateToRules(zone.edge) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(340.dp),
-                    )
                 }
             }
 
             // ── 3. Real Usage Gesture Summary Chart Card ──
-            AkisSummaryChartCard()
+            if (gestureConfig.showSummaryChart) {
+                AkisSummaryChartCard()
+            }
 
             // ── 4. Hazır Şablonlar Carousel (Preset Templates) ──
-            AkisGlassCard(
-                modifier = Modifier.fillMaxWidth(),
-                accentTint = scheme.secondary,
-            ) {
-                AkisSectionHeader(
-                    title = "✨ Hazır Jest Şablonları",
-                    subtitle = "Tek tıkla zengin jest düzeni yükleyin",
-                    icon = Icons.Filled.AutoAwesome,
-                )
-                Spacer(Modifier.height(10.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+            if (gestureConfig.showPresetsCard) {
+                AkisGlassCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    accentTint = scheme.secondary,
                 ) {
-                    val presetList = listOf(
-                        Triple("✨ Genel · Dengeli", "Dengeli günlük kullanım", Presets.DEFAULT),
-                        Triple("📱 Tek Elle Kullanım", "Sağ kenarda Geri ve Bildirimler", Presets.ONE_HAND_RIGHT),
-                        Triple("📐 Klasik Android", "Alt kenarda Geri, Ana Sayfa, Son", Presets.ANDROID_CLASSIC),
-                        Triple("⚡ Gelişmiş · Çift Kenar", "Her iki kenarda hızlı jestler", Presets.DUAL_EDGE_ADVANCED),
-                        Triple("🎵 Medya Kontrolü", "Ses ve parça değiştirme kısayolları", Presets.MEDIA_CONTROL),
+                    AkisSectionHeader(
+                        title = "✨ Hazır Jest Şablonları",
+                        subtitle = "Tek tıkla zengin jest düzeni yükleyin",
+                        icon = Icons.Filled.AutoAwesome,
                     )
+                    Spacer(Modifier.height(10.dp))
 
-                    presetList.forEach { (title, desc, graph) ->
-                        Box(
-                            modifier = Modifier
-                                .width(200.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(scheme.surfaceVariant.copy(alpha = 0.40f))
-                                .padding(12.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.SpaceBetween,
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        val presetList = listOf(
+                            Triple("✨ Genel · Dengeli", "Dengeli günlük kullanım", Presets.DEFAULT),
+                            Triple("📱 Tek Elle Kullanım", "Sağ kenarda Geri ve Bildirimler", Presets.ONE_HAND_RIGHT),
+                            Triple("📐 Klasik Android", "Alt kenarda Geri, Ana Sayfa, Son", Presets.ANDROID_CLASSIC),
+                            Triple("⚡ Gelişmiş · Çift Kenar", "Her iki kenarda hızlı jestler", Presets.DUAL_EDGE_ADVANCED),
+                            Triple("🎵 Medya Kontrolü", "Ses ve parça değiştirme kısayolları", Presets.MEDIA_CONTROL),
+                        )
+
+                        presetList.forEach { (title, desc, graph) ->
+                            Box(
+                                modifier = Modifier
+                                    .width(200.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(scheme.surfaceVariant.copy(alpha = 0.40f))
+                                    .padding(12.dp),
                             ) {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = scheme.onSurface,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    text = desc,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = scheme.onSurfaceVariant,
-                                    maxLines = 2,
-                                    modifier = Modifier.height(32.dp),
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                OutlinedButton(
-                                    onClick = {
-                                        viewModel.applyPresetGraph(graph)
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar("'$title' şablonu yüklendi!")
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(10.dp),
+                                Column(
                                     modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(vertical = 4.dp),
+                                    verticalArrangement = Arrangement.SpaceBetween,
                                 ) {
-                                    Text("Uygula", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = scheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Spacer(Modifier.height(4.dp))
+                                    Text(
+                                        text = desc,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = scheme.onSurfaceVariant,
+                                        maxLines = 2,
+                                        modifier = Modifier.height(32.dp),
+                                    )
+                                    Spacer(Modifier.height(8.dp))
+                                    OutlinedButton(
+                                        onClick = {
+                                            viewModel.applyPresetGraph(graph)
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("'$title' şablonu yüklendi!")
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(10.dp),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(vertical = 4.dp),
+                                    ) {
+                                        Text("Uygula", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                                    }
                                 }
                             }
                         }

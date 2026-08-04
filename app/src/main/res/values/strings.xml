@@ -91,4 +91,26 @@
     <string-array name="preset_descriptions"><item>Home from the bottom edge only. Minimal intervention.</item><item>Back, Home, and Recents across three bottom areas.</item><item>Back from both sides and Home from the bottom for balanced daily use.</item><item>Back and Home on upper/lower right; Notifications and Recents on hold.</item><item>Back and Home on upper/lower left; Notifications and Recents on hold.</item><item>Back/previous app on both edges, with Home/Assistant at the bottom.</item><item>Back, Home, and Recents across the bottom; panels and Assistant on hold.</item><item>Track, playback, and volume controls across three bottom areas.</item><item>Force-stop the foreground app with hold gestures. Requires root.</item><item>Back, Home, and mute on hold for a low-distraction night setup.</item><item>Back, brightness down on hold, and Home.</item><item>Back, Quick Settings, and Recents within one-hand reach.</item><item>Back, voice assistant, and notification panel.</item><item>Screenshot, Home, and Recents for content creation.</item><item>Only Back and Home for a clean, simple experience.</item><item>Back and previous app, with Recents on hold.</item><item>Home, Quick Settings, and bottom Back/Recents.</item><item>Back, brightness up on hold, and Assistant.</item><item>Back, mute, and screen lock on hold.</item><item>Left/right track switching; bottom playback and volume on hold.</item></string-array>
     <string name="invalid_backup">This file is not an Akış Gesture backup</string><string name="unsupported_backup_version">Unsupported backup version</string><string name="unknown_backup_field">Unknown backup field</string>
     <string name="saved">Saved</string>
+    <string name="tab_all">All</string>
+    <string name="stream_paused">Stream paused ⏸️</string>
+    <string name="stream_paused_hint">Gesture detection paused · Tap to resume</string>
+    <string name="live_chart_title">📊 Real Usage &amp; Edge Distribution Chart</string>
+    <string name="live_chart_subtitle">%d live gestures executed</string>
+    <string name="live_chart_empty">Live counter active · Real-time stats update as you gesture</string>
+    <string name="hold_physics_title">⏱️ Swipe &amp; Hold Physics</string>
+    <string name="hold_physics_subtitle">Hold duration and activation mode</string>
+    <string name="color_palette_title">🎨 Color Palette &amp; Theme</string>
+    <string name="color_palette_subtitle">Custom colors for gesture stages</string>
+    <string name="haptic_sound_title">⚡ Haptic Vibration &amp; Sound</string>
+    <string name="haptic_sound_subtitle">Vibration intensity and audio tone</string>
+    <string name="app_exclusions_title">📱 App Exclusions</string>
+    <string name="app_exclusions_subtitle">Apps where gestures are paused</string>
+    <string name="home_cards_title">🏠 Home Screen Layout</string>
+    <string name="home_cards_subtitle">Show or hide home screen cards for a minimal view</string>
+    <string name="show_phone_map">📱 Interactive Edge Map</string>
+    <string name="show_phone_map_subtitle">Display the live 3D phone graphic and edge zones</string>
+    <string name="show_summary_chart">📊 Usage &amp; Edge Distribution Chart</string>
+    <string name="show_summary_chart_subtitle">Display live gesture execution counts and edge stats</string>
+    <string name="show_presets_card">⚡ Quick Layout Templates</string>
+    <string name="show_presets_card_subtitle">Display one-tap preset gesture configuration cards</string>
 </resources>

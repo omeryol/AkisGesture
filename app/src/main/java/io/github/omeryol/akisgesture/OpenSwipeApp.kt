@@ -123,6 +123,9 @@ class AkisGestureApp : Application() {
                     hapticEnabled = prefs[GestureConfig.KEY_HAPTIC_ENABLED] ?: true,
                     animationSpeed = prefs[GestureConfig.KEY_ANIMATION_SPEED] ?: 1f,
                     animationSize = prefs[GestureConfig.KEY_ANIMATION_SIZE] ?: 1f,
+                    showPhoneMap = prefs[GestureConfig.KEY_SHOW_PHONE_MAP] ?: true,
+                    showSummaryChart = prefs[GestureConfig.KEY_SHOW_SUMMARY_CHART] ?: true,
+                    showPresetsCard = prefs[GestureConfig.KEY_SHOW_PRESETS_CARD] ?: true,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -394,6 +397,18 @@ class AkisGestureApp : Application() {
 
     suspend fun updateHoldFireMode(mode: HoldFireMode) {
         settingsDataStore.edit { it[GestureConfig.KEY_HOLD_FIRE_MODE] = mode.name }
+    }
+
+    suspend fun updateShowPhoneMap(show: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_SHOW_PHONE_MAP] = show }
+    }
+
+    suspend fun updateShowSummaryChart(show: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_SHOW_SUMMARY_CHART] = show }
+    }
+
+    suspend fun updateShowPresetsCard(show: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_SHOW_PRESETS_CARD] = show }
     }
 
     companion object {

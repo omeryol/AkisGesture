@@ -220,6 +220,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setShowPhoneMap(show: Boolean) {
+        viewModelScope.launch { app.updateShowPhoneMap(show) }
+    }
+
+    fun setShowSummaryChart(show: Boolean) {
+        viewModelScope.launch { app.updateShowSummaryChart(show) }
+    }
+
+    fun setShowPresetsCard(show: Boolean) {
+        viewModelScope.launch { app.updateShowPresetsCard(show) }
+    }
+
     private fun loadSelectableApps() {
         viewModelScope.launch(Dispatchers.IO) {
             val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
