@@ -84,6 +84,9 @@ class BezierStretchRenderer {
             }
         }
 
+    private val particleBurst = io.github.omeryol.akisgesture.feedback.animation.ParticleBurstModule()
+    private var wasArmed = false
+
     fun draw(
         canvas: Canvas,
         edge: Edge,
@@ -94,8 +97,14 @@ class BezierStretchRenderer {
         canvasHeight: Float,
         arrowAlpha: Float = 1f,
     ) {
-        if (animation == FeedbackAnimation.NONE || stretch < .25f) return
-        val progress = (stretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.35f)
+        if (animation == FeedbackAnimation.NONE && !particleBurst.isActive) return
+        
+        // Fluid Non-Linear Spring Tension Curve
+        val elasticStretch = if (peak > 0f) {
+            (stretch / peak).coerceIn(0f, 1.4f).pow(0.82f) * peak
+        } else stretch
+
+        val progress = (elasticStretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.35f)
         val colorMix = smoothStep(.18f, 1.15f, progress)
         val preLColor = if (holdArmed) {
             blend(primaryColor, secondaryColor, colorMix)
@@ -110,16 +119,38 @@ class BezierStretchRenderer {
             )
             else -> preLColor
         }
+
+        // Trigger particle burst when gesture arms/fires
+        val isNowArmed = armed || holdArmed
+        if (isNowArmed && !wasArmed) {
+            val burstX = when (edge) {
+                Edge.LEFT -> elasticStretch
+                Edge.RIGHT -> canvasWidth - elasticStretch
+                Edge.BOTTOM -> touchPosition
+            }
+            val burstY = when (edge) {
+                Edge.BOTTOM -> canvasHeight - elasticStretch
+                else -> touchPosition
+            }
+            particleBurst.trigger(burstX, burstY, baseColor)
+        }
+        wasArmed = isNowArmed
+
         val size = animSize * when { holdArmed -> 1.12f; armed -> 1.06f; else -> 1f }
         val frame = AnimationFrame(
-            canvas, edge, touchPosition, stretch, progress,
+            canvas, edge, touchPosition, elasticStretch, progress,
             canvasWidth, canvasHeight, baseColor,
             (.46f + opacity * .54f).coerceIn(.55f, 1f), size,
             System.nanoTime() / 1_000_000_000.0 * animSpeed,
         )
-        moduleFor(animation).draw(frame)
-        drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
-        if (showIndicatorBar) drawIndicator(canvas, edge, touchPosition, canvasWidth, canvasHeight)
+        if (stretch >= 0.25f && animation != FeedbackAnimation.NONE) {
+            moduleFor(animation).draw(frame)
+            drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
+            if (showIndicatorBar) drawIndicator(canvas, edge, touchPosition, canvasWidth, canvasHeight)
+        }
+
+        // Draw particle burst on top
+        particleBurst.draw(canvas, System.currentTimeMillis())
     }
 
     private fun moduleFor(style: FeedbackAnimation): NaturalAnimationModule = when (style) {

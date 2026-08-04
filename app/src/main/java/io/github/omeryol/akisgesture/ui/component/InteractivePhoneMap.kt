@@ -1,5 +1,10 @@
 package io.github.omeryol.akisgesture.ui.component
 
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,10 +67,20 @@ fun InteractivePhoneMap(
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     val zones = buildPhoneZones(rules, scheme)
-
     val leftZones = zones.filter { it.edge == Edge.LEFT }
     val rightZones = zones.filter { it.edge == Edge.RIGHT }
     val bottomZones = zones.filter { it.edge == Edge.BOTTOM }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "radarScan")
+    val radarScanY by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2800, easing = androidx.compose.animation.core.LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "radarScanY",
+    )
 
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
@@ -206,6 +222,19 @@ fun InteractivePhoneMap(
                     addRoundRect(RoundRect(screenRect, innerCorner))
                 }
                 clipPath(screenClip) {
+                    // Live Radar Neon Scan Line
+                    val scanY = screenRect.top + radarScanY * screenRect.height
+                    drawLine(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, scheme.primary.copy(alpha = 0.50f), Color.Transparent),
+                            startY = scanY - 18f,
+                            endY = scanY + 18f,
+                        ),
+                        start = Offset(screenRect.left, scanY),
+                        end = Offset(screenRect.right, scanY),
+                        strokeWidth = 3f,
+                    )
+
                     zones.forEach { zone ->
                         val zr = phoneZoneRect(zone, screenRect)
                         val zoneColor = zone.color
