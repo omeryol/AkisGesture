@@ -231,7 +231,13 @@ fun SettingsScreen(
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            val tabs = listOf(stringResource(R.string.tab_all), stringResource(R.string.tab_motion), stringResource(R.string.tab_appearance), stringResource(R.string.tab_pause), stringResource(R.string.tab_backup), stringResource(R.string.tab_about))
+            val tabs = listOf(
+                stringResource(R.string.tab_motion),
+                stringResource(R.string.tab_appearance),
+                stringResource(R.string.tab_pause),
+                stringResource(R.string.tab_backup),
+                stringResource(R.string.tab_about),
+            )
             tabs.forEachIndexed { index, label ->
                 val selected = selectedSection == index
                 Box(
@@ -255,7 +261,7 @@ fun SettingsScreen(
         }
 
         // ── 1A. KENAR HASSASİYETİ VE TETİKLEME (Electric Blue) ──
-        if (selectedSection == 0 || selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
+        if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             AkisSectionHeader(
                 title = stringResource(R.string.motion_section),
                 subtitle = stringResource(R.string.motion_section_subtitle),
@@ -366,7 +372,7 @@ fun SettingsScreen(
         }
 
         // ── 1B. BEKLETME SÜRESİ VE FİZİĞİ (Electric Purple) ──
-        if (selectedSection == 0 || selectedSection == 1) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
+        if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
             AkisSectionHeader(
                 title = "⏱️ Çek ve Tut Fiziği",
                 subtitle = "Bekletme süresi ve tetikleme anı seçimi",
@@ -418,7 +424,7 @@ fun SettingsScreen(
         }
 
         // ── 2A. ANİMASYON STİLİ VE BOYUT AYARLARI (Vibrant Cyan) ──
-        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
+        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
             AkisSectionHeader(
                 title = stringResource(R.string.feedback_section),
                 subtitle = stringResource(R.string.feedback_section_subtitle),
@@ -515,7 +521,7 @@ fun SettingsScreen(
         }
 
         // ── 2B. RENK VE TEMA SEÇENEKLERİ (Deep Indigo Violet) ──
-        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF7C4DFF)) {
+        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF7C4DFF)) {
             AkisSectionHeader(
                 title = "🎨 Renk Paleti ve Tema",
                 subtitle = "Jest aşamaları için özel renk özelleştirme",
@@ -556,7 +562,7 @@ fun SettingsScreen(
         }
 
         // ── 2C. DOKUNSAL TİTREŞİM VE SES (Vibrant Amber / Orange) ──
-        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
+        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
             AkisSectionHeader(
                 title = "⚡ Dokunsal Titreşim & Ses",
                 subtitle = "Titreşim şiddeti ve geri bildirim tonu",
@@ -588,7 +594,7 @@ fun SettingsScreen(
         }
 
         // ── 2D. ANA SAYFA KART DÜZENİ VE SADELİK (Neon Teal Blue) ──
-        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF00B0FF)) {
+        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00B0FF)) {
             AkisSectionHeader(
                 title = stringResource(R.string.home_cards_title),
                 subtitle = stringResource(R.string.home_cards_subtitle),
@@ -619,7 +625,7 @@ fun SettingsScreen(
         }
 
         // ── 3A. OTOMATİK DURAKLATMA KOŞULLARI (Crimson Red) ──
-        if (selectedSection == 0 || selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFFF1744)) {
+        if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFFF1744)) {
             AkisSectionHeader(
                 title = stringResource(R.string.pause_section),
                 subtitle = stringResource(R.string.pause_section_subtitle),
@@ -664,7 +670,7 @@ fun SettingsScreen(
         }
 
         // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
-        if (selectedSection == 0 || selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
+        if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
             AkisSectionHeader(
                 title = "📱 Uygulama İstisnaları",
                 subtitle = "Jestlerin devre dışı kalacağı uygulamalar",
@@ -702,7 +708,7 @@ fun SettingsScreen(
         }
 
         // ── 4A. YEDEKLEME VE ROOT (Emerald Green) ──
-        if (selectedSection == 0 || selectedSection == 4) AkisGlassCard(accentTint = Color(0xFF00E676)) {
+        if (selectedSection == 3) AkisGlassCard(accentTint = Color(0xFF00E676)) {
             AkisSectionHeader(
                 title = stringResource(R.string.backup_section),
                 subtitle = stringResource(R.string.backup_section_subtitle),
@@ -761,7 +767,7 @@ fun SettingsScreen(
         }
 
         // ── 5A. HAKKINDA VE DİL SEÇİMİ (Golden Amber) ──
-        if (selectedSection == 0 || selectedSection == 5) AkisGlassCard(accentTint = Color(0xFFFFAB00)) {
+        if (selectedSection == 4) AkisGlassCard(accentTint = Color(0xFFFFAB00)) {
             AkisSectionHeader(
                 title = stringResource(R.string.about_title),
                 subtitle = stringResource(R.string.about_subtitle),
