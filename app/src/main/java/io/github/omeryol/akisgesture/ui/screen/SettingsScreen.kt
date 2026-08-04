@@ -168,9 +168,9 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         AkisGlassCard(accentTint = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
-            Color(0xFF00C853)
+            scheme.primary
         } else {
-            Color(0xFFFF9100)
+            scheme.tertiary
         }) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -182,9 +182,9 @@ fun SettingsScreen(
                         .clip(CircleShape)
                         .background(
                             if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
-                                Color(0xFF00E676)
+                                scheme.primary
                             } else {
-                                Color(0xFFFFB300)
+                                scheme.tertiary
                             }
                         )
                 )
@@ -215,7 +215,7 @@ fun SettingsScreen(
                         onClick = {
                             context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                         },
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(14.dp),
                     ) {
                         Text(stringResource(R.string.grant_permission), style = MaterialTheme.typography.labelMedium)
                     }
@@ -254,7 +254,7 @@ fun SettingsScreen(
         }
 
         // ── 1. KENAR HASSASİYETİ VE HAREKET FİZİĞİ ──
-        if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
+        if (selectedSection == 0) AkisGlassCard(accentTint = scheme.primary) {
             AkisSectionHeader(
                 title = stringResource(R.string.motion_section),
                 subtitle = stringResource(R.string.motion_section_subtitle),
@@ -409,7 +409,7 @@ fun SettingsScreen(
         }
 
         // ── 2. GÖRSEL VE DOKUNSAL GERİ BİLDİRİM ──
-        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00E676)) {
+        if (selectedSection == 1) AkisGlassCard(accentTint = scheme.secondary) {
             AkisSectionHeader(
                 title = stringResource(R.string.feedback_section),
                 subtitle = stringResource(R.string.feedback_section_subtitle),
@@ -567,7 +567,7 @@ fun SettingsScreen(
         }
 
         // ── 3. ÇALIŞMA VE DURAKLATMA KURALLARI ──
-        if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
+        if (selectedSection == 2) AkisGlassCard(accentTint = scheme.tertiary) {
             AkisSectionHeader(
                 title = stringResource(R.string.pause_section),
                 subtitle = stringResource(R.string.pause_section_subtitle),
@@ -640,7 +640,7 @@ fun SettingsScreen(
         }
 
         // ── 4. YEDEKLEME VE SİSTEM ──
-        if (selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
+        if (selectedSection == 3) AkisGlassCard(accentTint = scheme.primary) {
             AkisSectionHeader(
                 title = stringResource(R.string.backup_section),
                 subtitle = stringResource(R.string.backup_section_subtitle),
@@ -655,7 +655,7 @@ fun SettingsScreen(
                 OutlinedButton(
                     onClick = { exportBackup.launch("akis-gesture-yedek.json") },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Icon(Icons.Filled.Save, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
@@ -665,7 +665,7 @@ fun SettingsScreen(
                 OutlinedButton(
                     onClick = { importBackup.launch(arrayOf("application/json", "text/plain")) },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Icon(Icons.Filled.Restore, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
@@ -693,13 +693,13 @@ fun SettingsScreen(
                         RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
                     },
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant
+                    color = if (rootAccess == RootAccessState.AVAILABLE) scheme.primary else scheme.onSurfaceVariant
                 )
             }
         }
 
         // ── 5. HAKKINDA ──
-        if (selectedSection == 4) AkisGlassCard(accentTint = Color(0xFF00B8D4)) {
+        if (selectedSection == 4) AkisGlassCard(accentTint = scheme.secondary) {
             AkisSectionHeader(
                 title = stringResource(R.string.about_title),
                 subtitle = stringResource(R.string.about_subtitle),
@@ -736,6 +736,7 @@ fun SettingsScreen(
                             )
                         },
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(14.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
                     ) {
                         Text(label, maxLines = 1, style = MaterialTheme.typography.labelSmall)
@@ -777,7 +778,7 @@ fun SettingsScreen(
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(14.dp),
             ) {
                 Text(stringResource(R.string.open_upstream))
                 Spacer(Modifier.width(6.dp))

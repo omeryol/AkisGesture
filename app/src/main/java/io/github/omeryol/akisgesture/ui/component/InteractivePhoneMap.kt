@@ -1,12 +1,25 @@
 package io.github.omeryol.akisgesture.ui.component
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -18,10 +31,14 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.overlay.Edge
+import io.github.omeryol.akisgesture.ui.util.localizedLabel
 
 data class PhoneZone(
     val edge: Edge,
@@ -42,230 +59,381 @@ fun InteractivePhoneMap(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val context = LocalContext.current
     val zones = buildPhoneZones(rules, scheme)
 
-    Box(modifier = modifier) {
-        Canvas(
+    val leftZones = zones.filter { it.edge == Edge.LEFT }
+    val rightZones = zones.filter { it.edge == Edge.RIGHT }
+    val bottomZones = zones.filter { it.edge == Edge.BOTTOM }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(zones) {
-                    detectTapGestures { tapOffset ->
-                        val z = hitTestPhoneZone(
-                            tapOffset.x, tapOffset.y,
-                            size.width.toFloat(), size.height.toFloat(),
-                            zones,
-                        )
-                        z?.let { onZoneClick(it) }
-                    }
-                },
+                .fillMaxWidth()
+                .height(270.dp),
         ) {
-            val w = size.width
-            val h = size.height
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(zones) {
+                        detectTapGestures { tapOffset ->
+                            val z = hitTestPhoneZone(
+                                tapOffset.x, tapOffset.y,
+                                size.width.toFloat(), size.height.toFloat(),
+                                zones,
+                            )
+                            z?.let { onZoneClick(it) }
+                        }
+                    },
+            ) {
+                val w = size.width
+                val h = size.height
 
-            val phoneH = h * 0.88f
-            val phoneW = phoneH * 0.49f
-            val phoneLeft = (w - phoneW) / 2f
-            val phoneTop = (h - phoneH) / 2f
-            val outerCorner = CornerRadius(46f)
-            val innerCorner = CornerRadius(40f)
+                // Prominent, large phone dimensions
+                val phoneH = h * 0.92f
+                val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.55f)
+                val phoneLeft = (w - phoneW) / 2f
+                val phoneTop = (h - phoneH) / 2f
+                val outerCorner = CornerRadius(42f)
+                val innerCorner = CornerRadius(34f)
 
-            val phoneBody = Rect(phoneLeft, phoneTop, phoneLeft + phoneW, phoneTop + phoneH)
+                val phoneBody = Rect(phoneLeft, phoneTop, phoneLeft + phoneW, phoneTop + phoneH)
 
-            // Quiet depth grid makes the map feel like a live control surface.
-            for (index in 1 until 6) {
-                val y = phoneTop + phoneH * index / 6f
-                drawLine(
-                    color = scheme.outline.copy(alpha = 0.10f),
-                    start = Offset(phoneLeft + 12f, y),
-                    end = Offset(phoneLeft + phoneW - 12f, y),
-                    strokeWidth = 1f,
-                )
-            }
-
-            // ── 1. Outer Glow and Drop Shadow ──
-            drawRoundRect(
-                brush = Brush.radialGradient(
-                    colors = listOf(scheme.primary.copy(alpha = 0.20f), Color.Transparent),
-                    center = phoneBody.center,
-                    radius = phoneW * 0.9f
-                ),
-                topLeft = Offset(phoneBody.left - 26f, phoneBody.top - 18f),
-                size = Size(phoneW + 52f, phoneH + 36f),
-                cornerRadius = CornerRadius(56f)
-            )
-
-            // ── 2. Phone Outer Frame Chassis ──
-            drawRoundRect(
-                color = Color(0xFF0D0E14),
-                topLeft = Offset(phoneBody.left - 4f, phoneBody.top - 4f),
-                size = Size(phoneW + 8f, phoneH + 8f),
-                cornerRadius = outerCorner
-            )
-
-            // Metallic Bezel
-            drawRoundRect(
-                brush = Brush.linearGradient(
-                    colors = listOf(Color(0xFF383B4F), Color(0xFF1C1D28), Color(0xFF282A37)),
-                    start = phoneBody.topLeft,
-                    end = phoneBody.bottomRight
-                ),
-                topLeft = phoneBody.topLeft,
-                size = phoneBody.size,
-                cornerRadius = outerCorner
-            )
-
-            // ── 3. Screen Bezel & Display Surface ──
-            val screenMargin = 8f
-            val screenRect = Rect(
-                phoneBody.left + screenMargin,
-                phoneBody.top + screenMargin,
-                phoneBody.right - screenMargin,
-                phoneBody.bottom - screenMargin
-            )
-
-            // Screen Dark OLED Gradient Fill
-            drawRoundRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF090A0E), Color(0xFF131522), Color(0xFF07080C))
-                ),
-                topLeft = screenRect.topLeft,
-                size = screenRect.size,
-                cornerRadius = innerCorner
-            )
-
-            // Screen Glossy Border Outline
-            drawRoundRect(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        scheme.primary.copy(alpha = 0.55f),
-                        scheme.outline.copy(alpha = 0.25f),
-                        scheme.tertiary.copy(alpha = 0.45f)
+                // ── 1. Outer Radial Ambient Glow ──
+                drawRoundRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(scheme.primary.copy(alpha = 0.32f), scheme.primary.copy(alpha = 0.05f), Color.Transparent),
+                        center = phoneBody.center,
+                        radius = phoneW * 1.2f,
                     ),
-                    start = screenRect.topLeft,
-                    end = screenRect.bottomRight
-                ),
-                topLeft = screenRect.topLeft,
-                size = screenRect.size,
-                cornerRadius = innerCorner,
-                style = Stroke(3f)
-            )
+                    topLeft = Offset(phoneBody.left - 24f, phoneBody.top - 16f),
+                    size = Size(phoneW + 48f, phoneH + 32f),
+                    cornerRadius = CornerRadius(50f),
+                )
 
-            // ── 4. Notch / Dynamic Island ──
-            val islandW = phoneW * 0.28f
-            val islandH = 14f
-            val islandTop = screenRect.top + 10f
-            val islandLeft = screenRect.center.x - islandW / 2f
-
-            drawRoundRect(
-                color = Color.Black,
-                topLeft = Offset(islandLeft, islandTop),
-                size = Size(islandW, islandH),
-                cornerRadius = CornerRadius(8f)
-            )
-            drawCircle(
-                color = Color(0xFF1A1C2B),
-                radius = 3.5f,
-                center = Offset(islandLeft + islandW - 14f, islandTop + islandH / 2f)
-            )
-
-            // ── 5. Home Bar Indicator ──
-            val homeBarW = phoneW * 0.32f
-            val homeBarH = 4.5f
-            val homeBarBottom = screenRect.bottom - 12f
-            val homeBarLeft = screenRect.center.x - homeBarW / 2f
-
-            drawRoundRect(
-                color = Color.White.copy(alpha = 0.40f),
-                topLeft = Offset(homeBarLeft, homeBarBottom),
-                size = Size(homeBarW, homeBarH),
-                cornerRadius = CornerRadius(3f)
-            )
-
-            // ── 6. Draw gesture zones inside the rounded display mask ──
-            val screenClip = androidx.compose.ui.graphics.Path().apply {
-                addRoundRect(RoundRect(screenRect, innerCorner))
-            }
-            clipPath(screenClip) {
-            zones.forEach { zone ->
-                val zr = phoneZoneRect(zone, screenRect)
-                val zoneColor = zone.color
-                val zoneCorner = CornerRadius(12f)
-
-                // Translucent fill
+                // ── 2. Phone Frame & Bezel ──
                 drawRoundRect(
-                    color = zoneColor.copy(alpha = 0.75f),
-                    topLeft = zr.topLeft,
-                    size = zr.size,
-                    cornerRadius = zoneCorner
-                )
-                // Vibrant border
-                drawRoundRect(
-                    color = zoneColor.copy(alpha = 0.95f),
-                    topLeft = zr.topLeft,
-                    size = zr.size,
-                    cornerRadius = zoneCorner,
-                    style = Stroke(2.5f)
-                )
-                // Glossy inner highlight
-                drawRoundRect(
-                    color = Color.White.copy(alpha = 0.25f),
-                    topLeft = Offset(zr.left + 2f, zr.top + 2f),
-                    size = Size((zr.width - 4f).coerceAtLeast(1f), (zr.height * 0.35f).coerceAtLeast(1f)),
-                    cornerRadius = CornerRadius(6f)
+                    color = Color(0xFF07080E),
+                    topLeft = Offset(phoneBody.left - 4f, phoneBody.top - 4f),
+                    size = Size(phoneW + 8f, phoneH + 8f),
+                    cornerRadius = outerCorner,
                 )
 
-                // A small status bead shows whether the zone has a hold action.
-                val hasHold = zone.holdAction != null
-                drawCircle(
-                    color = if (hasHold) Color.White else Color.White.copy(alpha = 0.45f),
-                    radius = 3.5f,
-                    center = Offset(zr.center.x, zr.center.y),
+                drawRoundRect(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFF35384B), Color(0xFF191A26), Color(0xFF262836)),
+                        start = phoneBody.topLeft,
+                        end = phoneBody.bottomRight,
+                    ),
+                    topLeft = phoneBody.topLeft,
+                    size = phoneBody.size,
+                    cornerRadius = outerCorner,
                 )
-            }
-            }
 
-            // ── 7. Draw Action Symbols ──
-            zones.forEach { zone ->
-                val zr = phoneZoneRect(zone, screenRect)
-                val action = zone.quickAction ?: zone.holdAction
-                if (action != null && action !is ActionNode.NoAction) {
-                    val paint = android.graphics.Paint().apply {
-                        color = android.graphics.Color.WHITE
-                        textSize = 16f
-                        textAlign = android.graphics.Paint.Align.CENTER
-                        isFakeBoldText = true
-                        isAntiAlias = true
-                        setShadowLayer(4f, 0f, 1f, android.graphics.Color.argb(140, 0, 0, 0))
-                    }
-                    drawContext.canvas.nativeCanvas.drawText(
-                        actionSymbolShort(action),
-                        if (zone.edge == Edge.LEFT) zr.right + 19f else if (zone.edge == Edge.RIGHT) zr.left - 19f else zr.center.x,
-                        if (zone.edge == Edge.BOTTOM) zr.top - 8f else zr.center.y + 6f,
-                        paint,
+                // ── 3. OLED Display Screen Surface ──
+                val screenMargin = 7f
+                val screenRect = Rect(
+                    phoneBody.left + screenMargin,
+                    phoneBody.top + screenMargin,
+                    phoneBody.right - screenMargin,
+                    phoneBody.bottom - screenMargin,
+                )
+
+                drawRoundRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFF090A12), Color(0xFF121524), Color(0xFF05060A)),
+                    ),
+                    topLeft = screenRect.topLeft,
+                    size = screenRect.size,
+                    cornerRadius = innerCorner,
+                )
+
+                // Subtle Grid Lines inside Screen
+                for (i in 1 until 6) {
+                    val y = screenRect.top + screenRect.height * i / 6f
+                    drawLine(
+                        color = scheme.outline.copy(alpha = 0.09f),
+                        start = Offset(screenRect.left + 12f, y),
+                        end = Offset(screenRect.right - 12f, y),
+                        strokeWidth = 1f,
                     )
+                }
+
+                // Glossy Outline Border
+                drawRoundRect(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            scheme.primary.copy(alpha = 0.65f),
+                            scheme.outline.copy(alpha = 0.15f),
+                            scheme.tertiary.copy(alpha = 0.45f),
+                        ),
+                        start = screenRect.topLeft,
+                        end = screenRect.bottomRight,
+                    ),
+                    topLeft = screenRect.topLeft,
+                    size = screenRect.size,
+                    cornerRadius = innerCorner,
+                    style = Stroke(2.5f),
+                )
+
+                // ── 4. Dynamic Island Notch & Home Bar ──
+                val islandW = phoneW * 0.28f
+                val islandH = 12f
+                val islandTop = screenRect.top + 8f
+                val islandLeft = screenRect.center.x - islandW / 2f
+
+                drawRoundRect(
+                    color = Color(0xFF020204),
+                    topLeft = Offset(islandLeft, islandTop),
+                    size = Size(islandW, islandH),
+                    cornerRadius = CornerRadius(6f),
+                )
+
+                val homeBarW = phoneW * 0.35f
+                val homeBarH = 4f
+                val homeBarBottom = screenRect.bottom - 10f
+                val homeBarLeft = screenRect.center.x - homeBarW / 2f
+
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.40f),
+                    topLeft = Offset(homeBarLeft, homeBarBottom),
+                    size = Size(homeBarW, homeBarH),
+                    cornerRadius = CornerRadius(2.5f),
+                )
+
+                // ── 5. Draw Gesture Zones Inside Phone Screen Mask ──
+                val screenClip = androidx.compose.ui.graphics.Path().apply {
+                    addRoundRect(RoundRect(screenRect, innerCorner))
+                }
+                clipPath(screenClip) {
+                    zones.forEach { zone ->
+                        val zr = phoneZoneRect(zone, screenRect)
+                        val zoneColor = zone.color
+                        val zoneCorner = CornerRadius(10f)
+
+                        // Translucent Glow Fill
+                        drawRoundRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    zoneColor.copy(alpha = 0.90f),
+                                    zoneColor.copy(alpha = 0.50f),
+                                ),
+                            ),
+                            topLeft = zr.topLeft,
+                            size = zr.size,
+                            cornerRadius = zoneCorner,
+                        )
+
+                        // Neon Border Outline
+                        drawRoundRect(
+                            color = zoneColor,
+                            topLeft = zr.topLeft,
+                            size = zr.size,
+                            cornerRadius = zoneCorner,
+                            style = Stroke(2.5f),
+                        )
+
+                        // Highlight Dot
+                        val hasHold = zone.holdAction != null
+                        drawCircle(
+                            color = if (hasHold) Color.White else Color.White.copy(alpha = 0.60f),
+                            radius = 3.5f,
+                            center = Offset(zr.center.x, zr.center.y),
+                        )
+                    }
+                }
+
+                // ── 6. Leader Lines & Side Callout Badges (Left & Right) ──
+                val representativeLeft = leftZones.firstOrNull { it.quickAction != null || it.holdAction != null }
+                if (representativeLeft != null) {
+                    val action = representativeLeft.quickAction ?: representativeLeft.holdAction
+                    if (action != null && action !is ActionNode.NoAction) {
+                        val zr = phoneZoneRect(representativeLeft, screenRect)
+                        val badgeX = (phoneLeft * 0.45f).coerceAtLeast(40f)
+                        val badgeY = zr.center.y
+                        val labelText = "${actionEmoji(action)} ${actionSymbolShort(action)}"
+
+                        drawLine(
+                            color = representativeLeft.color.copy(alpha = 0.85f),
+                            start = Offset(badgeX + 34f, badgeY),
+                            end = Offset(zr.left, zr.center.y),
+                            strokeWidth = 2f,
+                        )
+                        drawCircle(color = representativeLeft.color, radius = 3.5f, center = Offset(zr.left, zr.center.y))
+                        drawCircle(color = representativeLeft.color, radius = 3.5f, center = Offset(badgeX + 34f, badgeY))
+
+                        drawCalloutPill(badgeX, badgeY, labelText, representativeLeft.color, this)
+                    }
+                }
+
+                val representativeRight = rightZones.firstOrNull { it.quickAction != null || it.holdAction != null }
+                if (representativeRight != null) {
+                    val action = representativeRight.quickAction ?: representativeRight.holdAction
+                    if (action != null && action !is ActionNode.NoAction) {
+                        val zr = phoneZoneRect(representativeRight, screenRect)
+                        val badgeX = w - (phoneLeft * 0.45f).coerceAtLeast(40f)
+                        val badgeY = zr.center.y
+                        val labelText = "${actionEmoji(action)} ${actionSymbolShort(action)}"
+
+                        drawLine(
+                            color = representativeRight.color.copy(alpha = 0.85f),
+                            start = Offset(badgeX - 34f, badgeY),
+                            end = Offset(zr.right, zr.center.y),
+                            strokeWidth = 2f,
+                        )
+                        drawCircle(color = representativeRight.color, radius = 3.5f, center = Offset(zr.right, zr.center.y))
+                        drawCircle(color = representativeRight.color, radius = 3.5f, center = Offset(badgeX - 34f, badgeY))
+
+                        drawCalloutPill(badgeX, badgeY, labelText, representativeRight.color, this)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // ── 7. Bottom Edge Interactive Quick Chips ──
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val edgeItems = listOf(
+                Triple("← Sol Kenar", Edge.LEFT, leftZones),
+                Triple("→ Sağ Kenar", Edge.RIGHT, rightZones),
+                Triple("↓ Alt Kenar", Edge.BOTTOM, bottomZones),
+            )
+
+            edgeItems.forEach { (title, edge, edgeZones) ->
+                val primaryAction = edgeZones.firstOrNull { it.quickAction != null || it.holdAction != null }?.let {
+                    it.quickAction ?: it.holdAction
+                }
+                val actionLabel = primaryAction?.localizedLabel(context) ?: "Ayarla"
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(scheme.surfaceVariant.copy(alpha = 0.40f))
+                        .clickable {
+                            val targetZone = edgeZones.firstOrNull() ?: PhoneZone(
+                                edge = edge,
+                                start = 0f,
+                                end = 1f,
+                                quickAction = null,
+                                holdAction = null,
+                                color = scheme.primary,
+                                ruleIds = emptySet(),
+                            )
+                            onZoneClick(targetZone)
+                        }
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface,
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = actionLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.primary,
+                            maxLines = 1,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-private fun actionSymbolShort(action: ActionNode): String = when (action) {
-    is ActionNode.Back -> "←"
-    is ActionNode.Home -> "⌂"
-    is ActionNode.Recents -> "⊞"
-    is ActionNode.SwitchLastApp -> "↶"
-    is ActionNode.SwitchNextApp -> "↷"
+private fun drawCalloutPill(
+    x: Float,
+    y: Float,
+    text: String,
+    accentColor: Color,
+    drawScope: androidx.compose.ui.graphics.drawscope.DrawScope,
+) {
+    val paintBg = android.graphics.Paint().apply {
+        color = android.graphics.Color.argb(235, 14, 16, 26)
+        style = android.graphics.Paint.Style.FILL
+        isAntiAlias = true
+        setShadowLayer(6f, 0f, 2f, android.graphics.Color.argb(140, 0, 0, 0))
+    }
+    val paintText = android.graphics.Paint().apply {
+        color = android.graphics.Color.WHITE
+        textSize = 15f
+        textAlign = android.graphics.Paint.Align.CENTER
+        isFakeBoldText = true
+        isAntiAlias = true
+    }
+
+    val fontMetrics = paintText.fontMetrics
+    val textWidth = paintText.measureText(text)
+    val paddingH = 10f
+    val paddingV = 6f
+
+    val pillRect = android.graphics.RectF(
+        x - textWidth / 2f - paddingH,
+        y + fontMetrics.top - paddingV,
+        x + textWidth / 2f + paddingH,
+        y + fontMetrics.bottom + paddingV,
+    )
+
+    drawScope.drawContext.canvas.nativeCanvas.drawRoundRect(pillRect, 10f, 10f, paintBg)
+
+    val paintBorder = android.graphics.Paint().apply {
+        color = android.graphics.Color.argb(190, accentColor.red.toColorInt(), accentColor.green.toColorInt(), accentColor.blue.toColorInt())
+        style = android.graphics.Paint.Style.STROKE
+        strokeWidth = 2f
+        isAntiAlias = true
+    }
+    drawScope.drawContext.canvas.nativeCanvas.drawRoundRect(pillRect, 10f, 10f, paintBorder)
+
+    drawScope.drawContext.canvas.nativeCanvas.drawText(text, x, y, paintText)
+}
+
+private fun Float.toColorInt(): Int = (this * 255f).coerceIn(0f, 255f).toInt()
+
+private fun actionEmoji(action: ActionNode): String = when (action) {
+    is ActionNode.Back -> "🔙"
+    is ActionNode.Home -> "🏠"
+    is ActionNode.Recents -> "📑"
+    is ActionNode.SwitchLastApp -> "🔀"
+    is ActionNode.SwitchNextApp -> "⏩"
     is ActionNode.LockScreen -> "🔒"
-    is ActionNode.Screenshot -> "📷"
+    is ActionNode.Screenshot -> "📸"
     is ActionNode.NotificationPanel -> "🔔"
-    is ActionNode.QuickSettings -> "⚙"
-    is ActionNode.PowerMenu -> "⏻"
-    is ActionNode.MediaPlayPause -> "▶"
+    is ActionNode.QuickSettings -> "⚙️"
+    is ActionNode.PowerMenu -> "⚡"
+    is ActionNode.MediaPlayPause -> "▶️"
     is ActionNode.Assistant -> "🤖"
     is ActionNode.ToggleFlashlight -> "🔦"
-    is ActionNode.ForceStopForeground -> "✕"
-    is ActionNode.LaunchApp -> "📂"
-    else -> "●"
+    is ActionNode.ForceStopForeground -> "🛑"
+    is ActionNode.LaunchApp -> "📱"
+    else -> "⚡"
+}
+
+private fun actionSymbolShort(action: ActionNode): String = when (action) {
+    is ActionNode.Back -> "Geri"
+    is ActionNode.Home -> "Ana Sayfa"
+    is ActionNode.Recents -> "Son"
+    is ActionNode.SwitchLastApp -> "Son App"
+    is ActionNode.SwitchNextApp -> "Sonraki App"
+    is ActionNode.LockScreen -> "Kilit"
+    is ActionNode.Screenshot -> "Ekran Gör."
+    is ActionNode.NotificationPanel -> "Bildirimler"
+    is ActionNode.QuickSettings -> "Ayarlar"
+    is ActionNode.PowerMenu -> "Güç"
+    is ActionNode.MediaPlayPause -> "Oynat"
+    is ActionNode.Assistant -> "Asistan"
+    is ActionNode.ToggleFlashlight -> "Fener"
+    is ActionNode.ForceStopForeground -> "Kapat"
+    is ActionNode.LaunchApp -> "Uygulama"
+    else -> "Eylem"
 }
 
 private fun phoneZoneRect(zone: PhoneZone, screen: Rect): Rect = when (zone.edge) {
@@ -319,11 +487,11 @@ private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.m
 }
 
 private fun hitTestPhoneZone(x: Float, y: Float, w: Float, h: Float, zones: List<PhoneZone>): PhoneZone? {
-    val phoneH = h * 0.88f
-    val phoneW = phoneH * 0.49f
+    val phoneH = h * 0.92f
+    val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.55f)
     val phoneLeft = (w - phoneW) / 2f
     val phoneTop = (h - phoneH) / 2f
-    val screenMargin = 8f
+    val screenMargin = 7f
     val screen = Rect(
         phoneLeft + screenMargin,
         phoneTop + screenMargin,
@@ -334,8 +502,8 @@ private fun hitTestPhoneZone(x: Float, y: Float, w: Float, h: Float, zones: List
     return zones.firstOrNull { zone ->
         val zr = phoneZoneRect(zone, screen)
         val hit = Rect(
-            zr.left - 24f, zr.top - 16f,
-            zr.right + 24f, zr.bottom + 16f,
+            zr.left - 30f, zr.top - 20f,
+            zr.right + 30f, zr.bottom + 20f,
         )
         x in hit.left..hit.right && y in hit.top..hit.bottom
     }

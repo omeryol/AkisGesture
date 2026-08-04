@@ -516,6 +516,15 @@ class GestureEngine(
         Log.d("AkisGesture", "matched_result result=$result action=$actionNode")
         if (actionNode == null) return
 
+        // Record real runtime gesture usage stats
+        val (edge, gestureType, _) = when (result) {
+            is GestureResult.EdgeSwipe -> Triple(result.edge, result.gestureType, result.touchAlongEdgePx)
+            is GestureResult.VerticalSwipe -> Triple(result.edge, GestureType.QUICK_SWIPE, result.touchAlongEdgePx)
+            is GestureResult.Tap -> Triple(result.edge, GestureType.QUICK_SWIPE, result.touchAlongEdgePx)
+            else -> Triple(Edge.BOTTOM, GestureType.QUICK_SWIPE, 0f)
+        }
+        io.github.omeryol.akisgesture.util.GestureTracker.recordGesture(overlayManager.context, edge, gestureType)
+
         performResultHapticIfNeeded()
 
         scope.launch {

@@ -9,12 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -36,6 +35,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import io.github.omeryol.akisgesture.ui.theme.StatusConnected
 import io.github.omeryol.akisgesture.ui.theme.StatusDisconnected
 import io.github.omeryol.akisgesture.util.PermissionHelper
+import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 
 @Composable
 fun PermissionGuideScreen(
@@ -100,6 +100,7 @@ fun PermissionGuideScreen(
         Button(
             onClick = onAllGranted,
             enabled = isAccessibilityEnabled,
+            shape = RoundedCornerShape(14.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
@@ -118,15 +119,10 @@ private fun PermissionCard(
     required: Boolean,
     onRequest: () -> Unit,
 ) {
-    Card(
+    AkisGlassCard(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isGranted) {
-                StatusConnected.copy(alpha = 0.08f)
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            },
-        ),
+        accentTint = if (isGranted) StatusConnected else MaterialTheme.colorScheme.primary,
+        containerColor = if (isGranted) StatusConnected.copy(alpha = 0.08f) else null,
     ) {
         Column(
             modifier = Modifier
@@ -174,6 +170,7 @@ private fun PermissionCard(
                 if (required) {
                     Button(
                         onClick = onRequest,
+                        shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.open_settings))
@@ -181,6 +178,7 @@ private fun PermissionCard(
                 } else {
                     OutlinedButton(
                         onClick = onRequest,
+                        shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(stringResource(R.string.open_settings))

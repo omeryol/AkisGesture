@@ -81,6 +81,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     // ── Mutations ──
 
     fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: io.github.omeryol.akisgesture.model.TriggerMode = io.github.omeryol.akisgesture.model.TriggerMode.SWIPE) {
+        if (action is ActionNode.NoAction) return
         val newRule = GestureRule(
             id = UUID.randomUUID().toString(),
             trigger = trigger,
@@ -171,6 +172,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun updateRuleAction(ruleId: String, newAction: ActionNode) {
+        if (newAction is ActionNode.NoAction) return
         _rules.value = _rules.value.map { rule ->
             if (rule.id == ruleId) rule.copy(action = newAction) else rule
         }

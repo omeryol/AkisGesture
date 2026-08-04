@@ -38,6 +38,43 @@ import io.github.omeryol.akisgesture.ui.theme.ActionPanelColor
 import io.github.omeryol.akisgesture.ui.theme.ActionRootColor
 import io.github.omeryol.akisgesture.ui.theme.ActionSystemColor
 
+fun actionEmoji(action: ActionNode): String = when (action) {
+    is ActionNode.Back -> "↩️"
+    is ActionNode.Home -> "🏠"
+    is ActionNode.Recents -> "📱"
+    is ActionNode.SwitchLastApp -> "🔄"
+    is ActionNode.SwitchNextApp -> "⏭️"
+    is ActionNode.LockScreen -> "🔒"
+    is ActionNode.Screenshot -> "📸"
+    is ActionNode.SplitScreen -> "🪟"
+    is ActionNode.PowerMenu -> "⏻"
+    is ActionNode.Menu -> "☰"
+    is ActionNode.NotificationPanel -> "🔔"
+    is ActionNode.QuickSettings -> "⚙️"
+    is ActionNode.InputMethodPicker -> "⌨️"
+    is ActionNode.VolumePanel -> "🔊"
+    is ActionNode.Assistant, is ActionNode.VoiceAssistant -> "🤖"
+    is ActionNode.ToggleAutoRotate -> "🔃"
+    is ActionNode.ForcePortrait -> "📲"
+    is ActionNode.ForceLandscape -> "🖥️"
+    is ActionNode.XiaomiOneHandMode -> "🤏"
+    is ActionNode.MediaPlayPause -> "▶️"
+    is ActionNode.MediaNext -> "⏭️"
+    is ActionNode.MediaPrevious -> "⏮️"
+    is ActionNode.VolumeUp -> "🔊"
+    is ActionNode.VolumeDown -> "🔉"
+    is ActionNode.ToggleMute -> "🔇"
+    is ActionNode.VoiceSearch -> "🎙️"
+    is ActionNode.AppShortcut, is ActionNode.LaunchApp -> "🚀"
+    is ActionNode.SendKeyCode -> "⌨️"
+    is ActionNode.ToggleNavBar -> "🧭"
+    is ActionNode.ToggleFlashlight -> "🔦"
+    is ActionNode.ForceStopForeground -> "🛑"
+    is ActionNode.BrightnessUp -> "☀️"
+    is ActionNode.BrightnessDown -> "🌙"
+    is ActionNode.NoAction -> "⏸️"
+}
+
 fun actionImageVector(action: ActionNode): ImageVector = when (action) {
     is ActionNode.Back -> Icons.AutoMirrored.Filled.ArrowBack
     is ActionNode.Home -> Icons.Filled.Home

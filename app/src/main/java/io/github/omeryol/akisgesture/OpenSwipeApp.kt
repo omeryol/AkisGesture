@@ -54,10 +54,12 @@ class AkisGestureApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        io.github.omeryol.akisgesture.util.GestureTracker.init(this)
 
         gestureConfigFlow = settingsDataStore.data
             .map { prefs ->
                 GestureConfig(
+                    masterEnabled = prefs[GestureConfig.KEY_MASTER_ENABLED] ?: true,
                     leftEnabled = prefs[GestureConfig.KEY_LEFT_ENABLED] ?: true,
                     rightEnabled = prefs[GestureConfig.KEY_RIGHT_ENABLED] ?: true,
                     bottomEnabled = prefs[GestureConfig.KEY_BOTTOM_ENABLED] ?: true,

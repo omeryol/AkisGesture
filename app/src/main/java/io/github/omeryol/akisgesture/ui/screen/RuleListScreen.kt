@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
@@ -50,6 +51,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,7 +75,6 @@ import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.component.ActionIcon
-import io.github.omeryol.akisgesture.ui.component.ActionPickerDialog
 import io.github.omeryol.akisgesture.ui.component.AddRuleDialog
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 import io.github.omeryol.akisgesture.ui.component.EdgeZoneVisual
@@ -82,8 +83,14 @@ import io.github.omeryol.akisgesture.ui.util.appLabel
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.ui.util.actionEmoji
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
 import io.github.omeryol.akisgesture.rule.Presets
+import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
+import io.github.omeryol.akisgesture.ui.theme.AkisPrimary
+import io.github.omeryol.akisgesture.ui.theme.AkisSecondary
+import io.github.omeryol.akisgesture.ui.theme.AkisTertiary
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,10 +119,19 @@ fun RuleListScreen(
     var selectedGroupKey by remember { mutableStateOf<String?>(null) }
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
     var addingGestureType by remember { mutableStateOf<GestureType?>(null) }
+    var actionPickerToken by remember { mutableStateOf<String?>(null) }
     var showPresetMenu by remember { mutableStateOf(false) }
     var showProfileMenu by remember { mutableStateOf(false) }
     var showProfileAppPicker by remember { mutableStateOf(false) }
     var deleteProfilePackage by remember { mutableStateOf<String?>(null) }
+
+    fun openActionPicker() {
+        val token = UUID.randomUUID().toString()
+        actionPickerToken = token
+        InternalNavigationBus.requestActionPicker(
+            InternalNavigationBus.ActionPickerRequest(token),
+        )
+    }
 
     val ruleGroups = remember(rules) {
         rules
@@ -128,6 +144,33 @@ fun RuleListScreen(
                     lDown = groupedRules.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_DOWN_L },
                 )
             }
+    }
+
+    LaunchedEffect(actionPickerToken) {
+        val token = actionPickerToken ?: return@LaunchedEffect
+        InternalNavigationBus.actionPickerResults.collect { result ->
+            if (result.token == token) {
+                editingActionRuleId?.let { ruleId ->
+                    viewModel.updateRuleAction(ruleId, result.action)
+                } ?: addingGestureType?.let { gestureType ->
+                    val repRule = ruleGroups.firstOrNull { it.key == selectedGroupKey }?.representative
+                    repRule?.let { rule ->
+                        viewModel.addGesturePair(
+                            edge = rule.trigger.edge,
+                            section = rule.trigger.section,
+                            quickAction = if (gestureType == GestureType.QUICK_SWIPE) result.action else null,
+                            holdAction = if (gestureType == GestureType.SWIPE_HOLD) result.action else null,
+                            lUpAction = if (gestureType == GestureType.SWIPE_UP_L) result.action else null,
+                            lDownAction = if (gestureType == GestureType.SWIPE_DOWN_L) result.action else null,
+                            triggerMode = rule.triggerMode,
+                        )
+                    }
+                }
+                editingActionRuleId = null
+                addingGestureType = null
+                actionPickerToken = null
+            }
+        }
     }
     val visibleGroups = ruleGroups.filter { it.representative.trigger.edge == selectedEdge }
     val ruleListState = rememberLazyListState()
@@ -144,8 +187,8 @@ fun RuleListScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xEE0D0F18),
-                    titleContentColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 actions = {
                     Box {
@@ -155,7 +198,7 @@ fun RuleListScreen(
                                     RuleConfigViewModel.presets.indexOfFirst { it.first == preset }.takeIf { it >= 0 }?.let(presetNames::get)
                                 } ?: stringResource(R.string.templates),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = Color(0xFF00E5FF),
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         }
                     }
@@ -165,7 +208,7 @@ fun RuleListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = Color(0xFF3D5AFE),
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Kural ekle")
@@ -175,7 +218,7 @@ fun RuleListScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF090A0F))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(innerPadding),
         ) {
             // ── Glassmorphic Profile Selector ──
@@ -184,7 +227,7 @@ fun RuleListScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 onClick = { showProfileMenu = true },
-                accentTint = Color(0xFF3D5AFE),
+                accentTint = MaterialTheme.colorScheme.primary,
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -195,7 +238,7 @@ fun RuleListScreen(
                         Icon(
                             Icons.Filled.Apps,
                             contentDescription = null,
-                            tint = Color(0xFF00E5FF),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp),
                         )
                     } else {
@@ -217,13 +260,13 @@ fun RuleListScreen(
                             if (activeProfilePackage == null) stringResource(R.string.all_apps_gestures)
                             else stringResource(R.string.profile_only, activeProfileLabel),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF8E92B0),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     Icon(
                         Icons.Filled.ExpandMore,
                         contentDescription = stringResource(R.string.change_profile),
-                        tint = Color(0xFF8E92B0),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -236,9 +279,9 @@ fun RuleListScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 listOf(
-                    Triple(Edge.LEFT, edgeLabel(context, Edge.LEFT), Color(0xFF3D5AFE)),
-                    Triple(Edge.RIGHT, edgeLabel(context, Edge.RIGHT), Color(0xFFD500F9)),
-                    Triple(Edge.BOTTOM, edgeLabel(context, Edge.BOTTOM), Color(0xFFFF9100)),
+                    Triple(Edge.LEFT, edgeLabel(context, Edge.LEFT), MaterialTheme.colorScheme.primary),
+                    Triple(Edge.RIGHT, edgeLabel(context, Edge.RIGHT), MaterialTheme.colorScheme.secondary),
+                    Triple(Edge.BOTTOM, edgeLabel(context, Edge.BOTTOM), MaterialTheme.colorScheme.tertiary),
                 ).forEach { (edge, title, edgeColor) ->
                     val isSelected = selectedEdge == edge
                     val count = ruleGroups.count { it.representative.trigger.edge == edge }
@@ -248,11 +291,11 @@ fun RuleListScreen(
                             .clip(RoundedCornerShape(14.dp))
                             .background(
                                 if (isSelected) edgeColor.copy(alpha = 0.25f)
-                                else Color(0x1A202438),
+                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
                             )
                             .border(
                                 width = if (isSelected) 2.dp else 1.dp,
-                                color = if (isSelected) edgeColor else Color(0x20FFFFFF),
+                                color = if (isSelected) edgeColor else MaterialTheme.colorScheme.outlineVariant,
                                 shape = RoundedCornerShape(14.dp),
                             )
                             .clickable { selectedEdge = edge }
@@ -264,12 +307,12 @@ fun RuleListScreen(
                                 title,
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = if (isSelected) Color.White else Color(0xFF8E92B0),
+                                color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
                                 "$count Hareket",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (isSelected) edgeColor else Color(0x66FFFFFF),
+                                color = if (isSelected) edgeColor else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -279,7 +322,7 @@ fun RuleListScreen(
             // ── Conflict Banner ──
             AnimatedVisibility(visible = conflicts.isNotEmpty()) {
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3D0C15)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f)),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -292,14 +335,14 @@ fun RuleListScreen(
                         Icon(
                             Icons.Filled.Warning,
                             contentDescription = null,
-                            tint = Color(0xFFFF1744),
+                            tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(20.dp),
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
                             text = stringResource(R.string.conflict_count, conflicts.size),
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFF80AB),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
                         )
                     }
                 }
@@ -316,7 +359,7 @@ fun RuleListScreen(
                     Text(
                         text = stringResource(R.string.no_rules),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color(0xFF8E92B0),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             } else {
@@ -335,13 +378,13 @@ fun RuleListScreen(
                                 stringResource(R.string.edge_areas, edgeLabel(context, selectedEdge)),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f),
                             )
                             TextButton(onClick = { showMap = true }) {
-                                Icon(Icons.Filled.Map, contentDescription = null, tint = Color(0xFF00E5FF))
+                                Icon(Icons.Filled.Map, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                 Spacer(Modifier.width(4.dp))
-                                Text(stringResource(R.string.map_frame), color = Color(0xFF00E5FF))
+                                Text(stringResource(R.string.map_frame), color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
@@ -358,6 +401,7 @@ fun RuleListScreen(
                                 } else {
                                     addingGestureType = gestureType
                                 }
+                                openActionPicker()
                             },
                             onToggleEnabled = {
                                 viewModel.setRulesEnabled(group.ids, it)
@@ -372,14 +416,14 @@ fun RuleListScreen(
     if (showPresetMenu) {
         AlertDialog(
             onDismissRequest = { showPresetMenu = false },
-            containerColor = Color(0xFF161827),
-            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(14.dp),
             title = {
                 Column {
-                    Text(stringResource(R.string.templates), color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.templates), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                     Text(
                         stringResource(R.string.templates_subtitle),
-                        color = Color(0xFFB7B9C9),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -412,10 +456,10 @@ fun RuleListScreen(
                             },
                             text = {
                                 Column {
-                                    Text(presetNames[index], color = Color.White, fontWeight = FontWeight.SemiBold)
+                                    Text(presetNames[index], color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
                                     Text(
                                         presetDescriptions[index],
-                                        color = Color(0xFFB7B9C9),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }
@@ -459,9 +503,9 @@ fun RuleListScreen(
     if (showProfileMenu) {
         AlertDialog(
             onDismissRequest = { showProfileMenu = false },
-            containerColor = Color(0xEE161827),
-            shape = RoundedCornerShape(22.dp),
-            title = { Text(stringResource(R.string.gesture_profile), color = Color.White, fontWeight = FontWeight.Bold) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(14.dp),
+            title = { Text(stringResource(R.string.gesture_profile), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
             text = {
                 LazyColumn(
                     modifier = Modifier
@@ -470,13 +514,13 @@ fun RuleListScreen(
                 ) {
                     item(key = "general_profile") {
                         ListItem(
-                            headlineContent = { Text(stringResource(R.string.general_layout), color = Color.White) },
-                            supportingContent = { Text(stringResource(R.string.general_layout_subtitle), color = Color(0xFF8E92B0)) },
+                            headlineContent = { Text(stringResource(R.string.general_layout), color = MaterialTheme.colorScheme.onSurface) },
+                            supportingContent = { Text(stringResource(R.string.general_layout_subtitle), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                             leadingContent = {
                                 Icon(
                                     Icons.Filled.Apps,
                                     contentDescription = null,
-                                    tint = Color(0xFF00E5FF),
+                                    tint = MaterialTheme.colorScheme.primary,
                                 )
                             },
                             modifier = Modifier.clickable {
@@ -488,7 +532,7 @@ fun RuleListScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showProfileMenu = false }) { Text(stringResource(R.string.close), color = Color(0xFF00E5FF)) }
+                TextButton(onClick = { showProfileMenu = false }) { Text(stringResource(R.string.close)) }
             },
         )
     }
@@ -496,9 +540,9 @@ fun RuleListScreen(
     if (showMap) {
         AlertDialog(
             onDismissRequest = { showMap = false },
-            containerColor = Color(0xEE161827),
-            shape = RoundedCornerShape(22.dp),
-            title = { Text(stringResource(R.string.gesture_map), color = Color.White, fontWeight = FontWeight.Bold) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(14.dp),
+            title = { Text(stringResource(R.string.gesture_map), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
             text = {
                 GestureMapCard(
                     rules = rules,
@@ -513,7 +557,7 @@ fun RuleListScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showMap = false }) { Text(stringResource(R.string.done), color = Color(0xFF00E5FF)) }
+                TextButton(onClick = { showMap = false }) { Text(stringResource(R.string.done)) }
             },
         )
     }
@@ -522,34 +566,46 @@ fun RuleListScreen(
     if (selectedGroup != null) {
         AlertDialog(
             onDismissRequest = { selectedGroupKey = null },
-            containerColor = Color(0xEE161827),
-            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(14.dp),
             title = {
-                Text(
-                    "${edgeLabel(context, selectedGroup.representative.trigger.edge)} · " +
-                        sectionLabel(
-                            context,
-                            selectedGroup.representative.trigger.section,
-                            selectedGroup.representative.trigger.edge,
-                        ),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    EdgeZoneVisual(
+                        edge = selectedGroup.representative.trigger.edge,
+                        section = selectedGroup.representative.trigger.section,
+                        zoneColor = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(42.dp),
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            "${edgeLabel(context, selectedGroup.representative.trigger.edge)} · " +
+                                sectionLabel(
+                                    context,
+                                    selectedGroup.representative.trigger.section,
+                                    selectedGroup.representative.trigger.edge,
+                                ),
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            stringResource(R.string.edit_area_gestures),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        stringResource(R.string.edit_area_gestures),
-                        color = Color(0xFF8E92B0),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     GestureSlotButton(
                         title = stringResource(R.string.quick_with_icon),
                         rule = selectedGroup.quick,
                         onClick = {
                             selectedGroup.quick?.let { editingActionRuleId = it.id }
                                 ?: run { addingGestureType = GestureType.QUICK_SWIPE }
+                            openActionPicker()
                         },
+                        onClear = { selectedGroup.quick?.let { viewModel.removeRule(it.id) } },
                     )
                     GestureSlotButton(
                         title = stringResource(R.string.hold_with_icon),
@@ -557,7 +613,9 @@ fun RuleListScreen(
                         onClick = {
                             selectedGroup.hold?.let { editingActionRuleId = it.id }
                                 ?: run { addingGestureType = GestureType.SWIPE_HOLD }
+                            openActionPicker()
                         },
+                        onClear = { selectedGroup.hold?.let { viewModel.removeRule(it.id) } },
                     )
                     GestureSlotButton(
                         title = stringResource(R.string.l_up_with_icon),
@@ -565,7 +623,9 @@ fun RuleListScreen(
                         onClick = {
                             selectedGroup.lUp?.let { editingActionRuleId = it.id }
                                 ?: run { addingGestureType = GestureType.SWIPE_UP_L }
+                            openActionPicker()
                         },
+                        onClear = { selectedGroup.lUp?.let { viewModel.removeRule(it.id) } },
                     )
                     GestureSlotButton(
                         title = stringResource(R.string.l_down_with_icon),
@@ -573,7 +633,9 @@ fun RuleListScreen(
                         onClick = {
                             selectedGroup.lDown?.let { editingActionRuleId = it.id }
                                 ?: run { addingGestureType = GestureType.SWIPE_DOWN_L }
+                            openActionPicker()
                         },
+                        onClear = { selectedGroup.lDown?.let { viewModel.removeRule(it.id) } },
                     )
                 }
             },
@@ -584,59 +646,23 @@ fun RuleListScreen(
                         onRuleClick(selectedGroup.representative.id)
                     },
                 ) {
-                    Text(stringResource(R.string.fine_tuning), color = Color(0xFF00E5FF))
+                    Text(stringResource(R.string.fine_tuning))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { selectedGroupKey = null }) {
-                    Text(stringResource(R.string.finish), color = Color(0xFF8E92B0))
+                    Text(stringResource(R.string.finish))
                 }
             },
         )
     }
 
-    editingActionRuleId?.let { ruleId ->
-        val rule = rules.firstOrNull { it.id == ruleId }
-        ActionPickerDialog(
-            onDismiss = { editingActionRuleId = null },
-            onSelect = { action ->
-                if (rule != null) {
-                    viewModel.updateRuleAction(rule.id, action)
-                }
-                editingActionRuleId = null
-            },
-        )
-    }
-
-    addingGestureType?.let { gestureType ->
-        val key = selectedGroupKey
-        val repRule = ruleGroups.firstOrNull { it.key == key }?.representative
-        if (repRule != null) {
-            ActionPickerDialog(
-                onDismiss = { addingGestureType = null },
-                onSelect = { action ->
-                    viewModel.addGesturePair(
-                        edge = repRule.trigger.edge,
-                        section = repRule.trigger.section,
-                        quickAction = if (gestureType == GestureType.QUICK_SWIPE) action else null,
-                        holdAction = if (gestureType == GestureType.SWIPE_HOLD) action else null,
-                        lUpAction = if (gestureType == GestureType.SWIPE_UP_L) action else null,
-                        lDownAction = if (gestureType == GestureType.SWIPE_DOWN_L) action else null,
-                        triggerMode = repRule.triggerMode,
-                    )
-                    addingGestureType = null
-                },
-            )
-        }
-    }
 }
 
 private fun templateAccent(index: Int): Color = listOf(
-    Color(0xFF5B8CFF), Color(0xFFFF6B6B), Color(0xFFFFB74D),
-    Color(0xFF4DD0E1), Color(0xFFB39DDB), Color(0xFF66BB6A),
-    Color(0xFFFF8A65), Color(0xFF26C6DA), Color(0xFFEF5350),
-    Color(0xFF90A4AE),
-).getOrElse(index % 10) { Color(0xFF5B8CFF) }
+    AkisPrimary, AkisSecondary, AkisTertiary,
+    AkisPrimary.copy(alpha = 0.78f), AkisSecondary.copy(alpha = 0.78f), AkisTertiary.copy(alpha = 0.78f),
+).getOrElse(index % 6) { AkisPrimary }
 
 private data class RuleGroup(
     val quick: GestureRule?,
@@ -657,6 +683,7 @@ private fun GestureSlotButton(
     title: String,
     rule: GestureRule?,
     onClick: () -> Unit,
+    onClear: () -> Unit,
 ) {
     val context = LocalContext.current
     OutlinedButton(
@@ -672,20 +699,32 @@ private fun GestureSlotButton(
                 modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.width(12.dp))
+            Text(actionEmoji(it.action), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.width(8.dp))
         }
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start,
         ) {
-            Text(title, style = MaterialTheme.typography.labelSmall, color = Color(0xFF00E5FF), fontWeight = FontWeight.Bold)
+            Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             Text(
                 text = rule?.action?.localizedLabel(context) ?: stringResource(R.string.assign_action),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
-                color = if (rule == null) Color(0xFF3D5AFE) else Color.White,
+                color = if (rule == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             )
         }
-        Text(stringResource(if (rule == null) R.string.add_symbol else R.string.change), color = Color(0xFF00E5FF))
+        if (rule == null) {
+            Text(stringResource(R.string.add_symbol), color = MaterialTheme.colorScheme.primary)
+        } else {
+            IconButton(onClick = onClear, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    Icons.Filled.Close,
+                    contentDescription = stringResource(R.string.remove_action, title),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
     }
 }
 
@@ -700,9 +739,10 @@ private fun RuleTableRow(
 ) {
     val rule = group.representative
     val enabled = listOfNotNull(group.quick, group.hold, group.lUp, group.lDown).any { it.enabled }
+    val scheme = MaterialTheme.colorScheme
     val accent = listOf(
-        Color(0xFF5B8CFF), Color(0xFFFF6B6B), Color(0xFFFFB74D),
-        Color(0xFF4DD0E1), Color(0xFFB39DDB), Color(0xFF66BB6A),
+        scheme.primary, scheme.secondary, scheme.tertiary,
+        scheme.primary.copy(alpha = 0.78f), scheme.secondary.copy(alpha = 0.78f), scheme.tertiary.copy(alpha = 0.78f),
     )[number.minus(1) % 6]
     var contentAlpha = if (enabled) 1f else 0.45f
     var menuOpen by remember { mutableStateOf(false) }
@@ -712,7 +752,7 @@ private fun RuleTableRow(
             .fillMaxWidth()
             .graphicsLayer { alpha = contentAlpha },
         onClick = onClick,
-        accentTint = if (enabled) Color(0xFF3D5AFE) else null,
+        accentTint = if (enabled) scheme.primary else null,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -726,22 +766,22 @@ private fun RuleTableRow(
                     number.toString(),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (enabled) accent else Color(0xFF6F738A),
+                    color = if (enabled) accent else scheme.onSurfaceVariant,
                 )
             }
             Spacer(Modifier.width(8.dp))
             EdgeZoneVisual(
                 edge = rule.trigger.edge,
                 section = rule.trigger.section,
-                zoneColor = if (enabled) accent else Color(0xFF4A4E69),
+                zoneColor = if (enabled) accent else scheme.outline,
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 // 1. QUICK SWIPE (⚡ Hızlı Çekme)
                 ActionCell(
                     badge = stringResource(R.string.quick_badge),
-                    badgeBg = Color(0x333D5AFE),
-                    badgeText = Color(0xFF82B1FF),
+                    badgeBg = scheme.primary.copy(alpha = 0.16f),
+                    badgeText = scheme.primary,
                     rule = group.quick,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.QUICK_SWIPE, group.quick) },
@@ -749,8 +789,8 @@ private fun RuleTableRow(
                 // 2. SWIPE & HOLD (⏱️ Çekip Beklet)
                 ActionCell(
                     badge = stringResource(R.string.hold_badge),
-                    badgeBg = Color(0x3300E5FF),
-                    badgeText = Color(0xFF84FFFF),
+                    badgeBg = scheme.secondary.copy(alpha = 0.16f),
+                    badgeText = scheme.secondary,
                     rule = group.hold,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.SWIPE_HOLD, group.hold) },
@@ -758,8 +798,8 @@ private fun RuleTableRow(
                 // 3. L-SWIPE UP (↗️ L-Yukarı)
                 ActionCell(
                     badge = stringResource(R.string.l_up_badge),
-                    badgeBg = Color(0x33FF9100),
-                    badgeText = Color(0xFFFFD180),
+                    badgeBg = scheme.tertiary.copy(alpha = 0.16f),
+                    badgeText = scheme.tertiary,
                     rule = group.lUp,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.SWIPE_UP_L, group.lUp) },
@@ -767,8 +807,8 @@ private fun RuleTableRow(
                 // 4. L-SWIPE DOWN (↘️ L-Aşağı)
                 ActionCell(
                     badge = stringResource(R.string.l_down_badge),
-                    badgeBg = Color(0x33D500F9),
-                    badgeText = Color(0xFFEA80FC),
+                    badgeBg = scheme.primary.copy(alpha = 0.12f),
+                    badgeText = scheme.primary,
                     rule = group.lDown,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.SWIPE_DOWN_L, group.lDown) },
@@ -776,23 +816,23 @@ private fun RuleTableRow(
             }
             Box {
                 IconButton(onClick = { menuOpen = true }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.MoreVert, stringResource(R.string.options), tint = Color(0xFF8E92B0), modifier = Modifier.size(20.dp))
+                    Icon(Icons.Filled.MoreVert, stringResource(R.string.options), tint = scheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                 }
                 DropdownMenu(
                     expanded = menuOpen,
                     onDismissRequest = { menuOpen = false },
-                    modifier = Modifier.background(Color(0xEE161827)),
+                    modifier = Modifier.background(scheme.surface),
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(if (enabled) R.string.disable else R.string.enable), color = Color.White) },
+                        text = { Text(stringResource(if (enabled) R.string.disable else R.string.enable)) },
                         onClick = { onToggleEnabled(!enabled); menuOpen = false },
                     )
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.fine_tuning), color = Color.White) },
+                        text = { Text(stringResource(R.string.fine_tuning)) },
                         onClick = { menuOpen = false; onClick() },
                     )
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.delete), color = Color(0xFFFF1744)) },
+                        text = { Text(stringResource(R.string.delete), color = scheme.error) },
                         onClick = { menuOpen = false; onDelete() },
                     )
                 }
@@ -811,10 +851,11 @@ private fun ActionCell(
     onClick: () -> Unit,
 ) {
     val context = LocalContext.current
+    val scheme = MaterialTheme.colorScheme
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0x18FFFFFF))
+            .background(scheme.surfaceVariant.copy(alpha = 0.42f))
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -845,7 +886,7 @@ private fun ActionCell(
                 rule.action.localizedLabel(context),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.White,
+                color = scheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -853,7 +894,7 @@ private fun ActionCell(
             Text(
                 "+ Eylem Ekle",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF00E5FF),
+                color = scheme.primary,
                 fontWeight = FontWeight.Medium,
             )
         }

@@ -24,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -63,10 +64,9 @@ fun AkisGlassCard(
         scheme.surface.copy(alpha = 0.85f)
     }
     
-    val bg = if (accentTint != null) {
-        accentTint.copy(alpha = if (dark) 0.14f else 0.08f)
-    } else baseBg
-    
+    // Card fill stays neutral everywhere; accentTint only colors the border to avoid a patchwork look.
+    val bg = baseBg
+
     val border = borderColor ?: if (accentTint != null) {
         accentTint.copy(alpha = 0.40f)
     } else if (dark) {
@@ -331,3 +331,92 @@ fun AkisSliderRow(
         )
     }
 }
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun AkisFluidRangeSlider(
+    value: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    modifier: Modifier = Modifier,
+    steps: Int = 0,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
+) {
+    val dark = isSystemInDarkTheme()
+    val inactiveColor = if (dark) Color(0xFF2D2F3F) else Color(0xFFE0E2EC)
+
+    RangeSlider(
+        value = value,
+        onValueChange = onValueChange,
+        valueRange = valueRange,
+        steps = steps,
+        modifier = modifier.fillMaxWidth().height(18.dp),
+        startThumb = {
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+            )
+        },
+        endThumb = {
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+            )
+        },
+        track = { rangeSliderState ->
+            SliderDefaults.Track(
+                rangeSliderState = rangeSliderState,
+                modifier = Modifier.height(2.5.dp),
+                colors = SliderDefaults.colors(
+                    activeTrackColor = activeColor,
+                    inactiveTrackColor = inactiveColor,
+                )
+            )
+        }
+    )
+}
+
+@Composable
+fun AkisRangeSliderRow(
+    title: String,
+    valueText: String,
+    value: ClosedFloatingPointRange<Float>,
+    valueRange: ClosedFloatingPointRange<Float>,
+    onValueChange: (ClosedFloatingPointRange<Float>) -> Unit,
+    modifier: Modifier = Modifier,
+    steps: Int = 0,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Column(modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface
+            )
+            Text(
+                text = valueText,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = scheme.primary
+            )
+        }
+        AkisFluidRangeSlider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = valueRange,
+            steps = steps,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+

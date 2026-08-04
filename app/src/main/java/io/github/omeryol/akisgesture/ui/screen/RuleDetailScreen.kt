@@ -1,7 +1,11 @@
 package io.github.omeryol.akisgesture.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Swipe
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -23,47 +31,50 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
-import io.github.omeryol.akisgesture.R
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.SectionRange
 import io.github.omeryol.akisgesture.model.TriggerMode
+import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
 import io.github.omeryol.akisgesture.overlay.Edge
-import io.github.omeryol.akisgesture.ui.component.ActionPickerDialog
 import io.github.omeryol.akisgesture.ui.component.ActionIcon
-import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
+import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
+import io.github.omeryol.akisgesture.ui.component.AkisRangeSliderRow
+import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
+import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
 import io.github.omeryol.akisgesture.ui.util.edgeIcon
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.gestureLabel
-import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.ui.util.sectionLabel
+import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,23 +83,48 @@ fun RuleDetailScreen(
     viewModel: RuleConfigViewModel,
     onNavigateBack: () -> Unit,
 ) {
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
+    val scheme = MaterialTheme.colorScheme
     val rules by viewModel.rules.collectAsState()
     val rule = rules.find { it.id == ruleId }
 
-    var showActionPicker by remember { mutableStateOf(false) }
+    var actionPickerToken by remember { mutableStateOf<String?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
-    var showEdgeMenu by remember { mutableStateOf(false) }
     var showSectionMenu by remember { mutableStateOf(false) }
-    var showGestureMenu by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(actionPickerToken) {
+        val token = actionPickerToken ?: return@LaunchedEffect
+        InternalNavigationBus.actionPickerResults.collect { result ->
+            if (result.token == token) {
+                viewModel.updateRuleAction(ruleId, result.action)
+                actionPickerToken = null
+            }
+        }
+    }
+
     Scaffold(
+        containerColor = scheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.rule_detail)) },
+                title = {
+                    Column {
+                        Text(stringResource(R.string.fine_tuning), fontWeight = FontWeight.Bold)
+                        rule?.let {
+                            Text(
+                                "${edgeLabel(context, it.trigger.edge)} · " +
+                                    sectionLabel(context, it.trigger.section, it.trigger.edge),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = scheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = scheme.background,
+                ),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -102,7 +138,7 @@ fun RuleDetailScreen(
                         }
                         onNavigateBack()
                     }) {
-                        Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.save))
+                        Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.save), tint = scheme.primary)
                     }
                 },
             )
@@ -127,265 +163,296 @@ fun RuleDetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            // ── Enable/Disable ──
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.enable_rule)) },
-                    supportingContent = {
-                        Text(stringResource(if (rule.enabled) R.string.enabled else R.string.disabled))
-                    },
-                    trailingContent = {
-                        Switch(
-                            checked = rule.enabled,
-                            onCheckedChange = { viewModel.toggleRuleEnabled(ruleId) },
-                        )
-                    },
+            // ── 1. KURAL ETKİNLİŞTİRME ──
+            AkisGlassCard(accentTint = if (rule.enabled) scheme.primary else scheme.outline) {
+                AkisSwitchRow(
+                    title = stringResource(R.string.enable_rule),
+                    subtitle = stringResource(if (rule.enabled) R.string.enabled else R.string.disabled),
+                    checked = rule.enabled,
+                    onCheckedChange = { viewModel.toggleRuleEnabled(ruleId) },
+                    icon = Icons.Filled.Check,
                 )
             }
 
-            // ── Trigger Condition ──
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.gesture_condition),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(Modifier.height(12.dp))
+            // ── 2. TETİKLEYİCİ KOŞULU & DOKUNMA ALANI ──
+            AkisGlassCard(accentTint = scheme.primary) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.gesture_condition),
+                    subtitle = stringResource(R.string.assign_area_intro),
+                    icon = Icons.Filled.Tune,
+                )
+                Spacer(Modifier.height(10.dp))
 
-                    // Edge
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(stringResource(R.string.edge), modifier = Modifier.weight(1f))
-                        androidx.compose.foundation.layout.Box {
-                            OutlinedButton(onClick = { showEdgeMenu = true }) {
-                                Text("${edgeIcon(rule.trigger.edge)} ${edgeLabel(context, rule.trigger.edge)}")
-                            }
-                            DropdownMenu(
-                                expanded = showEdgeMenu,
-                                onDismissRequest = { showEdgeMenu = false },
-                            ) {
-                                Edge.entries.forEach { edge ->
-                                    DropdownMenuItem(
-                                        text = { Text("${edgeIcon(edge)} ${edgeLabel(context, edge)}") },
-                                        onClick = {
-                                            viewModel.updateRuleTrigger(
-                                                ruleId,
-                                                rule.trigger.copy(edge = edge),
-                                            )
-                                            showEdgeMenu = false
-                                        },
-                                    )
+                // Edge Selector (Kenar)
+                Text(
+                    text = stringResource(R.string.edge),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface,
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Edge.entries.forEach { edge ->
+                        val label = "${edgeIcon(edge)} ${edgeLabel(context, edge)}"
+                        val selected = rule.trigger.edge == edge
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (selected) scheme.primary else scheme.surfaceVariant.copy(alpha = 0.4f))
+                                .clickable {
+                                    viewModel.updateRuleTrigger(ruleId, rule.trigger.copy(edge = edge))
                                 }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selected) scheme.onPrimary else scheme.onSurface,
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                // Area Range Slider (Sürükleme Aralığı)
+                val boundsTitle = if (rule.trigger.edge == Edge.BOTTOM) {
+                    stringResource(R.string.horizontal_bounds)
+                } else {
+                    stringResource(R.string.vertical_bounds)
+                }
+                val boundsValueText = "${(rule.trigger.section.start * 100).toInt()}% – ${(rule.trigger.section.end * 100).toInt()}%"
+
+                AkisRangeSliderRow(
+                    title = boundsTitle,
+                    valueText = boundsValueText,
+                    value = rule.trigger.section.start..rule.trigger.section.end,
+                    valueRange = 0f..1f,
+                    steps = 9,
+                    onValueChange = { newRange ->
+                        val start = newRange.start.coerceIn(0f, 0.9f)
+                        val end = newRange.endInclusive.coerceIn(start + 0.1f, 1f)
+                        viewModel.updateRuleTrigger(
+                            ruleId,
+                            rule.trigger.copy(section = SectionRange(start, end)),
+                        )
+                    },
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                // Area Preset Dropdown Selector
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.area),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = scheme.onSurface,
+                    )
+                    Box {
+                        OutlinedButton(
+                            onClick = { showSectionMenu = true },
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                sectionLabel(context, rule.trigger.section, rule.trigger.edge),
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showSectionMenu,
+                            onDismissRequest = { showSectionMenu = false },
+                            modifier = Modifier.background(scheme.surface),
+                        ) {
+                            SectionRange.presets(rule.trigger.edge).forEach { (label, section) ->
+                                DropdownMenuItem(
+                                    text = { Text(label) },
+                                    onClick = {
+                                        viewModel.updateRuleTrigger(
+                                            ruleId,
+                                            rule.trigger.copy(section = section),
+                                        )
+                                        showSectionMenu = false
+                                    },
+                                )
                             }
                         }
                     }
+                }
 
-                    Text(
-                        if (rule.trigger.edge == Edge.BOTTOM)
-                            stringResource(R.string.horizontal_bounds)
-                        else
-                            stringResource(R.string.vertical_bounds),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                Spacer(Modifier.height(8.dp))
+
+                // Gesture Type Pill Selector
+                Text(
+                    text = stringResource(R.string.gesture_type),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface,
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    GestureType.entries.forEach { gestureType ->
+                        val label = gestureLabel(context, gestureType)
+                        val selected = rule.trigger.gestureType == gestureType
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (selected) scheme.primaryContainer else scheme.surfaceVariant.copy(alpha = 0.35f))
+                                .clickable {
+                                    viewModel.updateRuleTrigger(ruleId, rule.trigger.copy(gestureType = gestureType))
+                                }
+                                .padding(vertical = 8.dp, horizontal = 2.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selected) scheme.onPrimaryContainer else scheme.onSurface,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── 3. TETİKLEME MODU ──
+            AkisGlassCard(accentTint = scheme.secondary) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.trigger_mode),
+                    subtitle = stringResource(R.string.gesture_condition),
+                    icon = Icons.Filled.Swipe,
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    listOf(
+                        TriggerMode.SWIPE to Pair(stringResource(R.string.swipe), stringResource(R.string.swipe_description)),
+                        TriggerMode.TOUCH to Pair(stringResource(R.string.touch), stringResource(R.string.touch_description)),
+                    ).forEach { (mode, textPair) ->
+                        val selected = rule.triggerMode == mode
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (selected) scheme.primary else Color.Transparent)
+                                .clickable { viewModel.updateRuleTriggerMode(ruleId, mode) }
+                                .padding(vertical = 10.dp, horizontal = 8.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = textPair.first,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (selected) scheme.onPrimary else scheme.onSurface,
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    text = textPair.second,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (selected) scheme.onPrimary.copy(alpha = 0.85f) else scheme.onSurfaceVariant,
+                                    maxLines = 2,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── 4. ATANAN EYLEM ──
+            AkisGlassCard(accentTint = scheme.tertiary) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.assigned_action),
+                    subtitle = stringResource(R.string.edit_area_gestures),
+                    icon = Icons.Filled.Apps,
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(scheme.surfaceVariant.copy(alpha = 0.42f))
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ActionIcon(
+                        action = rule.action,
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
                     )
-                    RangeSlider(
-                        value = rule.trigger.section.start..rule.trigger.section.end,
-                        onValueChange = { newRange ->
-                            val start = newRange.start.coerceIn(0f, 0.9f)
-                            val end = newRange.endInclusive.coerceIn(start + 0.1f, 1f)
-                            viewModel.updateRuleTrigger(
-                                ruleId,
-                                rule.trigger.copy(section = SectionRange(start, end)),
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = rule.action.localizedLabel(context),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = scheme.onSurface,
+                        modifier = Modifier.weight(1f),
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            val token = UUID.randomUUID().toString()
+                            actionPickerToken = token
+                            InternalNavigationBus.requestActionPicker(
+                                InternalNavigationBus.ActionPickerRequest(token),
                             )
                         },
-                        valueRange = 0f..1f,
-                        steps = 9,
-                    )
-                    Text(
-                        "${(rule.trigger.section.start * 100).toInt()}% – " +
-                            "${(rule.trigger.section.end * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    // Section
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                     ) {
-                        Text(stringResource(R.string.area), modifier = Modifier.weight(1f))
-                        val sectionOptions = SectionRange.presets(rule.trigger.edge)
-                        androidx.compose.foundation.layout.Box {
-                            OutlinedButton(onClick = { showSectionMenu = true }) {
-                                Text(sectionLabel(context, rule.trigger.section, rule.trigger.edge))
-                            }
-                            DropdownMenu(
-                                expanded = showSectionMenu,
-                                onDismissRequest = { showSectionMenu = false },
-                            ) {
-                                sectionOptions.forEach { (label, section) ->
-                                    DropdownMenuItem(
-                                        text = { Text(label) },
-                                        onClick = {
-                                            viewModel.updateRuleTrigger(
-                                                ruleId,
-                                                rule.trigger.copy(section = section),
-                                            )
-                                            showSectionMenu = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(stringResource(R.string.gesture_type), modifier = Modifier.weight(1f))
-                        androidx.compose.foundation.layout.Box {
-                            OutlinedButton(onClick = { showGestureMenu = true }) {
-                                Text(gestureLabel(context, rule.trigger.gestureType))
-                            }
-                            DropdownMenu(
-                                expanded = showGestureMenu,
-                                onDismissRequest = { showGestureMenu = false },
-                            ) {
-                                GestureType.entries.forEach { gestureType ->
-                                    DropdownMenuItem(
-                                        text = { Text(gestureLabel(context, gestureType)) },
-                                        onClick = {
-                                            viewModel.updateRuleTrigger(
-                                                ruleId,
-                                                rule.trigger.copy(gestureType = gestureType),
-                                            )
-                                            showGestureMenu = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
+                        Text(stringResource(R.string.change), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
 
-            // ── Trigger Mode ──
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.trigger_mode),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Column(Modifier.selectableGroup()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = rule.triggerMode == TriggerMode.SWIPE,
-                                    onClick = { viewModel.updateRuleTriggerMode(ruleId, TriggerMode.SWIPE) },
-                                    role = Role.RadioButton,
-                                )
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = rule.triggerMode == TriggerMode.SWIPE, onClick = null)
-                            Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text(stringResource(R.string.swipe), style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    stringResource(R.string.swipe_description),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = rule.triggerMode == TriggerMode.TOUCH,
-                                    onClick = { viewModel.updateRuleTriggerMode(ruleId, TriggerMode.TOUCH) },
-                                    role = Role.RadioButton,
-                                )
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = rule.triggerMode == TriggerMode.TOUCH, onClick = null)
-                            Column(modifier = Modifier.padding(start = 8.dp)) {
-                                Text(stringResource(R.string.touch), style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    stringResource(R.string.touch_description),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // ── Action ──
-            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.assigned_action)) },
-                    supportingContent = {
-                        Text(rule.action.localizedLabel(context))
-                    },
-                    leadingContent = {
-                        ActionIcon(
-                            action = rule.action,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    },
-                    trailingContent = {
-                        OutlinedButton(onClick = { showActionPicker = true }) {
-                            Text(stringResource(R.string.change))
-                        }
-                    },
-                )
-            }
-
-            // ── Delete ──
-            Spacer(Modifier.height(16.dp))
-            OutlinedButton(
-                onClick = { showDeleteConfirm = true },
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                ),
-                modifier = Modifier.fillMaxWidth(),
+            // ── 5. KURAL SİL ──
+            AkisGlassCard(
+                accentTint = scheme.error,
+                containerColor = scheme.errorContainer.copy(alpha = 0.15f),
             ) {
-                Icon(Icons.Filled.Delete, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.delete_rule))
+                OutlinedButton(
+                    onClick = { showDeleteConfirm = true },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = scheme.error,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(Icons.Filled.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.delete_rule), fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
 
-    // ── Dialogs ──
-
-    if (showActionPicker) {
-        ActionPickerDialog(
-            onDismiss = { showActionPicker = false },
-            onSelect = { action ->
-                viewModel.updateRuleAction(ruleId, action)
-                showActionPicker = false
-            },
-        )
-    }
-
+    // ── Silme Onay Diyaloğu ──
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
@@ -397,7 +464,7 @@ fun RuleDetailScreen(
                     showDeleteConfirm = false
                     onNavigateBack()
                 }) {
-                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = scheme.error)
                 }
             },
             dismissButton = {

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.omeryol.akisgesture.AkisGestureApp
 import io.github.omeryol.akisgesture.settingsDataStore
@@ -62,6 +63,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 RootResult.Success -> RootAccessState.AVAILABLE
                 is RootResult.Failure -> RootAccessState.UNAVAILABLE
             }
+        }
+    }
+
+    fun applyPresetGraph(graph: io.github.omeryol.akisgesture.rule.GestureRuleGraph) {
+        viewModelScope.launch {
+            app.applyRules(graph)
         }
     }
 
@@ -203,6 +210,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setAnimationSize(size: Float) {
         viewModelScope.launch { app.updateAnimationSize(size) }
+    }
+
+    fun toggleMaster(enabled: Boolean) {
+        viewModelScope.launch {
+            app.settingsDataStore.edit { prefs ->
+                prefs[GestureConfig.KEY_MASTER_ENABLED] = enabled
+            }
+        }
     }
 
     private fun loadSelectableApps() {
