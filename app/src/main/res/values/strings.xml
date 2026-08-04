@@ -113,4 +113,5 @@
     <string name="show_summary_chart_subtitle">Display live gesture execution counts and edge stats</string>
     <string name="show_presets_card">⚡ Quick Layout Templates</string>
     <string name="show_presets_card_subtitle">Display one-tap preset gesture configuration cards</string>
+    <string name="edge_distribution">Edge Distribution</string>
 </resources>

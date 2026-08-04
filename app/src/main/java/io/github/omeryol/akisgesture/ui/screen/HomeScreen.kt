@@ -184,7 +184,7 @@ fun HomeScreen(
                             Text(
                                 text = if (!isConnected) stringResource(R.string.home_service_off)
                                 else if (isMasterActive) stringResource(R.string.home_active)
-                                else "Akış Durduruldu ⏸️",
+                                else stringResource(R.string.stream_paused),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = scheme.onSurface,
@@ -205,7 +205,7 @@ fun HomeScreen(
                             } else if (isMasterActive) {
                                 stringResource(R.string.home_summary, totalRules, activeEdges, BuildConfig.VERSION_NAME)
                             } else {
-                                "Jest algılama durduruldu · Dokunarak başlatın"
+                                stringResource(R.string.stream_paused_hint)
                             },
                             style = MaterialTheme.typography.bodySmall,
                             color = scheme.onSurfaceVariant,
@@ -409,15 +409,15 @@ private fun AkisSummaryChartCard(
         accentTint = scheme.tertiary,
     ) {
         AkisSectionHeader(
-            title = "📊 Gerçek Kullanım ve Kenar Dağılım Grafiği",
-            subtitle = if (totalCount > 0) "$totalCount kez canlı jest çalıştırıldı" else "Canlı sayım aktif · Jest yaptıkça sayaç güncellenir",
+            title = stringResource(R.string.live_chart_title),
+            subtitle = if (totalCount > 0) stringResource(R.string.live_chart_subtitle, totalCount) else stringResource(R.string.live_chart_empty),
             icon = Icons.Filled.BarChart,
         )
         Spacer(Modifier.height(12.dp))
 
         // ── 1. Kenar Dağılım Çubuğu ──
         Text(
-            text = "Kenar Dağılımı",
+            text = stringResource(R.string.edge_distribution),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = scheme.onSurfaceVariant,
@@ -464,16 +464,16 @@ private fun AkisSummaryChartCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            ChartLegendItem(color = Color(0xFF3D5AFE), label = "Sol Kenar", count = leftCount)
-            ChartLegendItem(color = Color(0xFF00E676), label = "Sağ Kenar", count = rightCount)
-            ChartLegendItem(color = Color(0xFFFF9100), label = "Alt Kenar", count = bottomCount)
+            ChartLegendItem(color = Color(0xFF3D5AFE), label = stringResource(R.string.edge_left), count = leftCount)
+            ChartLegendItem(color = Color(0xFF00E676), label = stringResource(R.string.edge_right), count = rightCount)
+            ChartLegendItem(color = Color(0xFFFF9100), label = stringResource(R.string.edge_bottom), count = bottomCount)
         }
 
         Spacer(Modifier.height(14.dp))
 
         // ── 2. Tetikleyici Türü İlerleme Çubukları ──
         Text(
-            text = "Hareket Türü Analizi",
+            text = stringResource(R.string.gesture_type),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = scheme.onSurfaceVariant,
@@ -481,9 +481,9 @@ private fun AkisSummaryChartCard(
         Spacer(Modifier.height(8.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            GestureTypeBarRow(title = "⚡ Hızlı Çekme", count = quickCount, total = totalCount, color = Color(0xFF3D5AFE))
-            GestureTypeBarRow(title = "⏱️ Çek ve Tut", count = holdCount, total = totalCount, color = Color(0xFFD500F9))
-            GestureTypeBarRow(title = "↗️ L-Swipe", count = lCount, total = totalCount, color = Color(0xFF00E5FF))
+            GestureTypeBarRow(title = "⚡ ${stringResource(R.string.gesture_quick)}", count = quickCount, total = totalCount, color = Color(0xFF3D5AFE))
+            GestureTypeBarRow(title = "⏱️ ${stringResource(R.string.gesture_hold)}", count = holdCount, total = totalCount, color = Color(0xFFD500F9))
+            GestureTypeBarRow(title = "↗️ ${stringResource(R.string.gesture_l_up)}", count = lCount, total = totalCount, color = Color(0xFF00E5FF))
         }
     }
 }

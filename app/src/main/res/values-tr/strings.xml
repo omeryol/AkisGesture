@@ -113,4 +113,5 @@
     <string name="show_summary_chart_subtitle">Canlı jest sayacı ve dağılım grafiğini göster</string>
     <string name="show_presets_card">⚡ Hızlı Düzen Şablonları</string>
     <string name="show_presets_card_subtitle">Tek tıkla hazır jest düzen kartlarını göster</string>
+    <string name="edge_distribution">Kenar Dağılımı</string>
 </resources>
