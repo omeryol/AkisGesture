@@ -12,6 +12,14 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
+## Sürüm v1.2.0 Öne Çıkan Özellikler
+
+- **📱 %55 Büyütülmüş İnteraktif Kenar Haritası**: Siberpunk OLED radyal duvar kağıdı, ekran altı uygulama simgeleri ve doğrudan renkli jest şeritleri üzerinde yükselen eylem etiketleri.
+- **🏠 Ana Sayfa Görünüm Özelleştirme & Minimalizm**: Kenar Haritası, Canlı Kullanım Analiz Grafiği ve Düzen Şablon Kartları için Ayarlar menüsünden bağımsız açma/kapatma anahtarları.
+- **🎨 Canlı Multi-Color Ayar Kartları & 5-Kategorili Sekme Düzeni**: Monokrom tasarımdan uzaklaşarak canlı renk vurgulu kartlar (`accentTint`) ve `Hareket`, `Görünüm`, `Duraklat`, `Yedek`, `Hakkında` olmak üzere 5 temiz kategori sekmesi.
+- **⚡ Kesintisiz Master Switch Desteği**: Anahtar kapatıldığında uygulama içi kesintisiz duraklatma ve tüm ekran katmanlarının kaldırılması.
+- **🌍 Tam Çift Dilli Destek (Türkçe & İngilizce)**: Tüm menü, ayar ve grafik bileşenleri Türkçe ve İngilizce olarak %100 yerelleştirilmiştir.
+
 ## Dil desteği
 
 Uygulama arayüzü Türkçe ve İngilizce olarak eksiksiz yerelleştirilmiştir. Dil,
