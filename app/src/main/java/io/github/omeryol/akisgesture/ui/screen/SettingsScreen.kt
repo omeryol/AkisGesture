@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -163,8 +164,9 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         // ── Service Status Top Card ──

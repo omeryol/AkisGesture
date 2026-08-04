@@ -133,10 +133,9 @@ fun HomeScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .statusBarsPadding()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
             // ── 1. Live Master Service Status Card ──
