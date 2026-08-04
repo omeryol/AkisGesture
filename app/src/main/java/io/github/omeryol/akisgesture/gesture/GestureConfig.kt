@@ -76,6 +76,11 @@ data class GestureConfig(
     val showGestureIndicatorBar: Boolean = false,
     val indicatorBarOpacity: Float = 0.4f,
 
+    // Home screen layout visibility
+    val showPhoneMap: Boolean = true,
+    val showSummaryChart: Boolean = true,
+    val showPresetsCard: Boolean = true,
+
     // Çalışmayacağı yerler
     val pauseOnLockScreen: Boolean = true,
     val pauseWhenKeyboardVisible: Boolean = false,
@@ -163,5 +168,8 @@ data class GestureConfig(
         val KEY_DIRECTION_TOLERANCE = floatPreferencesKey("direction_tolerance_degrees")
         val KEY_HYSTERESIS_RATIO = floatPreferencesKey("hysteresis_ratio")
         val KEY_L_SWIPE_THRESHOLD_DP = floatPreferencesKey("l_swipe_threshold_dp")
+        val KEY_SHOW_PHONE_MAP = booleanPreferencesKey("show_phone_map")
+        val KEY_SHOW_SUMMARY_CHART = booleanPreferencesKey("show_summary_chart")
+        val KEY_SHOW_PRESETS_CARD = booleanPreferencesKey("show_presets_card")
     }
 }

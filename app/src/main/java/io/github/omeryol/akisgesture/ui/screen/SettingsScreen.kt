@@ -167,11 +167,8 @@ fun SettingsScreen(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        AkisGlassCard(accentTint = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
-            scheme.primary
-        } else {
-            scheme.tertiary
-        }) {
+        // ── Service Status Top Card ──
+        AkisGlassCard(accentTint = if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) Color(0xFF00E676) else Color(0xFFFF1744)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -182,9 +179,9 @@ fun SettingsScreen(
                         .clip(CircleShape)
                         .background(
                             if (serviceState == GestureAccessibilityService.ServiceState.CONNECTED) {
-                                scheme.primary
+                                Color(0xFF00E676)
                             } else {
-                                scheme.tertiary
+                                Color(0xFFFF1744)
                             }
                         )
                 )
@@ -223,6 +220,7 @@ fun SettingsScreen(
             }
         }
 
+        // ── Tab Bar Navigation ──
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -231,8 +229,8 @@ fun SettingsScreen(
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            listOf(R.string.tab_motion, R.string.tab_appearance, R.string.tab_pause, R.string.tab_backup, R.string.tab_about).forEachIndexed { index, labelRes ->
-                val label = stringResource(labelRes)
+            val tabs = listOf(stringResource(R.string.tab_all), stringResource(R.string.tab_motion), stringResource(R.string.tab_appearance), stringResource(R.string.tab_pause), stringResource(R.string.tab_backup), stringResource(R.string.tab_about))
+            tabs.forEachIndexed { index, label ->
                 val selected = selectedSection == index
                 Box(
                     modifier = Modifier
@@ -240,21 +238,22 @@ fun SettingsScreen(
                         .clip(RoundedCornerShape(10.dp))
                         .background(if (selected) scheme.primary else Color.Transparent)
                         .clickable { selectedSection = index }
-                        .padding(vertical = 9.dp),
+                        .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = label,
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                         color = if (selected) scheme.onPrimary else scheme.onSurfaceVariant,
+                        maxLines = 1,
                     )
                 }
             }
         }
 
-        // ── 1. KENAR HASSASİYETİ VE HAREKET FİZİĞİ ──
-        if (selectedSection == 0) AkisGlassCard(accentTint = scheme.primary) {
+        // ── 1A. KENAR HASSASİYETİ VE TETİKLEME (Electric Blue) ──
+        if (selectedSection == 0 || selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             AkisSectionHeader(
                 title = stringResource(R.string.motion_section),
                 subtitle = stringResource(R.string.motion_section_subtitle),
@@ -274,7 +273,7 @@ fun SettingsScreen(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(if (selected) scheme.primary else scheme.surfaceVariant.copy(alpha = 0.4f))
+                            .background(if (selected) Color(0xFF3D5AFE) else scheme.surfaceVariant.copy(alpha = 0.4f))
                             .clickable { selectedEdge = edge }
                             .padding(vertical = 6.dp),
                         contentAlignment = Alignment.Center
@@ -283,7 +282,7 @@ fun SettingsScreen(
                             text = label,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (selected) scheme.onPrimary else scheme.onSurface
+                            color = if (selected) Color.White else scheme.onSurface
                         )
                     }
                 }
@@ -362,8 +361,16 @@ fun SettingsScreen(
                 color = scheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
+        }
 
-            HorizontalDivider(Modifier.padding(vertical = 6.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
+        // ── 1B. BEKLETME SÜRESİ VE FİZİĞİ (Electric Purple) ──
+        if (selectedSection == 0 || selectedSection == 1) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
+            AkisSectionHeader(
+                title = "⏱️ Çek ve Tut Fiziği",
+                subtitle = "Bekletme süresi ve tetikleme anı seçimi",
+                icon = Icons.Filled.Speed
+            )
+            Spacer(Modifier.height(10.dp))
 
             AkisSliderRow(
                 title = stringResource(R.string.hold_duration),
@@ -392,7 +399,7 @@ fun SettingsScreen(
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (active) scheme.primaryContainer else Color.Transparent)
+                                .background(if (active) Color(0xFFD500F9).copy(alpha = 0.25f) else Color.Transparent)
                                 .clickable { viewModel.setHoldFireMode(mode) }
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
@@ -400,7 +407,7 @@ fun SettingsScreen(
                                 text = mode.localizedLabel(context),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
-                                color = if (active) scheme.onPrimaryContainer else scheme.onSurfaceVariant
+                                color = if (active) Color(0xFFE040FB) else scheme.onSurfaceVariant
                             )
                         }
                     }
@@ -408,8 +415,8 @@ fun SettingsScreen(
             }
         }
 
-        // ── 2. GÖRSEL VE DOKUNSAL GERİ BİLDİRİM ──
-        if (selectedSection == 1) AkisGlassCard(accentTint = scheme.secondary) {
+        // ── 2A. ANİMASYON STİLİ VE BOYUT AYARLARI (Vibrant Cyan) ──
+        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
             AkisSectionHeader(
                 title = stringResource(R.string.feedback_section),
                 subtitle = stringResource(R.string.feedback_section_subtitle),
@@ -417,7 +424,6 @@ fun SettingsScreen(
             )
             Spacer(Modifier.height(10.dp))
 
-            // Animation Style Selector Grid
             Text(
                 text = stringResource(R.string.animation_style),
                 style = MaterialTheme.typography.bodySmall,
@@ -454,10 +460,10 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(if (selected) scheme.primaryContainer else scheme.surfaceVariant.copy(alpha = 0.35f))
+                                .background(if (selected) Color(0xFF00E5FF).copy(alpha = 0.20f) else scheme.surfaceVariant.copy(alpha = 0.35f))
                                 .border(
                                     width = if (selected) 1.5.dp else 0.dp,
-                                    color = if (selected) scheme.primary else Color.Transparent,
+                                    color = if (selected) Color(0xFF00E5FF) else Color.Transparent,
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .clickable { viewModel.setFeedbackAnimation(anim) }
@@ -468,7 +474,7 @@ fun SettingsScreen(
                                 text = anim.localizedLabel(context),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                                color = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
+                                color = if (selected) Color(0xFF00E5FF) else scheme.onSurfaceVariant,
                                 maxLines = 1
                             )
                         }
@@ -478,41 +484,6 @@ fun SettingsScreen(
                     }
                 }
             }
-
-            Spacer(Modifier.height(8.dp))
-
-            // 1. Birincil Hareket Rengi (Hızlı Çekme) - Infinite Custom Color Picker
-            AkisInfiniteColorPicker(
-                title = stringResource(R.string.quick_color),
-                currentColorArgb = config.feedbackColorArgb,
-                onColorChanged = viewModel::setFeedbackColor
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            // 2. İkincil Hareket Rengi (Çekip Bekletme) - Infinite Custom Color Picker
-            AkisInfiniteColorPicker(
-                title = stringResource(R.string.hold_color),
-                currentColorArgb = config.secondaryColorArgb,
-                onColorChanged = viewModel::setSecondaryColor
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            AkisInfiniteColorPicker(
-                title = stringResource(R.string.l_color),
-                currentColorArgb = config.lSwipeColorArgb,
-                onColorChanged = viewModel::setLSwipeColor
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            AkisSwitchRow(
-                title = stringResource(R.string.adaptive_color),
-                subtitle = stringResource(R.string.adaptive_color_subtitle),
-                checked = config.useAppAdaptiveColor,
-                onCheckedChange = viewModel::setUseAppAdaptiveColor
-            )
 
             Spacer(Modifier.height(8.dp))
 
@@ -539,8 +510,57 @@ fun SettingsScreen(
                 valueRange = 0.5f..2.0f,
                 onValueChange = viewModel::setAnimationSize
             )
+        }
 
-            HorizontalDivider(Modifier.padding(vertical = 6.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
+        // ── 2B. RENK VE TEMA SEÇENEKLERİ (Deep Indigo Violet) ──
+        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF7C4DFF)) {
+            AkisSectionHeader(
+                title = "🎨 Renk Paleti ve Tema",
+                subtitle = "Jest aşamaları için özel renk özelleştirme",
+                icon = Icons.Filled.Palette
+            )
+            Spacer(Modifier.height(10.dp))
+
+            AkisInfiniteColorPicker(
+                title = stringResource(R.string.quick_color),
+                currentColorArgb = config.feedbackColorArgb,
+                onColorChanged = viewModel::setFeedbackColor
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            AkisInfiniteColorPicker(
+                title = stringResource(R.string.hold_color),
+                currentColorArgb = config.secondaryColorArgb,
+                onColorChanged = viewModel::setSecondaryColor
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            AkisInfiniteColorPicker(
+                title = stringResource(R.string.l_color),
+                currentColorArgb = config.lSwipeColorArgb,
+                onColorChanged = viewModel::setLSwipeColor
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            AkisSwitchRow(
+                title = stringResource(R.string.adaptive_color),
+                subtitle = stringResource(R.string.adaptive_color_subtitle),
+                checked = config.useAppAdaptiveColor,
+                onCheckedChange = viewModel::setUseAppAdaptiveColor
+            )
+        }
+
+        // ── 2C. DOKUNSAL TİTREŞİM VE SES (Vibrant Amber / Orange) ──
+        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
+            AkisSectionHeader(
+                title = "⚡ Dokunsal Titreşim & Ses",
+                subtitle = "Titreşim şiddeti ve geri bildirim tonu",
+                icon = Icons.Filled.Speed
+            )
+            Spacer(Modifier.height(10.dp))
 
             AkisSwitchRow(
                 title = stringResource(R.string.haptic_feedback),
@@ -555,7 +575,6 @@ fun SettingsScreen(
                 value = config.hapticIntensity,
                 valueRange = 0.0f..1.0f,
                 onValueChange = viewModel::setHapticIntensity,
-                modifier = Modifier.then(if (config.hapticEnabled) Modifier else Modifier.padding(horizontal = 0.dp))
             )
 
             AkisSwitchRow(
@@ -566,8 +585,39 @@ fun SettingsScreen(
             )
         }
 
-        // ── 3. ÇALIŞMA VE DURAKLATMA KURALLARI ──
-        if (selectedSection == 2) AkisGlassCard(accentTint = scheme.tertiary) {
+        // ── 2D. ANA SAYFA KART DÜZENİ VE SADELİK (Neon Teal Blue) ──
+        if (selectedSection == 0 || selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF00B0FF)) {
+            AkisSectionHeader(
+                title = stringResource(R.string.home_cards_title),
+                subtitle = stringResource(R.string.home_cards_subtitle),
+                icon = Icons.Filled.Apps
+            )
+            Spacer(Modifier.height(10.dp))
+
+            AkisSwitchRow(
+                title = stringResource(R.string.show_phone_map),
+                subtitle = stringResource(R.string.show_phone_map_subtitle),
+                checked = config.showPhoneMap,
+                onCheckedChange = viewModel::setShowPhoneMap
+            )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.show_summary_chart),
+                subtitle = stringResource(R.string.show_summary_chart_subtitle),
+                checked = config.showSummaryChart,
+                onCheckedChange = viewModel::setShowSummaryChart
+            )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.show_presets_card),
+                subtitle = stringResource(R.string.show_presets_card_subtitle),
+                checked = config.showPresetsCard,
+                onCheckedChange = viewModel::setShowPresetsCard
+            )
+        }
+
+        // ── 3A. OTOMATİK DURAKLATMA KOŞULLARI (Crimson Red) ──
+        if (selectedSection == 0 || selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFFF1744)) {
             AkisSectionHeader(
                 title = stringResource(R.string.pause_section),
                 subtitle = stringResource(R.string.pause_section_subtitle),
@@ -609,6 +659,16 @@ fun SettingsScreen(
                 checked = config.pauseOnPermissionScreen,
                 onCheckedChange = viewModel::setPauseOnPermissionScreen
             )
+        }
+
+        // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
+        if (selectedSection == 0 || selectedSection == 3) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
+            AkisSectionHeader(
+                title = "📱 Uygulama İstisnaları",
+                subtitle = "Jestlerin devre dışı kalacağı uygulamalar",
+                icon = Icons.Filled.Apps
+            )
+            Spacer(Modifier.height(6.dp))
 
             Row(
                 modifier = Modifier
@@ -639,8 +699,8 @@ fun SettingsScreen(
             }
         }
 
-        // ── 4. YEDEKLEME VE SİSTEM ──
-        if (selectedSection == 3) AkisGlassCard(accentTint = scheme.primary) {
+        // ── 4A. YEDEKLEME VE ROOT (Emerald Green) ──
+        if (selectedSection == 0 || selectedSection == 4) AkisGlassCard(accentTint = Color(0xFF00E676)) {
             AkisSectionHeader(
                 title = stringResource(R.string.backup_section),
                 subtitle = stringResource(R.string.backup_section_subtitle),
@@ -693,13 +753,13 @@ fun SettingsScreen(
                         RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
                     },
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (rootAccess == RootAccessState.AVAILABLE) scheme.primary else scheme.onSurfaceVariant
+                    color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant
                 )
             }
         }
 
-        // ── 5. HAKKINDA ──
-        if (selectedSection == 4) AkisGlassCard(accentTint = scheme.secondary) {
+        // ── 5A. HAKKINDA VE DİL SEÇİMİ (Golden Amber) ──
+        if (selectedSection == 0 || selectedSection == 5) AkisGlassCard(accentTint = Color(0xFFFFAB00)) {
             AkisSectionHeader(
                 title = stringResource(R.string.about_title),
                 subtitle = stringResource(R.string.about_subtitle),

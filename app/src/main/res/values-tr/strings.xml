@@ -91,4 +91,26 @@
     <string-array name="preset_descriptions"><item>Yalnızca alt kenardan ana ekrana geçiş. En az müdahale.</item><item>Alt kenarın üç bölgesinde geri, ana ekran ve son uygulamalar.</item><item>Sol ve sağdan geri, alttan ana ekran. Günlük kullanım için dengeli.</item><item>Sağ üst/alt bölgede geri ve ana ekran; bekletmede bildirim ve son uygulamalar.</item><item>Sol üst/alt bölgede geri ve ana ekran; bekletmede bildirim ve son uygulamalar.</item><item>İki kenarda geri/önceki uygulama, altta ana ekran/asistan kombinasyonu.</item><item>Alt üçlüde geri, ana ekran, son uygulamalar; bekletmede paneller ve asistan.</item><item>Alt kenarın üç bölgesinde parça, oynatma ve ses kontrolleri.</item><item>Bekletme hareketleriyle öndeki uygulamayı kapatma. Root gerekir.</item><item>Geri, ana ekran ve bekletmeyle sessize alma. Gece için düşük dikkat dağıtma.</item><item>Geri, bekletmeyle parlaklık azaltma ve ana ekran.</item><item>Geri, hızlı ayarlar ve son uygulamalar tek elle erişilebilir.</item><item>Geri, sesli asistan ve bildirim paneli.</item><item>Ekran görüntüsü, ana ekran ve son uygulamalarla içerik üretimi.</item><item>Sadece geri ve ana ekran. Temiz ve sade deneyim.</item><item>Geri ve önceki uygulama; bekletmeyle son uygulamalar.</item><item>Ana ekran, hızlı ayarlar ve alt kenardan geri/son uygulamalar.</item><item>Geri, bekletmeyle parlaklık artırma ve asistan.</item><item>Geri, sessize alma ve bekletmeyle ekran kilidi.</item><item>Sol/sağ parça değişimi; altta oynat ve bekletmeyle ses.</item></string-array>
     <string name="invalid_backup">Bu dosya Akış Gesture yedeği değil</string><string name="unsupported_backup_version">Yedek sürümü desteklenmiyor</string><string name="unknown_backup_field">Bilinmeyen yedek alanı</string>
     <string name="saved">Kaydedildi</string>
+    <string name="tab_all">Tümü</string>
+    <string name="stream_paused">Akış Durduruldu ⏸️</string>
+    <string name="stream_paused_hint">Jest algılama durduruldu · Dokunarak başlatın</string>
+    <string name="live_chart_title">📊 Gerçek Kullanım ve Kenar Dağılım Grafiği</string>
+    <string name="live_chart_subtitle">%d kez canlı jest çalıştırıldı</string>
+    <string name="live_chart_empty">Canlı sayım aktif · Jest yaptıkça sayaç güncellenir</string>
+    <string name="hold_physics_title">⏱️ Çek ve Tut Fiziği</string>
+    <string name="hold_physics_subtitle">Bekletme süresi ve tetikleme anı seçimi</string>
+    <string name="color_palette_title">🎨 Renk Paleti ve Tema</string>
+    <string name="color_palette_subtitle">Jest aşamaları için özel renk özelleştirme</string>
+    <string name="haptic_sound_title">⚡ Dokunsal Titreşim &amp; Ses</string>
+    <string name="haptic_sound_subtitle">Titreşim şiddeti ve geri bildirim tonu</string>
+    <string name="app_exclusions_title">📱 Uygulama İstisnaları</string>
+    <string name="app_exclusions_subtitle">Jestlerin devre dışı kalacağı uygulamalar</string>
+    <string name="home_cards_title">🏠 Ana Sayfa Görünüm Düzeni</string>
+    <string name="home_cards_subtitle">Sade bir arayüz için kartları açın veya gizleyin</string>
+    <string name="show_phone_map">📱 Etkileşimli Kenar Haritası</string>
+    <string name="show_phone_map_subtitle">Canlı 3D telefon grafik alanını anasayfada göster</string>
+    <string name="show_summary_chart">📊 Kullanım ve Kenar Dağılım Grafiği</string>
+    <string name="show_summary_chart_subtitle">Canlı jest sayacı ve dağılım grafiğini göster</string>
+    <string name="show_presets_card">⚡ Hızlı Düzen Şablonları</string>
+    <string name="show_presets_card_subtitle">Tek tıkla hazır jest düzen kartlarını göster</string>
 </resources>
