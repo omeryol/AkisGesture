@@ -40,6 +40,8 @@ class OverlayManager(
         }
     }
 
+    fun getWindow(tag: String): OverlayWindow? = windows[tag]
+
     fun removeAll() {
         windows.keys.toList().forEach { removeWindow(it) }
     }

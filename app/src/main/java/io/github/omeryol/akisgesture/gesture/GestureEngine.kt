@@ -259,11 +259,19 @@ class GestureEngine(
                 removeEdge(edge)
             } else if (!hadOverlay && hasRules) {
                 addEdgeOverlay(edge)
+                highlightEdge(edge)
             } else if (hasRules && needsRebuild) {
                 removeEdge(edge)
                 addEdgeOverlay(edge)
+                highlightEdge(edge)
             }
         }
+    }
+
+    fun highlightEdge(edge: Edge, durationMs: Long = 2500L) {
+        val tag = "sensor_${edge.name.lowercase()}"
+        val window = overlayManager.getWindow(tag)
+        (window?.view as? EdgeSensorView)?.triggerHighlight(durationMs)
     }
 
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
