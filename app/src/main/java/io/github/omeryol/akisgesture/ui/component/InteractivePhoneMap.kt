@@ -495,25 +495,6 @@ private fun drawCalloutPill(
 
 private fun Float.toColorInt(): Int = (this * 255f).coerceIn(0f, 255f).toInt()
 
-private fun actionEmoji(action: ActionNode): String = when (action) {
-    is ActionNode.Back -> "🔙"
-    is ActionNode.Home -> "🏠"
-    is ActionNode.Recents -> "📑"
-    is ActionNode.SwitchLastApp -> "🔀"
-    is ActionNode.SwitchNextApp -> "⏩"
-    is ActionNode.LockScreen -> "🔒"
-    is ActionNode.Screenshot -> "📸"
-    is ActionNode.NotificationPanel -> "🔔"
-    is ActionNode.QuickSettings -> "⚙️"
-    is ActionNode.PowerMenu -> "⚡"
-    is ActionNode.MediaPlayPause -> "▶️"
-    is ActionNode.Assistant -> "🤖"
-    is ActionNode.ToggleFlashlight -> "🔦"
-    is ActionNode.ForceStopForeground -> "🛑"
-    is ActionNode.LaunchApp -> "📱"
-    else -> "⚡"
-}
-
 private fun actionSymbolShort(action: ActionNode): String = when (action) {
     is ActionNode.Back -> "Geri"
     is ActionNode.Home -> "Ana Sayfa"
