@@ -33,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -42,7 +43,9 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Swipe
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
@@ -622,6 +625,59 @@ fun SettingsScreen(
                 checked = config.showPresetsCard,
                 onCheckedChange = viewModel::setShowPresetsCard
             )
+        }
+
+        // ── 2E. EYLEM SİMGE PAKETİ (Electric Pink / Rose) ──
+        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFFFF4081)) {
+            AkisSectionHeader(
+                title = stringResource(R.string.icon_pack_section),
+                subtitle = stringResource(R.string.icon_pack_section_subtitle),
+                icon = Icons.Filled.Style
+            )
+            Spacer(Modifier.height(10.dp))
+
+            ActionIconPack.entries.forEach { pack ->
+                val selected = config.actionIconPack == pack
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (selected) Color(0xFFFF4081).copy(alpha = 0.20f) else scheme.surfaceVariant.copy(alpha = 0.35f))
+                        .border(
+                            width = if (selected) 1.5.dp else 0.dp,
+                            color = if (selected) Color(0xFFFF4081) else Color.Transparent,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .clickable { viewModel.setActionIconPack(pack) }
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(pack.titleResId),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                            color = if (selected) Color(0xFFFF4081) else scheme.onSurface
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = pack.samplePreview,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                    }
+                    if (selected) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            tint = Color(0xFFFF4081),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.height(6.dp))
+            }
         }
 
         // ── 3A. OTOMATİK DURAKLATMA KOŞULLARI (Crimson Red) ──

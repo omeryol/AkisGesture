@@ -114,4 +114,16 @@
     <string name="show_presets_card">⚡ Quick Layout Templates</string>
     <string name="show_presets_card_subtitle">Display one-tap preset gesture configuration cards</string>
     <string name="edge_distribution">Edge Distribution</string>
+    <string name="icon_pack_section">🎨 Action Icon Pack</string>
+    <string name="icon_pack_section_subtitle">Select visual symbol style for gesture actions across the app</string>
+    <string name="icon_pack_emoji_modern">✨ Modern Emoji</string>
+    <string name="icon_pack_emoji_modern_desc">Vibrant full-color modern emojis</string>
+    <string name="icon_pack_minimal_line">✏️ Minimal Line</string>
+    <string name="icon_pack_minimal_line_desc">Clean, subtle monochrome line glyphs</string>
+    <string name="icon_pack_neon_cyber">⚡ Cyber Neon</string>
+    <string name="icon_pack_neon_cyber_desc">Futuristic glowing cyberpunk symbols</string>
+    <string name="icon_pack_tech_symbol">💠 Tech Symbol</string>
+    <string name="icon_pack_tech_symbol_desc">Crisp geometric system indicators</string>
+    <string name="icon_pack_retro_classic">🕹️ Retro Classic</string>
+    <string name="icon_pack_retro_classic_desc">Classic pixel arcade &amp; system icons</string>
 </resources>

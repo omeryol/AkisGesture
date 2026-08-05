@@ -12,6 +12,7 @@ import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.root.RootCommandExecutor
@@ -200,8 +201,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateFeedbackOpacity(opacity) }
     }
 
-    fun setFeedbackAnimation(animation: io.github.omeryol.akisgesture.feedback.FeedbackAnimation) {
+    fun setFeedbackAnimation(animation: FeedbackAnimation) {
         viewModelScope.launch { app.updateFeedbackAnimation(animation) }
+    }
+
+    fun setActionIconPack(pack: ActionIconPack) {
+        viewModelScope.launch { app.updateActionIconPack(pack) }
     }
 
     fun setAnimationSpeed(speed: Float) {

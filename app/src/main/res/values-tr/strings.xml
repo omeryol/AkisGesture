@@ -114,4 +114,16 @@
     <string name="show_presets_card">⚡ Hızlı Düzen Şablonları</string>
     <string name="show_presets_card_subtitle">Tek tıkla hazır jest düzen kartlarını göster</string>
     <string name="edge_distribution">Kenar Dağılımı</string>
+    <string name="icon_pack_section">🎨 Eylem Simge Paketi</string>
+    <string name="icon_pack_section_subtitle">Uygulama genelindeki jest eylemleri için simge stilini seçin</string>
+    <string name="icon_pack_emoji_modern">✨ Modern Emoji</string>
+    <string name="icon_pack_emoji_modern_desc">Canlı renkli modern emojiler</string>
+    <string name="icon_pack_minimal_line">✏️ Minimalist Çizgi</string>
+    <string name="icon_pack_minimal_line_desc">Zarif ve sade monokrom çizgi simgeleri</string>
+    <string name="icon_pack_neon_cyber">⚡ Cyber Neon</string>
+    <string name="icon_pack_neon_cyber_desc">Gelecekçi parlayan siberpunk semboller</string>
+    <string name="icon_pack_tech_symbol">💠 Teknoloji Sembol</string>
+    <string name="icon_pack_tech_symbol_desc">Keskin geometrik sistem göstergeleri</string>
+    <string name="icon_pack_retro_classic">🕹️ Klasik Retro</string>
+    <string name="icon_pack_retro_classic_desc">Nostaljik pikselli sistem simgeleri</string>
 </resources>
