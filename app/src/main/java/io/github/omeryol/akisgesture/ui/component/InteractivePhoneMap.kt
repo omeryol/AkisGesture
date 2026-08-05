@@ -49,6 +49,11 @@ import io.github.omeryol.akisgesture.ui.util.localizedLabel
 
 import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.toSymbol
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import io.github.omeryol.akisgesture.gesture.GestureConfig
 
 data class PhoneZone(
     val edge: Edge,
@@ -68,9 +73,28 @@ fun InteractivePhoneMap(
     onZoneClick: (PhoneZone) -> Unit,
     modifier: Modifier = Modifier,
     iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
+    config: GestureConfig? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    val wallpaperDrawable = remember {
+        runCatching {
+            android.app.WallpaperManager.getInstance(context).drawable
+        }.getOrNull()
+    }
+    val wallpaperBitmap = remember(wallpaperDrawable) {
+        wallpaperDrawable?.let { drawable ->
+            runCatching {
+                val width = 240
+                val height = 480
+                val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+                val canvas = android.graphics.Canvas(bitmap)
+                drawable.setBounds(0, 0, width, height)
+                drawable.draw(canvas)
+                bitmap.asImageBitmap()
+            }.getOrNull()
+        }
+    }
     val zones = buildPhoneZones(rules, scheme)
     val leftZones = zones.filter { it.edge == Edge.LEFT }
     val rightZones = zones.filter { it.edge == Edge.RIGHT }
@@ -102,6 +126,7 @@ fun InteractivePhoneMap(
                                 tapOffset.x, tapOffset.y,
                                 size.width.toFloat(), size.height.toFloat(),
                                 zones,
+                                config,
                             )
                             z?.let { onZoneClick(it) }
                         }
@@ -257,6 +282,15 @@ fun InteractivePhoneMap(
                     addRoundRect(RoundRect(screenRect, innerCorner))
                 }
                 clipPath(screenClip) {
+                    if (wallpaperBitmap != null) {
+                        drawImage(
+                            image = wallpaperBitmap,
+                            dstOffset = IntOffset(screenRect.left.toInt(), screenRect.top.toInt()),
+                            dstSize = IntSize(screenRect.width.toInt(), screenRect.height.toInt()),
+                            alpha = 0.38f,
+                        )
+                    }
+
                     // Live Radar Neon Scan Line
                     val scanY = screenRect.top + radarScanY * screenRect.height
                     drawLine(
@@ -271,7 +305,7 @@ fun InteractivePhoneMap(
                     )
 
                     zones.forEach { zone ->
-                        val zr = phoneZoneRect(zone, screenRect)
+                        val zr = phoneZoneRect(zone, screenRect, config)
                         val zoneColor = zone.color
                         val zoneCorner = CornerRadius(10f)
 
@@ -311,7 +345,7 @@ fun InteractivePhoneMap(
                 zones.forEach { zone ->
                     val action = zone.quickAction ?: zone.holdAction
                     if (action != null && action !is ActionNode.NoAction) {
-                        val zr = phoneZoneRect(zone, screenRect)
+                        val zr = phoneZoneRect(zone, screenRect, config)
                         val labelText = "${action.toSymbol(iconPack)} ${actionSymbolShort(action)}"
 
                         val badgeX = when (zone.edge) {
@@ -477,25 +511,34 @@ private fun actionSymbolShort(action: ActionNode): String = when (action) {
     else -> "Eylem"
 }
 
-private fun phoneZoneRect(zone: PhoneZone, screen: Rect): Rect = when (zone.edge) {
-    Edge.LEFT -> Rect(
-        screen.left + 2f,
-        screen.top + zone.start * screen.height + 4f,
-        screen.left + 16f,
-        screen.top + zone.end * screen.height - 4f,
-    )
-    Edge.RIGHT -> Rect(
-        screen.right - 16f,
-        screen.top + zone.start * screen.height + 4f,
-        screen.right - 2f,
-        screen.top + zone.end * screen.height - 4f,
-    )
-    Edge.BOTTOM -> Rect(
-        screen.left + zone.start * screen.width + 4f,
-        screen.bottom - 16f,
-        screen.left + zone.end * screen.width - 4f,
-        screen.bottom - 2f,
-    )
+private fun phoneZoneRect(zone: PhoneZone, screen: Rect, config: GestureConfig? = null): Rect {
+    val leftThickness = config?.let { (it.leftTriggerWidthDp / 60f * (screen.width * 0.18f)).coerceIn(8f, screen.width * 0.28f) } ?: 16f
+    val rightThickness = config?.let { (it.rightTriggerWidthDp / 60f * (screen.width * 0.18f)).coerceIn(8f, screen.width * 0.28f) } ?: 16f
+    val bottomThickness = config?.let { (it.bottomTriggerHeightDp / 60f * (screen.height * 0.18f)).coerceIn(8f, screen.height * 0.25f) } ?: 16f
+
+    val (vStartLeft, vEndLeft) = config?.verticalRangeFor(Edge.LEFT) ?: (zone.start to zone.end)
+    val (vStartRight, vEndRight) = config?.verticalRangeFor(Edge.RIGHT) ?: (zone.start to zone.end)
+
+    return when (zone.edge) {
+        Edge.LEFT -> Rect(
+            screen.left + 2f,
+            screen.top + vStartLeft * screen.height + 4f,
+            screen.left + 2f + leftThickness,
+            screen.top + vEndLeft * screen.height - 4f,
+        )
+        Edge.RIGHT -> Rect(
+            screen.right - 2f - rightThickness,
+            screen.top + vStartRight * screen.height + 4f,
+            screen.right - 2f,
+            screen.top + vEndRight * screen.height - 4f,
+        )
+        Edge.BOTTOM -> Rect(
+            screen.left + zone.start * screen.width + 4f,
+            screen.bottom - 2f - bottomThickness,
+            screen.left + zone.end * screen.width - 4f,
+            screen.bottom - 2f,
+        )
+    }
 }
 
 private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.material3.ColorScheme): List<PhoneZone> {
@@ -527,9 +570,9 @@ private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.m
         }
 }
 
-private fun hitTestPhoneZone(x: Float, y: Float, w: Float, h: Float, zones: List<PhoneZone>): PhoneZone? {
-    val phoneH = h * 0.92f
-    val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.55f)
+private fun hitTestPhoneZone(x: Float, y: Float, w: Float, h: Float, zones: List<PhoneZone>, config: GestureConfig? = null): PhoneZone? {
+    val phoneH = h * 0.96f
+    val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.78f)
     val phoneLeft = (w - phoneW) / 2f
     val phoneTop = (h - phoneH) / 2f
     val screenMargin = 7f
@@ -541,7 +584,7 @@ private fun hitTestPhoneZone(x: Float, y: Float, w: Float, h: Float, zones: List
     )
 
     return zones.firstOrNull { zone ->
-        val zr = phoneZoneRect(zone, screen)
+        val zr = phoneZoneRect(zone, screen, config)
         val hit = Rect(
             zr.left - 30f, zr.top - 20f,
             zr.right + 30f, zr.bottom + 20f,
