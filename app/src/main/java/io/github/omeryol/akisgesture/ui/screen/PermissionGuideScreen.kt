@@ -37,6 +37,8 @@ import io.github.omeryol.akisgesture.ui.theme.StatusDisconnected
 import io.github.omeryol.akisgesture.util.PermissionHelper
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 
+import androidx.compose.foundation.layout.statusBarsPadding
+
 @Composable
 fun PermissionGuideScreen(
     onAllGranted: () -> Unit,
@@ -60,6 +62,7 @@ fun PermissionGuideScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -180,6 +181,7 @@ fun RuleListScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
+                modifier = Modifier.statusBarsPadding(),
                 title = {
                     Text(
                         "Hareketler",
@@ -192,13 +194,20 @@ fun RuleListScreen(
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
                 actions = {
-                    Box {
-                        TextButton(onClick = { showPresetMenu = true }) {
+                    Box(modifier = Modifier.padding(end = 12.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                                .clickable { showPresetMenu = true }
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
                             Text(
                                 activePreset?.let { preset ->
                                     RuleConfigViewModel.presets.indexOfFirst { it.first == preset }.takeIf { it >= 0 }?.let(presetNames::get)
                                 } ?: stringResource(R.string.templates),
-                                style = MaterialTheme.typography.labelLarge,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         }
@@ -211,8 +220,9 @@ fun RuleListScreen(
                 onClick = { showAddDialog = true },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
+                shape = RoundedCornerShape(16.dp),
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Kural ekle")
+                Icon(Icons.Filled.Add, contentDescription = "Kural ekle", tint = Color.White)
             }
         },
     ) { innerPadding ->
