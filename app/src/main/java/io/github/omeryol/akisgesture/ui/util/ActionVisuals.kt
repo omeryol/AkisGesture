@@ -30,7 +30,9 @@ import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VerticalSplit
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
+import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.ui.theme.ActionHardwareColor
 import io.github.omeryol.akisgesture.ui.theme.ActionMediaColor
 import io.github.omeryol.akisgesture.ui.theme.ActionNavColor
@@ -38,42 +40,7 @@ import io.github.omeryol.akisgesture.ui.theme.ActionPanelColor
 import io.github.omeryol.akisgesture.ui.theme.ActionRootColor
 import io.github.omeryol.akisgesture.ui.theme.ActionSystemColor
 
-fun actionEmoji(action: ActionNode): String = when (action) {
-    is ActionNode.Back -> "↩️"
-    is ActionNode.Home -> "🏠"
-    is ActionNode.Recents -> "📱"
-    is ActionNode.SwitchLastApp -> "🔄"
-    is ActionNode.SwitchNextApp -> "⏭️"
-    is ActionNode.LockScreen -> "🔒"
-    is ActionNode.Screenshot -> "📸"
-    is ActionNode.SplitScreen -> "🪟"
-    is ActionNode.PowerMenu -> "⏻"
-    is ActionNode.Menu -> "☰"
-    is ActionNode.NotificationPanel -> "🔔"
-    is ActionNode.QuickSettings -> "⚙️"
-    is ActionNode.InputMethodPicker -> "⌨️"
-    is ActionNode.VolumePanel -> "🔊"
-    is ActionNode.Assistant, is ActionNode.VoiceAssistant -> "🤖"
-    is ActionNode.ToggleAutoRotate -> "🔃"
-    is ActionNode.ForcePortrait -> "📲"
-    is ActionNode.ForceLandscape -> "🖥️"
-    is ActionNode.XiaomiOneHandMode -> "🤏"
-    is ActionNode.MediaPlayPause -> "▶️"
-    is ActionNode.MediaNext -> "⏭️"
-    is ActionNode.MediaPrevious -> "⏮️"
-    is ActionNode.VolumeUp -> "🔊"
-    is ActionNode.VolumeDown -> "🔉"
-    is ActionNode.ToggleMute -> "🔇"
-    is ActionNode.VoiceSearch -> "🎙️"
-    is ActionNode.AppShortcut, is ActionNode.LaunchApp -> "🚀"
-    is ActionNode.SendKeyCode -> "⌨️"
-    is ActionNode.ToggleNavBar -> "🧭"
-    is ActionNode.ToggleFlashlight -> "🔦"
-    is ActionNode.ForceStopForeground -> "🛑"
-    is ActionNode.BrightnessUp -> "☀️"
-    is ActionNode.BrightnessDown -> "🌙"
-    is ActionNode.NoAction -> "⏸️"
-}
+fun actionEmoji(action: ActionNode, pack: ActionIconPack = ActionIconPack.EMOJI_MODERN): String = action.toSymbol(pack)
 
 fun actionImageVector(action: ActionNode): ImageVector = when (action) {
     is ActionNode.Back -> Icons.AutoMirrored.Filled.ArrowBack
