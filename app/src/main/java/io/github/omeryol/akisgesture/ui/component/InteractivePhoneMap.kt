@@ -79,14 +79,15 @@ fun InteractivePhoneMap(
     val context = LocalContext.current
     val wallpaperDrawable = remember {
         runCatching {
-            android.app.WallpaperManager.getInstance(context).drawable
+            val wm = android.app.WallpaperManager.getInstance(context)
+            wm.peekDrawable() ?: wm.drawable
         }.getOrNull()
     }
     val wallpaperBitmap = remember(wallpaperDrawable) {
         wallpaperDrawable?.let { drawable ->
             runCatching {
-                val width = 240
-                val height = 480
+                val width = 360
+                val height = 720
                 val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
                 val canvas = android.graphics.Canvas(bitmap)
                 drawable.setBounds(0, 0, width, height)
@@ -287,7 +288,28 @@ fun InteractivePhoneMap(
                             image = wallpaperBitmap,
                             dstOffset = IntOffset(screenRect.left.toInt(), screenRect.top.toInt()),
                             dstSize = IntSize(screenRect.width.toInt(), screenRect.height.toInt()),
-                            alpha = 0.38f,
+                            alpha = 0.65f,
+                        )
+                    } else {
+                        drawRoundRect(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    scheme.primary.copy(alpha = 0.45f),
+                                    Color(0xFF1E1B4B),
+                                    Color(0xFF0F172A),
+                                ),
+                                center = Offset(screenRect.center.x, screenRect.top + screenRect.height * 0.35f),
+                                radius = screenRect.width * 1.4f,
+                            ),
+                            topLeft = screenRect.topLeft,
+                            size = screenRect.size,
+                        )
+                        drawCircle(
+                            brush = Brush.radialGradient(
+                                colors = listOf(scheme.tertiary.copy(alpha = 0.35f), Color.Transparent),
+                            ),
+                            radius = screenRect.width * 0.7f,
+                            center = Offset(screenRect.right * 0.8f, screenRect.bottom * 0.7f),
                         )
                     }
 

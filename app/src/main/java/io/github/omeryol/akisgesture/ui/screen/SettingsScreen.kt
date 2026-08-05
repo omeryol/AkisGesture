@@ -331,6 +331,51 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 6.dp)
             )
 
+            if (selectedEdge != Edge.BOTTOM) {
+                val (vStart, vEnd) = config.verticalRangeFor(selectedEdge) ?: (0f to 1f)
+                val currentLengthPercent = ((vEnd - vStart) * 100f).roundToInt()
+                val currentOffsetPercent = (vStart * 100f).roundToInt()
+
+                AkisSliderRow(
+                    title = "📏 Panel Dikey Boyu (Kısalıp Uzama)",
+                    valueText = "%$currentLengthPercent",
+                    value = currentLengthPercent.toFloat(),
+                    valueRange = 20f..100f,
+                    onValueChange = { percent ->
+                        val newLen = percent / 100f
+                        val center = (vStart + vEnd) / 2f
+                        val s = (center - newLen / 2f).coerceIn(0f, (1f - newLen).coerceAtLeast(0f))
+                        val e = (s + newLen).coerceAtMost(1f)
+                        viewModel.setEdgeVerticalRange(selectedEdge, s, e)
+                    }
+                )
+                Text(
+                    text = "Panelin ekrandaki dikey uzunluğunu kısaltıp uzatın.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = scheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+
+                AkisSliderRow(
+                    title = "📍 Panel Dikey Konumu",
+                    valueText = "%$currentOffsetPercent",
+                    value = currentOffsetPercent.toFloat(),
+                    valueRange = 0f..(100f - currentLengthPercent.toFloat()).coerceAtLeast(0f),
+                    onValueChange = { offset ->
+                        val newStart = offset / 100f
+                        val len = vEnd - vStart
+                        val newEnd = (newStart + len).coerceAtMost(1f)
+                        viewModel.setEdgeVerticalRange(selectedEdge, newStart, newEnd)
+                    }
+                )
+                Text(
+                    text = "Panelin dikey ekran konumunu yukarı veya aşağı kaydırın.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = scheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+            }
+
             AkisSliderRow(
                 title = stringResource(R.string.sensitivity_damping),
                 valueText = "%.1fx".format(currentDamping),

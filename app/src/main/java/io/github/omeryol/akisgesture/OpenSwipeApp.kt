@@ -13,6 +13,7 @@ import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.rule.CompiledRuleSet
 import io.github.omeryol.akisgesture.rule.AppRuleProfilesSerializer
 import io.github.omeryol.akisgesture.rule.GestureRuleGraph
