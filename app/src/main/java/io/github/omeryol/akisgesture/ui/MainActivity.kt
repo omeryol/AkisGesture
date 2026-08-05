@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -177,6 +178,8 @@ private fun AkisGestureApp() {
                 ),
             ) { backStackEntry ->
                 val token = backStackEntry.arguments?.getString("token") ?: return@composable
+                val homeViewModel: HomeViewModel = viewModel()
+                val gestureConfig by homeViewModel.configState.collectAsState()
                 ActionPickerScreen(
                     appSelectionOnly = backStackEntry.arguments?.getBoolean("apps") ?: false,
                     onDismiss = { navController.popBackStack() },
@@ -186,6 +189,7 @@ private fun AkisGestureApp() {
                         )
                         navController.popBackStack()
                     },
+                    iconPack = gestureConfig.actionIconPack,
                 )
             }
         }

@@ -70,6 +70,7 @@ import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
@@ -684,6 +685,7 @@ private fun GestureSlotButton(
     rule: GestureRule?,
     onClick: () -> Unit,
     onClear: () -> Unit,
+    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
 ) {
     val context = LocalContext.current
     OutlinedButton(
@@ -699,7 +701,7 @@ private fun GestureSlotButton(
                 modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.width(12.dp))
-            Text(actionEmoji(it.action), style = MaterialTheme.typography.titleMedium)
+            Text(actionEmoji(it.action, iconPack), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.width(8.dp))
         }
         Column(

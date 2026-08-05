@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import io.github.omeryol.akisgesture.R
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.ui.util.actionCategories
 import io.github.omeryol.akisgesture.ui.util.actionEmoji
@@ -80,6 +81,7 @@ fun ActionPickerScreen(
     onDismiss: () -> Unit,
     onSelect: (ActionNode) -> Unit,
     appSelectionOnly: Boolean = false,
+    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
 ) {
     val context = LocalContext.current
     val categories = actionCategories()
@@ -373,6 +375,7 @@ fun ActionPickerScreen(
                                             accentColor = pickerCategoryColor(
                                                 pickerCategories.indexOfFirst { it.first == selectedCategory },
                                             ),
+                                            iconPack = iconPack,
                                         )
                                     }
                                     if (rowActions.size == 1) Spacer(Modifier.weight(1f))
@@ -422,6 +425,7 @@ private fun ActionPickerItem(
     onSelect: (ActionNode) -> Unit,
     modifier: Modifier = Modifier,
     accentColor: Color? = null,
+    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
 ) {
     val context = LocalContext.current
     val available = RuleConfigViewModel.isActionAvailable(action)
@@ -465,7 +469,7 @@ private fun ActionPickerItem(
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                "${actionEmoji(action)} ${action.localizedLabel(context)}",
+                "${actionEmoji(action, iconPack)} ${action.localizedLabel(context)}",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = if (available) scheme.onSurface else scheme.onSurfaceVariant,
