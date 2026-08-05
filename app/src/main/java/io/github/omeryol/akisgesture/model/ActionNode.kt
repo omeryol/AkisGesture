@@ -257,3 +257,5 @@ sealed interface ActionNode {
         }
     }
 }
+
+fun ActionNode.toSymbol(pack: ActionIconPack = ActionIconPack.EMOJI_MODERN): String = pack.getSymbol(this)

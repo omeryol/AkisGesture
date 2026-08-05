@@ -261,6 +261,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(360.dp),
+                            iconPack = gestureConfig.actionIconPack,
                         )
                     }
                 }

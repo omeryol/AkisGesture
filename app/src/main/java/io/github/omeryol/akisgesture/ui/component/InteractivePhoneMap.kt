@@ -47,6 +47,9 @@ import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
 
+import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.toSymbol
+
 data class PhoneZone(
     val edge: Edge,
     val start: Float,
@@ -64,6 +67,7 @@ fun InteractivePhoneMap(
     rules: List<GestureRule>,
     onZoneClick: (PhoneZone) -> Unit,
     modifier: Modifier = Modifier,
+    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
 ) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
@@ -308,7 +312,7 @@ fun InteractivePhoneMap(
                     val action = zone.quickAction ?: zone.holdAction
                     if (action != null && action !is ActionNode.NoAction) {
                         val zr = phoneZoneRect(zone, screenRect)
-                        val labelText = "${actionEmoji(action)} ${actionSymbolShort(action)}"
+                        val labelText = "${action.toSymbol(iconPack)} ${actionSymbolShort(action)}"
 
                         val badgeX = when (zone.edge) {
                             Edge.LEFT -> zr.left + 40f

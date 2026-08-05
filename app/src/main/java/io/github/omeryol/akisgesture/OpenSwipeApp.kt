@@ -12,6 +12,7 @@ import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.feedback.FeedbackIcon
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.rule.CompiledRuleSet
 import io.github.omeryol.akisgesture.rule.AppRuleProfilesSerializer
 import io.github.omeryol.akisgesture.rule.GestureRuleGraph
@@ -126,6 +127,7 @@ class AkisGestureApp : Application() {
                     showPhoneMap = prefs[GestureConfig.KEY_SHOW_PHONE_MAP] ?: true,
                     showSummaryChart = prefs[GestureConfig.KEY_SHOW_SUMMARY_CHART] ?: true,
                     showPresetsCard = prefs[GestureConfig.KEY_SHOW_PRESETS_CARD] ?: true,
+                    actionIconPack = ActionIconPack.fromId(prefs[GestureConfig.KEY_ACTION_ICON_PACK]),
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -267,6 +269,12 @@ class AkisGestureApp : Application() {
     suspend fun updateFeedbackAnimation(animation: FeedbackAnimation) {
         settingsDataStore.edit { prefs ->
             prefs[GestureConfig.KEY_FEEDBACK_ANIMATION] = animation.name
+        }
+    }
+
+    suspend fun updateActionIconPack(pack: ActionIconPack) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_ACTION_ICON_PACK] = pack.id
         }
     }
 
