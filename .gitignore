@@ -8,6 +8,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+.agents
 
 app/build/
 *.apk
@@ -31,4 +32,6 @@ local.properties
 /NAVIGASYON_VE_JEST_ENTEGRASYON_RAPORU.md
 /OTURUM4_ANALIZ_RAPORU.md
 /PROJECT_DEVELOPMENT_REPORT.md
-/SIMDIKI_HEDEFLER.md
+# Local AI agent rules
+.agents/
+AGENTS.md
