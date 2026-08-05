@@ -247,13 +247,31 @@ class GestureEngine(
             old.rightVerticalStart != new.rightVerticalStart ||
             old.rightVerticalEnd != new.rightVerticalEnd
 
+        val leftChanged = old.leftTriggerWidthDp != new.leftTriggerWidthDp ||
+            old.leftDamping != new.leftDamping ||
+            old.leftSwipeThresholdDp != new.leftSwipeThresholdDp ||
+            old.leftVerticalStart != new.leftVerticalStart ||
+            old.leftVerticalEnd != new.leftVerticalEnd
+
+        val rightChanged = old.rightTriggerWidthDp != new.rightTriggerWidthDp ||
+            old.rightDamping != new.rightDamping ||
+            old.rightSwipeThresholdDp != new.rightSwipeThresholdDp ||
+            old.rightVerticalStart != new.rightVerticalStart ||
+            old.rightVerticalEnd != new.rightVerticalEnd
+
+        val bottomChanged = old.bottomTriggerHeightDp != new.bottomTriggerHeightDp ||
+            old.bottomDamping != new.bottomDamping ||
+            old.bottomSwipeThresholdDp != new.bottomSwipeThresholdDp
+
         for (edge in Edge.entries) {
             val hasRules = ruleSet.hasRulesFor(edge) && new.isEnabled(edge)
             val hadOverlay = detectors.containsKey(edge)
-            val needsRebuild = behaviorNeedsRebuild || when (edge) {
-                Edge.LEFT, Edge.RIGHT -> sideNeedsRebuild || sideRangeNeedsRebuild
-                Edge.BOTTOM -> bottomNeedsRebuild
+            val edgeModified = when (edge) {
+                Edge.LEFT -> leftChanged
+                Edge.RIGHT -> rightChanged
+                Edge.BOTTOM -> bottomChanged
             }
+            val needsRebuild = behaviorNeedsRebuild || edgeModified
 
             if (hadOverlay && !hasRules) {
                 removeEdge(edge)
@@ -263,7 +281,9 @@ class GestureEngine(
             } else if (hasRules && needsRebuild) {
                 removeEdge(edge)
                 addEdgeOverlay(edge)
-                highlightEdge(edge)
+                if (edgeModified) {
+                    highlightEdge(edge)
+                }
             }
         }
     }
