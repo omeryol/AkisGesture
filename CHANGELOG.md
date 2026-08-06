@@ -1,5 +1,18 @@
 # Değişiklik Günlüğü
 
+## [1.3.3] - 2026-08-06
+
+### Haptik Geri Bildirim Düzeltmesi
+- **Yanlışlıkla Dokunma Titremesi Düzeltildi**: Tetik bölgesine kazara dokunulduğunda oluşan sürekli titreşim sorunu çözüldü.
+- **Haptic Tetikleme Mantığı**: Haptic geri bildirim artık ACTION_DOWN anında değil, sadece gerçek hareket algılandığında (armed durumunda) tetikleniyor.
+- **Kullanıcı Deneyimi**: Yanlışlıkla dokunulduğunda istenmeyen titreşim ortadan kaldırıldı, gerçek jestlerde doğru çalışmaya devam ediyor.
+
+### Teknik
+- Sürüm `1.3.3`, version code `49`.
+- İmzalı APK: `AkisGesture-v1.3.3.apk`.
+
+---
+
 ## [1.3.2] - 2026-08-06
 
 ### Son Kullanılanlar (Recents) Koruması
