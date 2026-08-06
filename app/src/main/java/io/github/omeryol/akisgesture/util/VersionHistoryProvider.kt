@@ -11,9 +11,20 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.3.2",
+            version = "1.3.3",
             date = "2026-08-06",
             isCurrent = true,
+            changesTr = listOf(
+                "🔇 Haptik Geri Bildirim Düzeltmesi: Tetik bölgesine kazara dokunulduğunda oluşan sürekli titreşim sorunu çözüldü. Haptic geri bildirim artık sadece gerçek hareket algılandığında tetikleniyor.",
+            ),
+            changesEn = listOf(
+                "🔇 Haptic Feedback Fix: Fixed continuous vibration issue when accidentally touching the trigger zone. Haptic feedback now only triggers when a real gesture is detected (armed state).",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.3.2",
+            date = "2026-08-06",
+            isCurrent = false,
             changesTr = listOf(
                 "🔒 Son Kullanılanlar Koruması: 'Tümünü Kapat' butonunun uygulamayı kapatmasını engelleyen gizleme anahtarı ve Recents kilit 🔒 rehber kartı eklendi.",
                 "🔑 Şeffaf Root Rehberi: Hakkında bölümüne root'un kesinlikle zorunlu olmadığını ve bu uygulamada yalnızca zorla kapatma ve özel komut için kullanıldığını açıklayan ayrıntılı bilgi kartı eklendi.",

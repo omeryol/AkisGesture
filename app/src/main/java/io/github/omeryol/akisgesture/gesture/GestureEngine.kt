@@ -515,10 +515,9 @@ class GestureEngine(
 
         val now = System.currentTimeMillis()
         if (!suppressHaptic && (now - lastHapticMs >= HAPTIC_MIN_INTERVAL_MS)) {
-            if (progress.active && !lastProgressActive) {
-                HapticHelper.performHaptic(view, HapticHelper.HapticType.LIGHT)
-                lastHapticMs = now
-            } else if (progress.armed && !lastArmed) {
+            // Only trigger haptic on actual gesture detection (armed state), not on initial touch down
+            // This prevents unwanted vibration when accidentally touching the trigger zone
+            if (progress.armed && !lastArmed) {
                 HapticHelper.performHaptic(view, HapticHelper.HapticType.MEDIUM)
                 lastHapticMs = now
             } else if (progress.holdArmed && !lastHoldArmed) {

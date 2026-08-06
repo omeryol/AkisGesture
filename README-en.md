@@ -11,8 +11,9 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
-## Version v1.3.2 Release Highlights
+## Version v1.3.3 Release Highlights
 
+- **🔇 Haptic Feedback Fix**: Fixed continuous vibration issue when accidentally touching the trigger zone. Haptic feedback now only triggers when a real gesture is detected (armed state).
 - **🔒 Recents Protection**: Added a toggle to hide the app from the Recents screen (preventing accidental "Clear All" closure) and a padlock 🔒 guide card explaining the manual lock method.
 - **🔑 Transparent Root Guide**: Added a detailed info card (at the bottom of About) clearly stating root is NOT required and is only used for force-kill and custom shell commands in this app.
 - **📖 GitHub Repository Link**: Added a direct link to the Akış Gesture GitHub repository in the About section.
