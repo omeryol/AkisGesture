@@ -7,6 +7,8 @@ import java.net.URL
 data class GithubRelease(
     val version: String,
     val url: String,
+    val notes: String,
+    val downloadUrl: String?,
 )
 
 object GithubReleaseChecker {
@@ -29,6 +31,15 @@ object GithubReleaseChecker {
             GithubRelease(
                 version = release.getString("tag_name").removePrefix("v"),
                 url = release.getString("html_url"),
+                notes = release.optString("body").trim(),
+                downloadUrl = release.optJSONArray("assets")
+                    ?.let { assets ->
+                        (0 until assets.length())
+                            .map { assets.getJSONObject(it) }
+                            .firstOrNull { it.optString("name").endsWith(".apk", ignoreCase = true) }
+                            ?.optString("browser_download_url")
+                            ?.takeIf(String::isNotBlank)
+                    },
             )
         } finally {
             connection.disconnect()

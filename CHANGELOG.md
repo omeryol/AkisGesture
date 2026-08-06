@@ -18,6 +18,7 @@
 
 ### Güncelleme ve yedekleme
 - Ayarlar > Hakkında bölümüne GitHub Releases üzerinden manuel güncelleme kontrolü eklendi.
+- GitHub Releases üzerinden yeni sürüm kontrolü yapıldığında detaylı sürüm notlarını gösteren scrollable diyalog penceresi ve doğrudan APK indirme bağlantısı eklendi.
 - Tüm ayarların, kuralların, uygulama profillerinin, duraklatılan uygulamaların ve erişilebilirlik tercihinin yedeklenmesi sağlandı.
 - Uygulama açılışındaki DataStore yaşam döngüsü çökmesi giderildi.
 
