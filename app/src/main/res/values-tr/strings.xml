@@ -27,7 +27,14 @@
     <string name="update_dialog_no_notes">Bu sürüm için yayın notu bulunmuyor.</string>
     <string name="update_dialog_download">APK’yı indir</string>
     <string name="about_support">Bu bir hobi ve topluluk projesidir. Güncelleme, cihaz uyumluluğu, hata düzeltme süresi veya bireysel destek garantisi verilmez. Tekrarlanabilir hata bildirimleri ve katkılar memnuniyetle karşılanır.</string>
-    <string name="about_root">Temel hareketler root gerektirmez. Bazı ileri düzey eylemler root isteyebilir. Akış Gesture sistem gezinme çubuğunu gizlemez; tam ekran kurulumu cihaza ve ROM’a bağlıdır.</string>
+    <string name="about_root">Temel hareketler root gerektirmez. Akış Gesture %100 rootsuz çalışır; root yetkisi yalnızca opsiyonel gelişmiş eylemler (Özel su komutları, anında ekran kilitleme) için kullanılır.</string>
+    <string name="about_root_title">🔑 Root Erişimi ve Şeffaf Kullanım Rehberi</string>
+    <string name="about_root_not_required_title">✅ Root Kesinlikle Zorunlu DEĞİLDİR!</string>
+    <string name="about_root_not_required_desc">Akış Gesture’ın tüm temel navigasyon hareketleri (Geri, Ana Ekran, Son Uygulamalar, Uygulama Açma, Medya Kontrolleri, Ekran Görüntüsü vb.) standart Android Erişilebilirlik Servisi ile %100 rootsuz çalışır.</string>
+    <string name="about_root_features_title">⚡ Root Yetkisi Ne İşe Yarar? (Opsiyonel)</string>
+    <string name="about_root_features_desc">• Anında Ekran Kapatma: Bazı ROM’larda gecikmesiz tuş kilidi sağlama.\n• Özel Shell (su) Komutları: Kullanıcının hareketlere özel terminal komutları atayabilmesi.\n• Gelişmiş Arka Plan Koruması: Süreç önceliğini sistem seviyesinde koruma.</string>
+    <string name="about_root_privacy_desc">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
+
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
     <string name="open_project_repo">Akış Gesture GitHub deposu</string>
     <string name="open_upstream">OpenSwipe kaynak projesi</string>
