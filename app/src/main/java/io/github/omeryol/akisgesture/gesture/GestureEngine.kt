@@ -106,8 +106,13 @@ class GestureEngine(
                         ruleProfiles,
                     )
 
-                    pausedForForegroundApp = AppPausePolicy.shouldPause(foregroundPackage, inputs.pausedPackages)
+                    pausedForForegroundApp = AppPausePolicy.shouldPause(
+                        foregroundPackage = foregroundPackage,
+                        pausedPackages = inputs.pausedPackages,
+                        mode = inputs.config.appPauseMode,
+                    )
                     pausedForSystemContext = shouldPauseForSystemContext()
+
 
                     if (isPaused()) {
                         clearOverlays()
@@ -142,7 +147,7 @@ class GestureEngine(
             ruleProfiles,
         )
 
-        val shouldPause = AppPausePolicy.shouldPause(packageName, pausedPackages)
+        val shouldPause = AppPausePolicy.shouldPause(packageName, pausedPackages, currentConfig.appPauseMode)
         val pauseChanged = shouldPause != pausedForForegroundApp
         pausedForForegroundApp = shouldPause
 
@@ -153,6 +158,9 @@ class GestureEngine(
         }
     }
 
+    private var cameraActive = false
+    private var phoneCallActive = false
+
     fun onSystemContextChanged(
         lockScreenVisible: Boolean,
         keyboardVisible: Boolean,
@@ -160,6 +168,8 @@ class GestureEngine(
         fullScreen: Boolean = false,
         permissionScreen: Boolean = false,
         keyboardTopRatio: Float = 1.0f,
+        cameraActive: Boolean = false,
+        phoneCallActive: Boolean = false,
     ) {
         this.lockScreenVisible = lockScreenVisible
         val keyboardStateChanged = this.keyboardVisible != keyboardVisible || this.currentKeyboardTopRatio != keyboardTopRatio
@@ -169,6 +179,8 @@ class GestureEngine(
         this.landscape = landscape
         this.fullScreen = fullScreen
         this.permissionScreen = permissionScreen
+        this.cameraActive = cameraActive
+        this.phoneCallActive = phoneCallActive
 
         val shouldPause = shouldPauseForSystemContext()
         if (shouldPause == pausedForSystemContext) {
@@ -195,6 +207,8 @@ class GestureEngine(
             fullScreen,
             permissionScreen,
             currentKeyboardTopRatio,
+            cameraActive,
+            phoneCallActive,
         )
         if (!isPaused()) rebuildOverlays(activeRuleSet)
     }
@@ -207,7 +221,10 @@ class GestureEngine(
             landscape = landscape,
             fullScreen = fullScreen,
             permissionScreen = permissionScreen,
+            cameraActive = cameraActive,
+            phoneCallActive = phoneCallActive,
         )
+
 
     private fun isPaused(): Boolean = pausedForForegroundApp || pausedForSystemContext
 
@@ -491,6 +508,11 @@ class GestureEngine(
             suppressHaptic = false
         }
 
+        // When touch finishes, immediately cancel any active vibration pulse.
+        if (!progress.active && lastProgressActive) {
+            HapticHelper.cancel(overlayManager.context)
+        }
+
         val now = System.currentTimeMillis()
         if (!suppressHaptic && (now - lastHapticMs >= HAPTIC_MIN_INTERVAL_MS)) {
             if (progress.active && !lastProgressActive) {
@@ -512,6 +534,7 @@ class GestureEngine(
         lastHoldArmed = progress.holdArmed
         lastProgressActive = progress.active
     }
+
 
     private fun blendColor(base: Int, overlay: Int, amount: Float): Int {
         val t = amount.coerceIn(0f, 1f)

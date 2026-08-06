@@ -31,12 +31,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.ChevronRight
+
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
@@ -796,22 +799,82 @@ fun SettingsScreen(
                 checked = config.pauseOnPermissionScreen,
                 onCheckedChange = viewModel::setPauseOnPermissionScreen
             )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.camera_active),
+                subtitle = stringResource(R.string.camera_active_subtitle),
+                checked = config.pauseOnCamera,
+                onCheckedChange = viewModel::setPauseOnCamera
+            )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.phone_call_active),
+                subtitle = stringResource(R.string.phone_call_active_subtitle),
+                checked = config.pauseOnPhoneCall,
+                onCheckedChange = viewModel::setPauseOnPhoneCall
+            )
         }
 
         // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
         if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
             AkisSectionHeader(
                 title = "📱 Uygulama İstisnaları",
-                subtitle = "Jestlerin devre dışı kalacağı uygulamalar",
+                subtitle = "Jestlerin devre dışı kalacağı veya özel çalışacağı uygulamalar",
                 icon = Icons.Filled.Apps
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
+
+            // Mode Selector: Blacklist vs Whitelist
+            Text(
+                text = stringResource(R.string.app_pause_mode_title),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = scheme.onSurface
+            )
+            Spacer(Modifier.height(4.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                val modes = listOf(
+                    io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST to stringResource(R.string.app_pause_mode_blacklist),
+                    io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST to stringResource(R.string.app_pause_mode_whitelist),
+                )
+                modes.forEach { (mode, label) ->
+                    val selected = config.appPauseMode == mode
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (selected) Color(0xFFE040FB) else Color.Transparent)
+                            .clickable { viewModel.setAppPauseMode(mode) }
+                            .padding(vertical = 8.dp, horizontal = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (selected) Color.White else scheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(scheme.surfaceVariant.copy(alpha = 0.3f))
                     .clickable { showAppPicker = true }
-                    .padding(vertical = 6.dp),
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -819,7 +882,7 @@ fun SettingsScreen(
                     Text(
                         text = stringResource(R.string.app_exclusions),
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                         color = scheme.onSurface
                     )
                     Text(
@@ -832,9 +895,50 @@ fun SettingsScreen(
                         color = scheme.onSurfaceVariant
                     )
                 }
-                Icon(Icons.Filled.ChevronRight, null, tint = scheme.onSurfaceVariant)
+                Icon(Icons.Filled.Add, null, tint = Color(0xFFE040FB))
+            }
+
+            // Interactive list of selected app chips
+            if (pausedPackages.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                val selectableAppsMap = selectableApps.associateBy { it.packageName }
+                @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                androidx.compose.foundation.layout.FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    pausedPackages.forEach { pkg ->
+                        val appLabel = selectableAppsMap[pkg]?.label ?: pkg.substringAfterLast('.')
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFFE040FB).copy(alpha = 0.18f))
+                                .border(1.dp, Color(0xFFE040FB).copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+                                .padding(horizontal = 10.dp, vertical = 5.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = appLabel,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = scheme.onSurface
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Kaldır",
+                                tint = Color(0xFFE040FB),
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .clickable { viewModel.setPackagePaused(pkg, false) }
+                            )
+                        }
+                    }
+                }
             }
         }
+
 
         // ── 4A. YEDEKLEME VE ROOT (Emerald Green) ──
         if (selectedSection == 3) AkisGlassCard(accentTint = Color(0xFF00E676)) {
@@ -1016,12 +1120,17 @@ fun SettingsScreen(
                             }
                         },
                         text = {
+                            val isTurkishLocale = java.util.Locale.getDefault().language == "tr"
+                            val cleanNotes = androidx.compose.runtime.remember(release.notes) {
+                                GithubReleaseChecker.extractCleanReleaseNotes(release.notes, isTurkish = isTurkishLocale)
+                            }
                             Text(
-                                text = release.notes.ifBlank { stringResource(R.string.update_dialog_no_notes) },
+                                text = cleanNotes.ifBlank { stringResource(R.string.update_dialog_no_notes) },
                                 modifier = Modifier.verticalScroll(rememberScrollState()),
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         },
+
                         confirmButton = {
                             TextButton(
                                 onClick = {

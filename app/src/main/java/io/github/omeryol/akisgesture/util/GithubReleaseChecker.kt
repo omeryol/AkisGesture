@@ -64,4 +64,76 @@ object GithubReleaseChecker {
             }
         } ?: false
     }
-}
+
+    /**
+     * Extracts concise release highlights and removes full README content (badges, installation, license headers).
+     */
+    fun extractCleanReleaseNotes(rawNotes: String, isTurkish: Boolean = true): String {
+        if (rawNotes.isBlank()) return ""
+
+        var cleaned = rawNotes
+
+        // 1. Language section extraction if release follows standard release notes structure
+        if (cleaned.contains("## 🇹🇷 Türkçe") || cleaned.contains("## 🇬🇧 English")) {
+            cleaned = if (isTurkish && cleaned.contains("## 🇹🇷 Türkçe")) {
+                cleaned.substringAfter("## 🇹🇷 Türkçe")
+                    .substringBefore("---")
+                    .substringBefore("## 🇬🇧 English")
+                    .substringBefore("## 📦 İndirme")
+                    .substringBefore("## 📦 Downloads")
+            } else if (cleaned.contains("## 🇬🇧 English")) {
+                cleaned.substringAfter("## 🇬🇧 English")
+                    .substringBefore("---")
+                    .substringBefore("## 📦 İndirme")
+                    .substringBefore("## 📦 Downloads")
+            } else {
+                cleaned.substringAfter("## 🇹🇷 Türkçe")
+                    .substringBefore("---")
+                    .substringBefore("## 📦 İndirme")
+                    .substringBefore("## 📦 Downloads")
+            }
+        }
+
+        // 2. Filter out full README sections if full README was uploaded
+        val lines = cleaned.lines()
+        val filtered = mutableListOf<String>()
+        var skippingSection = false
+
+        for (line in lines) {
+            val trimmed = line.trim()
+            val lower = trimmed.lowercase()
+
+            // Skip README badges, main headers, installation instructions, license, and download sections
+            if (lower.startsWith("# akış gesture") || lower.startsWith("# akisgesture") ||
+                trimmed.startsWith("![") ||
+                lower.startsWith("## 🚀 kurulum") || lower.startsWith("## installation") ||
+                lower.startsWith("## 🛠️ derleme") || lower.startsWith("## build") ||
+                lower.startsWith("## 📄 lisans") || lower.startsWith("## license") ||
+                lower.startsWith("## 🤝 katkıda bulunma") || lower.startsWith("## contributing") ||
+                lower.startsWith("## 📦 indirme") || lower.startsWith("## downloads") ||
+                lower.startsWith("### gereksinimler") || lower.startsWith("### requirements")
+            ) {
+                skippingSection = true
+                continue
+            }
+
+            // Resume including lines if a feature/changelog bullet point or sub-header appears
+            if (skippingSection) {
+                if (trimmed.startsWith("## ") || trimmed.startsWith("### ") || trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+                    if (!lower.contains("kurulum") && !lower.contains("lisans") && !lower.contains("indirme") && !lower.contains("installation") && !lower.contains("license")) {
+                        skippingSection = false
+                    }
+                }
+            }
+
+            if (!skippingSection) {
+                filtered.add(line)
+            }
+        }
+
+        val result = filtered.joinToString("\n").trim()
+            .replace(Regex("\n{3,}"), "\n\n")
+
+        return result.ifBlank { rawNotes.trim() }
+    }
+}

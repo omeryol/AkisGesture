@@ -8,10 +8,15 @@ object SystemPausePolicy {
         landscape: Boolean,
         fullScreen: Boolean = false,
         permissionScreen: Boolean = false,
+        cameraActive: Boolean = false,
+        phoneCallActive: Boolean = false,
     ): Boolean =
         (config.pauseOnLockScreen && lockScreenVisible) ||
             (config.pauseWhenKeyboardVisible && keyboardVisible) ||
             (config.pauseInLandscape && landscape) ||
             (config.pauseOnFullScreen && fullScreen) ||
-            (config.pauseOnPermissionScreen && permissionScreen)
+            (config.pauseOnPermissionScreen && permissionScreen) ||
+            (config.pauseOnCamera && cameraActive) ||
+            (config.pauseOnPhoneCall && phoneCallActive)
 }
+
