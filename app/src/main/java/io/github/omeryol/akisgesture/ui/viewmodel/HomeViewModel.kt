@@ -97,6 +97,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setHideFromRecents(enabled: Boolean) {
+        viewModelScope.launch {
+            app.updateHideFromRecents(enabled)
+        }
+    }
+
+
 
 
     fun setQuickFeedbackIcon(icon: FeedbackIcon) {

@@ -34,6 +34,14 @@
     <string name="version_history_button">Version History</string>
     <string name="version_history_title">Version History &amp; Changelog</string>
 
+    <string name="recents_lock_title">🔒 Prevent Closure in Recents</string>
+    <string name="recents_lock_subtitle">Prevent Clear All button from closing Akış Gesture</string>
+    <string name="hide_from_recents">Hide from Recents list</string>
+    <string name="hide_from_recents_subtitle">When enabled, the app won\'t appear in Recents and cannot be closed accidentally</string>
+    <string name="recents_lock_guide_title">💡 Alternative: Recents Padlock (🔒) Method</string>
+    <string name="recents_lock_guide_text">If you prefer not to hide the app: Open your phone\'s Recents screen, long press on Akış Gesture, and tap the Padlock (🔒) icon. This lock prevents Clear All from ever closing the app.</string>
+
+
     <string name="action_back">Back</string>
     <string name="action_home">Home</string>
     <string name="action_recents">Recents</string>
