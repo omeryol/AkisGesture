@@ -311,7 +311,7 @@ fun RuleDetailScreen(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     GestureType.entries.forEach { gestureType ->
-                        val label = gestureLabel(context, gestureType)
+                        val label = gestureLabel(context, gestureType, rule.trigger.edge)
                         val selected = rule.trigger.gestureType == gestureType
                         Box(
                             modifier = Modifier

@@ -9,7 +9,14 @@ import io.github.omeryol.akisgesture.model.SectionRange
 import io.github.omeryol.akisgesture.overlay.Edge
 
 fun edgeLabel(context: Context, edge: Edge) = context.getString(when (edge) { Edge.LEFT -> R.string.edge_left; Edge.RIGHT -> R.string.edge_right; Edge.BOTTOM -> R.string.edge_bottom })
-fun gestureLabel(context: Context, type: GestureType) = context.getString(when (type) { GestureType.QUICK_SWIPE -> R.string.gesture_quick; GestureType.SWIPE_HOLD -> R.string.gesture_hold; GestureType.SWIPE_UP_L -> R.string.gesture_l_up; GestureType.SWIPE_DOWN_L -> R.string.gesture_l_down })
+fun gestureLabel(context: Context, type: GestureType, edge: Edge? = null) = context.getString(when {
+    edge == Edge.BOTTOM && type == GestureType.SWIPE_UP_L -> R.string.gesture_l_right
+    edge == Edge.BOTTOM && type == GestureType.SWIPE_DOWN_L -> R.string.gesture_l_left
+    type == GestureType.QUICK_SWIPE -> R.string.gesture_quick
+    type == GestureType.SWIPE_HOLD -> R.string.gesture_hold
+    type == GestureType.SWIPE_UP_L -> R.string.gesture_l_up
+    else -> R.string.gesture_l_down
+})
 fun sectionLabel(context: Context, section: SectionRange, edge: Edge): String {
     val vertical = edge != Edge.BOTTOM
     val id = when {

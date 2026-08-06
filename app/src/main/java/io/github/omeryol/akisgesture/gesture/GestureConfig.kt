@@ -154,6 +154,7 @@ data class GestureConfig(
         val KEY_ANIMATION_SPEED = floatPreferencesKey("animation_speed")
         val KEY_ANIMATION_SIZE = floatPreferencesKey("animation_size")
         val KEY_HAPTIC_ENABLED = booleanPreferencesKey("haptic_enabled")
+        val KEY_SHOW_GESTURE_INDICATOR_BAR = booleanPreferencesKey("show_gesture_indicator_bar")
         // Per-edge sensitivity
         val KEY_LEFT_DAMPING = floatPreferencesKey("left_damping")
         val KEY_RIGHT_DAMPING = floatPreferencesKey("right_damping")

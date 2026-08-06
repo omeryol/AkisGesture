@@ -77,17 +77,17 @@ fun InteractivePhoneMap(
 ) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
-    val wallpaperDrawable = remember {
+    val wallpaperDrawable = remember(context) {
         runCatching {
             val wm = android.app.WallpaperManager.getInstance(context)
-            wm.peekDrawable() ?: wm.drawable
+            wm.drawable
         }.getOrNull()
     }
     val wallpaperBitmap = remember(wallpaperDrawable) {
         wallpaperDrawable?.let { drawable ->
             runCatching {
-                val width = 360
-                val height = 720
+                val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 1080
+                val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 2400
                 val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
                 val canvas = android.graphics.Canvas(bitmap)
                 drawable.setBounds(0, 0, width, height)
@@ -186,7 +186,7 @@ fun InteractivePhoneMap(
                     phoneBody.bottom - screenMargin,
                 )
 
-                // Rich Cyberpunk Wallpaper Background
+                // Keep a dark base under the real wallpaper for transparent/live sources.
                 drawRoundRect(
                     brush = Brush.radialGradient(
                         colors = listOf(
@@ -288,7 +288,7 @@ fun InteractivePhoneMap(
                             image = wallpaperBitmap,
                             dstOffset = IntOffset(screenRect.left.toInt(), screenRect.top.toInt()),
                             dstSize = IntSize(screenRect.width.toInt(), screenRect.height.toInt()),
-                            alpha = 0.65f,
+                            alpha = 0.96f,
                         )
                     } else {
                         drawRoundRect(

@@ -133,6 +133,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateEdgeTriggerSize(edge, dp) }
     }
 
+    fun setEdgeEnabled(edge: Edge, enabled: Boolean) {
+        viewModelScope.launch { app.updateEdgeEnabled(edge, enabled) }
+    }
+
     fun setEdgeDamping(edge: Edge, value: Float) {
         viewModelScope.launch { app.updateEdgeDamping(edge, value) }
     }
@@ -179,6 +183,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
+    }
+
+    fun setShowGestureIndicatorBar(show: Boolean) {
+        viewModelScope.launch { app.updateShowGestureIndicatorBar(show) }
     }
 
     fun setFeedbackColor(colorArgb: Int) {

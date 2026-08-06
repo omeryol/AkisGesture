@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.model.SectionRange
 import io.github.omeryol.akisgesture.overlay.Edge
@@ -26,11 +27,13 @@ fun EdgeZoneVisual(
     section: SectionRange,
     modifier: Modifier = Modifier,
     zoneColor: Color = MaterialTheme.colorScheme.primary,
+    width: Dp = 56.dp,
+    height: Dp = 80.dp,
 ) {
     val outline = MaterialTheme.colorScheme.outline
     val screen = MaterialTheme.colorScheme.surfaceVariant
     Box(modifier = modifier) {
-        Canvas(Modifier.size(56.dp, 80.dp)) {
+        Canvas(Modifier.size(width, height)) {
             val w = size.width
             val h = size.height
             val corner = CornerRadius(14f)

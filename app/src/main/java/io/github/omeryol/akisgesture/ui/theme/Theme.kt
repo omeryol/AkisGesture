@@ -45,28 +45,28 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = AkisPrimaryDark,
-    onPrimary = AkisOnPrimaryContainer,
-    primaryContainer = Color(0xFF0033A8),
-    onPrimaryContainer = AkisPrimaryContainer,
-    secondary = AkisSecondaryDark,
-    onSecondary = AkisOnSecondaryContainer,
-    secondaryContainer = Color(0xFF41455A),
-    onSecondaryContainer = AkisSecondaryContainer,
-    tertiary = AkisTertiaryDark,
-    onTertiary = AkisOnTertiaryContainer,
-    tertiaryContainer = Color(0xFF593E5A),
+    primary = Color(0xFF536DFF),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF283A9A),
+    onPrimaryContainer = Color(0xFFDDE2FF),
+    secondary = Color(0xFF00E5FF),
+    onSecondary = Color(0xFF002F35),
+    secondaryContainer = Color(0xFF074C57),
+    onSecondaryContainer = Color(0xFF9DF2FF),
+    tertiary = Color(0xFFFF4081),
+    onTertiary = Color(0xFF3B0019),
+    tertiaryContainer = Color(0xFF7A1645),
     onTertiaryContainer = AkisTertiaryContainer,
     error = AkisErrorDark,
     errorContainer = Color(0xFF93000A),
-    background = AkisBackgroundDark,
-    onBackground = AkisOnSurfaceDark,
-    surface = AkisSurfaceDark,
-    onSurface = AkisOnSurfaceDark,
-    surfaceVariant = AkisSurfaceVariantDark,
-    onSurfaceVariant = AkisOnSurfaceVariantDark,
-    outline = AkisOutlineDark,
-    outlineVariant = AkisOutlineVariantDark,
+    background = Color(0xFF080A10),
+    onBackground = Color(0xFFF4F2FA),
+    surface = Color(0xFF11152A),
+    onSurface = Color(0xFFF4F2FA),
+    surfaceVariant = Color(0xFF292D4A),
+    onSurfaceVariant = Color(0xFFB8BEDB),
+    outline = Color(0xFF6E7CFF),
+    outlineVariant = Color(0xFF3E456D),
 )
 
 private val AkisShapes = Shapes(
@@ -79,7 +79,7 @@ private val AkisShapes = Shapes(
 
 @Composable
 fun AkisGestureTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {

@@ -153,16 +153,16 @@ fun AddRuleForEdgeDialog(
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
-                    title = stringResource(R.string.l_up_with_icon),
-                    description = stringResource(R.string.l_up_description),
+                    title = stringResource(if (edge == Edge.BOTTOM) R.string.l_right_with_icon else R.string.l_up_with_icon),
+                    description = stringResource(if (edge == Edge.BOTTOM) R.string.l_right_description else R.string.l_up_description),
                     action = lUpAction,
                     onSelect = { openActionPicker(GestureType.SWIPE_UP_L) },
                     onClear = { lUpAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
-                    title = stringResource(R.string.l_down_with_icon),
-                    description = stringResource(R.string.l_down_description),
+                    title = stringResource(if (edge == Edge.BOTTOM) R.string.l_left_with_icon else R.string.l_down_with_icon),
+                    description = stringResource(if (edge == Edge.BOTTOM) R.string.l_left_description else R.string.l_down_description),
                     action = lDownAction,
                     onSelect = { openActionPicker(GestureType.SWIPE_DOWN_L) },
                     onClear = { lDownAction = null },
@@ -351,8 +351,8 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
-                            title = stringResource(R.string.l_up_with_icon),
-                            description = stringResource(R.string.l_up_description),
+                            title = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_right_with_icon else R.string.l_up_with_icon),
+                            description = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_right_description else R.string.l_up_description),
                             action = lUpAction,
                             onSelect = {
                                 openActionPicker(GestureType.SWIPE_UP_L)
@@ -361,8 +361,8 @@ fun AddRuleDialog(
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
-                            title = stringResource(R.string.l_down_with_icon),
-                            description = stringResource(R.string.l_down_description),
+                            title = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_left_with_icon else R.string.l_down_with_icon),
+                            description = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_left_description else R.string.l_down_description),
                             action = lDownAction,
                             onSelect = {
                                 openActionPicker(GestureType.SWIPE_DOWN_L)

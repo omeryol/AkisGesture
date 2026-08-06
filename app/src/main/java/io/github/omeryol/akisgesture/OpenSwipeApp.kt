@@ -123,6 +123,7 @@ class AkisGestureApp : Application() {
                     hapticIntensity = prefs[GestureConfig.KEY_HAPTIC_INTENSITY] ?: 1f,
                     hapticSoundEnabled = prefs[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] ?: false,
                     hapticEnabled = prefs[GestureConfig.KEY_HAPTIC_ENABLED] ?: true,
+                    showGestureIndicatorBar = prefs[GestureConfig.KEY_SHOW_GESTURE_INDICATOR_BAR] ?: false,
                     animationSpeed = prefs[GestureConfig.KEY_ANIMATION_SPEED] ?: 1f,
                     animationSize = prefs[GestureConfig.KEY_ANIMATION_SIZE] ?: 1f,
                     showPhoneMap = prefs[GestureConfig.KEY_SHOW_PHONE_MAP] ?: true,
@@ -218,6 +219,16 @@ class AkisGestureApp : Application() {
                 io.github.omeryol.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_TRIGGER_WIDTH] = dp
                 io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_TRIGGER_WIDTH] = dp
                 io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] = dp
+            }
+        }
+    }
+
+    suspend fun updateEdgeEnabled(edge: io.github.omeryol.akisgesture.overlay.Edge, enabled: Boolean) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                io.github.omeryol.akisgesture.overlay.Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_ENABLED] = enabled
+                io.github.omeryol.akisgesture.overlay.Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_ENABLED] = enabled
+                io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_ENABLED] = enabled
             }
         }
     }
@@ -354,6 +365,10 @@ class AkisGestureApp : Application() {
 
     suspend fun updateHapticEnabled(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_ENABLED] = enabled }
+    }
+
+    suspend fun updateShowGestureIndicatorBar(show: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_SHOW_GESTURE_INDICATOR_BAR] = show }
     }
 
     // ── Per-edge sensitivity ──
