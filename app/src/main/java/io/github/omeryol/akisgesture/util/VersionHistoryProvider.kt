@@ -11,9 +11,26 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.3.1",
+            version = "1.3.2",
             date = "2026-08-06",
             isCurrent = true,
+            changesTr = listOf(
+                "🔒 Son Kullanılanlar Koruması: 'Tümünü Kapat' butonunun uygulamayı kapatmasını engelleyen gizleme anahtarı ve Recents kilit 🔒 rehber kartı eklendi.",
+                "🔑 Şeffaf Root Rehberi: Hakkında bölümüne root'un kesinlikle zorunlu olmadığını ve bu uygulamada yalnızca zorla kapatma ve özel komut için kullanıldığını açıklayan ayrıntılı bilgi kartı eklendi.",
+                "📖 Proje GitHub Bağlantısı: Hakkında bölümüne Akış Gesture GitHub deposu linki eklendi.",
+                "🕰️ Sürüm Geçmişi Dialogu: Geçmiş sürümlerdeki değişiklikleri listeleyen uygulama içi sürüm geçmişi butonu ve iletişim kutusu eklendi.",
+            ),
+            changesEn = listOf(
+                "🔒 Recents Protection: Added a toggle to hide the app from Recents (preventing accidental 'Clear All' closure) and a padlock 🔒 guide card.",
+                "🔑 Transparent Root Guide: Added a detailed info card in About clearly explaining root is NOT required and is only used for force-kill and custom shell commands.",
+                "📖 Project GitHub Link: Added Akış Gesture GitHub repository link in the About section.",
+                "🕰️ Version History Dialog: Added in-app version history button and dialog listing changes across past releases.",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.3.1",
+            date = "2026-08-06",
+            isCurrent = false,
             changesTr = listOf(
                 "📳 Titreşim Kilitlenme Düzeltmesi: Tetik alanlarına kazara değildiğinde oluşan donanım kilitlenmesi giderildi; parmak ayrıldığında titreşim anında sonlandırılır.",
                 "📷 Kamera & Çekim Duraklatması: Kamera vizörü açıkken veya video kaydı yapılırken hareketleri otomatik kapatma seçeneği eklendi.",

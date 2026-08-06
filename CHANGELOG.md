@@ -1,5 +1,22 @@
 # Değişiklik Günlüğü
 
+## [1.3.2] - 2026-08-06
+
+### Son Kullanılanlar (Recents) Koruması
+- **"Son Kullanılanlar listesinden gizle" Anahtarı**: Ayarlar > Duraklat bölümüne yeni bir anahtar eklendi. Açıkken uygulama Recents (Görev Yöneticisi) ekranında görünmez; "Tümünü Kapat" butonuyla kapatılamaz.
+- **Recents Kilit 🔒 Rehber Kartı**: Uygulamayı gizlemek istemeyenler için, Recents ekranında karta uzun basıp Kilit simgesine dokunularak hepsini kapat korumasının nasıl aktifleştirileceği açıklamasıyla birlikte rehber kartı eklendi.
+
+### Şeffaf Root Rehberi
+- **"Hakkında" bölümüne Root Bilgi Kartı eklendi**: Root'un bu uygulamada kesinlikle zorunlu olmadığı, yalnızca iki opsiyonel eylem (zorla uygulama kapatma ve özel shell komutu) için kullanıldığı netçe açıklandı.
+- **Root Uyarı Bloğu**: Root yapmanın cihaz garantisini iptal ettiği, güvenlik risklerini artırdığı ve yanlış yapılırsa cihazı brick edebileceğini açıklayan kırmızı uyarı bloğu eklendi.
+- **Konum**: Root rehber kartı sayfanın en altına taşındı; uygulama açıldığında "root önerisi" izlenimi verilmiyor.
+
+### Hakkında Bölümü Geliştirmeleri
+- **Proje GitHub Deposu Bağlantısı**: Hakkında bölümüne Akış Gesture GitHub deposuna doğrudan erişim butonu eklendi.
+- **Uygulama İçi Sürüm Geçmişi Dialogu**: "Sürüm Geçmişi" butonu ve geçmiş sürümlerdeki yenilikleri listeleyen diyalog eklendi.
+
+---
+
 ## [1.3.1] - 2026-08-06
 
 ### Titreşim ve Fizik Düzeltmeleri
