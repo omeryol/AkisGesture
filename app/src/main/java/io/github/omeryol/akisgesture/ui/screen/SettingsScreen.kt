@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.History
+
 
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -125,6 +127,8 @@ fun SettingsScreen(
     var selectedSection by remember { mutableStateOf(0) }
     var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
     var showReleaseDialog by remember { mutableStateOf(false) }
+    var showVersionHistoryDialog by remember { mutableStateOf(false) }
+
 
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
@@ -1098,6 +1102,17 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = { showVersionHistoryDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Icon(Icons.Filled.History, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(stringResource(R.string.version_history_button))
+            }
+
             if (showReleaseDialog) {
                 val release = (updateCheckState as? UpdateCheckState.AVAILABLE)?.release
                 if (release != null) {
@@ -1147,6 +1162,84 @@ fun SettingsScreen(
                         },
                     )
                 }
+            }
+
+            if (showVersionHistoryDialog) {
+                val isTurkishLocale = java.util.Locale.getDefault().language == "tr"
+                AlertDialog(
+                    onDismissRequest = { showVersionHistoryDialog = false },
+                    containerColor = scheme.surface,
+                    titleContentColor = scheme.onSurface,
+                    textContentColor = scheme.onSurfaceVariant,
+                    title = {
+                        Text(
+                            text = stringResource(R.string.version_history_title),
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    },
+                    text = {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            io.github.omeryol.akisgesture.util.VersionHistoryProvider.HISTORY.forEach { item ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                                        .padding(10.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "v${item.version} (${item.date})",
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFFFFAB00)
+                                        )
+                                        if (item.isCurrent) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .background(Color(0xFF00C853).copy(alpha = 0.2f))
+                                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                                            ) {
+                                                Text(
+                                                    text = if (isTurkishLocale) "Mevcut Sürüm" else "Current",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = Color(0xFF00E676),
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Spacer(Modifier.height(6.dp))
+                                    val notes = if (isTurkishLocale) item.changesTr else item.changesEn
+                                    notes.forEach { note ->
+                                        Text(
+                                            text = "• $note",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = scheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(bottom = 3.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showVersionHistoryDialog = false }) {
+                            Text(stringResource(R.string.close))
+                        }
+                    }
+                )
             }
 
             Spacer(Modifier.height(12.dp))
@@ -1212,20 +1305,40 @@ fun SettingsScreen(
             )
             Spacer(Modifier.height(10.dp))
 
-            OutlinedButton(
-                onClick = {
-                    context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ARCJ137442/OpenSwipe")),
-                    )
-                },
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(stringResource(R.string.open_upstream))
-                Spacer(Modifier.width(6.dp))
-                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
+                OutlinedButton(
+                    onClick = {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/omeryol/AkisGesture")),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Text(stringResource(R.string.open_project_repo), fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ARCJ137442/OpenSwipe")),
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                ) {
+                    Text(stringResource(R.string.open_upstream))
+                    Spacer(Modifier.width(6.dp))
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
+                }
             }
         }
+
     }
 
     // Backup Confirmation Dialog
