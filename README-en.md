@@ -11,14 +11,12 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
-## Version v1.3.1 Release Highlights
+## Version v1.3.2 Release Highlights
 
-- **📳 Haptic Vibration Hang Fix**: Resolved continuous vibration loop issue caused by hardware driver state lockups on accidental edge touches.
-- **📷 Camera & Call Auto-Pause**: Added options to automatically pause gestures during active camera/video recording and incoming/ongoing phone calls.
-- **⚪ Blacklist & Whitelist Mode**: Added Blacklist (pause in selected) and Whitelist (run ONLY in selected) modes for app exclusions with interactive removable chips.
-- **📜 Clean Release Notes**: Update dialog extracts concise release highlights instead of rendering full README text.
-- **↔️ Bottom-edge L Gestures**: Pull inward and turn right or left to use `L-right` and `L-left` gestures.
-- **💾 Complete Backup**: Settings, rules, app profiles, and paused apps are preserved in one JSON backup.
+- **🔒 Recents Protection**: Added a toggle to hide the app from the Recents screen (preventing accidental "Clear All" closure) and a padlock 🔒 guide card explaining the manual lock method.
+- **🔑 Transparent Root Guide**: Added a detailed info card (at the bottom of About) clearly stating root is NOT required and is only used for force-kill and custom shell commands in this app.
+- **📖 GitHub Repository Link**: Added a direct link to the Akış Gesture GitHub repository in the About section.
+- **🕰️ Version History Dialog**: Added an in-app Version History button and dialog listing changes across all past releases.
 
 
 ## Language support
