@@ -22,6 +22,10 @@
     <string name="update_check_available">Yeni sürüm var: %1$s</string>
     <string name="update_check_failed">Güncellemeler kontrol edilemedi</string>
     <string name="update_check_action">Kontrol et</string>
+    <string name="update_dialog_title">Yeni sürüm: %1$s</string>
+    <string name="update_dialog_subtitle">Yenilikler ve geliştirmeler</string>
+    <string name="update_dialog_no_notes">Bu sürüm için yayın notu bulunmuyor.</string>
+    <string name="update_dialog_download">APK’yı indir</string>
     <string name="about_support">Bu bir hobi ve topluluk projesidir. Güncelleme, cihaz uyumluluğu, hata düzeltme süresi veya bireysel destek garantisi verilmez. Tekrarlanabilir hata bildirimleri ve katkılar memnuniyetle karşılanır.</string>
     <string name="about_root">Temel hareketler root gerektirmez. Bazı ileri düzey eylemler root isteyebilir. Akış Gesture sistem gezinme çubuğunu gizlemez; tam ekran kurulumu cihaza ve ROM’a bağlıdır.</string>
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>

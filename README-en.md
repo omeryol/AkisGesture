@@ -17,7 +17,7 @@ an independent project.
 - **🖼️ Real Wallpaper**: The phone map uses the device's current wallpaper.
 - **🎨 Colorful Independent Settings**: Edge toggles, appearance cards, icon packs, and feedback settings work independently.
 - **💾 Complete Backup**: Settings, rules, app profiles, paused apps, and service preferences are preserved in one JSON backup.
-- **🔄 Update Check**: Check GitHub Releases for a newer version from `Settings > About`.
+- **🔄 Update Check**: Check GitHub Releases for a newer version from `Settings > About`, view release notes in app, and download APK directly.
 - **🌍 English and Turkish**: New gesture names and updated settings flows are localized in both languages.
 
 ## Language support

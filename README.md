@@ -18,7 +18,7 @@ korunur.
 - **🖼️ Gerçek Duvar Kağıdı**: Telefon haritası cihazın mevcut duvar kağıdını kullanır.
 - **🎨 Renkli ve Bağımsız Ayarlar**: Kenar anahtarları, görünüm kartları, ikon paketleri ve geri bildirim ayarları bağımsız çalışır.
 - **💾 Tam Yedekleme**: Ayarlar, kurallar, uygulama profilleri, duraklatılan uygulamalar ve servis tercihleri tek JSON yedeğinde korunur.
-- **🔄 Güncelleme Kontrolü**: Ayarlar > Hakkında üzerinden GitHub Releases’ta yeni sürüm olup olmadığını kontrol edin.
+- **🔄 Güncelleme Kontrolü**: Ayarlar > Hakkında üzerinden GitHub Releases’ta yeni sürüm olup olmadığını kontrol edin, sürüm notlarını görün ve doğrudan APK indirin.
 - **🌍 Türkçe ve İngilizce**: Yeni hareket adları ve güncel ayar akışları iki dilde sunulur.
 
 ## Dil desteği

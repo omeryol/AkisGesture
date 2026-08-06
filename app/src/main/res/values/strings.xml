@@ -22,6 +22,10 @@
     <string name="update_check_available">New release available: %1$s</string>
     <string name="update_check_failed">Could not check for updates</string>
     <string name="update_check_action">Check</string>
+    <string name="update_dialog_title">New release: %1$s</string>
+    <string name="update_dialog_subtitle">Highlights and improvements</string>
+    <string name="update_dialog_no_notes">No release notes were provided.</string>
+    <string name="update_dialog_download">Download APK</string>
     <string name="about_support">This is a hobby and community project. Updates, device compatibility, fix times, and individual support are not guaranteed. Reproducible bug reports and contributions are welcome.</string>
     <string name="about_root">Core gestures do not require root. Some advanced actions may require root. Akış Gesture does not hide the system navigation bar; full-screen setup depends on the device and ROM.</string>
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>

@@ -34,6 +34,8 @@ import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -119,6 +121,7 @@ fun SettingsScreen(
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
     var selectedSection by remember { mutableStateOf(0) }
     var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
+    var showReleaseDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
@@ -908,7 +911,17 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFFFAB00).copy(alpha = 0.15f))
+                    .background(
+                        when (updateCheckState) {
+                            UpdateCheckState.CURRENT -> Color(0xFF00C853).copy(alpha = 0.16f)
+                            UpdateCheckState.FAILED -> scheme.error.copy(alpha = 0.16f)
+                            is UpdateCheckState.AVAILABLE -> Color(0xFFFFAB00).copy(alpha = 0.20f)
+                            else -> Color(0xFFFFAB00).copy(alpha = 0.15f)
+                        }
+                    )
+                    .clickable(enabled = updateCheckState is UpdateCheckState.AVAILABLE) {
+                        showReleaseDialog = true
+                    }
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -929,9 +942,30 @@ fun SettingsScreen(
                             UpdateCheckState.FAILED -> stringResource(R.string.update_check_failed)
                         },
                         style = MaterialTheme.typography.labelSmall,
-                        color = scheme.onSurfaceVariant,
+                        color = when (updateCheckState) {
+                            UpdateCheckState.CURRENT -> Color(0xFF69F0AE)
+                            UpdateCheckState.FAILED -> scheme.error
+                            is UpdateCheckState.AVAILABLE -> Color(0xFFFFD54F)
+                            else -> scheme.onSurfaceVariant
+                        },
                     )
                 }
+                Icon(
+                    imageVector = when (updateCheckState) {
+                        UpdateCheckState.CURRENT -> Icons.Filled.CheckCircle
+                        UpdateCheckState.FAILED -> Icons.Filled.Error
+                        is UpdateCheckState.AVAILABLE -> Icons.Filled.CloudDownload
+                        else -> Icons.Filled.Refresh
+                    },
+                    contentDescription = null,
+                    tint = when (updateCheckState) {
+                        UpdateCheckState.CURRENT -> Color(0xFF00E676)
+                        UpdateCheckState.FAILED -> scheme.error
+                        is UpdateCheckState.AVAILABLE -> Color(0xFFFFC107)
+                        else -> scheme.primary
+                    },
+                    modifier = Modifier.size(22.dp),
+                )
                 OutlinedButton(
                     onClick = {
                         updateCheckState = UpdateCheckState.CHECKING
@@ -942,7 +976,7 @@ fun SettingsScreen(
                             updateCheckState = result.fold(
                                 onSuccess = { release ->
                                     if (GithubReleaseChecker.isNewerVersion(versionName, release.version)) {
-                                        UpdateCheckState.AVAILABLE(release)
+                                        UpdateCheckState.AVAILABLE(release).also { showReleaseDialog = true }
                                     } else {
                                         UpdateCheckState.CURRENT
                                     }
@@ -957,6 +991,52 @@ fun SettingsScreen(
                     Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(stringResource(R.string.update_check_action))
+                }
+            }
+
+            if (showReleaseDialog) {
+                val release = (updateCheckState as? UpdateCheckState.AVAILABLE)?.release
+                if (release != null) {
+                    AlertDialog(
+                        onDismissRequest = { showReleaseDialog = false },
+                        containerColor = scheme.surface,
+                        titleContentColor = scheme.onSurface,
+                        textContentColor = scheme.onSurfaceVariant,
+                        title = {
+                            Column {
+                                Text(
+                                    stringResource(R.string.update_dialog_title, release.version),
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    stringResource(R.string.update_dialog_subtitle),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color(0xFFFFC107),
+                                )
+                            }
+                        },
+                        text = {
+                            Text(
+                                text = release.notes.ifBlank { stringResource(R.string.update_dialog_no_notes) },
+                                modifier = Modifier.verticalScroll(rememberScrollState()),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(release.downloadUrl ?: release.url)))
+                                },
+                            ) {
+                                Text(stringResource(R.string.update_dialog_download))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showReleaseDialog = false }) {
+                                Text(stringResource(R.string.close))
+                            }
+                        },
+                    )
                 }
             }
 
