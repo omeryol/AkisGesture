@@ -27,7 +27,14 @@
     <string name="update_dialog_no_notes">No release notes were provided.</string>
     <string name="update_dialog_download">Download APK</string>
     <string name="about_support">This is a hobby and community project. Updates, device compatibility, fix times, and individual support are not guaranteed. Reproducible bug reports and contributions are welcome.</string>
-    <string name="about_root">Core gestures do not require root. Some advanced actions may require root. Akış Gesture does not hide the system navigation bar; full-screen setup depends on the device and ROM.</string>
+    <string name="about_root">Core gestures do not require root. Akış Gesture works 100% rootless; root permission is only used for optional advanced actions (Custom su commands, instant screen lock).</string>
+    <string name="about_root_title">🔑 Root Access &amp; Transparent Usage Guide</string>
+    <string name="about_root_not_required_title">✅ Root is NOT Required!</string>
+    <string name="about_root_not_required_desc">All core navigation gestures (Back, Home, Recents, Launch App, Media Controls, Screenshot, etc.) work 100% without root via standard Android Accessibility Service.</string>
+    <string name="about_root_features_title">⚡ What Does Root Do? (Optional)</string>
+    <string name="about_root_features_desc">• Instant Screen Lock: Immediate keyguard locking on certain ROMs.\n• Custom Shell (su) Commands: Executing user-configured terminal commands on gesture trigger.\n• Advanced Process Protection: Preserving process priority at the system level.</string>
+    <string name="about_root_privacy_desc">🛡️ Security &amp; Privacy: Even if root access is granted, Akış Gesture never transmits data over the internet. All your settings and rules stay 100% on your device.</string>
+
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>
     <string name="open_project_repo">Akış Gesture GitHub repository</string>
     <string name="open_upstream">OpenSwipe source project</string>
