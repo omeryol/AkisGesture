@@ -12,13 +12,14 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
-## Sürüm v1.2.0 Öne Çıkan Özellikler
+## Sürüm v1.3.0 Öne Çıkan Özellikler
 
-- **📱 %55 Büyütülmüş İnteraktif Kenar Haritası**: Siberpunk OLED radyal duvar kağıdı, ekran altı uygulama simgeleri ve doğrudan renkli jest şeritleri üzerinde yükselen eylem etiketleri.
-- **🏠 Ana Sayfa Görünüm Özelleştirme & Minimalizm**: Kenar Haritası, Canlı Kullanım Analiz Grafiği ve Düzen Şablon Kartları için Ayarlar menüsünden bağımsız açma/kapatma anahtarları.
-- **🎨 Canlı Multi-Color Ayar Kartları & 5-Kategorili Sekme Düzeni**: Monokrom tasarımdan uzaklaşarak canlı renk vurgulu kartlar (`accentTint`) ve `Hareket`, `Görünüm`, `Duraklat`, `Yedek`, `Hakkında` olmak üzere 5 temiz kategori sekmesi.
-- **⚡ Kesintisiz Master Switch Desteği**: Anahtar kapatıldığında uygulama içi kesintisiz duraklatma ve tüm ekran katmanlarının kaldırılması.
-- **🌍 Tam Çift Dilli Destek (Türkçe & İngilizce)**: Tüm menü, ayar ve grafik bileşenleri Türkçe ve İngilizce olarak %100 yerelleştirilmiştir.
+- **↔️ Alt Kenar L Hareketleri**: Alt kenardan içeri çekip sağa veya sola dönerek `L-Sağ` ve `L-Sol` hareketlerini kullanın.
+- **🖼️ Gerçek Duvar Kağıdı**: Telefon haritası cihazın mevcut duvar kağıdını kullanır.
+- **🎨 Renkli ve Bağımsız Ayarlar**: Kenar anahtarları, görünüm kartları, ikon paketleri ve geri bildirim ayarları bağımsız çalışır.
+- **💾 Tam Yedekleme**: Ayarlar, kurallar, uygulama profilleri, duraklatılan uygulamalar ve servis tercihleri tek JSON yedeğinde korunur.
+- **🔄 Güncelleme Kontrolü**: Ayarlar > Hakkında üzerinden GitHub Releases’ta yeni sürüm olup olmadığını kontrol edin.
+- **🌍 Türkçe ve İngilizce**: Yeni hareket adları ve güncel ayar akışları iki dilde sunulur.
 
 ## Dil desteği
 

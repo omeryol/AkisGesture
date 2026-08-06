@@ -1,5 +1,31 @@
 # Değişiklik Günlüğü
 
+## [1.3.0] - 2026-08-06
+
+### Jestler ve alt kenar L akışı
+- Alt kenar için `L-Sağ` ve `L-Sol` hareketleri eklendi.
+- Alt kenar L algılaması yatay dönüşleri kullanacak şekilde düzeltildi.
+- Aynı L yönü ve örtüşen alanlar için çakışma kontrolü korundu.
+- İkinci eylem ekleme akışındaki yanlış hedef state'i düzeltildi.
+- Hareket listesindeki küçük telefon görselleri ve sıra numarası yerleşimi iyileştirildi.
+
+### Arayüz, tema ve duvar kağıdı
+- Renkli kart teması ve bağımsız ayar anahtarları uygulama geneline yayıldı.
+- Sol, sağ ve alt kenar anahtarları kendi kenar sekmelerine taşındı.
+- Telefon haritasında cihazın gerçek duvar kağıdı kullanılmaya başlandı.
+- Panel uzunluğu, dikey konumu, canlı tetik önizlemesi ve ikon paketleri geliştirildi.
+- Açılışta gösterilen hatalı WhatsNew dialog akışı kaldırıldı.
+
+### Güncelleme ve yedekleme
+- Ayarlar > Hakkında bölümüne GitHub Releases üzerinden manuel güncelleme kontrolü eklendi.
+- Tüm ayarların, kuralların, uygulama profillerinin, duraklatılan uygulamaların ve erişilebilirlik tercihinin yedeklenmesi sağlandı.
+- Uygulama açılışındaki DataStore yaşam döngüsü çökmesi giderildi.
+
+### Teknik
+- Sürüm `1.3.0`, version code `46`.
+- Türkçe ve İngilizce kaynaklar güncellendi.
+- İmzalı APK: `AkisGesture-v1.3.0.apk`.
+
 ## [1.2.0] - 2026-08-04
 
 ### Üst Başlık & Düzen İyileştirmeleri (Header & Layout Polish)

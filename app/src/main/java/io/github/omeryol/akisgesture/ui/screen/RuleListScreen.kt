@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -262,7 +263,7 @@ fun RuleListScreen(
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            activeProfileLabel,
+                            text = if (!activePreset.isNullOrBlank()) "$activeProfileLabel • $activePreset" else activeProfileLabel,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -392,11 +393,6 @@ fun RuleListScreen(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.weight(1f),
                             )
-                            TextButton(onClick = { showMap = true }) {
-                                Icon(Icons.Filled.Map, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                Spacer(Modifier.width(4.dp))
-                                Text(stringResource(R.string.map_frame), color = MaterialTheme.colorScheme.primary)
-                            }
                         }
                     }
                     itemsIndexed(visibleGroups, key = { _, group -> group.key }) { index, group ->
@@ -409,7 +405,9 @@ fun RuleListScreen(
                                 selectedGroupKey = group.key
                                 if (rule != null) {
                                     editingActionRuleId = rule.id
+                                    addingGestureType = null
                                 } else {
+                                    editingActionRuleId = null
                                     addingGestureType = gestureType
                                 }
                                 openActionPicker()
@@ -768,26 +766,39 @@ private fun RuleTableRow(
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .background(accent.copy(alpha = if (enabled) 0.24f else 0.10f)),
-                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(52.dp, 92.dp),
+                contentAlignment = Alignment.TopStart,
             ) {
-                Text(
-                    number.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (enabled) accent else scheme.onSurfaceVariant,
-                )
+                Column(
+                    modifier = Modifier.align(Alignment.TopStart),
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .background(accent.copy(alpha = if (enabled) 0.24f else 0.10f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            number.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (enabled) accent else scheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    EdgeZoneVisual(
+                        edge = rule.trigger.edge,
+                        section = rule.trigger.section,
+                        modifier = Modifier.align(Alignment.Start),
+                        zoneColor = if (enabled) accent else scheme.outline,
+                        width = 44.dp,
+                        height = 62.dp,
+                    )
+                }
             }
             Spacer(Modifier.width(8.dp))
-            EdgeZoneVisual(
-                edge = rule.trigger.edge,
-                section = rule.trigger.section,
-                zoneColor = if (enabled) accent else scheme.outline,
-            )
-            Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 // 1. QUICK SWIPE (⚡ Hızlı Çekme)
                 ActionCell(
@@ -809,7 +820,7 @@ private fun RuleTableRow(
                 )
                 // 3. L-SWIPE UP (↗️ L-Yukarı)
                 ActionCell(
-                    badge = stringResource(R.string.l_up_badge),
+                    badge = stringResource(if (group.representative.trigger.edge == Edge.BOTTOM) R.string.l_right_badge else R.string.l_up_badge),
                     badgeBg = scheme.tertiary.copy(alpha = 0.16f),
                     badgeText = scheme.tertiary,
                     rule = group.lUp,
@@ -818,7 +829,7 @@ private fun RuleTableRow(
                 )
                 // 4. L-SWIPE DOWN (↘️ L-Aşağı)
                 ActionCell(
-                    badge = stringResource(R.string.l_down_badge),
+                    badge = stringResource(if (group.representative.trigger.edge == Edge.BOTTOM) R.string.l_left_badge else R.string.l_down_badge),
                     badgeBg = scheme.primary.copy(alpha = 0.12f),
                     badgeText = scheme.primary,
                     rule = group.lDown,

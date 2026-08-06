@@ -12,6 +12,16 @@
     <string name="about_title">Akış Gesture</string>
     <string name="about_subtitle">Bağımsız, açık kaynaklı kenar hareketleri uygulaması</string>
     <string name="version">Sürüm</string>
+    <string name="edge_enabled_subtitle">Bu kenardan gelen hareketleri etkinleştir</string>
+    <string name="gesture_indicator_bar">Hareket gösterge çubuğu</string>
+    <string name="gesture_indicator_bar_subtitle">Hareket geri bildirim çubuğunu göster</string>
+    <string name="update_check_title">Uygulama güncellemeleri</string>
+    <string name="update_check_idle">GitHub üzerinde yeni sürüm kontrolü yapın</string>
+    <string name="update_check_checking">Güncellemeler kontrol ediliyor…</string>
+    <string name="update_check_current">Güncelsiniz (%1$s)</string>
+    <string name="update_check_available">Yeni sürüm var: %1$s</string>
+    <string name="update_check_failed">Güncellemeler kontrol edilemedi</string>
+    <string name="update_check_action">Kontrol et</string>
     <string name="about_support">Bu bir hobi ve topluluk projesidir. Güncelleme, cihaz uyumluluğu, hata düzeltme süresi veya bireysel destek garantisi verilmez. Tekrarlanabilir hata bildirimleri ve katkılar memnuniyetle karşılanır.</string>
     <string name="about_root">Temel hareketler root gerektirmez. Bazı ileri düzey eylemler root isteyebilir. Akış Gesture sistem gezinme çubuğunu gizlemez; tam ekran kurulumu cihaza ve ROM’a bağlıdır.</string>
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
@@ -51,7 +61,7 @@
     <string name="action_brightness_down">Parlaklığı azalt</string>
     <string name="action_none">İşlem yok</string>
     <string name="edge_left">Sol kenar</string><string name="edge_right">Sağ kenar</string><string name="edge_bottom">Alt kenar</string>
-    <string name="gesture_quick">Hızlı çekme</string><string name="gesture_hold">Çekip bekletme</string><string name="gesture_l_up">L-Çekme (yukarı)</string><string name="gesture_l_down">L-Çekme (aşağı)</string>
+    <string name="gesture_quick">Hızlı çekme</string><string name="gesture_hold">Çekip bekletme</string><string name="gesture_l_up">L-Çekme (yukarı)</string><string name="gesture_l_down">L-Çekme (aşağı)</string><string name="gesture_l_right">L-Çekme (sağa)</string><string name="gesture_l_left">L-Çekme (sola)</string>
     <string name="section_all">Tüm alan</string><string name="section_top">Üst bölüm</string><string name="section_bottom">Alt bölüm</string><string name="section_left">Sol bölüm</string><string name="section_right">Sağ bölüm</string><string name="section_middle">Orta bölüm</string><string name="section_top_half">Üst yarısı</string><string name="section_bottom_half">Alt yarısı</string><string name="section_left_half">Sol yarısı</string><string name="section_right_half">Sağ yarısı</string><string name="section_custom">Özel alan · %1$d–%2$d</string>
     <string name="hold_on_release">Parmak kalkınca</string><string name="hold_on_threshold">Eşik geçilince</string>
     <string name="animation_ocean">Su yüzeyi</string><string name="animation_droplet">Yüzey gerilimli damla</string><string name="animation_fire">Doğal alev</string><string name="animation_mist">Yavaş sis</string><string name="animation_electric">Elektrik arkı</string><string name="animation_sun">Isı koronası</string><string name="animation_aurora">Aurora akışı</string><string name="animation_glass">Buzlu cam dalgası</string><string name="animation_neon">Sönümlü ışık halkası</string><string name="animation_stars">Yıldız akışı</string><string name="animation_ice">Buz gerilim çatlağı</string><string name="animation_vortex">Su girdabı</string><string name="animation_rain">Yağmur</string><string name="animation_ember">Yükselen kor</string><string name="animation_wind">Rüzgâr akışı</string><string name="animation_bubbles">Su baloncukları</string><string name="animation_ink">Suda mürekkep</string><string name="animation_heat">Isıl akış</string><string name="animation_elastic">Elastik yüzey ayrımı</string><string name="animation_night">Gece ışığı</string><string name="animation_particles">Tanecik çözünmesi</string><string name="animation_pressure">Basınç dalgası</string><string name="animation_dew">Cam üzerinde çiy</string><string name="animation_prism">Prizmatik gerilim</string><string name="animation_icon_only">Sade cam simge</string><string name="animation_off">Kapalı</string>
@@ -126,4 +136,10 @@
     <string name="icon_pack_tech_symbol_desc">Keskin geometrik sistem göstergeleri</string>
     <string name="icon_pack_retro_classic">🕹️ Klasik Retro</string>
     <string name="icon_pack_retro_classic_desc">Nostaljik pikselli sistem simgeleri</string>
+    <string name="l_right_with_icon">L-Çekme (sağa) ↗️</string>
+    <string name="l_right_description">İçeri çekip parmağınızı sağa kaydırdığınızda</string>
+    <string name="l_left_with_icon">L-Çekme (sola) ↖️</string>
+    <string name="l_left_description">İçeri çekip parmağınızı sola kaydırdığınızda</string>
+    <string name="l_right_badge">↗️ L-Sağ</string>
+    <string name="l_left_badge">↖️ L-Sol</string>
 </resources>

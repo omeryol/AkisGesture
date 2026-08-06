@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 private fun AkisGestureApp() {
     val navController = rememberNavController()
+
     // Rules and detail pages must share one state holder. Route-scoped instances
     // can briefly show an empty list while a newly added rule is being opened.
     val ruleConfigViewModel: RuleConfigViewModel = viewModel()

@@ -36,6 +36,7 @@ object SettingsBackupManager {
         fun <T> snapshot(key: Preferences.Key<T>, value: T): kotlin.Pair<Preferences.Key<*>, Any> =
             kotlin.Pair(key, value as Any)
         val resolvedConfigEntries = listOf(
+            snapshot(GestureConfig.KEY_MASTER_ENABLED, config.masterEnabled),
             snapshot(GestureConfig.KEY_LEFT_ENABLED, config.leftEnabled),
             snapshot(GestureConfig.KEY_RIGHT_ENABLED, config.rightEnabled),
             snapshot(GestureConfig.KEY_BOTTOM_ENABLED, config.bottomEnabled),
@@ -48,6 +49,7 @@ object SettingsBackupManager {
             snapshot(GestureConfig.KEY_SECONDARY_COLOR, config.secondaryColorArgb),
             snapshot(GestureConfig.KEY_L_SWIPE_COLOR, config.lSwipeColorArgb),
             snapshot(GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR, config.useAppAdaptiveColor),
+            snapshot(GestureConfig.KEY_ACTION_ICON_PACK, config.actionIconPack.id),
             snapshot(GestureConfig.KEY_FEEDBACK_OPACITY, config.feedbackOpacity),
             snapshot(GestureConfig.KEY_FEEDBACK_ANIMATION, config.feedbackAnimation.name),
             snapshot(GestureConfig.KEY_QUICK_FEEDBACK_ICON, config.quickFeedbackIcon.name),
@@ -62,6 +64,7 @@ object SettingsBackupManager {
             snapshot(GestureConfig.KEY_ANIMATION_SPEED, config.animationSpeed),
             snapshot(GestureConfig.KEY_ANIMATION_SIZE, config.animationSize),
             snapshot(GestureConfig.KEY_HAPTIC_ENABLED, config.hapticEnabled),
+            snapshot(GestureConfig.KEY_SHOW_GESTURE_INDICATOR_BAR, config.showGestureIndicatorBar),
             snapshot(GestureConfig.KEY_LEFT_DAMPING, config.leftDamping),
             snapshot(GestureConfig.KEY_RIGHT_DAMPING, config.rightDamping),
             snapshot(GestureConfig.KEY_BOTTOM_DAMPING, config.bottomDamping),

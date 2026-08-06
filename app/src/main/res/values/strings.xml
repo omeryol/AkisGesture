@@ -12,6 +12,16 @@
     <string name="about_title">Akış Gesture</string>
     <string name="about_subtitle">Independent, open-source edge gesture application</string>
     <string name="version">Version</string>
+    <string name="edge_enabled_subtitle">Enable gestures from this edge</string>
+    <string name="gesture_indicator_bar">Gesture indicator bar</string>
+    <string name="gesture_indicator_bar_subtitle">Show the visual gesture feedback bar</string>
+    <string name="update_check_title">App updates</string>
+    <string name="update_check_idle">Check GitHub for a newer release</string>
+    <string name="update_check_checking">Checking for updates…</string>
+    <string name="update_check_current">You are up to date (%1$s)</string>
+    <string name="update_check_available">New release available: %1$s</string>
+    <string name="update_check_failed">Could not check for updates</string>
+    <string name="update_check_action">Check</string>
     <string name="about_support">This is a hobby and community project. Updates, device compatibility, fix times, and individual support are not guaranteed. Reproducible bug reports and contributions are welcome.</string>
     <string name="about_root">Core gestures do not require root. Some advanced actions may require root. Akış Gesture does not hide the system navigation bar; full-screen setup depends on the device and ROM.</string>
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>
@@ -51,7 +61,7 @@
     <string name="action_brightness_down">Decrease brightness</string>
     <string name="action_none">No action</string>
     <string name="edge_left">Left edge</string><string name="edge_right">Right edge</string><string name="edge_bottom">Bottom edge</string>
-    <string name="gesture_quick">Quick swipe</string><string name="gesture_hold">Swipe and hold</string><string name="gesture_l_up">L-swipe (up)</string><string name="gesture_l_down">L-swipe (down)</string>
+    <string name="gesture_quick">Quick swipe</string><string name="gesture_hold">Swipe and hold</string><string name="gesture_l_up">L-swipe (up)</string><string name="gesture_l_down">L-swipe (down)</string><string name="gesture_l_right">L-swipe (right)</string><string name="gesture_l_left">L-swipe (left)</string>
     <string name="section_all">Entire area</string><string name="section_top">Top section</string><string name="section_bottom">Bottom section</string><string name="section_left">Left section</string><string name="section_right">Right section</string><string name="section_middle">Middle section</string><string name="section_top_half">Top half</string><string name="section_bottom_half">Bottom half</string><string name="section_left_half">Left half</string><string name="section_right_half">Right half</string><string name="section_custom">Custom area · %1$d–%2$d</string>
     <string name="hold_on_release">When finger is released</string><string name="hold_on_threshold">When threshold is crossed</string>
     <string name="animation_ocean">Water surface</string><string name="animation_droplet">Surface-tension droplet</string><string name="animation_fire">Natural flame</string><string name="animation_mist">Slow mist</string><string name="animation_electric">Electric arc</string><string name="animation_sun">Solar corona</string><string name="animation_aurora">Aurora flow</string><string name="animation_glass">Frosted glass wave</string><string name="animation_neon">Damped light ring</string><string name="animation_stars">Star flow</string><string name="animation_ice">Ice tension fracture</string><string name="animation_vortex">Water vortex</string><string name="animation_rain">Rain</string><string name="animation_ember">Rising ember</string><string name="animation_wind">Wind flow</string><string name="animation_bubbles">Water bubbles</string><string name="animation_ink">Ink in water</string><string name="animation_heat">Heat flow</string><string name="animation_elastic">Elastic surface split</string><string name="animation_night">Night light</string><string name="animation_particles">Particle dissolve</string><string name="animation_pressure">Pressure wave</string><string name="animation_dew">Dew on glass</string><string name="animation_prism">Prismatic tension</string><string name="animation_icon_only">Minimal glass icon</string><string name="animation_off">Off</string>
@@ -126,4 +136,10 @@
     <string name="icon_pack_tech_symbol_desc">Crisp geometric system indicators</string>
     <string name="icon_pack_retro_classic">🕹️ Retro Classic</string>
     <string name="icon_pack_retro_classic_desc">Classic pixel arcade &amp; system icons</string>
+    <string name="l_right_with_icon">L-swipe (right) ↗️</string>
+    <string name="l_right_description">When you pull inward and slide right</string>
+    <string name="l_left_with_icon">L-swipe (left) ↖️</string>
+    <string name="l_left_description">When you pull inward and slide left</string>
+    <string name="l_right_badge">↗️ L-right</string>
+    <string name="l_left_badge">↖️ L-left</string>
 </resources>

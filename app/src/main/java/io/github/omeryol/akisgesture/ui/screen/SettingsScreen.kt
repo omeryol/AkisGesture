@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Speed
@@ -92,6 +93,8 @@ import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RootAccessState
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.util.GithubRelease
+import io.github.omeryol.akisgesture.util.GithubReleaseChecker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -115,6 +118,7 @@ fun SettingsScreen(
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
     var selectedSection by remember { mutableStateOf(0) }
+    var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
 
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
@@ -300,6 +304,20 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(10.dp))
+
+            val selectedEdgeEnabled = when (selectedEdge) {
+                Edge.LEFT -> config.leftEnabled
+                Edge.RIGHT -> config.rightEnabled
+                Edge.BOTTOM -> config.bottomEnabled
+            }
+            AkisSwitchRow(
+                title = edgeLabel(context, selectedEdge),
+                subtitle = stringResource(R.string.edge_enabled_subtitle),
+                checked = selectedEdgeEnabled,
+                onCheckedChange = { viewModel.setEdgeEnabled(selectedEdge, it) },
+            )
+
+            Spacer(Modifier.height(6.dp))
 
             val currentWidth = when (selectedEdge) {
                 Edge.LEFT -> config.leftTriggerWidthDp
@@ -565,6 +583,13 @@ fun SettingsScreen(
                 value = config.animationSize,
                 valueRange = 0.5f..2.0f,
                 onValueChange = viewModel::setAnimationSize
+            )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.gesture_indicator_bar),
+                subtitle = stringResource(R.string.gesture_indicator_bar_subtitle),
+                checked = config.showGestureIndicatorBar,
+                onCheckedChange = viewModel::setShowGestureIndicatorBar,
             )
         }
 
@@ -877,6 +902,64 @@ fun SettingsScreen(
             Spacer(Modifier.height(10.dp))
 
             AboutInfoRow(label = stringResource(R.string.version), value = versionName)
+            Spacer(Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFFAB00).copy(alpha = 0.15f))
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.update_check_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                    Text(
+                        text = when (val state = updateCheckState) {
+                            UpdateCheckState.IDLE -> stringResource(R.string.update_check_idle)
+                            UpdateCheckState.CHECKING -> stringResource(R.string.update_check_checking)
+                            UpdateCheckState.CURRENT -> stringResource(R.string.update_check_current, versionName)
+                            is UpdateCheckState.AVAILABLE -> stringResource(R.string.update_check_available, state.release.version)
+                            UpdateCheckState.FAILED -> stringResource(R.string.update_check_failed)
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.onSurfaceVariant,
+                    )
+                }
+                OutlinedButton(
+                    onClick = {
+                        updateCheckState = UpdateCheckState.CHECKING
+                        scope.launch {
+                            val result = withContext(Dispatchers.IO) {
+                                runCatching { GithubReleaseChecker.fetchLatestRelease() }
+                            }
+                            updateCheckState = result.fold(
+                                onSuccess = { release ->
+                                    if (GithubReleaseChecker.isNewerVersion(versionName, release.version)) {
+                                        UpdateCheckState.AVAILABLE(release)
+                                    } else {
+                                        UpdateCheckState.CURRENT
+                                    }
+                                },
+                                onFailure = { UpdateCheckState.FAILED },
+                            )
+                        }
+                    },
+                    enabled = updateCheckState != UpdateCheckState.CHECKING,
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.update_check_action))
+                }
+            }
+
             Spacer(Modifier.height(12.dp))
             Text(
                 text = stringResource(R.string.language),
@@ -1009,6 +1092,14 @@ fun SettingsScreen(
             }
         )
     }
+}
+
+private sealed interface UpdateCheckState {
+    data object IDLE : UpdateCheckState
+    data object CHECKING : UpdateCheckState
+    data object CURRENT : UpdateCheckState
+    data class AVAILABLE(val release: GithubRelease) : UpdateCheckState
+    data object FAILED : UpdateCheckState
 }
 
 @Composable

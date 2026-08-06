@@ -11,13 +11,14 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
-## Version v1.2.0 Release Highlights
+## Version v1.3.0 Release Highlights
 
-- **📱 55% Enlarged Interactive Phone Map**: Features Cyberpunk OLED radial wallpaper, simulated launcher dock icons, and direct action overlay badges attached right on top of colored gesture strips.
-- **🏠 Home Screen Customization & Minimalism**: Toggle switches in Settings for hiding/showing the Phone Map, Live Usage Chart, and Preset Template cards.
-- **🎨 Vibrant Multi-Color Settings Cards & 5-Category Tabs**: Rich accent-tinted cards (`accentTint`) organized into 5 clean tabs: `Motion`, `Appearance`, `Pause`, `Backup`, and `About`.
-- **⚡ Seamless Master Switch**: Toggling off pauses gesture detection in-app and removes screen overlays immediately without navigating away.
-- **🌍 Full Dual-Language Localization (English & Turkish)**: Complete localization across all UI screens, setting cards, charts, and navigation elements.
+- **↔️ Bottom-edge L Gestures**: Pull inward and turn right or left to use `L-right` and `L-left` gestures.
+- **🖼️ Real Wallpaper**: The phone map uses the device's current wallpaper.
+- **🎨 Colorful Independent Settings**: Edge toggles, appearance cards, icon packs, and feedback settings work independently.
+- **💾 Complete Backup**: Settings, rules, app profiles, paused apps, and service preferences are preserved in one JSON backup.
+- **🔄 Update Check**: Check GitHub Releases for a newer version from `Settings > About`.
+- **🌍 English and Turkish**: New gesture names and updated settings flows are localized in both languages.
 
 ## Language support
 

@@ -63,27 +63,43 @@ class LSwipeDetector {
             android.util.Log.d("AkisGesture", "L_INWARD_UNARMED edge=$edge currentInward=$currentInwardPx threshold=$inwardThreshold")
         }
 
-        if (inwardArmed && (edge == Edge.LEFT || edge == Edge.RIGHT)) {
+        if (inwardArmed) {
             val turnDyRaw = event.rawY - bendStartY
             val turnDy = abs(turnDyRaw)
             val turnDx = abs(event.rawX - downX).coerceAtLeast(1f)
             val turnThreshold = lSwipeThresholdPx.coerceAtLeast(1f)
-            val candidateDirection = if (turnDyRaw <= 0f) {
-                GestureType.SWIPE_UP_L
+            val turnDistance: Float
+            val perpendicularDistance: Float
+            val candidateDirection: GestureType
+            if (edge == Edge.BOTTOM) {
+                val turnDxRaw = event.rawX - downX
+                turnDistance = abs(turnDxRaw)
+                perpendicularDistance = turnDy
+                candidateDirection = if (turnDxRaw >= 0f) {
+                    GestureType.SWIPE_UP_L
+                } else {
+                    GestureType.SWIPE_DOWN_L
+                }
             } else {
-                GestureType.SWIPE_DOWN_L
+                turnDistance = turnDy
+                perpendicularDistance = turnDx
+                candidateDirection = if (turnDyRaw <= 0f) {
+                    GestureType.SWIPE_UP_L
+                } else {
+                    GestureType.SWIPE_DOWN_L
+                }
             }
             val directionAllowed = completedDirection == null || completedDirection == candidateDirection
             turnProgress = if (directionAllowed) {
-                (turnDy / turnThreshold).coerceIn(0f, 1f)
+                (turnDistance / turnThreshold).coerceIn(0f, 1f)
             } else {
                 0f
             }
 
-            if (directionAllowed && turnDy >= turnThreshold && turnDy >= turnDx * 1.0f) {
+            if (directionAllowed && turnDistance >= turnThreshold && turnDistance >= perpendicularDistance * 1.0f) {
                 completedDirection = candidateDirection
                 detectedLGesture = candidateDirection
-            } else if (!directionAllowed || turnDy < turnThreshold * 0.78f) {
+            } else if (!directionAllowed || turnDistance < turnThreshold * 0.78f) {
                 detectedLGesture = null
             }
         }

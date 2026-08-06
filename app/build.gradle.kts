@@ -14,8 +14,8 @@ android {
         applicationId = "io.github.omeryol.akisgesture"
         minSdk = 26
         targetSdk = 35
-        versionCode = 44
-        versionName = "1.2.0"
+        versionCode = 46
+        versionName = "1.3.0"
     }
 
     signingConfigs {
