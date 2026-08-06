@@ -29,7 +29,11 @@
     <string name="about_support">Bu bir hobi ve topluluk projesidir. Güncelleme, cihaz uyumluluğu, hata düzeltme süresi veya bireysel destek garantisi verilmez. Tekrarlanabilir hata bildirimleri ve katkılar memnuniyetle karşılanır.</string>
     <string name="about_root">Temel hareketler root gerektirmez. Bazı ileri düzey eylemler root isteyebilir. Akış Gesture sistem gezinme çubuğunu gizlemez; tam ekran kurulumu cihaza ve ROM’a bağlıdır.</string>
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
+    <string name="open_project_repo">Akış Gesture GitHub deposu</string>
     <string name="open_upstream">OpenSwipe kaynak projesi</string>
+    <string name="version_history_button">Sürüm Geçmişi</string>
+    <string name="version_history_title">Sürüm Geçmişi ve Değişiklik Günlüğü</string>
+
     <string name="action_back">Geri</string>
     <string name="action_home">Ana ekran</string>
     <string name="action_recents">Son uygulamalar</string>

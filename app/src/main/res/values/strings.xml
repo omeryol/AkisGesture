@@ -29,7 +29,11 @@
     <string name="about_support">This is a hobby and community project. Updates, device compatibility, fix times, and individual support are not guaranteed. Reproducible bug reports and contributions are welcome.</string>
     <string name="about_root">Core gestures do not require root. Some advanced actions may require root. Akış Gesture does not hide the system navigation bar; full-screen setup depends on the device and ROM.</string>
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>
+    <string name="open_project_repo">Akış Gesture GitHub repository</string>
     <string name="open_upstream">OpenSwipe source project</string>
+    <string name="version_history_button">Version History</string>
+    <string name="version_history_title">Version History &amp; Changelog</string>
+
     <string name="action_back">Back</string>
     <string name="action_home">Home</string>
     <string name="action_recents">Recents</string>
