@@ -127,6 +127,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updatePauseOnPermissionScreen(enabled) }
     }
 
+    fun setPauseOnCamera(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseOnCamera(enabled) }
+    }
+
+    fun setPauseOnPhoneCall(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseOnPhoneCall(enabled) }
+    }
+
+    fun setAppPauseMode(mode: io.github.omeryol.akisgesture.gesture.AppPauseMode) {
+        viewModelScope.launch { app.updateAppPauseMode(mode) }
+    }
+
+
     // ── Per-edge sensitivity ──
 
     fun setEdgeTriggerSize(edge: Edge, dp: Float) {

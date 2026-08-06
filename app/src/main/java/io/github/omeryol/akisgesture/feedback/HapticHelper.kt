@@ -50,8 +50,6 @@ object HapticHelper {
     }
 
     private fun vibrateOnce(vibrator: Vibrator, durationMs: Long, amplitude: Int) {
-        // Clear a pulse left by an interrupted gesture, then enqueue exactly one.
-        runCatching { vibrator.cancel() }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             runCatching {
                 val effect = if (vibrator.hasAmplitudeControl()) {
@@ -68,6 +66,14 @@ object HapticHelper {
             }.onFailure { Log.w(TAG, "legacy vibrate failed", it) }
         }
     }
+
+    fun cancel(context: Context) {
+        getVibrator(context)?.takeIf { it.hasVibrator() }?.let { vibrator ->
+            runCatching { vibrator.cancel() }
+                .onFailure { Log.w(TAG, "cancel vibrate failed", it) }
+        }
+    }
+
 
     private fun playSound(context: Context) {
         val now = System.currentTimeMillis()

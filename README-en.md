@@ -11,14 +11,15 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
-## Version v1.3.0 Release Highlights
+## Version v1.3.1 Release Highlights
 
+- **📳 Haptic Vibration Hang Fix**: Resolved continuous vibration loop issue caused by hardware driver state lockups on accidental edge touches.
+- **📷 Camera & Call Auto-Pause**: Added options to automatically pause gestures during active camera/video recording and incoming/ongoing phone calls.
+- **⚪ Blacklist & Whitelist Mode**: Added Blacklist (pause in selected) and Whitelist (run ONLY in selected) modes for app exclusions with interactive removable chips.
+- **📜 Clean Release Notes**: Update dialog extracts concise release highlights instead of rendering full README text.
 - **↔️ Bottom-edge L Gestures**: Pull inward and turn right or left to use `L-right` and `L-left` gestures.
-- **🖼️ Real Wallpaper**: The phone map uses the device's current wallpaper.
-- **🎨 Colorful Independent Settings**: Edge toggles, appearance cards, icon packs, and feedback settings work independently.
-- **💾 Complete Backup**: Settings, rules, app profiles, paused apps, and service preferences are preserved in one JSON backup.
-- **🔄 Update Check**: Check GitHub Releases for a newer version from `Settings > About`, view release notes in app, and download APK directly.
-- **🌍 English and Turkish**: New gesture names and updated settings flows are localized in both languages.
+- **💾 Complete Backup**: Settings, rules, app profiles, and paused apps are preserved in one JSON backup.
+
 
 ## Language support
 

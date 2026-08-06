@@ -120,6 +120,12 @@ class AkisGestureApp : Application() {
                     pauseInLandscape = prefs[GestureConfig.KEY_PAUSE_IN_LANDSCAPE] ?: false,
                     pauseOnFullScreen = prefs[GestureConfig.KEY_PAUSE_ON_FULL_SCREEN] ?: true,
                     pauseOnPermissionScreen = prefs[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] ?: true,
+                    pauseOnCamera = prefs[GestureConfig.KEY_PAUSE_ON_CAMERA] ?: false,
+                    pauseOnPhoneCall = prefs[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] ?: false,
+                    appPauseMode = prefs[GestureConfig.KEY_APP_PAUSE_MODE]
+                        ?.let { runCatching { io.github.omeryol.akisgesture.gesture.AppPauseMode.valueOf(it) }.getOrNull() }
+                        ?: io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST,
+
                     hapticIntensity = prefs[GestureConfig.KEY_HAPTIC_INTENSITY] ?: 1f,
                     hapticSoundEnabled = prefs[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] ?: false,
                     hapticEnabled = prefs[GestureConfig.KEY_HAPTIC_ENABLED] ?: true,
@@ -346,6 +352,19 @@ class AkisGestureApp : Application() {
     suspend fun updatePauseOnPermissionScreen(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] = enabled }
     }
+
+    suspend fun updatePauseOnCamera(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_CAMERA] = enabled }
+    }
+
+    suspend fun updatePauseOnPhoneCall(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] = enabled }
+    }
+
+    suspend fun updateAppPauseMode(mode: io.github.omeryol.akisgesture.gesture.AppPauseMode) {
+        settingsDataStore.edit { it[GestureConfig.KEY_APP_PAUSE_MODE] = mode.name }
+    }
+
 
     suspend fun updateHapticIntensity(intensity: Float) {
         settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_INTENSITY] = intensity.coerceIn(0f, 1f) }

@@ -1,6 +1,26 @@
 # Değişiklik Günlüğü
 
+## [1.3.1] - 2026-08-06
+
+### Titreşim ve Fizik Düzeltmeleri
+- Tetik alanlarına kazara değildiğinde bazı Android cihazların titreşim motorunda oluşan sürekli titreme (donanım kilitlenmesi) hatası düzeltildi.
+- Parmağın ekrandan ayrıldığı an (dokunma sonlanması) tüm aktif titreşim vuruşlarının anında kesilmesi sağlandı.
+
+### Gelişmiş Duraklatma ve Uygulama İstisnaları
+- **Kamera ve Çekim Esnasında Duraklatma**: Kamera vizörü açıkken veya video kaydı yapılırken jestlerin otomatik duraklatılması eklendi.
+- **Gelen Arama ve Görüşmelerde Duraklatma**: Telefon çaldığında veya sesli görüşme esnasında jestlerin kapanması sağlandı.
+- **Kara Liste & Beyaz Liste Çalışma Modu**: Uygulama istisnaları için Kara Liste (seçilenlerde duraklat) ve Beyaz Liste (yalnızca seçilenlerde çalış) seçenekleri entegre edildi.
+- **İnteraktif Uygulama Rozetleri**: Duraklatılan uygulamalar ayarlar kartında doğrudan isimleriyle rozetler (chips) olarak listelendi ve tek tıkla kaldırma düğmesi eklendi.
+
+### Güncelleme Penceresi ve Notlar
+- Güncelleme kontrol diyalog penceresinde tüm README metni yerine yalnızca ilgili sürüme ait yeniliklerin süzülerek gösterilmesi sağlandı.
+
+### Teknik
+- Sürüm `1.3.1`, version code `47`.
+- İmzalı APK: `AkisGesture-v1.3.1.apk`.
+
 ## [1.3.0] - 2026-08-06
+
 
 ### Jestler ve alt kenar L akışı
 - Alt kenar için `L-Sağ` ve `L-Sol` hareketleri eklendi.

@@ -89,7 +89,11 @@ data class GestureConfig(
     val pauseInLandscape: Boolean = false,
     val pauseOnFullScreen: Boolean = true,
     val pauseOnPermissionScreen: Boolean = true,
+    val pauseOnCamera: Boolean = false,
+    val pauseOnPhoneCall: Boolean = false,
+    val appPauseMode: AppPauseMode = AppPauseMode.BLACKLIST,
 ) {
+
     /** Get damping factor for a specific edge. */
     fun dampingFor(edge: io.github.omeryol.akisgesture.overlay.Edge): Float = when (edge) {
         io.github.omeryol.akisgesture.overlay.Edge.LEFT -> leftDamping
@@ -149,6 +153,10 @@ data class GestureConfig(
         val KEY_PAUSE_IN_LANDSCAPE = booleanPreferencesKey("pause_in_landscape")
         val KEY_PAUSE_ON_FULL_SCREEN = booleanPreferencesKey("pause_on_full_screen")
         val KEY_PAUSE_ON_PERMISSION_SCREEN = booleanPreferencesKey("pause_on_permission_screen")
+        val KEY_PAUSE_ON_CAMERA = booleanPreferencesKey("pause_on_camera")
+        val KEY_PAUSE_ON_PHONE_CALL = booleanPreferencesKey("pause_on_phone_call")
+        val KEY_APP_PAUSE_MODE = stringPreferencesKey("app_pause_mode")
+
         val KEY_HAPTIC_INTENSITY = floatPreferencesKey("haptic_intensity")
         val KEY_HAPTIC_SOUND_ENABLED = booleanPreferencesKey("haptic_sound_enabled")
         val KEY_ANIMATION_SPEED = floatPreferencesKey("animation_speed")

@@ -252,6 +252,7 @@ class GestureAccessibilityService : AccessibilityService() {
         _serviceState.value = ServiceState.DISCONNECTED
     }
 
+
     fun doPerformGlobalAction(actionId: Int): Boolean {
         return performGlobalAction(actionId)
     }
@@ -280,7 +281,15 @@ class GestureAccessibilityService : AccessibilityService() {
         }.getOrDefault(false)
         // Permission screen detection: package installer or permission controller
         val permissionScreen = foregroundPackage() in PERMISSION_PACKAGES
-        gestureEngine.onSystemContextChanged(locked, keyboard, landscape, fullScreen, permissionScreen, keyboardTopRatio)
+
+        val fgPkg = foregroundPackage()?.lowercase() ?: ""
+        val cameraActive = fgPkg.contains("camera")
+        val phoneCallActive = fgPkg.contains("incallui") || fgPkg.contains("telecom") || fgPkg.contains("dialer") || fgPkg == "com.android.phone"
+
+        gestureEngine.onSystemContextChanged(
+            locked, keyboard, landscape, fullScreen, permissionScreen, keyboardTopRatio,
+            cameraActive = cameraActive, phoneCallActive = phoneCallActive
+        )
     }
 
     fun foregroundPackage(): String? = currentForegroundPackage

@@ -12,14 +12,15 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
-## Sürüm v1.3.0 Öne Çıkan Özellikler
+## Sürüm v1.3.1 Öne Çıkan Özellikler
 
+- **📳 Titreşim Kilitlenme Düzeltmesi**: Tetik alanlarına kazara değildiğinde oluşan donanım kaynaklı sürekli titreme sorunu tamamen giderildi.
+- **📷 Kamera ve Arama Duraklatması**: Kamera vizörü/kaydı ve gelen/aktif telefon görüşmelerinde otomatik duraklatma seçenekleri eklendi.
+- **⚪ Kara Liste & Beyaz Liste Modu**: Uygulama istisnalarında Kara Liste (seçilenlerde duraklat) ve Beyaz Liste (yalnızca seçilenlerde çalış) modları ile interaktif rozetler entegre edildi.
+- **📜 Sadeleştirilmiş Sürüm Notları**: Güncelleme penceresinde tüm README yerine yalnızca ilgili sürüme ait yenilik özeti gösterilir.
 - **↔️ Alt Kenar L Hareketleri**: Alt kenardan içeri çekip sağa veya sola dönerek `L-Sağ` ve `L-Sol` hareketlerini kullanın.
-- **🖼️ Gerçek Duvar Kağıdı**: Telefon haritası cihazın mevcut duvar kağıdını kullanır.
-- **🎨 Renkli ve Bağımsız Ayarlar**: Kenar anahtarları, görünüm kartları, ikon paketleri ve geri bildirim ayarları bağımsız çalışır.
-- **💾 Tam Yedekleme**: Ayarlar, kurallar, uygulama profilleri, duraklatılan uygulamalar ve servis tercihleri tek JSON yedeğinde korunur.
-- **🔄 Güncelleme Kontrolü**: Ayarlar > Hakkında üzerinden GitHub Releases’ta yeni sürüm olup olmadığını kontrol edin, sürüm notlarını görün ve doğrudan APK indirin.
-- **🌍 Türkçe ve İngilizce**: Yeni hareket adları ve güncel ayar akışları iki dilde sunulur.
+- **💾 Tam Yedekleme**: Ayarlar, kurallar, uygulama profilleri ve duraklatılan uygulamalar tek JSON yedeğinde korunur.
+
 
 ## Dil desteği
 
