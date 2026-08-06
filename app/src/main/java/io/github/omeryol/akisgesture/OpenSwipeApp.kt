@@ -125,6 +125,8 @@ class AkisGestureApp : Application() {
                     appPauseMode = prefs[GestureConfig.KEY_APP_PAUSE_MODE]
                         ?.let { runCatching { io.github.omeryol.akisgesture.gesture.AppPauseMode.valueOf(it) }.getOrNull() }
                         ?: io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST,
+                    hideFromRecents = prefs[GestureConfig.KEY_HIDE_FROM_RECENTS] ?: false,
+
 
                     hapticIntensity = prefs[GestureConfig.KEY_HAPTIC_INTENSITY] ?: 1f,
                     hapticSoundEnabled = prefs[GestureConfig.KEY_HAPTIC_SOUND_ENABLED] ?: false,
@@ -244,6 +246,13 @@ class AkisGestureApp : Application() {
             prefs[GestureConfig.KEY_BOTTOM_TRIGGER_HEIGHT] = dp
         }
     }
+
+    suspend fun updateHideFromRecents(hide: Boolean) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_HIDE_FROM_RECENTS] = hide
+        }
+    }
+
 
     suspend fun loadSavedRules(): GestureRuleGraph? {
         val prefs = settingsDataStore.data.first()

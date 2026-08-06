@@ -82,6 +82,17 @@ private fun AkisGestureApp() {
     val isActionPickerRoute = currentRoute.startsWith("action_picker")
     val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || currentRoute == "settings"
     val activity = LocalContext.current as? Activity
+    val context = LocalContext.current
+    val homeViewModel: HomeViewModel = viewModel()
+    val config by homeViewModel.configState.collectAsState()
+
+    LaunchedEffect(config.hideFromRecents) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            val am = context.getSystemService(android.content.Context.ACTIVITY_SERVICE) as? android.app.ActivityManager
+            am?.appTasks?.firstOrNull()?.setExcludeFromRecents(config.hideFromRecents)
+        }
+    }
+
 
     LaunchedEffect(navController, activity) {
         InternalNavigationBus.backRequests.collect {

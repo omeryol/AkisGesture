@@ -34,6 +34,14 @@
     <string name="version_history_button">Sürüm Geçmişi</string>
     <string name="version_history_title">Sürüm Geçmişi ve Değişiklik Günlüğü</string>
 
+    <string name="recents_lock_title">🔒 Son Kullanılanlarda Kapanmayı Önleme</string>
+    <string name="recents_lock_subtitle">Tümünü Kapat butonunun Akış Gesture’ı kapatmasını engelleme</string>
+    <string name="hide_from_recents">Son Kullanılanlar listesinden gizle</string>
+    <string name="hide_from_recents_subtitle">Açıkken uygulama Son Kullanılanlar (Recents) ekranında görünmez, kazara sonlandırılamaz</string>
+    <string name="recents_lock_guide_title">💡 Alternatif: Recents Kilit (🔒) Yöntemi</string>
+    <string name="recents_lock_guide_text">Uygulamayı gizlemek istemiyorsanız: Son Kullanılanlar (Görev Yöneticisi) ekranında Akış Gesture kartına uzun basıp Kilit (🔒) simgesine dokunun. Bu kilit sayesinde Hepsini Kapat butonuna basılsa dahi uygulama kapanmaz.</string>
+
+
     <string name="action_back">Geri</string>
     <string name="action_home">Ana ekran</string>
     <string name="action_recents">Son uygulamalar</string>

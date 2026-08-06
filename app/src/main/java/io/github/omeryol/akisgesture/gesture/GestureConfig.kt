@@ -92,7 +92,9 @@ data class GestureConfig(
     val pauseOnCamera: Boolean = false,
     val pauseOnPhoneCall: Boolean = false,
     val appPauseMode: AppPauseMode = AppPauseMode.BLACKLIST,
+    val hideFromRecents: Boolean = false,
 ) {
+
 
     /** Get damping factor for a specific edge. */
     fun dampingFor(edge: io.github.omeryol.akisgesture.overlay.Edge): Float = when (edge) {
@@ -156,6 +158,8 @@ data class GestureConfig(
         val KEY_PAUSE_ON_CAMERA = booleanPreferencesKey("pause_on_camera")
         val KEY_PAUSE_ON_PHONE_CALL = booleanPreferencesKey("pause_on_phone_call")
         val KEY_APP_PAUSE_MODE = stringPreferencesKey("app_pause_mode")
+        val KEY_HIDE_FROM_RECENTS = booleanPreferencesKey("hide_from_recents")
+
 
         val KEY_HAPTIC_INTENSITY = floatPreferencesKey("haptic_intensity")
         val KEY_HAPTIC_SOUND_ENABLED = booleanPreferencesKey("haptic_sound_enabled")

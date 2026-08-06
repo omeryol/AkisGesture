@@ -819,6 +819,47 @@ fun SettingsScreen(
             )
         }
 
+        // ── 3C. RECENT KAPANMAYI ÖNLEME VE KİLİT ──
+        if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
+            AkisSectionHeader(
+                title = stringResource(R.string.recents_lock_title),
+                subtitle = stringResource(R.string.recents_lock_subtitle),
+                icon = Icons.Filled.Security
+            )
+            Spacer(Modifier.height(6.dp))
+
+            AkisSwitchRow(
+                title = stringResource(R.string.hide_from_recents),
+                subtitle = stringResource(R.string.hide_from_recents_subtitle),
+                checked = config.hideFromRecents,
+                onCheckedChange = viewModel::setHideFromRecents
+            )
+
+            Spacer(Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF00E5FF).copy(alpha = 0.12f))
+                    .border(1.dp, Color(0xFF00E5FF).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.recents_lock_guide_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF00E5FF)
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.recents_lock_guide_text),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurface
+                )
+            }
+        }
+
+
         // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
         if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
             AkisSectionHeader(
