@@ -1323,88 +1323,12 @@ fun SettingsScreen(
                 color = scheme.outlineVariant.copy(alpha = 0.45f),
             )
 
-            // Detailed Root Explanation Card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(scheme.surfaceVariant.copy(alpha = 0.35f))
-                    .border(1.dp, Color(0xFFFFAB00).copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.about_root_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFFAB00)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00C853).copy(alpha = 0.2f) else scheme.surfaceVariant)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = when (rootAccess) {
-                                RootAccessState.CHECKING -> stringResource(R.string.root_checking)
-                                RootAccessState.AVAILABLE -> stringResource(R.string.root_available)
-                                RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Text(
-                    text = stringResource(R.string.about_root_not_required_title),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00E676)
-                )
-                Text(
-                    text = stringResource(R.string.about_root_not_required_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurface
-                )
-
-                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                Text(
-                    text = stringResource(R.string.about_root_features_title),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = scheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.about_root_features_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant
-                )
-
-                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                Text(
-                    text = stringResource(R.string.about_root_privacy_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = scheme.onSurface
-                )
-            }
-
-            Spacer(Modifier.height(10.dp))
             Text(
                 text = stringResource(R.string.about_support),
                 style = MaterialTheme.typography.bodySmall,
                 color = scheme.onSurfaceVariant,
             )
+
 
 
             HorizontalDivider(
@@ -1450,6 +1374,112 @@ fun SettingsScreen(
                     Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
                 }
             }
+
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+            Spacer(Modifier.height(12.dp))
+
+            // ── ROOT REHBER KARTI (en altta, ileri kullanıcılar için) ──
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFF6D00).copy(alpha = 0.08f))
+                    .border(1.dp, Color(0xFFFF6D00).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.about_root_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFFF6D00)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00C853).copy(alpha = 0.2f) else scheme.surfaceVariant)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = when (rootAccess) {
+                                RootAccessState.CHECKING -> stringResource(R.string.root_checking)
+                                RootAccessState.AVAILABLE -> stringResource(R.string.root_available)
+                                RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                // UYARI: Root tavsiye edilmez
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFD50000).copy(alpha = 0.12f))
+                        .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.root_warning_title),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFFF5252)
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.root_warning_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurface
+                    )
+                }
+
+                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+
+                Text(
+                    text = stringResource(R.string.about_root_not_required_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF00E676)
+                )
+                Text(
+                    text = stringResource(R.string.about_root_not_required_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurface
+                )
+
+                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+
+                Text(
+                    text = stringResource(R.string.about_root_features_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = scheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.about_root_features_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant
+                )
+
+                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+
+                Text(
+                    text = stringResource(R.string.about_root_privacy_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Medium,
+                    color = scheme.onSurface
+                )
+            }
+            Spacer(Modifier.height(8.dp))
         }
 
     }
