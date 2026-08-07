@@ -11,9 +11,20 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.3.4",
+            date = "2026-08-07",
+            isCurrent = true,
+            changesTr = listOf(
+                "🎨 Haptik Renk Geçişi İyileştirmesi: Jest sırasında renk geçişleri için daha geniş aralık (0.12-1.25) ve power curve (0.85) uygulandı. L-renk geçişi için 0.75 power curve ile daha akıcı geçiş sağlandı.",
+            ),
+            changesEn = listOf(
+                "🎨 Haptic Color Transition Improvement: Applied wider range (0.12-1.25) and power curve (0.85) for smoother color transitions during gesture stretch. L-color transition improved with 0.75 power curve.",
+            )
+        ),
+        VersionHistoryItem(
             version = "1.3.3",
             date = "2026-08-06",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "🔇 Haptik Geri Bildirim Düzeltmesi: Tetik bölgesine kazara dokunulduğunda oluşan sürekli titreşim sorunu çözüldü. Haptic geri bildirim artık sadece gerçek hareket algılandığında tetikleniyor.",
             ),

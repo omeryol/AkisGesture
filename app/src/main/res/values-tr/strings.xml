@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Akış Gesture</string>
     <string name="accessibility_service_description">Ekran kenarı hareketlerini algılar ve geri, ana ekran veya son uygulamalar gibi seçtiğiniz işlemleri gerçekleştirir. Ekran içeriğini kaydetmez veya toplamaz.</string>
@@ -18,8 +18,10 @@
     <string name="update_check_title">Uygulama güncellemeleri</string>
     <string name="update_check_idle">GitHub üzerinde yeni sürüm kontrolü yapın</string>
     <string name="update_check_checking">Güncellemeler kontrol ediliyor…</string>
-    <string name="update_check_current">Güncelsiniz (%1$s)</string>
-    <string name="update_check_available">Yeni sürüm var: %1$s</string>
+    <string name="update_check_current">Sürümünüz (%1$s) güncel.</string>
+    <string name="update_check_dev_build">🛠️ Test / Geliştirici APK Yüklü</string>
+    <string name="update_check_dev_build_desc">Cihazdaki sürüm (%1$s), GitHub’daki son yayından (%2$s) daha yeni. Test derlemesi kullanıyorsunuz.</string>
+    <string name="update_check_available">Yeni sürüm mevcut: %1$s</string>
     <string name="update_check_failed">Güncellemeler kontrol edilemedi</string>
     <string name="update_check_action">Kontrol et</string>
     <string name="update_dialog_title">Yeni sürüm: %1$s</string>
@@ -101,9 +103,21 @@
     <string name="permissions_title">İzinler</string><string name="permissions_intro">Akış Gesture düzgün çalışmak için aşağıdaki izinlere ihtiyaç duyar.</string><string name="accessibility_service">Erişilebilirlik hizmeti</string><string name="accessibility_description">Kenar hareketlerini algılar ve seçilen işlemleri uygular.\nAyarlar içinde Akış Gesture hizmetini etkinleştirin.</string><string name="battery_permission_title">Pil kısıtlamasını kaldır</string><string name="battery_permission_description">HyperOS sisteminin hareket hizmetini arka planda durdurmasını önler.</string><string name="start_using">Kullanmaya başla</string><string name="enable_accessibility_first">Önce erişilebilirlik hizmetini açın</string><string name="step_title">Adım %1$d: %2$s</string><string name="required">Gerekli</string><string name="open_settings">Ayarları aç</string>
     <string name="nav_home">Ana ekran</string><string name="nav_gestures">Hareketler</string><string name="nav_settings">Ayarlar</string>
     <string name="service_ready">Hareket hizmeti hazır</string><string name="service_disconnected">Hareket hizmeti bağlı değil</string><string name="service_enabled_user">Kenar hareketleri bu kullanıcı için etkin.</string><string name="service_permission_prompt">Kenar hareketlerini etkinleştirmek için izin verin.</string><string name="grant_permission">İzin ver</string>
-    <string name="tab_motion">Hareket</string><string name="tab_appearance">Görünüm</string><string name="tab_pause">Duraklat</string><string name="tab_backup">Yedek</string><string name="tab_about">Hakkında</string>
+    <string name="tab_motion">Hareket</string><string name="tab_appearance">Görünüm</string><string name="tab_pause">Duraklat</string><string name="tab_backup">Koruma</string><string name="tab_about">Hakkında</string>
     <string name="motion_section">Kenar ve hareket fiziği</string><string name="motion_section_subtitle">Tetik alanları, hassasiyet ve bekleme ayarları</string><string name="trigger_thickness">Tetik kalınlığı</string><string name="trigger_help">Tetik: Kenardaki dokunma alanının kaplama kalınlığı.</string><string name="sensitivity_damping">Hassasiyet (sönümleme)</string><string name="sensitivity_help">Hassasiyet: Sürükleme direnci. Düşük sönümleme daha hızlı tepki verir; yüksek sönümleme daha fazla sürükleme gerektirir.</string><string name="threshold_distance">Eşik mesafesi</string><string name="threshold_help">Eşik: Hızlı çekmenin tetiklenmesi için gereken en kısa kaydırma mesafesi.</string><string name="l_threshold">L-Çekme bükülme eşiği</string><string name="l_threshold_help">L eşiği: L hareketinin algılanması için gereken dikey bükülme mesafesi. Dikey kaydırma yatay kaydırma kadar uzun olmalıdır.</string><string name="hold_duration">Çekip bekletme süresi</string><string name="hold_mode">Bekletme çalışma modu</string>
-    <string name="feedback_section">Görsel ve dokunsal geri bildirim</string><string name="feedback_section_subtitle">Animasyon stili, renkler, saydamlık ve dokunsal titreşim</string><string name="animation_style">Animasyon stili</string><string name="quick_color">Hızlı çekme rengi</string><string name="hold_color">Bekletme rengi</string><string name="l_color">L hareketi rengi</string><string name="adaptive_color">Uygulamaya duyarlı otomatik renk</string><string name="adaptive_color_subtitle">Uygulama rengini seçilen hızlı çekme rengiyle harmanlar</string><string name="opacity">Görünürlük (saydamlık)</string><string name="animation_speed">Animasyon hızı</string><string name="animation_size">Animasyon boyutu</string><string name="haptic_feedback">Dokunsal geri bildirim</string><string name="haptic_feedback_subtitle">Hareket başlangıcı ve eylem eşiklerinde kısa titreşim</string><string name="vibration_intensity">Titreşim şiddeti</string><string name="click_sound">Tıklama sesi</string><string name="click_sound_subtitle">Hareket tetiklendiğinde kısa bir ton çal</string>
+    <string name="feedback_section">Görsel ve dokunsal geri bildirim</string><string name="feedback_section_subtitle">Animasyon stili, renkler, saydamlık ve dokunsal titreşim</string><string name="animation_style">Animasyon stili</string><string name="quick_color">Hızlı çekme rengi</string><string name="hold_color">Bekletme rengi</string><string name="l_color">L hareketi rengi</string>
+    <string name="color_palettes">Hazır Uyumlu Renk Şablonları</string>
+    <string name="color_palettes_subtitle">Hızlı, Bekletme ve L jestleri için 3\'lü uyumlu renk kombinasyonu seçin</string>
+    <string name="palette_deep_ocean">🌊 Okyanus Derinliği</string>
+    <string name="palette_sunset_pulse">🔥 Güneş Batımı</string>
+    <string name="palette_cyber_neon">🔮 Siber Neon</string>
+    <string name="palette_emerald_aurora">🌿 Zümrüt Aurora</string>
+    <string name="palette_midnight_galaxy">🌌 Gece Samanyolu</string>
+    <string name="palette_lavender_sunset">🍊 Lavanta Batımı</string>
+    <string name="palette_monochrome_slate">⚡ Monokrom Çelik</string>
+    <string name="adaptive_color">Uygulamaya duyarlı otomatik renk</string><string name="adaptive_color_subtitle">Uygulama rengini seçilen hızlı çekme rengiyle harmanlar</string><string name="opacity">Görünürlük (saydamlık)</string>    <string name="animation_speed">Animasyon hızı</string>
+    <string name="animation_size">Animasyon boyutu</string>
+    <string name="icon_size">İkon boyutu</string><string name="haptic_feedback">Dokunsal geri bildirim</string><string name="haptic_feedback_subtitle">Hareket başlangıcı ve eylem eşiklerinde kısa titreşim</string><string name="vibration_intensity">Titreşim şiddeti</string><string name="click_sound">Tıklama sesi</string><string name="click_sound_subtitle">Hareket tetiklendiğinde kısa bir ton çal</string>
     <string name="pause_section">Çalışmayacağı yerler</string><string name="pause_section_subtitle">Özel durum ve uygulamalarda hareketleri otomatik kapat</string><string name="lock_screen">Kilit ekranı</string><string name="lock_screen_subtitle">Cihaz kilitliyken hareketleri duraklat</string><string name="keyboard_open">Klavye açıkken</string><string name="keyboard_open_subtitle">Metin girerken kenar dokunuşlarını yok say</string><string name="landscape_screen">Yatay ekran</string><string name="landscape_screen_subtitle">Ekran yatay konumdayken hareketleri duraklat</string><string name="immersive_fullscreen">Tam ekran modu</string><string name="immersive_fullscreen_subtitle">Video ve tam ekran uygulamalarda hareketleri kapat</string>
     <string name="permission_screens">İzin ve güvenlik ekranları</string><string name="permission_screens_subtitle">APK yükleme ve izin pencerelerinde hareketleri kapat</string>
     <string name="camera_active">Kamera ve çekim esnasında</string><string name="camera_active_subtitle">Kamera vizörü açıkken veya video kaydı esnasında hareketleri kapat</string>
@@ -112,11 +126,27 @@
     <string name="app_pause_mode_blacklist">Kara Liste (Seçilenlerde Duraklat)</string>
     <string name="app_pause_mode_whitelist">Beyaz Liste (Yalnızca Seçilenlerde Çalış)</string>
     <string name="app_exclusions">Uygulama istisnaları</string><string name="no_paused_apps">Hiçbir uygulamada duraklatılmıyor</string><string name="paused_apps_count">%d uygulama listelendi</string>
-    <string name="backup_section">Yedekleme ve sistem</string><string name="backup_section_subtitle">Kurallar, uygulama profilleri, ayarlar ve servis tercihi</string><string name="backup_action">Yedekle</string><string name="restore_action">Yükle</string><string name="root_status">Root durumu</string><string name="root_checking">Kontrol ediliyor…</string><string name="root_available">Root var (aktif)</string><string name="root_unavailable">Root yok</string>
+    <string name="protection_section">Sistem Sağlığı ve Koruma</string>
+    <string name="protection_section_subtitle">Hizmet canlılığı, arka plan koruması, pil optimizasyonu ve yedekleme</string>
+    <string name="health_card_title">⚡ Erişilebilirlik Hizmet Sağlığı</string>
+    <string name="health_card_subtitle">Anlık hizmet durumu takibi ve tek tıkla yeniden başlatma</string>
+    <string name="health_status_connected">Aktif &amp; Bağlı</string>
+    <string name="health_status_disconnected">Hizmet Bağlı Değil</string>
+    <string name="health_status_rebind">Hizmeti Yeniden Başlat</string>
+    <string name="battery_card_title">🔋 Arka Plan &amp; Pil Koruması</string>
+    <string name="battery_card_subtitle">Pil tasarrufu veya sistem yöneticisinin uygulamayı kapatmasını önleyin</string>
+    <string name="battery_unrestricted">Kısıtlamasız (Muaf)</string>
+    <string name="battery_restricted">Kısıtlamalı (Riskli)</string>
+    <string name="battery_open_settings">Pil Muafiyeti İste / Ayarları Aç</string>
+    <string name="privileged_card_title">🛡️ Ayrıcalıklı Otomatik İyileştirme (Root / Shizuku)</string>
+    <string name="privileged_card_subtitle">Hizmet kapandığında arka planda sessizce yeniden bağlama</string>
+    <string name="backup_section">Yedekleme ve geri yükleme</string><string name="backup_section_subtitle">Kurallar, uygulama profilleri ve ayarlar JSON yedeklemesi</string><string name="backup_action">Yedekle</string><string name="restore_action">Yükle</string><string name="root_status">Root durumu</string><string name="root_checking">Kontrol ediliyor…</string><string name="root_available">Root var (aktif)</string><string name="root_unavailable">Root yok</string>
     <string name="backup_saved">Yedek kaydedildi</string><string name="backup_save_failed">Yedek kaydedilemedi</string><string name="backup_loaded">Yedek yüklendi</string><string name="backup_load_failed">Yedek yüklenemedi</string><string name="file_open_failed">Dosya açılamadı</string><string name="generic_error">Hata</string>
     <string name="restore_confirm_title">Yedeği yüklemek istiyor musunuz?</string><string name="restore_confirm_text">Mevcut tüm hareket kuralları ve ayarlar seçtiğiniz yedekle değiştirilecek.</string><string name="cancel">Vazgeç</string><string name="done">Tamam</string><string name="paused_apps_title">Hareketlerin duraklatılacağı uygulamalar</string>
     <string name="preset_colors">Hazır renkler</string><string name="color_picker">Renk seçici barı</string><string name="hex_hue">HEX: %1$s | Ton: %2$d°</string><string name="hue_value">Renk tonu: %d°</string><string name="saturation_value">Doygunluk: %d%%</string><string name="brightness_value">Parlaklık: %d%%</string>
     <!-- Kurallar ve eylem yapılandırması -->
+    <string name="edit_rule_title">Kural Düzenle</string>
+    <string name="edit_rule_subtitle">Tetikleme alanı, çalışma modu ve eylem düzenleme</string>
     <string name="rule_detail">Kural ayrıntısı</string><string name="rule_not_found">Kural bulunamadı</string><string name="enable_rule">Kuralı etkinleştir</string><string name="enabled">Etkin</string><string name="disabled">Kapalı</string>
     <string name="gesture_condition">Hareket koşulu</string><string name="horizontal_bounds">Sol ve sağ sınır</string><string name="vertical_bounds">Üst ve alt sınır</string><string name="gesture_type">Hareket türü</string><string name="trigger_mode">Tetikleme biçimi</string>
     <string name="swipe">Kaydırma</string><string name="swipe_description">Yalnızca kaydırınca çalışır; normal dokunuş uygulamaya geçer.</string><string name="touch">Dokunma</string><string name="touch_description">Kenara dokunulduğu anda algılar.</string>
@@ -156,8 +186,23 @@
     <string name="show_presets_card">⚡ Hızlı Düzen Şablonları</string>
     <string name="show_presets_card_subtitle">Tek tıkla hazır jest düzen kartlarını göster</string>
     <string name="edge_distribution">Kenar Dağılımı</string>
-    <string name="icon_pack_section">🎨 Eylem Simge Paketi</string>
-    <string name="icon_pack_section_subtitle">Uygulama genelindeki jest eylemleri için simge stilini seçin</string>
+    <string name="icon_pack_section">🎨 Eylem İkon Paketi</string>
+    <string name="icon_pack_section_subtitle">Uygulama genelindeki hareket ve bildirim simgelerinin görsel stilini seçin</string>
+    <!-- Root Watchdog & Scope Notice -->
+    <string name="root_watchdog_title">Root Bekçi İncelemesi (Auto-Repair)</string>
+    <string name="root_watchdog_subtitle">Root (SU) yetkisiyle servisin canlılığını zamanlanmış aralıklarla kontrol eder</string>
+    <string name="root_watchdog_interval">Kontrol periyodu</string>
+    <string name="battery_impact_high">🔴 Sık Kontrol (Yüksek Pil Etkisi)</string>
+    <string name="battery_impact_high_desc">5–10 dk arası sık kontrol, servisi en hızlı şekilde kurtarır fakat işlemci kullanımını artırabilir.</string>
+    <string name="battery_impact_moderate">🟡 Dengeli Tarama (Makul Pil Etkisi)</string>
+    <string name="battery_impact_moderate_desc">15–30 dk arası kontrol, servis kesintilerini makul sürede yakalar ve pil dostudur.</string>
+    <string name="battery_impact_low">🟢 Maksimum Tasarruf (Düşük Pil Etkisi)</string>
+    <string name="battery_impact_low_desc">45–120 dk arası seyrek tarama, maksimum pil tasarrufu sağlar.</string>
+    <string name="root_scope_title">🔍 Root Yetkisi Kapsamı ve Sınırları</string>
+    <string name="root_scope_does">✅ ROOT NE YAPAR: Servis Android tarafından sonlandırılırsa arka planda sessizce "settings put secure enabled_accessibility_services" çalıştırarak servisi yeniden aktif eder.</string>
+    <string name="root_scope_does_not">⚠️ ROOT NE YAPMAZ: Ekstra özel jest yeteneği sağlamaz, sistem güvenlik politikalarını ihlal etmez ve gereksiz sistem değişiklikleri yapmaz.</string>
+    <string name="icon_pack_system_default">⚙️ Sistem Varsayılanı (Material Simgeleri)</string>
+    <string name="icon_pack_system_default_desc">Android işletim sistemi standart sade Material simgeleri</string>
     <string name="icon_pack_emoji_modern">✨ Modern Emoji</string>
     <string name="icon_pack_emoji_modern_desc">Canlı renkli modern emojiler</string>
     <string name="icon_pack_minimal_line">✏️ Minimalist Çizgi</string>

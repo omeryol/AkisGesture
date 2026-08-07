@@ -12,8 +12,9 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
-## Sürüm v1.3.3 Öne Çıkan Özellikler
+## Sürüm v1.3.4 Öne Çıkan Özellikler
 
+- **🎨 Haptik Renk Geçişi İyileştirmesi**: Jest sırasında renk geçişleri için daha geniş aralık (0.12-1.25) ve power curve (0.85) uygulandı. L-renk geçişi için 0.75 power curve ile daha akıcı geçiş sağlandı.
 - **🔇 Haptik Geri Bildirim Düzeltmesi**: Tetik bölgesine kazara dokunulduğunda oluşan sürekli titreşim sorunu çözüldü. Haptic geri bildirim artık sadece gerçek hareket algılandığında tetikleniyor.
 - **🔒 Son Kullanılanlar Koruması**: "Tümünü Kapat" butonunun uygulamayı kapatmasını önleyen gizleme anahtarı ve Recents Kilit 🔒 rehber kartı eklendi.
 - **🔑 Şeffaf Root Rehberi**: Root'un bu uygulamada zorunlu olmadığını, yalnızca zorla kapatma ve özel shell komutu için kullanıldığını açıklayan bilgi kartı eklendi (sayfanın en altında).
