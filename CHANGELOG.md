@@ -1,14 +1,27 @@
 # Değişiklik Günlüğü
 
-## [1.3.4] - 2026-08-07
+## [1.3.5] - 2026-08-07
 
-### Haptik Renk Geçişi İyileştirmesi
-- **Daha Yumuşak Renk Geçişleri**: Jest sırasında renk geçişleri için daha geniş aralık (0.12-1.25) ve power curve (0.85) uygulandı.
-- **L-Renk Geçişi Düzenlemesi**: L-renk geçişi için 0.75 power curve ile daha akıcı geçiş sağlandı.
-- **Kullanıcı Deneyimi**: Jest esnemesi sırasında renk değişimleri daha doğal ve görsel olarak daha hoş görünüyor.
+### 🎨 Renk Paleti, Haptik Renk Geçişleri & Görünüm Sadeleştirmesi
+- **Hazır 3'lü Renk Şablonları**: Hızlı, Bekletme ve L-Çekme jestleri için 7 adet özenle tasarlanmış renk kombinasyonu (Okyanus, Güneş Batımı, Siber Neon, Zümrüt Aurora, Gece Samanyolu vb.) eklendi.
+- **Yumuşatılmış Haptik Renk Geçişleri**: Jest esnemesi sırasında renk geçişleri için genişletilmiş aralık (0.12-1.25) ve power curve (0.85/0.75) entegre edilerek yumuşak geçiş sağlandı.
+- **Daraltılabilir Renk Seçici**: Manuel renk seçiciler akordiyon altına alınarak Görünüm sekmesi dikeyde %60 oranında sadeleştirildi.
+- **İkon Paketi Uyumlaştırılması**: `⚙️ Sistem Varsayılanı` (renksiz Material simgeleri) dâhil tüm 6 ikon paketi çakışmayan özgün sembollerle yenilendi.
+- **Bağımsız İkon Boyutu**: Animasyon boyutundan bağımsız `İkon Boyutu` kaydırma barı (`0.5x - 2.0x`) eklendi.
+
+### 🛡️ Root Bekçi İncelemesi (Watchdog) & Koruma
+- **Zaman Ayarlı Watchdog Slider**: Root yetkili cihazlar için 5dk ile 120dk (2 saat) arasında zaman ayarlı `AccessibilityService` sağlık kontrolü eklendi.
+- **Renkli Pil Etkisi Uyarısı**: Periyoda göre renkli ve yazılı pil tüketim uyarısı (🔴 Yüksek / 🟡 Dengeli / 🟢 Maksimum Tasarruf) ve net Root Kapsam Açıklaması eklendi.
+- **Son Kullanılanlar Kilit Kartı**: Duraklat'tan Koruma sekmesine taşındı.
+
+### ✨ Arayüz & Test APK Uyarısı
+- **Geliştirici / Test APK Uyarısı**: Cihazdaki sürüm GitHub'dan yüksekse otomatik olarak `🛠️ Test / Geliştirici APK Yüklü` kartı belirir.
+- **Hakkında Sekmesi Redizaynı**: Tüm butonlar canlı renkler, özel kartlar ve dil rozetleriyle yenilendi.
+- **Jest ve Kural Düzeltmeleri**: Jest silmenin DataStore'a kalıcı işlenmesi sağlandı, sayfa çakışması engellendi.
 
 ### Teknik
-- Sürüm `1.3.4`, version code `50`.
+- Sürüm `1.3.5`, version code `51`.
+- İmzalı APK: `AkisGesture-v1.3.5.apk`.
 
 ---
 
