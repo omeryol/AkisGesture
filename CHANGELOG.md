@@ -1,5 +1,18 @@
 # Değişiklik Günlüğü
 
+## [1.3.6] - 2026-08-07
+
+### ⚡ Aksiyon & Kural Mimarisinin Yenilenmesi
+- **Mimarisi Yenilenen Aksiyon & Kural Yönetimi**: Aksiyon seçici (`ActionPicker`) ve jest kuralı oluşturma akışı `PendingActionTarget` durum yönetimi ile baştan sona yeniden yapılandırıldı.
+- **Kesintisiz Veri Kaydı**: Aksiyon seçildiği an yerinde güncelleme yapılması sağlandı, arka planda kaydetmeyi sessizce engelleyen durumlar kaldırıldı.
+- **Boş Slot & Çakışma İyileştirmeleri**: Boş alanlara eylem ekleme ve mükerrer kural çakışmaları tamamen çözüldü.
+
+### Teknik
+- Sürüm `1.3.6`, version code `52`.
+- İmzalı APK: `AkisGesture-v1.3.6.apk`.
+
+---
+
 ## [1.3.5] - 2026-08-07
 
 ### 🎨 Renk Paleti, Haptik Renk Geçişleri & Görünüm Sadeleştirmesi
