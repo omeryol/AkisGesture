@@ -11,14 +11,12 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
-## Version v1.3.4 Release Highlights
+## Version v1.3.5 Release Highlights
 
-- **🎨 Haptic Color Transition Improvement**: Applied wider range (0.12-1.25) and power curve (0.85) for smoother color transitions during gesture stretch. L-color transition improved with 0.75 power curve.
-- **🔇 Haptic Feedback Fix**: Fixed continuous vibration issue when accidentally touching the trigger zone. Haptic feedback now only triggers when a real gesture is detected (armed state).
-- **🔒 Recents Protection**: Added a toggle to hide the app from the Recents screen (preventing accidental "Clear All" closure) and a padlock 🔒 guide card explaining the manual lock method.
-- **🔑 Transparent Root Guide**: Added a detailed info card (at the bottom of About) clearly stating root is NOT required and is only used for force-kill and custom shell commands in this app.
-- **📖 GitHub Repository Link**: Added a direct link to the Akış Gesture GitHub repository in the About section.
-- **🕰️ Version History Dialog**: Added an in-app Version History button and dialog listing changes across all past releases.
+- **🎨 3-Color Palette Presets & Smooth Color Transitions**: Added 7 curated 3-color palette presets for Quick, Hold, and L-Swipe gestures, power-curve smoothed haptic color transitions during stretch, and compact collapsible color pickers.
+- **🛡️ Root Watchdog & Battery Usage Notice**: Added a 5min to 120min watchdog timer slider for root devices, color-coded battery impact warnings, and Recents lock card.
+- **✨ Harmonized Icon Packs & Icon Size Slider**: Redesigned all 6 icon packs (including System Default monochrome vectors) with distinct symbols, and added an independent icon size slider.
+- **🛠️ Dev Build Warning & About Tab Redesign**: Added a test/dev build warning when the installed APK is newer than the latest GitHub release, and redesigned About tab buttons with vivid color accents.
 
 
 ## Language support

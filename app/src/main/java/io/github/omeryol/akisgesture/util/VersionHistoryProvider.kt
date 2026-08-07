@@ -11,14 +11,20 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.3.4",
+            version = "1.3.5",
             date = "2026-08-07",
             isCurrent = true,
             changesTr = listOf(
-                "🎨 Haptik Renk Geçişi İyileştirmesi: Jest sırasında renk geçişleri için daha geniş aralık (0.12-1.25) ve power curve (0.85) uygulandı. L-renk geçişi için 0.75 power curve ile daha akıcı geçiş sağlandı.",
+                "🎨 Hazır Renk Şablonları & Yumuşatılmış Renk Geçişleri: 7 adet 3'lü renk teması, esneme anı için güç eğrili yumuşak renk geçişleri ve akordiyon dikey renk seçici eklendi.",
+                "🛡️ Root Bekçi (Watchdog) & Pil Uyarısı: Root cihazlar için 5dk-120dk slider, kademeli pil etkisi uyarısı ve kilit koruma kartı eklendi.",
+                "✨ Uyumlu İkon Paketleri & İkon Boyutu Slider: 6 ikon paketi monokrom vektörlerle yenilendi, bağımsız ikon boyutu barı eklendi.",
+                "🛠️ Test APK Uyarısı & Hakkında Redizaynı: Yüklü APK GitHub'dan daha güncelse 🛠️ Test sürümü uyarısı ve renkli buton kartları eklendi.",
             ),
             changesEn = listOf(
-                "🎨 Haptic Color Transition Improvement: Applied wider range (0.12-1.25) and power curve (0.85) for smoother color transitions during gesture stretch. L-color transition improved with 0.75 power curve.",
+                "🎨 Color Presets & Smooth Color Transitions: Added 7 3-color palette presets, power-curve smoothed color transitions during gesture stretch, and collapsible color pickers.",
+                "🛡️ Root Watchdog & Battery Warning: Added 5min-120min watchdog slider, battery usage warnings, and recents lock card.",
+                "✨ Harmonized Icon Packs & Icon Size Slider: Updated all 6 icon packs with distinct symbols and added an independent icon size slider.",
+                "🛠️ Dev Build Warning & About Tab Redesign: Added dev build notice when local version is ahead of GitHub and redesigned About tab buttons.",
             )
         ),
         VersionHistoryItem(
