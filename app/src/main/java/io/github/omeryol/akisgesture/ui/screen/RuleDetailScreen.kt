@@ -111,7 +111,7 @@ fun RuleDetailScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(R.string.fine_tuning), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.edit_rule_title), fontWeight = FontWeight.Bold)
                         rule?.let {
                             Text(
                                 "${edgeLabel(context, it.trigger.edge)} · " +
@@ -181,47 +181,9 @@ fun RuleDetailScreen(
             AkisGlassCard(accentTint = scheme.primary) {
                 AkisSectionHeader(
                     title = stringResource(R.string.gesture_condition),
-                    subtitle = stringResource(R.string.assign_area_intro),
+                    subtitle = "${edgeIcon(rule.trigger.edge)} ${edgeLabel(context, rule.trigger.edge)} · ${gestureLabel(context, rule.trigger.gestureType, rule.trigger.edge)}",
                     icon = Icons.Filled.Tune,
                 )
-                Spacer(Modifier.height(10.dp))
-
-                // Edge Selector (Kenar)
-                Text(
-                    text = stringResource(R.string.edge),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface,
-                )
-                Spacer(Modifier.height(6.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Edge.entries.forEach { edge ->
-                        val label = "${edgeIcon(edge)} ${edgeLabel(context, edge)}"
-                        val selected = rule.trigger.edge == edge
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (selected) scheme.primary else scheme.surfaceVariant.copy(alpha = 0.4f))
-                                .clickable {
-                                    viewModel.updateRuleTrigger(ruleId, rule.trigger.copy(edge = edge))
-                                }
-                                .padding(vertical = 8.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selected) scheme.onPrimary else scheme.onSurface,
-                            )
-                        }
-                    }
-                }
-
                 Spacer(Modifier.height(12.dp))
 
                 // Area Range Slider (Sürükleme Aralığı)

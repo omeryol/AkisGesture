@@ -155,12 +155,14 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         _rules.value = _rules.value.filter { it.id != ruleId }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun removeRules(ruleIds: Set<String>) {
         _rules.value = _rules.value.filterNot { it.id in ruleIds }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun setRulesEnabled(ruleIds: Set<String>, enabled: Boolean) {
@@ -169,6 +171,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun updateRuleAction(ruleId: String, newAction: ActionNode) {
@@ -187,6 +190,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun getRuleById(ruleId: String): GestureRule? {
@@ -199,6 +203,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun updateRulesSection(ruleIds: Set<String>, section: SectionRange) {
@@ -211,6 +216,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun updateRuleTriggerMode(ruleId: String, mode: io.github.omeryol.akisgesture.model.TriggerMode) {
@@ -219,6 +225,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         }
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun applyRules() {

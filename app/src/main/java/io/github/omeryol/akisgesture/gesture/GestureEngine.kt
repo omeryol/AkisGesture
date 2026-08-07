@@ -465,6 +465,7 @@ class GestureEngine(
         view.feedbackAnimation = currentConfig.feedbackAnimation
         view.animationSpeed = currentConfig.animationSpeed
         view.animationSize = currentConfig.animationSize
+        view.iconSize = currentConfig.iconSize
         view.showIndicatorBar = currentConfig.showGestureIndicatorBar
 
         val matchedAction = if (progress.active) {
