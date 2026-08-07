@@ -1,6 +1,20 @@
 # Değişiklik Günlüğü
 
+## [1.3.7] - 2026-08-07
+
+### 🐛 Kural Ekleme Kritik Düzeltmesi
+- **Yeni Kural Eklenemiyor Hatası Giderildi**: `AddRuleDialog` içinde eylem seçici (`ActionPicker`) açılırken Compose Navigation tetikleniyordu. Bu durum diyaloğun composable state'ini (`showAddDialog`, `quickAction` vs.) sıfırlıyordu ve hiçbir kural eklenemiyordu.
+- **Inline ActionPicker**: Eylem seçici artık navigation üzerinden değil, aynı composable ağacı içinde tam ekran `Dialog` olarak açılıyor. Seçilen eylemler ve diyalog durumu korunuyor.
+- **Birden Fazla Eylem Desteği**: Aynı kural için Quick Swipe + Hold + L-Yukarı + L-Aşağı eylemlerinin hepsi tek diyalog oturumunda atanabiliyor.
+
+### Teknik
+- Sürüm `1.3.7`, version code `53`.
+- İmzalı APK: `AkisGesture-v1.3.7.apk`.
+
+---
+
 ## [1.3.6] - 2026-08-07
+
 
 ### ⚡ Aksiyon & Kural Mimarisinin Yenilenmesi
 - **Mimarisi Yenilenen Aksiyon & Kural Yönetimi**: Aksiyon seçici (`ActionPicker`) ve jest kuralı oluşturma akışı `PendingActionTarget` durum yönetimi ile baştan sona yeniden yapılandırıldı.
