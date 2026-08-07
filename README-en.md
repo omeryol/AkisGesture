@@ -16,13 +16,10 @@ an independent project.
 
 **English** | [Türkçe](README.md)
 
-## Version v1.3.5 Release Highlights
+## Release v1.3.7 Highlights
 
-## Release v1.3.6 Highlights
-
-- **⚡ Refactored Action & Rule Architecture**: Rebuilt action picker (`ActionPicker`) and gesture rule creation flow using `PendingActionTarget` state management.
-- **🔒 Atomic Data Persistence**: Action selections now perform in-place updates instantly upon selection, eliminating silent save-blocking checks.
-- **🎯 Empty Slot & Conflict Handling**: Completely resolved rule creation for empty slots and eliminated duplicate rule conflicts.
+- **🐛 Rule Creation Fix**: Fixed critical issue where opening ActionPicker triggered Compose Navigation, resetting `AddRuleDialog` state and preventing rule creation.
+- **⚡ Inline ActionPicker**: Action picker now opens as a full-screen inline dialog without navigation, properly preserving all dialog state and selected actions.
 
 
 ## Language support

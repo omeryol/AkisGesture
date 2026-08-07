@@ -11,9 +11,22 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.3.6",
+            version = "1.3.7",
             date = "2026-08-07",
             isCurrent = true,
+            changesTr = listOf(
+                "🐛 Kural Ekleme Düzeltmesi: Kural ekleme diyaloğunda eylem seçici (ActionPicker) navigation tetiklediğinde diyalog durumunun sıfırlanması sorunu giderildi.",
+                "⚡ Inline ActionPicker: Eylem seçici artık navigation olmadan tam ekran dialog olarak açılıyor; seçilen eylemler ve tüm diyalog durumu korunuyor.",
+            ),
+            changesEn = listOf(
+                "🐛 Rule Creation Fix: Fixed critical bug where ActionPicker navigation caused AddRuleDialog state reset, preventing any rule from being added.",
+                "⚡ Inline ActionPicker: Action picker now opens as a full-screen inline dialog without navigation, preserving all dialog state correctly.",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.3.6",
+            date = "2026-08-07",
+            isCurrent = false,
             changesTr = listOf(
                 "⚡ Mimarisi Yenilenen Aksiyon & Kural Yönetimi: Aksiyon seçici (ActionPicker) ve jest kuralı oluşturma mimarisi PendingActionTarget durum yönetimi ile baştan sona yeniden yapılandırıldı.",
                 "🔒 Kesintisiz Veri Kaydı: Aksiyon seçildiği an yerinde güncelleme yapılması sağlandı, arka planda kaydetmeyi engelleyen durumlar kaldırıldı.",

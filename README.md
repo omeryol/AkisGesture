@@ -15,11 +15,10 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
-## Sürüm v1.3.6 Öne Çıkan Özellikler
+## Sürüm v1.3.7 Öne Çıkan Özellikler
 
-- **⚡ Aksiyon & Kural Mimarisi Yenilendi**: Aksiyon seçici (`ActionPicker`) ve kural oluşturma akışı `PendingActionTarget` durum yönetimi ile baştan sona yenilendi.
-- **🔒 Kesintisiz Veri Kaydı**: Aksiyon seçildiği an yerinde güncelleme yapılması sağlandı ve kaydetmeyi engelleyen durumlar kaldırıldı.
-- **🎯 Boş Slot & Çakışma Düzeltmeleri**: Boş alanlara eylem ekleme ve mükerrer kural çakışmaları tamamen giderildi.
+- **🐛 Kural Ekleme Kritik Düzeltmesi**: Kural ekleme diyaloğunda eylem seçici navigation tetiklediğinde diyalog durumunun sıfırlanması sorunu giderildi; artık tüm kurallar sorunsuzca eklenebiliyor.
+- **⚡ Inline ActionPicker**: Eylem seçici artık navigation olmadan tam ekran dialog olarak açılıyor, seçilen eylemler ve diyalog durumu korunuyor.
 
 
 ## Dil desteği
