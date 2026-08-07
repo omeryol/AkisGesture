@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -122,6 +123,7 @@ fun RuleListScreen(
     var selectedGroupKey by remember { mutableStateOf<String?>(null) }
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
     var addingGestureType by remember { mutableStateOf<GestureType?>(null) }
+    var addingGroupKey by remember { mutableStateOf<String?>(null) }
     var actionPickerToken by remember { mutableStateOf<String?>(null) }
     var showPresetMenu by remember { mutableStateOf(false) }
     var showProfileMenu by remember { mutableStateOf(false) }
@@ -156,7 +158,8 @@ fun RuleListScreen(
                 editingActionRuleId?.let { ruleId ->
                     viewModel.updateRuleAction(ruleId, result.action)
                 } ?: addingGestureType?.let { gestureType ->
-                    val repRule = ruleGroups.firstOrNull { it.key == selectedGroupKey }?.representative
+                    val targetKey = addingGroupKey ?: selectedGroupKey
+                    val repRule = ruleGroups.firstOrNull { it.key == targetKey }?.representative
                     repRule?.let { rule ->
                         viewModel.addGesturePair(
                             edge = rule.trigger.edge,
@@ -171,6 +174,7 @@ fun RuleListScreen(
                 }
                 editingActionRuleId = null
                 addingGestureType = null
+                addingGroupKey = null
                 actionPickerToken = null
             }
         }
@@ -399,22 +403,24 @@ fun RuleListScreen(
                         RuleTableRow(
                             group = group,
                             number = index + 1,
-                            onClick = { selectedGroupKey = group.key },
+                            onEditRule = { ruleId -> onRuleClick(ruleId) },
                             onDelete = { viewModel.removeRules(group.ids) },
                             onSelectAction = { gestureType, rule ->
-                                selectedGroupKey = group.key
                                 if (rule != null) {
                                     editingActionRuleId = rule.id
                                     addingGestureType = null
+                                    addingGroupKey = null
                                 } else {
                                     editingActionRuleId = null
                                     addingGestureType = gestureType
+                                    addingGroupKey = group.key
                                 }
                                 openActionPicker()
                             },
                             onToggleEnabled = {
                                 viewModel.setRulesEnabled(group.ids, it)
                             },
+                            onDeleteRule = { ruleId -> viewModel.removeRule(ruleId) },
                         )
                     }
                 }
@@ -448,24 +454,19 @@ fun RuleListScreen(
                         val templateColor = templateAccent(index)
                         DropdownMenuItem(
                             leadingIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape)
-                                        .background(templateColor.copy(alpha = 0.22f)),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        (index + 1).toString(),
-                                        color = templateColor,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                }
+                                Icon(
+                                    Icons.Filled.Style,
+                                    contentDescription = null,
+                                    tint = templateColor,
+                                )
                             },
                             text = {
                                 Column {
-                                    Text(presetNames[index], color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
+                                    Text(
+                                        presetNames.getOrElse(index) { name },
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
                                     Text(
                                         presetDescriptions[index],
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -655,7 +656,7 @@ fun RuleListScreen(
                         onRuleClick(selectedGroup.representative.id)
                     },
                 ) {
-                    Text(stringResource(R.string.fine_tuning))
+                    Text(stringResource(R.string.edit_rule_title))
                 }
             },
             dismissButton = {
@@ -742,10 +743,11 @@ private fun GestureSlotButton(
 private fun RuleTableRow(
     group: RuleGroup,
     number: Int,
-    onClick: () -> Unit,
+    onEditRule: (String) -> Unit,
     onDelete: () -> Unit,
     onSelectAction: (GestureType, GestureRule?) -> Unit,
     onToggleEnabled: (Boolean) -> Unit,
+    onDeleteRule: (String) -> Unit,
 ) {
     val rule = group.representative
     val enabled = listOfNotNull(group.quick, group.hold, group.lUp, group.lDown).any { it.enabled }
@@ -755,18 +757,16 @@ private fun RuleTableRow(
         scheme.primary.copy(alpha = 0.78f), scheme.secondary.copy(alpha = 0.78f), scheme.tertiary.copy(alpha = 0.78f),
     )[number.minus(1) % 6]
     var contentAlpha = if (enabled) 1f else 0.45f
-    var menuOpen by remember { mutableStateOf(false) }
 
     AkisGlassCard(
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer { alpha = contentAlpha },
-        onClick = onClick,
         accentTint = if (enabled) scheme.primary else null,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(52.dp, 92.dp),
+                modifier = Modifier.size(48.dp, 92.dp),
                 contentAlignment = Alignment.TopStart,
             ) {
                 Column(
@@ -775,7 +775,7 @@ private fun RuleTableRow(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(26.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
                             .background(accent.copy(alpha = if (enabled) 0.24f else 0.10f)),
                         contentAlignment = Alignment.Center,
@@ -793,12 +793,12 @@ private fun RuleTableRow(
                         section = rule.trigger.section,
                         modifier = Modifier.align(Alignment.Start),
                         zoneColor = if (enabled) accent else scheme.outline,
-                        width = 44.dp,
-                        height = 62.dp,
+                        width = 40.dp,
+                        height = 60.dp,
                     )
                 }
             }
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(6.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 // 1. QUICK SWIPE (⚡ Hızlı Çekme)
                 ActionCell(
@@ -808,6 +808,8 @@ private fun RuleTableRow(
                     rule = group.quick,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.QUICK_SWIPE, group.quick) },
+                    onEditRule = onEditRule,
+                    onDeleteRule = onDeleteRule,
                 )
                 // 2. SWIPE & HOLD (⏱️ Çekip Beklet)
                 ActionCell(
@@ -817,6 +819,8 @@ private fun RuleTableRow(
                     rule = group.hold,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.SWIPE_HOLD, group.hold) },
+                    onEditRule = onEditRule,
+                    onDeleteRule = onDeleteRule,
                 )
                 // 3. L-SWIPE UP (↗️ L-Yukarı)
                 ActionCell(
@@ -826,6 +830,8 @@ private fun RuleTableRow(
                     rule = group.lUp,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.SWIPE_UP_L, group.lUp) },
+                    onEditRule = onEditRule,
+                    onDeleteRule = onDeleteRule,
                 )
                 // 4. L-SWIPE DOWN (↘️ L-Aşağı)
                 ActionCell(
@@ -835,30 +841,9 @@ private fun RuleTableRow(
                     rule = group.lDown,
                     modifier = Modifier.fillMaxWidth(),
                     onClick = { onSelectAction(GestureType.SWIPE_DOWN_L, group.lDown) },
+                    onEditRule = onEditRule,
+                    onDeleteRule = onDeleteRule,
                 )
-            }
-            Box {
-                IconButton(onClick = { menuOpen = true }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.MoreVert, stringResource(R.string.options), tint = scheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
-                }
-                DropdownMenu(
-                    expanded = menuOpen,
-                    onDismissRequest = { menuOpen = false },
-                    modifier = Modifier.background(scheme.surface),
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(if (enabled) R.string.disable else R.string.enable)) },
-                        onClick = { onToggleEnabled(!enabled); menuOpen = false },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.fine_tuning)) },
-                        onClick = { menuOpen = false; onClick() },
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.delete), color = scheme.error) },
-                        onClick = { menuOpen = false; onDelete() },
-                    )
-                }
             }
         }
     }
@@ -872,15 +857,19 @@ private fun ActionCell(
     rule: GestureRule?,
     modifier: Modifier,
     onClick: () -> Unit,
+    onEditRule: (String) -> Unit,
+    onDeleteRule: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
+    var menuOpen by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(scheme.surfaceVariant.copy(alpha = 0.42f))
             .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp, vertical = 8.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Glass Badge Tag
@@ -897,7 +886,7 @@ private fun ActionCell(
                 color = badgeText,
             )
         }
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(8.dp))
         if (rule != null) {
             ActionIcon(
                 action = rule.action,
@@ -912,13 +901,48 @@ private fun ActionCell(
                 color = scheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
             )
+            Box {
+                IconButton(
+                    onClick = { menuOpen = true },
+                    modifier = Modifier.size(28.dp),
+                ) {
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.options),
+                        tint = scheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuOpen,
+                    onDismissRequest = { menuOpen = false },
+                    modifier = Modifier.background(scheme.surface),
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("✏️ " + stringResource(R.string.edit_rule_title)) },
+                        onClick = {
+                            menuOpen = false
+                            onEditRule(rule.id)
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("🗑️ " + stringResource(R.string.delete), color = scheme.error) },
+                        onClick = {
+                            menuOpen = false
+                            onDeleteRule(rule.id)
+                        },
+                    )
+                }
+            }
         } else {
             Text(
                 "+ Eylem Ekle",
                 style = MaterialTheme.typography.bodyMedium,
                 color = scheme.primary,
                 fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f),
             )
         }
     }
