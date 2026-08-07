@@ -13,10 +13,11 @@ an independent project.
 
 ## Version v1.3.5 Release Highlights
 
-- **🎨 3-Color Palette Presets & Smooth Color Transitions**: Added 7 curated 3-color palette presets for Quick, Hold, and L-Swipe gestures, power-curve smoothed haptic color transitions during stretch, and compact collapsible color pickers.
-- **🛡️ Root Watchdog & Battery Usage Notice**: Added a 5min to 120min watchdog timer slider for root devices, color-coded battery impact warnings, and Recents lock card.
-- **✨ Harmonized Icon Packs & Icon Size Slider**: Redesigned all 6 icon packs (including System Default monochrome vectors) with distinct symbols, and added an independent icon size slider.
-- **🛠️ Dev Build Warning & About Tab Redesign**: Added a test/dev build warning when the installed APK is newer than the latest GitHub release, and redesigned About tab buttons with vivid color accents.
+## Release v1.3.6 Highlights
+
+- **⚡ Refactored Action & Rule Architecture**: Rebuilt action picker (`ActionPicker`) and gesture rule creation flow using `PendingActionTarget` state management.
+- **🔒 Atomic Data Persistence**: Action selections now perform in-place updates instantly upon selection, eliminating silent save-blocking checks.
+- **🎯 Empty Slot & Conflict Handling**: Completely resolved rule creation for empty slots and eliminated duplicate rule conflicts.
 
 
 ## Language support

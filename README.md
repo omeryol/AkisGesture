@@ -12,12 +12,11 @@ Akış Gesture'ın Android paket kimliği `io.github.omeryol.akisgesture` olarak
 özgündür; OpenSwipe atfı paket adında değil, lisans ve kaynak proje kayıtlarında
 korunur.
 
-## Sürüm v1.3.5 Öne Çıkan Özellikler
+## Sürüm v1.3.6 Öne Çıkan Özellikler
 
-- **🎨 3'lü Renk Şablonları & Yumuşak Renk Geçişleri**: Hızlı, Bekletme ve L-Çekme için 7 adet özel renk paleti (Okyanus, Siber Neon vb.), güç eğrili yumuşatılmış haptik renk geçişleri ve akordiyon renk seçiciler eklendi.
-- **🛡️ Root Bekçi (Watchdog) & Pil Uyarısı**: Root yetkili cihazlar için 5dk - 120dk slider, kademeli renkli pil tüketim uyarısı ve Son Kullanılanlar kilit koruması eklendi.
-- **✨ Uyumlu İkon Paketleri & İkon Boyutu Slider**: `⚙️ Sistem Varsayılanı` dâhil 6 ikon paketi özgün monokrom simgelerle yenilendi, animasyondan bağımsız İkon Boyutu barı eklendi.
-- **🛠️ Test APK Uyarısı & Hakkında Redizaynı**: Yüklü APK GitHub release'inden daha yeni ise `🛠️ Test / Geliştirici APK Yüklü` uyarısı ve renkli buton kartları eklendi.
+- **⚡ Aksiyon & Kural Mimarisi Yenilendi**: Aksiyon seçici (`ActionPicker`) ve kural oluşturma akışı `PendingActionTarget` durum yönetimi ile baştan sona yenilendi.
+- **🔒 Kesintisiz Veri Kaydı**: Aksiyon seçildiği an yerinde güncelleme yapılması sağlandı ve kaydetmeyi engelleyen durumlar kaldırıldı.
+- **🎯 Boş Slot & Çakışma Düzeltmeleri**: Boş alanlara eylem ekleme ve mükerrer kural çakışmaları tamamen giderildi.
 
 
 ## Dil desteği

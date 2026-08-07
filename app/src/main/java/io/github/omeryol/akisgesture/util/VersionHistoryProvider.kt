@@ -11,9 +11,24 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.3.5",
+            version = "1.3.6",
             date = "2026-08-07",
             isCurrent = true,
+            changesTr = listOf(
+                "⚡ Mimarisi Yenilenen Aksiyon & Kural Yönetimi: Aksiyon seçici (ActionPicker) ve jest kuralı oluşturma mimarisi PendingActionTarget durum yönetimi ile baştan sona yeniden yapılandırıldı.",
+                "🔒 Kesintisiz Veri Kaydı: Aksiyon seçildiği an yerinde güncelleme yapılması sağlandı, arka planda kaydetmeyi engelleyen durumlar kaldırıldı.",
+                "🎯 Boş Slot & Çakışma İyileştirmeleri: Boş alanlara eylem ekleme ve mükerrer kural çakışmaları tamamen çözüldü.",
+            ),
+            changesEn = listOf(
+                "⚡ Refactored Action & Rule Architecture: Rebuilt action picker (ActionPicker) and gesture rule creation flow using PendingActionTarget state management.",
+                "🔒 Atomic Data Persistence: Action selections now perform in-place updates instantly upon selection, eliminating silent save-blocking checks.",
+                "🎯 Empty Slot & Conflict Handling: Completely resolved rule creation for empty slots and eliminated duplicate rule conflicts.",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.3.5",
+            date = "2026-08-07",
+            isCurrent = false,
             changesTr = listOf(
                 "🎨 Hazır Renk Şablonları & Yumuşatılmış Renk Geçişleri: 7 adet 3'lü renk teması, esneme anı için güç eğrili yumuşak renk geçişleri ve akordiyon dikey renk seçici eklendi.",
                 "🛡️ Root Bekçi (Watchdog) & Pil Uyarısı: Root cihazlar için 5dk-120dk slider, kademeli pil etkisi uyarısı ve kilit koruma kartı eklendi.",
