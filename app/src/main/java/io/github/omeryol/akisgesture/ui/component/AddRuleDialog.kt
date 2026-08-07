@@ -1,12 +1,15 @@
 package io.github.omeryol.akisgesture.ui.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,7 +32,6 @@ import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureType
@@ -48,8 +52,6 @@ import io.github.omeryol.akisgesture.model.TriggerNode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
-import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
-import java.util.UUID
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -60,38 +62,41 @@ fun AddRuleForEdgeDialog(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     var selectedSection by remember { mutableStateOf<SectionRange>(SectionRange.ALL) }
-    var actionPickerTarget by remember { mutableStateOf<GestureType?>(null) }
+    // showInlineActionPicker: holds which gesture slot is being edited; null = show the config dialog
+    var showInlineActionPicker by remember { mutableStateOf<GestureType?>(null) }
     var quickAction by remember { mutableStateOf<ActionNode?>(null) }
     var holdAction by remember { mutableStateOf<ActionNode?>(null) }
     var lUpAction by remember { mutableStateOf<ActionNode?>(null) }
     var lDownAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
-    var actionPickerToken by remember { mutableStateOf<String?>(null) }
 
-    fun openActionPicker(target: GestureType) {
-        actionPickerTarget = target
-        val token = UUID.randomUUID().toString()
-        actionPickerToken = token
-        InternalNavigationBus.requestActionPicker(
-            InternalNavigationBus.ActionPickerRequest(token),
-        )
-    }
-
-    LaunchedEffect(actionPickerToken) {
-        val token = actionPickerToken ?: return@LaunchedEffect
-        InternalNavigationBus.actionPickerResults.collect { result ->
-            if (result.token == token) {
-                when (actionPickerTarget) {
-                    GestureType.QUICK_SWIPE -> quickAction = result.action
-                    GestureType.SWIPE_HOLD -> holdAction = result.action
-                    GestureType.SWIPE_UP_L -> lUpAction = result.action
-                    GestureType.SWIPE_DOWN_L -> lDownAction = result.action
-                    null -> Unit
-                }
-                actionPickerTarget = null
-                actionPickerToken = null
+    // Inline ActionPicker — no navigation, keeps all state intact in the same composable tree.
+    if (showInlineActionPicker != null) {
+        Dialog(
+            onDismissRequest = { showInlineActionPicker = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                ActionPickerScreen(
+                    onDismiss = { showInlineActionPicker = null },
+                    onSelect = { action ->
+                        when (showInlineActionPicker) {
+                            GestureType.QUICK_SWIPE -> quickAction = action
+                            GestureType.SWIPE_HOLD -> holdAction = action
+                            GestureType.SWIPE_UP_L -> lUpAction = action
+                            GestureType.SWIPE_DOWN_L -> lDownAction = action
+                            null -> Unit
+                        }
+                        showInlineActionPicker = null
+                    },
+                )
             }
         }
+        return
     }
 
     AlertDialog(
@@ -140,7 +145,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(R.string.quick_with_icon),
                     description = stringResource(R.string.quick_description),
                     action = quickAction,
-                    onSelect = { openActionPicker(GestureType.QUICK_SWIPE) },
+                    onSelect = { showInlineActionPicker = GestureType.QUICK_SWIPE },
                     onClear = { quickAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
@@ -148,7 +153,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(R.string.hold_with_icon),
                     description = stringResource(R.string.hold_description),
                     action = holdAction,
-                    onSelect = { openActionPicker(GestureType.SWIPE_HOLD) },
+                    onSelect = { showInlineActionPicker = GestureType.SWIPE_HOLD },
                     onClear = { holdAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
@@ -156,7 +161,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(if (edge == Edge.BOTTOM) R.string.l_right_with_icon else R.string.l_up_with_icon),
                     description = stringResource(if (edge == Edge.BOTTOM) R.string.l_right_description else R.string.l_up_description),
                     action = lUpAction,
-                    onSelect = { openActionPicker(GestureType.SWIPE_UP_L) },
+                    onSelect = { showInlineActionPicker = GestureType.SWIPE_UP_L },
                     onClear = { lUpAction = null },
                 )
                 Spacer(Modifier.height(8.dp))
@@ -164,7 +169,7 @@ fun AddRuleForEdgeDialog(
                     title = stringResource(if (edge == Edge.BOTTOM) R.string.l_left_with_icon else R.string.l_down_with_icon),
                     description = stringResource(if (edge == Edge.BOTTOM) R.string.l_left_description else R.string.l_down_description),
                     action = lDownAction,
-                    onSelect = { openActionPicker(GestureType.SWIPE_DOWN_L) },
+                    onSelect = { showInlineActionPicker = GestureType.SWIPE_DOWN_L },
                     onClear = { lDownAction = null },
                 )
                 Spacer(Modifier.height(16.dp))
@@ -238,38 +243,41 @@ fun AddRuleDialog(
     var step by remember { mutableIntStateOf(0) }
     var selectedEdge by remember { mutableStateOf<Edge?>(null) }
     var selectedSection by remember { mutableStateOf<SectionRange?>(null) }
-    var actionPickerTarget by remember { mutableStateOf<GestureType?>(null) }
     var quickAction by remember { mutableStateOf<ActionNode?>(null) }
     var holdAction by remember { mutableStateOf<ActionNode?>(null) }
     var lUpAction by remember { mutableStateOf<ActionNode?>(null) }
     var lDownAction by remember { mutableStateOf<ActionNode?>(null) }
     var selectedTriggerMode by remember { mutableStateOf(TriggerMode.SWIPE) }
-    var actionPickerToken by remember { mutableStateOf<String?>(null) }
+    // showInlineActionPicker: holds which gesture slot is being edited; null = show the config dialog
+    var showInlineActionPicker by remember { mutableStateOf<GestureType?>(null) }
 
-    fun openActionPicker(target: GestureType) {
-        actionPickerTarget = target
-        val token = UUID.randomUUID().toString()
-        actionPickerToken = token
-        InternalNavigationBus.requestActionPicker(
-            InternalNavigationBus.ActionPickerRequest(token),
-        )
-    }
-
-    LaunchedEffect(actionPickerToken) {
-        val token = actionPickerToken ?: return@LaunchedEffect
-        InternalNavigationBus.actionPickerResults.collect { result ->
-            if (result.token == token) {
-                when (actionPickerTarget) {
-                    GestureType.QUICK_SWIPE -> quickAction = result.action
-                    GestureType.SWIPE_HOLD -> holdAction = result.action
-                    GestureType.SWIPE_UP_L -> lUpAction = result.action
-                    GestureType.SWIPE_DOWN_L -> lDownAction = result.action
-                    null -> Unit
-                }
-                actionPickerTarget = null
-                actionPickerToken = null
+    // Inline ActionPicker — no navigation, keeps all state intact.
+    if (showInlineActionPicker != null) {
+        Dialog(
+            onDismissRequest = { showInlineActionPicker = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnBackPress = true),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
+            ) {
+                ActionPickerScreen(
+                    onDismiss = { showInlineActionPicker = null },
+                    onSelect = { action ->
+                        when (showInlineActionPicker) {
+                            GestureType.QUICK_SWIPE -> quickAction = action
+                            GestureType.SWIPE_HOLD -> holdAction = action
+                            GestureType.SWIPE_UP_L -> lUpAction = action
+                            GestureType.SWIPE_DOWN_L -> lDownAction = action
+                            null -> Unit
+                        }
+                        showInlineActionPicker = null
+                    },
+                )
             }
         }
+        return
     }
 
     val stepTitles = listOf(stringResource(R.string.choose_area), stringResource(R.string.assign_gestures))
@@ -334,9 +342,7 @@ fun AddRuleDialog(
                             title = stringResource(R.string.quick_with_icon),
                             description = stringResource(R.string.quick_description),
                             action = quickAction,
-                            onSelect = {
-                                openActionPicker(GestureType.QUICK_SWIPE)
-                            },
+                            onSelect = { showInlineActionPicker = GestureType.QUICK_SWIPE },
                             onClear = { quickAction = null },
                         )
                         Spacer(Modifier.height(8.dp))
@@ -344,9 +350,7 @@ fun AddRuleDialog(
                             title = stringResource(R.string.hold_with_icon),
                             description = stringResource(R.string.hold_description),
                             action = holdAction,
-                            onSelect = {
-                                openActionPicker(GestureType.SWIPE_HOLD)
-                            },
+                            onSelect = { showInlineActionPicker = GestureType.SWIPE_HOLD },
                             onClear = { holdAction = null },
                         )
                         Spacer(Modifier.height(8.dp))
@@ -354,9 +358,7 @@ fun AddRuleDialog(
                             title = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_right_with_icon else R.string.l_up_with_icon),
                             description = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_right_description else R.string.l_up_description),
                             action = lUpAction,
-                            onSelect = {
-                                openActionPicker(GestureType.SWIPE_UP_L)
-                            },
+                            onSelect = { showInlineActionPicker = GestureType.SWIPE_UP_L },
                             onClear = { lUpAction = null },
                         )
                         Spacer(Modifier.height(8.dp))
@@ -364,9 +366,7 @@ fun AddRuleDialog(
                             title = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_left_with_icon else R.string.l_down_with_icon),
                             description = stringResource(if (selectedEdge == Edge.BOTTOM) R.string.l_left_description else R.string.l_down_description),
                             action = lDownAction,
-                            onSelect = {
-                                openActionPicker(GestureType.SWIPE_DOWN_L)
-                            },
+                            onSelect = { showInlineActionPicker = GestureType.SWIPE_DOWN_L },
                             onClear = { lDownAction = null },
                         )
                         Spacer(Modifier.height(16.dp))
