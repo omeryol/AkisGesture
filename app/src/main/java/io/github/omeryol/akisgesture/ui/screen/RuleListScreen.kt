@@ -89,6 +89,7 @@ import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import io.github.omeryol.akisgesture.ui.util.actionEmoji
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
+import io.github.omeryol.akisgesture.ui.viewmodel.PendingActionTarget
 import io.github.omeryol.akisgesture.rule.Presets
 import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
 import io.github.omeryol.akisgesture.ui.theme.AkisPrimary
@@ -160,17 +161,37 @@ fun RuleListScreen(
                 } ?: addingGestureType?.let { gestureType ->
                     val targetKey = addingGroupKey ?: selectedGroupKey
                     val repRule = ruleGroups.firstOrNull { it.key == targetKey }?.representative
-                    repRule?.let { rule ->
-                        viewModel.addGesturePair(
-                            edge = rule.trigger.edge,
-                            section = rule.trigger.section,
-                            quickAction = if (gestureType == GestureType.QUICK_SWIPE) result.action else null,
-                            holdAction = if (gestureType == GestureType.SWIPE_HOLD) result.action else null,
-                            lUpAction = if (gestureType == GestureType.SWIPE_UP_L) result.action else null,
-                            lDownAction = if (gestureType == GestureType.SWIPE_DOWN_L) result.action else null,
-                            triggerMode = rule.triggerMode,
-                        )
-                    }
+                    val edge = repRule?.trigger?.edge ?: run {
+                        if (targetKey != null && targetKey.contains(":")) {
+                            runCatching { Edge.valueOf(targetKey.split(":")[0]) }.getOrNull()
+                        } else null
+                    } ?: selectedEdge
+                    val section = repRule?.trigger?.section ?: run {
+                        if (targetKey != null && targetKey.contains(":")) {
+                            val parts = targetKey.split(":")
+                            if (parts.size >= 3) {
+                                runCatching { io.github.omeryol.akisgesture.model.SectionRange(parts[1].toFloat(), parts[2].toFloat()) }.getOrNull()
+                            } else null
+                        } else null
+                    } ?: io.github.omeryol.akisgesture.model.SectionRange.ALL
+                    val triggerMode = repRule?.triggerMode ?: run {
+                        if (targetKey != null && targetKey.contains(":")) {
+                            val parts = targetKey.split(":")
+                            if (parts.size >= 4) {
+                                runCatching { io.github.omeryol.akisgesture.model.TriggerMode.valueOf(parts[3]) }.getOrNull()
+                            } else null
+                        } else null
+                    } ?: io.github.omeryol.akisgesture.model.TriggerMode.SWIPE
+
+                    viewModel.addGesturePair(
+                        edge = edge,
+                        section = section,
+                        quickAction = if (gestureType == GestureType.QUICK_SWIPE) result.action else null,
+                        holdAction = if (gestureType == GestureType.SWIPE_HOLD) result.action else null,
+                        lUpAction = if (gestureType == GestureType.SWIPE_UP_L) result.action else null,
+                        lDownAction = if (gestureType == GestureType.SWIPE_DOWN_L) result.action else null,
+                        triggerMode = triggerMode,
+                    )
                 }
                 editingActionRuleId = null
                 addingGestureType = null
@@ -407,10 +428,17 @@ fun RuleListScreen(
                             onDelete = { viewModel.removeRules(group.ids) },
                             onSelectAction = { gestureType, rule ->
                                 if (rule != null) {
+                                    viewModel.pendingTarget = PendingActionTarget.EditRule(rule.id)
                                     editingActionRuleId = rule.id
                                     addingGestureType = null
                                     addingGroupKey = null
                                 } else {
+                                    viewModel.pendingTarget = PendingActionTarget.AddGesture(
+                                        edge = group.representative.trigger.edge,
+                                        section = group.representative.trigger.section,
+                                        gestureType = gestureType,
+                                        triggerMode = group.representative.triggerMode,
+                                    )
                                     editingActionRuleId = null
                                     addingGestureType = gestureType
                                     addingGroupKey = group.key
@@ -611,8 +639,18 @@ fun RuleListScreen(
                         title = stringResource(R.string.quick_with_icon),
                         rule = selectedGroup.quick,
                         onClick = {
-                            selectedGroup.quick?.let { editingActionRuleId = it.id }
-                                ?: run { addingGestureType = GestureType.QUICK_SWIPE }
+                            selectedGroup.quick?.let {
+                                viewModel.pendingTarget = PendingActionTarget.EditRule(it.id)
+                                editingActionRuleId = it.id
+                            } ?: run {
+                                viewModel.pendingTarget = PendingActionTarget.AddGesture(
+                                    edge = selectedGroup.representative.trigger.edge,
+                                    section = selectedGroup.representative.trigger.section,
+                                    gestureType = GestureType.QUICK_SWIPE,
+                                    triggerMode = selectedGroup.representative.triggerMode,
+                                )
+                                addingGestureType = GestureType.QUICK_SWIPE
+                            }
                             openActionPicker()
                         },
                         onClear = { selectedGroup.quick?.let { viewModel.removeRule(it.id) } },
@@ -621,8 +659,18 @@ fun RuleListScreen(
                         title = stringResource(R.string.hold_with_icon),
                         rule = selectedGroup.hold,
                         onClick = {
-                            selectedGroup.hold?.let { editingActionRuleId = it.id }
-                                ?: run { addingGestureType = GestureType.SWIPE_HOLD }
+                            selectedGroup.hold?.let {
+                                viewModel.pendingTarget = PendingActionTarget.EditRule(it.id)
+                                editingActionRuleId = it.id
+                            } ?: run {
+                                viewModel.pendingTarget = PendingActionTarget.AddGesture(
+                                    edge = selectedGroup.representative.trigger.edge,
+                                    section = selectedGroup.representative.trigger.section,
+                                    gestureType = GestureType.SWIPE_HOLD,
+                                    triggerMode = selectedGroup.representative.triggerMode,
+                                )
+                                addingGestureType = GestureType.SWIPE_HOLD
+                            }
                             openActionPicker()
                         },
                         onClear = { selectedGroup.hold?.let { viewModel.removeRule(it.id) } },
@@ -631,8 +679,18 @@ fun RuleListScreen(
                         title = stringResource(R.string.l_up_with_icon),
                         rule = selectedGroup.lUp,
                         onClick = {
-                            selectedGroup.lUp?.let { editingActionRuleId = it.id }
-                                ?: run { addingGestureType = GestureType.SWIPE_UP_L }
+                            selectedGroup.lUp?.let {
+                                viewModel.pendingTarget = PendingActionTarget.EditRule(it.id)
+                                editingActionRuleId = it.id
+                            } ?: run {
+                                viewModel.pendingTarget = PendingActionTarget.AddGesture(
+                                    edge = selectedGroup.representative.trigger.edge,
+                                    section = selectedGroup.representative.trigger.section,
+                                    gestureType = GestureType.SWIPE_UP_L,
+                                    triggerMode = selectedGroup.representative.triggerMode,
+                                )
+                                addingGestureType = GestureType.SWIPE_UP_L
+                            }
                             openActionPicker()
                         },
                         onClear = { selectedGroup.lUp?.let { viewModel.removeRule(it.id) } },
@@ -641,8 +699,18 @@ fun RuleListScreen(
                         title = stringResource(R.string.l_down_with_icon),
                         rule = selectedGroup.lDown,
                         onClick = {
-                            selectedGroup.lDown?.let { editingActionRuleId = it.id }
-                                ?: run { addingGestureType = GestureType.SWIPE_DOWN_L }
+                            selectedGroup.lDown?.let {
+                                viewModel.pendingTarget = PendingActionTarget.EditRule(it.id)
+                                editingActionRuleId = it.id
+                            } ?: run {
+                                viewModel.pendingTarget = PendingActionTarget.AddGesture(
+                                    edge = selectedGroup.representative.trigger.edge,
+                                    section = selectedGroup.representative.trigger.section,
+                                    gestureType = GestureType.SWIPE_DOWN_L,
+                                    triggerMode = selectedGroup.representative.triggerMode,
+                                )
+                                addingGestureType = GestureType.SWIPE_DOWN_L
+                            }
                             openActionPicker()
                         },
                         onClear = { selectedGroup.lDown?.let { viewModel.removeRule(it.id) } },
