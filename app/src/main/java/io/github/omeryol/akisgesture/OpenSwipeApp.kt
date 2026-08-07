@@ -134,10 +134,13 @@ class AkisGestureApp : Application() {
                     showGestureIndicatorBar = prefs[GestureConfig.KEY_SHOW_GESTURE_INDICATOR_BAR] ?: false,
                     animationSpeed = prefs[GestureConfig.KEY_ANIMATION_SPEED] ?: 1f,
                     animationSize = prefs[GestureConfig.KEY_ANIMATION_SIZE] ?: 1f,
+                    iconSize = prefs[GestureConfig.KEY_ICON_SIZE] ?: 1f,
                     showPhoneMap = prefs[GestureConfig.KEY_SHOW_PHONE_MAP] ?: true,
                     showSummaryChart = prefs[GestureConfig.KEY_SHOW_SUMMARY_CHART] ?: true,
                     showPresetsCard = prefs[GestureConfig.KEY_SHOW_PRESETS_CARD] ?: true,
                     actionIconPack = ActionIconPack.fromId(prefs[GestureConfig.KEY_ACTION_ICON_PACK]),
+                    rootWatchdogEnabled = prefs[GestureConfig.KEY_ROOT_WATCHDOG_ENABLED] ?: false,
+                    rootWatchdogIntervalMinutes = prefs[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] ?: 15,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -375,6 +378,14 @@ class AkisGestureApp : Application() {
     }
 
 
+    suspend fun applyColorPalette(quickColor: Int, holdColor: Int, lSwipeColor: Int) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_FEEDBACK_COLOR] = quickColor
+            prefs[GestureConfig.KEY_SECONDARY_COLOR] = holdColor
+            prefs[GestureConfig.KEY_L_SWIPE_COLOR] = lSwipeColor
+        }
+    }
+
     suspend fun updateHapticIntensity(intensity: Float) {
         settingsDataStore.edit { it[GestureConfig.KEY_HAPTIC_INTENSITY] = intensity.coerceIn(0f, 1f) }
     }
@@ -389,6 +400,18 @@ class AkisGestureApp : Application() {
 
     suspend fun updateAnimationSize(size: Float) {
         settingsDataStore.edit { it[GestureConfig.KEY_ANIMATION_SIZE] = size.coerceIn(0.5f, 2f) }
+    }
+
+    suspend fun updateIconSize(size: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ICON_SIZE] = size.coerceIn(0.5f, 2f) }
+    }
+
+    suspend fun updateRootWatchdogEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ROOT_WATCHDOG_ENABLED] = enabled }
+    }
+
+    suspend fun updateRootWatchdogInterval(minutes: Int) {
+        settingsDataStore.edit { it[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] = minutes.coerceIn(5, 120) }
     }
 
     suspend fun updateHapticEnabled(enabled: Boolean) {

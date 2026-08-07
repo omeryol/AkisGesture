@@ -233,6 +233,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateFeedbackAnimation(animation) }
     }
 
+    fun applyColorPalette(quickColor: Int, holdColor: Int, lSwipeColor: Int) {
+        viewModelScope.launch { app.applyColorPalette(quickColor, holdColor, lSwipeColor) }
+    }
+
     fun setActionIconPack(pack: ActionIconPack) {
         viewModelScope.launch { app.updateActionIconPack(pack) }
     }
@@ -243,6 +247,18 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setAnimationSize(size: Float) {
         viewModelScope.launch { app.updateAnimationSize(size) }
+    }
+
+    fun setIconSize(size: Float) {
+        viewModelScope.launch { app.updateIconSize(size) }
+    }
+
+    fun setRootWatchdogEnabled(enabled: Boolean) {
+        viewModelScope.launch { app.updateRootWatchdogEnabled(enabled) }
+    }
+
+    fun setRootWatchdogInterval(minutes: Int) {
+        viewModelScope.launch { app.updateRootWatchdogInterval(minutes) }
     }
 
     fun toggleMaster(enabled: Boolean) {
