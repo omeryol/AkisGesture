@@ -15,9 +15,9 @@ object InternalNavigationBus {
     data class ActionPickerRequest(val token: String, val appSelectionOnly: Boolean = false)
     data class ActionPickerResult(val token: String, val action: ActionNode)
 
-    private val _actionPickerRequests = MutableSharedFlow<ActionPickerRequest>(extraBufferCapacity = 1)
+    private val _actionPickerRequests = MutableSharedFlow<ActionPickerRequest>(replay = 1, extraBufferCapacity = 1)
     val actionPickerRequests = _actionPickerRequests.asSharedFlow()
-    private val _actionPickerResults = MutableSharedFlow<ActionPickerResult>(extraBufferCapacity = 1)
+    private val _actionPickerResults = MutableSharedFlow<ActionPickerResult>(replay = 1, extraBufferCapacity = 1)
     val actionPickerResults = _actionPickerResults.asSharedFlow()
 
     fun requestActionPicker(request: ActionPickerRequest): Boolean = _actionPickerRequests.tryEmit(request)

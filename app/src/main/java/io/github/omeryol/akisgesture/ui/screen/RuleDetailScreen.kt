@@ -73,6 +73,7 @@ import io.github.omeryol.akisgesture.ui.util.gestureLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
+import io.github.omeryol.akisgesture.ui.viewmodel.PendingActionTarget
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -379,6 +380,7 @@ fun RuleDetailScreen(
                     )
                     OutlinedButton(
                         onClick = {
+                            viewModel.pendingTarget = PendingActionTarget.EditRule(ruleId)
                             val token = UUID.randomUUID().toString()
                             actionPickerToken = token
                             InternalNavigationBus.requestActionPicker(

@@ -28,6 +28,16 @@ import io.github.omeryol.akisgesture.ui.util.gestureLabel
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+sealed interface PendingActionTarget {
+    data class EditRule(val ruleId: String) : PendingActionTarget
+    data class AddGesture(
+        val edge: Edge,
+        val section: SectionRange,
+        val gestureType: GestureType,
+        val triggerMode: TriggerMode = TriggerMode.SWIPE,
+    ) : PendingActionTarget
+}
+
 data class Conflict(
     val ruleA: GestureRule,
     val ruleB: GestureRule,
@@ -38,6 +48,30 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     private val app = application as AkisGestureApp
     val gestureConfig = app.gestureConfigFlow
+
+    var pendingTarget: PendingActionTarget? = null
+
+    fun onActionSelected(action: ActionNode) {
+        if (action is ActionNode.NoAction) return
+        val target = pendingTarget ?: return
+        when (target) {
+            is PendingActionTarget.EditRule -> {
+                updateRuleAction(target.ruleId, action)
+            }
+            is PendingActionTarget.AddGesture -> {
+                addGesturePair(
+                    edge = target.edge,
+                    section = target.section,
+                    quickAction = if (target.gestureType == GestureType.QUICK_SWIPE) action else null,
+                    holdAction = if (target.gestureType == GestureType.SWIPE_HOLD) action else null,
+                    lUpAction = if (target.gestureType == GestureType.SWIPE_UP_L) action else null,
+                    lDownAction = if (target.gestureType == GestureType.SWIPE_DOWN_L) action else null,
+                    triggerMode = target.triggerMode,
+                )
+            }
+        }
+        pendingTarget = null
+    }
 
     private val _rules = MutableStateFlow<List<GestureRule>>(emptyList())
     val rules: StateFlow<List<GestureRule>> = _rules.asStateFlow()
@@ -80,17 +114,28 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     // ── Mutations ──
 
-    fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: io.github.omeryol.akisgesture.model.TriggerMode = io.github.omeryol.akisgesture.model.TriggerMode.SWIPE) {
+    fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: TriggerMode = TriggerMode.SWIPE) {
         if (action is ActionNode.NoAction) return
-        val newRule = GestureRule(
-            id = UUID.randomUUID().toString(),
-            trigger = trigger,
-            action = action,
-            triggerMode = triggerMode,
-        )
-        _rules.value = _rules.value + newRule
+        val current = _rules.value.toMutableList()
+        val existingIndex = current.indexOfFirst {
+            it.trigger.edge == trigger.edge && it.trigger.section == trigger.section && it.trigger.gestureType == trigger.gestureType && it.triggerMode == triggerMode
+        }
+        if (existingIndex >= 0) {
+            current[existingIndex] = current[existingIndex].copy(action = action, enabled = true)
+        } else {
+            current.add(
+                GestureRule(
+                    id = UUID.randomUUID().toString(),
+                    trigger = trigger,
+                    action = action,
+                    triggerMode = triggerMode,
+                )
+            )
+        }
+        _rules.value = current
         _activePresetName.value = null
         revalidate()
+        applyRules()
     }
 
     fun addGesturePair(
@@ -102,50 +147,33 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         lDownAction: ActionNode? = null,
         triggerMode: TriggerMode = TriggerMode.SWIPE,
     ) {
-        val additions = buildList {
-            quickAction?.let { action ->
-                add(
-                    GestureRule(
-                        id = UUID.randomUUID().toString(),
-                        trigger = TriggerNode(edge, section, GestureType.QUICK_SWIPE),
-                        action = action,
-                        triggerMode = triggerMode,
-                    ),
-                )
+        val current = _rules.value.toMutableList()
+
+        fun setAction(type: GestureType, action: ActionNode?) {
+            if (action == null || action is ActionNode.NoAction) return
+            val existingIndex = current.indexOfFirst {
+                it.trigger.edge == edge && it.trigger.section == section && it.trigger.gestureType == type && it.triggerMode == triggerMode
             }
-            holdAction?.let { action ->
-                add(
+            if (existingIndex >= 0) {
+                current[existingIndex] = current[existingIndex].copy(action = action, enabled = true)
+            } else {
+                current.add(
                     GestureRule(
                         id = UUID.randomUUID().toString(),
-                        trigger = TriggerNode(edge, section, GestureType.SWIPE_HOLD),
+                        trigger = TriggerNode(edge, section, type),
                         action = action,
                         triggerMode = triggerMode,
-                    ),
-                )
-            }
-            lUpAction?.let { action ->
-                add(
-                    GestureRule(
-                        id = UUID.randomUUID().toString(),
-                        trigger = TriggerNode(edge, section, GestureType.SWIPE_UP_L),
-                        action = action,
-                        triggerMode = triggerMode,
-                    ),
-                )
-            }
-            lDownAction?.let { action ->
-                add(
-                    GestureRule(
-                        id = UUID.randomUUID().toString(),
-                        trigger = TriggerNode(edge, section, GestureType.SWIPE_DOWN_L),
-                        action = action,
-                        triggerMode = triggerMode,
-                    ),
+                    )
                 )
             }
         }
-        if (additions.isEmpty()) return
-        _rules.value = _rules.value + additions
+
+        setAction(GestureType.QUICK_SWIPE, quickAction)
+        setAction(GestureType.SWIPE_HOLD, holdAction)
+        setAction(GestureType.SWIPE_UP_L, lUpAction)
+        setAction(GestureType.SWIPE_DOWN_L, lDownAction)
+
+        _rules.value = current
         _activePresetName.value = null
         revalidate()
         applyRules()
@@ -229,7 +257,6 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun applyRules() {
-        if (_conflicts.value.isNotEmpty()) return
         val graph = GestureRuleGraph(rules = _rules.value)
         _appliedRules.value = _rules.value.toList()
         val profilePackage = _activeProfilePackage.value

@@ -196,6 +196,7 @@ private fun AkisGestureApp() {
                     appSelectionOnly = backStackEntry.arguments?.getBoolean("apps") ?: false,
                     onDismiss = { navController.popBackStack() },
                     onSelect = { action ->
+                        ruleConfigViewModel.onActionSelected(action)
                         InternalNavigationBus.publishActionPickerResult(
                             InternalNavigationBus.ActionPickerResult(token, action),
                         )
