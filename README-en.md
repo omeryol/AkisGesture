@@ -1,5 +1,10 @@
 # Akış Gesture
 
+[![Total Downloads](https://img.shields.io/github/downloads/omeryol/AkisGesture/total?color=blue&label=Total%20Downloads)](https://github.com/omeryol/AkisGesture/releases)
+[![Latest Release](https://img.shields.io/github/v/release/omeryol/AkisGesture?color=green&label=Latest%20Release)](https://github.com/omeryol/AkisGesture/releases)
+
+[Türkçe](README.md) | **English**
+
 Akış Gesture is a personal, open-source navigation app designed to provide
 natural edge gestures on Android, with particular attention to HyperOS devices.
 

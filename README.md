@@ -1,5 +1,8 @@
 # Akış Gesture
 
+[![Toplam İndirme](https://img.shields.io/github/downloads/omeryol/AkisGesture/total?color=blue&label=Toplam%20İndirme)](https://github.com/omeryol/AkisGesture/releases)
+[![Son Sürüm](https://img.shields.io/github/v/release/omeryol/AkisGesture?color=green&label=Son%20Sürüm)](https://github.com/omeryol/AkisGesture/releases)
+
 **Türkçe** | [English](README-en.md)
 
 Akış Gesture, Android ve özellikle HyperOS cihazlarda doğal kenar hareketleri
