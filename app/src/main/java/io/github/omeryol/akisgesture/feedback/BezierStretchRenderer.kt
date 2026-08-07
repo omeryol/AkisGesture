@@ -69,6 +69,7 @@ class BezierStretchRenderer {
     var holdIcon = FeedbackIcon.STAR
     var animSpeed = 1f
     var animSize = 1f
+    var iconSize = 1f
     var showIndicatorBar = false
 
     private var previousSymbol = ""
@@ -105,7 +106,8 @@ class BezierStretchRenderer {
         } else stretch
 
         val progress = (elasticStretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.35f)
-        val colorMix = smoothStep(.18f, 1.15f, progress)
+        // Improved color transition with wider range and smoother curve
+        val colorMix = smoothStep(.12f, 1.25f, progress).pow(0.85f) // Wider range, smoother curve
         val preLColor = if (holdArmed) {
             blend(primaryColor, secondaryColor, colorMix)
         } else {
@@ -115,7 +117,7 @@ class BezierStretchRenderer {
             lColorProgress > 0f -> blend(
                 preLColor,
                 lSwipeColor,
-                smoothStep(0f, 1f, lColorProgress),
+                smoothStep(0f, 1f, lColorProgress).pow(0.75f), // Smoother L-color transition
             )
             else -> preLColor
         }
@@ -143,10 +145,12 @@ class BezierStretchRenderer {
             (.46f + opacity * .54f).coerceIn(.55f, 1f), size,
             System.nanoTime() / 1_000_000_000.0 * animSpeed,
         )
+        if (showIndicatorBar) {
+            drawIndicator(canvas, edge, touchPosition, canvasWidth, canvasHeight)
+        }
         if (stretch >= 0.25f && animation != FeedbackAnimation.NONE) {
             moduleFor(animation).draw(frame)
             drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
-            if (showIndicatorBar) drawIndicator(canvas, edge, touchPosition, canvasWidth, canvasHeight)
         }
 
         // Draw particle burst on top
@@ -196,14 +200,24 @@ class BezierStretchRenderer {
         val elapsed=((System.nanoTime()-symbolChangedAt)/1_000_000_000f).coerceAtLeast(0f)
         val transition=smoothStep(0f,.20f,elapsed)
         val symbol=displayedSymbol.ifEmpty{actionSymbol}
-        if(previousSymbol.isNotEmpty()&&transition<1f) drawSymbol(canvas,previousSymbol,c,radius,(1f-transition)*alphaValue)
-        if(symbol.isNotEmpty()) drawSymbol(canvas,symbol,c,radius,transition*alphaValue)
-        else drawFilledChevron(canvas,c,edge,radius,alphaValue)
+        val iconRadius = radius * iconSize
+        if(previousSymbol.isNotEmpty()&&transition<1f) drawSymbol(canvas,previousSymbol,c,iconRadius,(1f-transition)*alphaValue)
+        if(symbol.isNotEmpty()) drawSymbol(canvas,symbol,c,iconRadius,transition*alphaValue)
+        else drawFilledChevron(canvas,c,edge,iconRadius,alphaValue)
     }
 
     private fun drawSymbol(canvas:Canvas,symbol:String,c:Pair<Float,Float>,radius:Float,alphaValue:Float){iconPaint.color=withAlpha(Color.WHITE,(235*opacity*alphaValue).toInt());iconPaint.textSize=radius*1.05f;canvas.drawText(symbol,c.first,c.second-(iconPaint.ascent()+iconPaint.descent())/2f,iconPaint)}
     private fun drawFilledChevron(canvas:Canvas,c:Pair<Float,Float>,edge:Edge,r:Float,a:Float){iconFill.color=withAlpha(Color.WHITE,(225*opacity*a).toInt());iconPath.reset();when(edge){Edge.LEFT->{iconPath.moveTo(c.first-r*.35f,c.second-r*.55f);iconPath.lineTo(c.first+r*.45f,c.second);iconPath.lineTo(c.first-r*.35f,c.second+r*.55f);iconPath.lineTo(c.first-r*.02f,c.second)};Edge.RIGHT->{iconPath.moveTo(c.first+r*.35f,c.second-r*.55f);iconPath.lineTo(c.first-r*.45f,c.second);iconPath.lineTo(c.first+r*.35f,c.second+r*.55f);iconPath.lineTo(c.first+r*.02f,c.second)};Edge.BOTTOM->{iconPath.moveTo(c.first-r*.55f,c.second+r*.35f);iconPath.lineTo(c.first,c.second-r*.45f);iconPath.lineTo(c.first+r*.55f,c.second+r*.35f);iconPath.lineTo(c.first,c.second+r*.02f)}};iconPath.close();canvas.drawPath(iconPath,iconFill)}
-    private fun drawIndicator(canvas:Canvas,edge:Edge,touch:Float,width:Float,height:Float){iconFill.color=withAlpha(baseColor,(105*opacity).toInt());when(edge){Edge.LEFT->canvas.drawRoundRect(2f,touch-40f,7f,touch+40f,3f,3f,iconFill);Edge.RIGHT->canvas.drawRoundRect(width-7f,touch-40f,width-2f,touch+40f,3f,3f,iconFill);Edge.BOTTOM->canvas.drawRoundRect(touch-48f,height-7f,touch+48f,height-2f,3f,3f,iconFill)}}
+    private fun drawIndicator(canvas: Canvas, edge: Edge, touch: Float, width: Float, height: Float) {
+        val barAlpha = (220 * opacity).toInt().coerceAtLeast(160)
+        iconFill.maskFilter = null
+        iconFill.color = withAlpha(baseColor, barAlpha)
+        when (edge) {
+            Edge.LEFT -> canvas.drawRoundRect(4f, touch - 45f, 14f, touch + 45f, 5f, 5f, iconFill)
+            Edge.RIGHT -> canvas.drawRoundRect(width - 14f, touch - 45f, width - 4f, touch + 45f, 5f, 5f, iconFill)
+            Edge.BOTTOM -> canvas.drawRoundRect(touch - 55f, height - 14f, touch + 55f, height - 4f, 5f, 5f, iconFill)
+        }
+    }
     private fun smoothStep(a:Float,b:Float,v:Float):Float{val t=((v-a)/(b-a)).coerceIn(0f,1f);return t*t*(3f-2f*t)}
     private fun blend(a:Int,b:Int,t:Float)=Color.rgb((Color.red(a)+(Color.red(b)-Color.red(a))*t).toInt(),(Color.green(a)+(Color.green(b)-Color.green(a))*t).toInt(),(Color.blue(a)+(Color.blue(b)-Color.blue(a))*t).toInt())
     private fun lighten(c:Int,t:Float)=blend(c,Color.WHITE,t);private fun darken(c:Int,t:Float)=Color.rgb((Color.red(c)*(1-t)).toInt(),(Color.green(c)*(1-t)).toInt(),(Color.blue(c)*(1-t)).toInt());private fun withAlpha(c:Int,a:Int)=Color.argb(a.coerceIn(0,255),Color.red(c),Color.green(c),Color.blue(c))

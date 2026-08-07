@@ -91,6 +91,12 @@ class FeedbackView(context: Context) : View(context) {
             renderer.animSize = value.coerceIn(0.5f, 2f)
             invalidate()
         }
+    var iconSize: Float
+        get() = renderer.iconSize
+        set(value) {
+            renderer.iconSize = value.coerceIn(0.5f, 2f)
+            invalidate()
+        }
     var showIndicatorBar: Boolean
         get() = renderer.showIndicatorBar
         set(value) {

@@ -13,6 +13,12 @@ enum class ActionIconPack(
     val descriptionResId: Int,
     val samplePreview: String,
 ) {
+    SYSTEM_DEFAULT(
+        id = "system_default",
+        titleResId = R.string.icon_pack_system_default,
+        descriptionResId = R.string.icon_pack_system_default_desc,
+        samplePreview = "‹ ⌂ ▢ ⇆ ⚿ ⎘ 🕭 ⚙︎ ⏻",
+    ),
     EMOJI_MODERN(
         id = "emoji_modern",
         titleResId = R.string.icon_pack_emoji_modern,
@@ -23,28 +29,48 @@ enum class ActionIconPack(
         id = "minimal_line",
         titleResId = R.string.icon_pack_minimal_line,
         descriptionResId = R.string.icon_pack_minimal_line_desc,
-        samplePreview = "◀ ⌂ ☰ ⇄ 🔒 📷 🕭 ⚙ ⚡",
+        samplePreview = "◀ ⌂ ☰ ⇄ ⚮ ⎚ 🕭 ⚙ ⏻",
     ),
     NEON_CYBER(
         id = "neon_cyber",
         titleResId = R.string.icon_pack_neon_cyber,
         descriptionResId = R.string.icon_pack_neon_cyber_desc,
-        samplePreview = "◁ ⬡ ≡ ⇆ 🔐 ⚡ 🔔 🎛️ 💥",
+        samplePreview = "◁ ⬡ ▤ ⇆ 🔐 ⟁ 🛰️ 🎛️ 💥",
     ),
     TECH_SYMBOL(
         id = "tech_symbol",
         titleResId = R.string.icon_pack_tech_symbol,
         descriptionResId = R.string.icon_pack_tech_symbol_desc,
-        samplePreview = "◄ ◈ ≡ ⇄ 🔒 📷 🔔 ⚙ ⚡",
+        samplePreview = "◄ ◈ ☲ ⇄ ⬣ ◨ ⌬ ✇ ⏚",
     ),
     RETRO_CLASSIC(
         id = "retro_classic",
         titleResId = R.string.icon_pack_retro_classic,
         descriptionResId = R.string.icon_pack_retro_classic_desc,
-        samplePreview = "⬅️ 🏠 📋 🔁 🔑 📸 🔔 🛠️ ⚡",
+        samplePreview = "👈 🏠 📋 🔁 🔑 📷 📢 🛠️ 🔋",
     );
 
     fun getSymbol(action: ActionNode): String = when (this) {
+        SYSTEM_DEFAULT -> when (action) {
+            is ActionNode.Back -> "‹"
+            is ActionNode.Home -> "⌂"
+            is ActionNode.Recents -> "▢"
+            is ActionNode.SwitchLastApp -> "⇆"
+            is ActionNode.SwitchNextApp -> "›"
+            is ActionNode.LockScreen -> "⚿"
+            is ActionNode.Screenshot -> "⎘"
+            is ActionNode.NotificationPanel -> "🕭"
+            is ActionNode.QuickSettings -> "⚙︎"
+            is ActionNode.PowerMenu -> "⏻"
+            is ActionNode.MediaPlayPause -> "►"
+            is ActionNode.Assistant -> "✦"
+            is ActionNode.ToggleFlashlight -> "☀︎"
+            is ActionNode.ForceStopForeground -> "✕"
+            is ActionNode.LaunchApp -> "◽"
+            is ActionNode.SplitScreen -> "◫"
+            is ActionNode.Menu -> "≡"
+            else -> "⚙︎"
+        }
         EMOJI_MODERN -> when (action) {
             is ActionNode.Back -> "🔙"
             is ActionNode.Home -> "🏠"
@@ -71,34 +97,34 @@ enum class ActionIconPack(
             is ActionNode.Recents -> "☰"
             is ActionNode.SwitchLastApp -> "⇄"
             is ActionNode.SwitchNextApp -> "➔"
-            is ActionNode.LockScreen -> "🔒"
-            is ActionNode.Screenshot -> "📷"
+            is ActionNode.LockScreen -> "⚮"
+            is ActionNode.Screenshot -> "⎚"
             is ActionNode.NotificationPanel -> "🕭"
             is ActionNode.QuickSettings -> "⚙"
-            is ActionNode.PowerMenu -> "⚡"
-            is ActionNode.MediaPlayPause -> "►"
-            is ActionNode.Assistant -> "✦"
-            is ActionNode.ToggleFlashlight -> "💡"
+            is ActionNode.PowerMenu -> "⏻"
+            is ActionNode.MediaPlayPause -> "▻"
+            is ActionNode.Assistant -> "✧"
+            is ActionNode.ToggleFlashlight -> "☼"
             is ActionNode.ForceStopForeground -> "✕"
-            is ActionNode.LaunchApp -> "◽"
+            is ActionNode.LaunchApp -> "⬚"
             is ActionNode.SplitScreen -> "◫"
             is ActionNode.Menu -> "≡"
-            else -> "⚡"
+            else -> "⚙"
         }
         NEON_CYBER -> when (action) {
             is ActionNode.Back -> "◁"
             is ActionNode.Home -> "⬡"
-            is ActionNode.Recents -> "≡"
+            is ActionNode.Recents -> "▤"
             is ActionNode.SwitchLastApp -> "⇆"
             is ActionNode.SwitchNextApp -> "⇥"
             is ActionNode.LockScreen -> "🔐"
-            is ActionNode.Screenshot -> "⚡"
-            is ActionNode.NotificationPanel -> "🔔"
+            is ActionNode.Screenshot -> "⟁"
+            is ActionNode.NotificationPanel -> "🛰️"
             is ActionNode.QuickSettings -> "🎛️"
             is ActionNode.PowerMenu -> "💥"
             is ActionNode.MediaPlayPause -> "⏯️"
-            is ActionNode.Assistant -> "🌐"
-            is ActionNode.ToggleFlashlight -> "✨"
+            is ActionNode.Assistant -> "🛸"
+            is ActionNode.ToggleFlashlight -> "⚡"
             is ActionNode.ForceStopForeground -> "🚫"
             is ActionNode.LaunchApp -> "🔮"
             is ActionNode.SplitScreen -> "❖"
@@ -108,14 +134,14 @@ enum class ActionIconPack(
         TECH_SYMBOL -> when (action) {
             is ActionNode.Back -> "◄"
             is ActionNode.Home -> "◈"
-            is ActionNode.Recents -> "≡"
+            is ActionNode.Recents -> "☲"
             is ActionNode.SwitchLastApp -> "⇄"
             is ActionNode.SwitchNextApp -> "►"
-            is ActionNode.LockScreen -> "🔒"
-            is ActionNode.Screenshot -> "📷"
-            is ActionNode.NotificationPanel -> "🔔"
-            is ActionNode.QuickSettings -> "⚙"
-            is ActionNode.PowerMenu -> "⚡"
+            is ActionNode.LockScreen -> "⬣"
+            is ActionNode.Screenshot -> "◨"
+            is ActionNode.NotificationPanel -> "⌬"
+            is ActionNode.QuickSettings -> "✇"
+            is ActionNode.PowerMenu -> "⏚"
             is ActionNode.MediaPlayPause -> "▶"
             is ActionNode.Assistant -> "◇"
             is ActionNode.ToggleFlashlight -> "☀"
@@ -123,27 +149,27 @@ enum class ActionIconPack(
             is ActionNode.LaunchApp -> "◆"
             is ActionNode.SplitScreen -> "◧"
             is ActionNode.Menu -> "☰"
-            else -> "⚡"
+            else -> "✇"
         }
         RETRO_CLASSIC -> when (action) {
-            is ActionNode.Back -> "⬅️"
+            is ActionNode.Back -> "👈"
             is ActionNode.Home -> "🏠"
             is ActionNode.Recents -> "📋"
             is ActionNode.SwitchLastApp -> "🔁"
-            is ActionNode.SwitchNextApp -> "⏩"
+            is ActionNode.SwitchNextApp -> "👉"
             is ActionNode.LockScreen -> "🔑"
-            is ActionNode.Screenshot -> "📸"
-            is ActionNode.NotificationPanel -> "🔔"
+            is ActionNode.Screenshot -> "📷"
+            is ActionNode.NotificationPanel -> "📢"
             is ActionNode.QuickSettings -> "🛠️"
-            is ActionNode.PowerMenu -> "⚡"
-            is ActionNode.MediaPlayPause -> "⏯️"
+            is ActionNode.PowerMenu -> "🔋"
+            is ActionNode.MediaPlayPause -> "📻"
             is ActionNode.Assistant -> "👾"
-            is ActionNode.ToggleFlashlight -> "💡"
+            is ActionNode.ToggleFlashlight -> "🔦"
             is ActionNode.ForceStopForeground -> "⏹️"
             is ActionNode.LaunchApp -> "📦"
             is ActionNode.SplitScreen -> "🪟"
             is ActionNode.Menu -> "📑"
-            else -> "⚡"
+            else -> "🎮"
         }
     }
 
