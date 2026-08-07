@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Akış Gesture</string>
     <string name="accessibility_service_description">Detects screen-edge gestures and performs selected actions such as Back, Home, or Recents. It does not record or collect screen content.</string>
@@ -18,8 +18,10 @@
     <string name="update_check_title">App updates</string>
     <string name="update_check_idle">Check GitHub for a newer release</string>
     <string name="update_check_checking">Checking for updates…</string>
-    <string name="update_check_current">You are up to date (%1$s)</string>
-    <string name="update_check_available">New release available: %1$s</string>
+    <string name="update_check_current">Your version (%1$s) is up to date.</string>
+    <string name="update_check_dev_build">🛠️ Test / Dev Build Installed</string>
+    <string name="update_check_dev_build_desc">Installed version (%1$s) is newer than GitHub latest release (%2$s). You are running a test APK.</string>
+    <string name="update_check_available">New version available: %1$s</string>
     <string name="update_check_failed">Could not check for updates</string>
     <string name="update_check_action">Check</string>
     <string name="update_dialog_title">New release: %1$s</string>
@@ -103,7 +105,19 @@
     <string name="service_ready">Gesture service ready</string><string name="service_disconnected">Gesture service not connected</string><string name="service_enabled_user">Edge gestures are enabled for this user.</string><string name="service_permission_prompt">Grant permission to enable edge gestures.</string><string name="grant_permission">Grant permission</string>
     <string name="tab_motion">Motion</string><string name="tab_appearance">Appearance</string><string name="tab_pause">Pause</string><string name="tab_backup">Backup</string><string name="tab_about">About</string>
     <string name="motion_section">Edge and gesture physics</string><string name="motion_section_subtitle">Trigger areas, sensitivity, and hold settings</string><string name="trigger_thickness">Trigger thickness</string><string name="trigger_help">Trigger: thickness of the touch area along the edge.</string><string name="sensitivity_damping">Sensitivity (damping)</string><string name="sensitivity_help">Sensitivity: drag resistance. Lower damping responds faster; higher damping requires more dragging.</string><string name="threshold_distance">Threshold distance</string><string name="threshold_help">Threshold: minimum swipe distance required to trigger a quick swipe.</string><string name="l_threshold">L-swipe bend threshold</string><string name="l_threshold_help">L threshold: vertical bend required to detect an L gesture. The vertical swipe must be at least as long as the horizontal swipe.</string><string name="hold_duration">Swipe-and-hold duration</string><string name="hold_mode">Hold activation mode</string>
-    <string name="feedback_section">Visual and haptic feedback</string><string name="feedback_section_subtitle">Animation style, colors, opacity, and haptic vibration</string><string name="animation_style">Animation style</string><string name="quick_color">Quick swipe color</string><string name="hold_color">Hold color</string><string name="l_color">L gesture color</string><string name="adaptive_color">App-aware automatic color</string><string name="adaptive_color_subtitle">Blends the app color with the selected quick-swipe color</string><string name="opacity">Visibility (opacity)</string><string name="animation_speed">Animation speed</string><string name="animation_size">Animation size</string><string name="haptic_feedback">Haptic feedback</string><string name="haptic_feedback_subtitle">Short vibration at gesture start and action thresholds</string><string name="vibration_intensity">Vibration intensity</string><string name="click_sound">Click sound</string><string name="click_sound_subtitle">Play a short tone when a gesture is triggered</string>
+    <string name="feedback_section">Visual and haptic feedback</string><string name="feedback_section_subtitle">Animation style, colors, opacity, and haptic vibration</string><string name="animation_style">Animation style</string><string name="quick_color">Quick swipe color</string><string name="hold_color">Hold color</string><string name="l_color">L gesture color</string>
+    <string name="color_palettes">Harmonious Color Palettes</string>
+    <string name="color_palettes_subtitle">Tap a 3-color palette to apply matching colors for Quick, Hold, and L gestures</string>
+    <string name="palette_deep_ocean">🌊 Deep Ocean</string>
+    <string name="palette_sunset_pulse">🔥 Sunset Pulse</string>
+    <string name="palette_cyber_neon">🔮 Cyber Neon</string>
+    <string name="palette_emerald_aurora">🌿 Emerald Aurora</string>
+    <string name="palette_midnight_galaxy">🌌 Midnight Galaxy</string>
+    <string name="palette_lavender_sunset">🍊 Lavender Sunset</string>
+    <string name="palette_monochrome_slate">⚡ Monochrome Slate</string>
+    <string name="adaptive_color">App-aware automatic color</string><string name="adaptive_color_subtitle">Blends the app color with the selected quick-swipe color</string><string name="opacity">Visibility (opacity)</string>    <string name="animation_speed">Animation speed</string>
+    <string name="animation_size">Animation size</string>
+    <string name="icon_size">Icon size</string><string name="haptic_feedback">Haptic feedback</string><string name="haptic_feedback_subtitle">Short vibration at gesture start and action thresholds</string><string name="vibration_intensity">Vibration intensity</string><string name="click_sound">Click sound</string><string name="click_sound_subtitle">Play a short tone when a gesture is triggered</string>
     <string name="pause_section">Where gestures are disabled</string><string name="pause_section_subtitle">Automatically disable gestures in special states and apps</string><string name="lock_screen">Lock screen</string><string name="lock_screen_subtitle">Pause gestures while the device is locked</string><string name="keyboard_open">Keyboard open</string><string name="keyboard_open_subtitle">Ignore edge touches while entering text</string><string name="landscape_screen">Landscape orientation</string><string name="landscape_screen_subtitle">Pause gestures while the display is landscape</string><string name="immersive_fullscreen">Immersive full screen</string><string name="immersive_fullscreen_subtitle">Disable gestures in video and immersive full-screen apps</string><string name="permission_screens">Permission and security screens</string><string name="permission_screens_subtitle">Disable gestures in APK installer and permission dialogs</string>
     <string name="camera_active">During camera &amp; shooting</string><string name="camera_active_subtitle">Pause gestures while camera viewfinder is open or recording</string>
     <string name="phone_call_active">During phone calls</string><string name="phone_call_active_subtitle">Disable gestures during incoming calls or active phone calls</string>
@@ -111,11 +125,27 @@
     <string name="app_pause_mode_blacklist">Blacklist (Pause in selected apps)</string>
     <string name="app_pause_mode_whitelist">Whitelist (Run ONLY in selected apps)</string>
     <string name="app_exclusions">App exclusions</string><string name="no_paused_apps">Not paused in any app</string><string name="paused_apps_count">%d apps listed</string>
-    <string name="backup_section">Backup and system</string><string name="backup_section_subtitle">Rules, app profiles, settings, and service preference</string><string name="backup_action">Back up</string><string name="restore_action">Restore</string><string name="root_status">Root status</string><string name="root_checking">Checking…</string><string name="root_available">Root available (active)</string><string name="root_unavailable">No root</string>
+    <string name="backup_section">Backup &amp; restore</string><string name="backup_section_subtitle">Rules, app profiles, and configuration JSON backup</string><string name="backup_action">Back up</string><string name="restore_action">Restore</string><string name="root_status">Root status</string><string name="root_checking">Checking…</string><string name="root_available">Root available (active)</string><string name="root_unavailable">No root</string>
+    <string name="protection_section">System Health &amp; Protection</string>
+    <string name="protection_section_subtitle">Service health, battery optimization, and configuration backup</string>
+    <string name="health_card_title">⚡ Accessibility Service Health</string>
+    <string name="health_card_subtitle">Live status monitoring and 1-tap service reconnect</string>
+    <string name="health_status_connected">Active &amp; Connected</string>
+    <string name="health_status_disconnected">Service Disconnected</string>
+    <string name="health_status_rebind">Restart Service</string>
+    <string name="battery_card_title">🔋 Background &amp; Battery Protection</string>
+    <string name="battery_card_subtitle">Prevent battery saver or OEM power manager from killing Akış</string>
+    <string name="battery_unrestricted">Unrestricted (Exempt)</string>
+    <string name="battery_restricted">Restricted (Optimized)</string>
+    <string name="battery_open_settings">Request Exemption / Battery Settings</string>
+    <string name="privileged_card_title">🛡️ Privileged Auto-Repair (Root / Shizuku)</string>
+    <string name="privileged_card_subtitle">Silently rebind service in background if disconnected</string>
     <string name="backup_saved">Backup saved</string><string name="backup_save_failed">Could not save backup</string><string name="backup_loaded">Backup restored</string><string name="backup_load_failed">Could not restore backup</string><string name="file_open_failed">Could not open file</string><string name="generic_error">Error</string>
     <string name="restore_confirm_title">Restore this backup?</string><string name="restore_confirm_text">All current gesture rules and settings will be replaced by the selected backup.</string><string name="cancel">Cancel</string><string name="done">Done</string><string name="paused_apps_title">Apps where gestures are paused</string>
     <string name="preset_colors">Preset colors</string><string name="color_picker">Color picker bar</string><string name="hex_hue">HEX: %1$s | Hue: %2$d°</string><string name="hue_value">Hue: %d°</string><string name="saturation_value">Saturation: %d%%</string><string name="brightness_value">Brightness: %d%%</string>
     <!-- Rules and action configuration -->
+    <string name="edit_rule_title">Edit Rule</string>
+    <string name="edit_rule_subtitle">Configure area range, trigger mode, and action</string>
     <string name="rule_detail">Rule details</string><string name="rule_not_found">Rule not found</string><string name="enable_rule">Enable rule</string><string name="enabled">Enabled</string><string name="disabled">Disabled</string>
     <string name="gesture_condition">Gesture condition</string><string name="horizontal_bounds">Left and right bounds</string><string name="vertical_bounds">Top and bottom bounds</string><string name="gesture_type">Gesture type</string><string name="trigger_mode">Trigger mode</string>
     <string name="swipe">Swipe</string><string name="swipe_description">Runs only after a swipe; a normal touch passes through to the app.</string><string name="touch">Touch</string><string name="touch_description">Detects immediately when the edge is touched.</string>
@@ -157,6 +187,21 @@
     <string name="edge_distribution">Edge Distribution</string>
     <string name="icon_pack_section">🎨 Action Icon Pack</string>
     <string name="icon_pack_section_subtitle">Select visual symbol style for gesture actions across the app</string>
+    <!-- Root Watchdog & Scope Notice -->
+    <string name="root_watchdog_title">Root Watchdog Auto-Repair</string>
+    <string name="root_watchdog_subtitle">Background timer monitoring AccessibilityService health via Root (SU)</string>
+    <string name="root_watchdog_interval">Check interval</string>
+    <string name="battery_impact_high">🔴 High Check Rate (High Battery Impact)</string>
+    <string name="battery_impact_high_desc">Frequent 5–10 min checks ensure fastest service recovery but increase background CPU usage.</string>
+    <string name="battery_impact_moderate">🟡 Balanced Interval (Moderate Battery Impact)</string>
+    <string name="battery_impact_moderate_desc">15–30 min checks offer a balanced trade-off between prompt service recovery and battery conservation.</string>
+    <string name="battery_impact_low">🟢 Maximum Battery Saver (Low Battery Impact)</string>
+    <string name="battery_impact_low_desc">45–120 min checks run infrequently to maximize battery life while maintaining occasional health checks.</string>
+    <string name="root_scope_title">🔍 Root Capabilities &amp; Limitations</string>
+    <string name="root_scope_does">✅ WHAT ROOT DOES: Executes "settings put secure enabled_accessibility_services" quietly in the background if Android OS kills the AccessibilityService.</string>
+    <string name="root_scope_does_not">⚠️ WHAT ROOT DOES NOT DO: Does not grant extra app gestures, bypass Android security policies, or unlock system-level gesture overrides.</string>
+    <string name="icon_pack_system_default">⚙️ System Default (Material Glyphs)</string>
+    <string name="icon_pack_system_default_desc">Native Android Material system indicators</string>
     <string name="icon_pack_emoji_modern">✨ Modern Emoji</string>
     <string name="icon_pack_emoji_modern_desc">Vibrant full-color modern emojis</string>
     <string name="icon_pack_minimal_line">✏️ Minimal Line</string>

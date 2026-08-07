@@ -46,7 +46,7 @@ object GithubReleaseChecker {
         }
     }
 
-    fun isNewerVersion(current: String, latest: String): Boolean {
+    fun compareVersions(current: String, latest: String): Int {
         val currentParts = current.split(Regex("[^0-9]+"))
             .filter(String::isNotEmpty)
             .map(String::toInt)
@@ -58,12 +58,14 @@ object GithubReleaseChecker {
             val currentPart = currentParts.getOrElse(index) { 0 }
             val latestPart = latestParts.getOrElse(index) { 0 }
             when {
-                latestPart > currentPart -> true
-                latestPart < currentPart -> false
+                latestPart > currentPart -> 1
+                latestPart < currentPart -> -1
                 else -> null
             }
-        } ?: false
+        } ?: 0
     }
+
+    fun isNewerVersion(current: String, latest: String): Boolean = compareVersions(current, latest) > 0
 
     /**
      * Extracts concise release highlights and removes full README content (badges, installation, license headers).

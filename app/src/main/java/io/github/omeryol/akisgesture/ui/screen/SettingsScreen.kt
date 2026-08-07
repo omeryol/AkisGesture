@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import io.github.omeryol.akisgesture.model.ColorPalettePreset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -90,6 +92,7 @@ import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
+import io.github.omeryol.akisgesture.util.PermissionHelper
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSlider
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSwitch
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
@@ -128,6 +131,7 @@ fun SettingsScreen(
     var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
     var showReleaseDialog by remember { mutableStateOf(false) }
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
+    var showCustomColorPickers by remember { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -499,6 +503,38 @@ fun SettingsScreen(
             }
         }
 
+        // ── 1C. DOKUNSAL TİTREŞİM VE SES (Vibrant Amber / Orange) ──
+        if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
+            AkisSectionHeader(
+                title = "⚡ Dokunsal Titreşim & Ses",
+                subtitle = "Titreşim şiddeti ve geri bildirim tonu",
+                icon = Icons.Filled.Speed
+            )
+            Spacer(Modifier.height(10.dp))
+
+            AkisSwitchRow(
+                title = stringResource(R.string.haptic_feedback),
+                subtitle = stringResource(R.string.haptic_feedback_subtitle),
+                checked = config.hapticEnabled,
+                onCheckedChange = viewModel::setHapticEnabled
+            )
+
+            AkisSliderRow(
+                title = stringResource(R.string.vibration_intensity),
+                valueText = "%${(config.hapticIntensity * 100).roundToInt()}",
+                value = config.hapticIntensity,
+                valueRange = 0.0f..1.0f,
+                onValueChange = viewModel::setHapticIntensity,
+            )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.click_sound),
+                subtitle = stringResource(R.string.click_sound_subtitle),
+                checked = config.hapticSoundEnabled,
+                onCheckedChange = viewModel::setHapticSoundEnabled
+            )
+        }
+
         // ── 2A. ANİMASYON STİLİ VE BOYUT AYARLARI (Vibrant Cyan) ──
         if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
             AkisSectionHeader(
@@ -595,6 +631,14 @@ fun SettingsScreen(
                 onValueChange = viewModel::setAnimationSize
             )
 
+            AkisSliderRow(
+                title = stringResource(R.string.icon_size),
+                valueText = "%.1fx".format(config.iconSize),
+                value = config.iconSize,
+                valueRange = 0.5f..2.0f,
+                onValueChange = viewModel::setIconSize
+            )
+
             AkisSwitchRow(
                 title = stringResource(R.string.gesture_indicator_bar),
                 subtitle = stringResource(R.string.gesture_indicator_bar_subtitle),
@@ -603,38 +647,140 @@ fun SettingsScreen(
             )
         }
 
-        // ── 2B. RENK VE TEMA SEÇENEKLERİ (Deep Indigo Violet) ──
+        // ── 2B. RENK PALETİ VE TEMA (Deep Indigo Violet) ──
         if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF7C4DFF)) {
             AkisSectionHeader(
-                title = "🎨 Renk Paleti ve Tema",
-                subtitle = "Jest aşamaları için özel renk özelleştirme",
+                title = "🎨 Renk Paleti ve İkon Stili",
+                subtitle = "Uyumlu renk şablonları ve simge paketleri",
                 icon = Icons.Filled.Palette
             )
             Spacer(Modifier.height(10.dp))
 
-            AkisInfiniteColorPicker(
-                title = stringResource(R.string.quick_color),
-                currentColorArgb = config.feedbackColorArgb,
-                onColorChanged = viewModel::setFeedbackColor
+            // ── Hazır 3'lü Uyumlu Renk Şablonları ──
+            Text(
+                text = stringResource(R.string.color_palettes),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
             )
-
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = stringResource(R.string.color_palettes_subtitle),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(8.dp))
 
-            AkisInfiniteColorPicker(
-                title = stringResource(R.string.hold_color),
-                currentColorArgb = config.secondaryColorArgb,
-                onColorChanged = viewModel::setSecondaryColor
-            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                items(ColorPalettePreset.presets, key = { it.id }) { palette ->
+                    val isSelected = config.feedbackColorArgb == palette.quickColor &&
+                        config.secondaryColorArgb == palette.holdColor &&
+                        config.lSwipeColorArgb == palette.lSwipeColor
 
-            Spacer(Modifier.height(8.dp))
+                    val cardBorderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
 
-            AkisInfiniteColorPicker(
-                title = stringResource(R.string.l_color),
-                currentColorArgb = config.lSwipeColorArgb,
-                onColorChanged = viewModel::setLSwipeColor
-            )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+                            .border(
+                                width = 1.5.dp,
+                                color = cardBorderColor,
+                                shape = RoundedCornerShape(12.dp),
+                            )
+                            .clickable {
+                                viewModel.applyColorPalette(palette.quickColor, palette.holdColor, palette.lSwipeColor)
+                            }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(palette.quickColor))
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(palette.holdColor))
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(palette.lSwipeColor))
+                                )
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = stringResource(palette.nameResId),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                }
+            }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(10.dp))
+
+            // Collapsible Custom Color Pickers Accordion
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                    .clickable { showCustomColorPickers = !showCustomColorPickers }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "🎨 Özel Manuel Renk Düzenleme",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface
+                )
+                Icon(
+                    imageVector = if (showCustomColorPickers) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    tint = scheme.onSurfaceVariant
+                )
+            }
+
+            AnimatedVisibility(visible = showCustomColorPickers) {
+                Column(modifier = Modifier.padding(top = 8.dp)) {
+                    AkisInfiniteColorPicker(
+                        title = stringResource(R.string.quick_color),
+                        currentColorArgb = config.feedbackColorArgb,
+                        onColorChanged = viewModel::setFeedbackColor
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    AkisInfiniteColorPicker(
+                        title = stringResource(R.string.hold_color),
+                        currentColorArgb = config.secondaryColorArgb,
+                        onColorChanged = viewModel::setSecondaryColor
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    AkisInfiniteColorPicker(
+                        title = stringResource(R.string.l_color),
+                        currentColorArgb = config.lSwipeColorArgb,
+                        onColorChanged = viewModel::setLSwipeColor
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
 
             AkisSwitchRow(
                 title = stringResource(R.string.adaptive_color),
@@ -642,41 +788,61 @@ fun SettingsScreen(
                 checked = config.useAppAdaptiveColor,
                 onCheckedChange = viewModel::setUseAppAdaptiveColor
             )
+
+            Spacer(Modifier.height(12.dp))
+
+            // Action Icon Pack Selector integrated cleanly
+            Text(
+                text = stringResource(R.string.icon_pack_section),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = scheme.onSurface
+            )
+            Spacer(Modifier.height(6.dp))
+            ActionIconPack.entries.forEach { pack ->
+                val selected = config.actionIconPack == pack
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (selected) Color(0xFF7C4DFF).copy(alpha = 0.18f) else scheme.surfaceVariant.copy(alpha = 0.35f))
+                        .border(
+                            width = if (selected) 1.5.dp else 0.dp,
+                            color = if (selected) Color(0xFF7C4DFF) else Color.Transparent,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .clickable { viewModel.setActionIconPack(pack) }
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(pack.titleResId),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                            color = if (selected) Color(0xFF7C4DFF) else scheme.onSurface
+                        )
+                        Text(
+                            text = pack.samplePreview,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                    }
+                    if (selected) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            tint = Color(0xFF7C4DFF),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.height(4.dp))
+            }
         }
 
-        // ── 2C. DOKUNSAL TİTREŞİM VE SES (Vibrant Amber / Orange) ──
-        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
-            AkisSectionHeader(
-                title = "⚡ Dokunsal Titreşim & Ses",
-                subtitle = "Titreşim şiddeti ve geri bildirim tonu",
-                icon = Icons.Filled.Speed
-            )
-            Spacer(Modifier.height(10.dp))
-
-            AkisSwitchRow(
-                title = stringResource(R.string.haptic_feedback),
-                subtitle = stringResource(R.string.haptic_feedback_subtitle),
-                checked = config.hapticEnabled,
-                onCheckedChange = viewModel::setHapticEnabled
-            )
-
-            AkisSliderRow(
-                title = stringResource(R.string.vibration_intensity),
-                valueText = "%${(config.hapticIntensity * 100).roundToInt()}",
-                value = config.hapticIntensity,
-                valueRange = 0.0f..1.0f,
-                onValueChange = viewModel::setHapticIntensity,
-            )
-
-            AkisSwitchRow(
-                title = stringResource(R.string.click_sound),
-                subtitle = stringResource(R.string.click_sound_subtitle),
-                checked = config.hapticSoundEnabled,
-                onCheckedChange = viewModel::setHapticSoundEnabled
-            )
-        }
-
-        // ── 2D. ANA SAYFA KART DÜZENİ VE SADELİK (Neon Teal Blue) ──
+        // ── 2C. ANA SAYFA KART DÜZENİ VE SADELİK (Neon Teal Blue) ──
         if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00B0FF)) {
             AkisSectionHeader(
                 title = stringResource(R.string.home_cards_title),
@@ -705,59 +871,6 @@ fun SettingsScreen(
                 checked = config.showPresetsCard,
                 onCheckedChange = viewModel::setShowPresetsCard
             )
-        }
-
-        // ── 2E. EYLEM SİMGE PAKETİ (Electric Pink / Rose) ──
-        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFFFF4081)) {
-            AkisSectionHeader(
-                title = stringResource(R.string.icon_pack_section),
-                subtitle = stringResource(R.string.icon_pack_section_subtitle),
-                icon = Icons.Filled.Style
-            )
-            Spacer(Modifier.height(10.dp))
-
-            ActionIconPack.entries.forEach { pack ->
-                val selected = config.actionIconPack == pack
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(if (selected) Color(0xFFFF4081).copy(alpha = 0.20f) else scheme.surfaceVariant.copy(alpha = 0.35f))
-                        .border(
-                            width = if (selected) 1.5.dp else 0.dp,
-                            color = if (selected) Color(0xFFFF4081) else Color.Transparent,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .clickable { viewModel.setActionIconPack(pack) }
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(pack.titleResId),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                            color = if (selected) Color(0xFFFF4081) else scheme.onSurface
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text = pack.samplePreview,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = scheme.onSurfaceVariant
-                        )
-                    }
-                    if (selected) {
-                        Icon(
-                            imageVector = Icons.Filled.CheckCircle,
-                            contentDescription = null,
-                            tint = Color(0xFFFF4081),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-                Spacer(Modifier.height(6.dp))
-            }
         }
 
         // ── 3A. OTOMATİK DURAKLATMA KOŞULLARI (Crimson Red) ──
@@ -817,46 +930,6 @@ fun SettingsScreen(
                 checked = config.pauseOnPhoneCall,
                 onCheckedChange = viewModel::setPauseOnPhoneCall
             )
-        }
-
-        // ── 3C. RECENT KAPANMAYI ÖNLEME VE KİLİT ──
-        if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
-            AkisSectionHeader(
-                title = stringResource(R.string.recents_lock_title),
-                subtitle = stringResource(R.string.recents_lock_subtitle),
-                icon = Icons.Filled.Security
-            )
-            Spacer(Modifier.height(6.dp))
-
-            AkisSwitchRow(
-                title = stringResource(R.string.hide_from_recents),
-                subtitle = stringResource(R.string.hide_from_recents_subtitle),
-                checked = config.hideFromRecents,
-                onCheckedChange = viewModel::setHideFromRecents
-            )
-
-            Spacer(Modifier.height(8.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF00E5FF).copy(alpha = 0.12f))
-                    .border(1.dp, Color(0xFF00E5FF).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-                    .padding(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.recents_lock_guide_title),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00E5FF)
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.recents_lock_guide_text),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurface
-                )
-            }
         }
 
 
@@ -985,62 +1058,290 @@ fun SettingsScreen(
         }
 
 
-        // ── 4A. YEDEKLEME VE ROOT (Emerald Green) ──
-        if (selectedSection == 3) AkisGlassCard(accentTint = Color(0xFF00E676)) {
-            AkisSectionHeader(
-                title = stringResource(R.string.backup_section),
-                subtitle = stringResource(R.string.backup_section_subtitle),
-                icon = Icons.Filled.Save
-            )
-            Spacer(Modifier.height(6.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = { exportBackup.launch("akis-gesture-yedek.json") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(14.dp)
+        // ── 4A. KORUMA VE SİSTEM SAĞLIĞI (Emerald Green & Cyan Glass Cards) ──
+        if (selectedSection == 3) {
+            // 1. Erişilebilirlik Hizmet Sağlığı Kartı
+            val isServiceConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
+            AkisGlassCard(accentTint = if (isServiceConnected) Color(0xFF00E676) else Color(0xFFFF1744)) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.health_card_title),
+                    subtitle = stringResource(R.string.health_card_subtitle),
+                    icon = Icons.Filled.Security
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Filled.Save, null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.backup_action), style = MaterialTheme.typography.labelMedium)
-                }
-
-                OutlinedButton(
-                    onClick = { importBackup.launch(arrayOf("application/json", "text/plain")) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Icon(Icons.Filled.Restore, null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.restore_action), style = MaterialTheme.typography.labelMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(if (isServiceConnected) Color(0xFF00E676) else Color(0xFFFF1744))
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = if (isServiceConnected) stringResource(R.string.health_status_connected) else stringResource(R.string.health_status_disconnected),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isServiceConnected) Color(0xFF00E676) else Color(0xFFFF1744)
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = { PermissionHelper.openAccessibilitySettings(context) },
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.health_status_rebind), style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(10.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.root_status),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface
+            // 2. Arka Plan & Pil Koruması Kartı
+            val isBatteryIgnored = remember(context) { PermissionHelper.isBatteryOptimizationIgnored(context) }
+            AkisGlassCard(accentTint = if (isBatteryIgnored) Color(0xFF00B0FF) else Color(0xFFFF9100)) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.battery_card_title),
+                    subtitle = stringResource(R.string.battery_card_subtitle),
+                    icon = Icons.Filled.Speed
                 )
-                Text(
-                    text = when (rootAccess) {
-                        RootAccessState.CHECKING -> stringResource(R.string.root_checking)
-                        RootAccessState.AVAILABLE -> stringResource(R.string.root_available)
-                        RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
-                    },
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (isBatteryIgnored) stringResource(R.string.battery_unrestricted) else stringResource(R.string.battery_restricted),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isBatteryIgnored) Color(0xFF00E676) else Color(0xFFFF9100)
+                    )
+                    if (!isBatteryIgnored) {
+                        OutlinedButton(
+                            onClick = { PermissionHelper.requestIgnoreBatteryOptimization(context) },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(R.string.battery_open_settings), style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // 3. Son Kullanılanlardan Gizle ve Kapanmayı Önleme Kartı
+            AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.recents_lock_title),
+                    subtitle = stringResource(R.string.recents_lock_subtitle),
+                    icon = Icons.Filled.Security
                 )
+                Spacer(Modifier.height(6.dp))
+
+                AkisSwitchRow(
+                    title = stringResource(R.string.hide_from_recents),
+                    subtitle = stringResource(R.string.hide_from_recents_subtitle),
+                    checked = config.hideFromRecents,
+                    onCheckedChange = viewModel::setHideFromRecents
+                )
+
+                Spacer(Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF00E5FF).copy(alpha = 0.12f))
+                        .border(1.dp, Color(0xFF00E5FF).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.recents_lock_guide_title),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF00E5FF)
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.recents_lock_guide_text),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurface
+                    )
+                }
+            }
+
+            // 3. Ayrıcalıklı Otomatik İyileştirme Kartı (Yalnızca Root yetkisi VARSA görünür!)
+            if (rootAccess == RootAccessState.AVAILABLE) {
+                Spacer(Modifier.height(10.dp))
+                AkisGlassCard(accentTint = Color(0xFFAA00FF)) {
+                    AkisSectionHeader(
+                        title = stringResource(R.string.privileged_card_title),
+                        subtitle = stringResource(R.string.privileged_card_subtitle),
+                        icon = Icons.Filled.Security
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.root_status),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = scheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.root_available),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF00E676),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+
+                    // Watchdog Enable/Disable Switch
+                    AkisSwitchRow(
+                        title = stringResource(R.string.root_watchdog_title),
+                        subtitle = stringResource(R.string.root_watchdog_subtitle),
+                        checked = config.rootWatchdogEnabled,
+                        onCheckedChange = viewModel::setRootWatchdogEnabled
+                    )
+
+                    if (config.rootWatchdogEnabled) {
+                        Spacer(Modifier.height(10.dp))
+
+                        val intervalVal = config.rootWatchdogIntervalMinutes
+                        val intervalText = if (intervalVal >= 60) {
+                            "${intervalVal / 60} saat ${if (intervalVal % 60 > 0) "${intervalVal % 60} dk" else ""}".trim()
+                        } else {
+                            "$intervalVal dk"
+                        }
+
+                        AkisSliderRow(
+                            title = stringResource(R.string.root_watchdog_interval),
+                            valueText = intervalText,
+                            value = intervalVal.toFloat(),
+                            valueRange = 5f..120f,
+                            onValueChange = { viewModel.setRootWatchdogInterval(it.toInt()) }
+                        )
+
+                        Spacer(Modifier.height(8.dp))
+
+                        // Color-coded Battery Impact Indicator & Written Warning
+                        val (impactTitle, impactDesc, impactColor) = when {
+                            intervalVal <= 10 -> Triple(
+                                stringResource(R.string.battery_impact_high),
+                                stringResource(R.string.battery_impact_high_desc),
+                                Color(0xFFFF1744)
+                            )
+                            intervalVal <= 30 -> Triple(
+                                stringResource(R.string.battery_impact_moderate),
+                                stringResource(R.string.battery_impact_moderate_desc),
+                                Color(0xFFFF9100)
+                            )
+                            else -> Triple(
+                                stringResource(R.string.battery_impact_low),
+                                stringResource(R.string.battery_impact_low_desc),
+                                Color(0xFF00E676)
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(impactColor.copy(alpha = 0.12f))
+                                .border(1.dp, impactColor.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                                .padding(10.dp)
+                        ) {
+                            Text(
+                                text = impactTitle,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = impactColor
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                text = impactDesc,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = scheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    // Detailed Scope Notice Box (What Root DOES vs DOES NOT do)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.root_scope_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.root_scope_does),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = stringResource(R.string.root_scope_does_not),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // 4. Yedekleme ve Geri Yükleme Kartı
+            AkisGlassCard(accentTint = Color(0xFFFFAB00)) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.backup_section),
+                    subtitle = stringResource(R.string.backup_section_subtitle),
+                    icon = Icons.Filled.Save
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { exportBackup.launch("akis-gesture-yedek.json") },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Icon(Icons.Filled.Save, null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.backup_action), style = MaterialTheme.typography.labelMedium)
+                    }
+
+                    OutlinedButton(
+                        onClick = { importBackup.launch(arrayOf("application/json", "text/plain")) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Icon(Icons.Filled.Restore, null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(stringResource(R.string.restore_action), style = MaterialTheme.typography.labelMedium)
+                    }
+                }
             }
         }
 
@@ -1065,7 +1366,8 @@ fun SettingsScreen(
                             UpdateCheckState.CURRENT -> Color(0xFF00C853).copy(alpha = 0.16f)
                             UpdateCheckState.FAILED -> scheme.error.copy(alpha = 0.16f)
                             is UpdateCheckState.AVAILABLE -> Color(0xFFFFAB00).copy(alpha = 0.20f)
-                            else -> Color(0xFFFFAB00).copy(alpha = 0.15f)
+                            is UpdateCheckState.DEV_BUILD -> Color(0xFFE040FB).copy(alpha = 0.20f)
+                            else -> Color(0xFF00B0FF).copy(alpha = 0.15f)
                         }
                     )
                     .clickable(enabled = updateCheckState is UpdateCheckState.AVAILABLE) {
@@ -1077,10 +1379,16 @@ fun SettingsScreen(
             ) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        text = stringResource(R.string.update_check_title),
+                        text = when (updateCheckState) {
+                            is UpdateCheckState.DEV_BUILD -> stringResource(R.string.update_check_dev_build)
+                            else -> stringResource(R.string.update_check_title)
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = when (updateCheckState) {
+                            is UpdateCheckState.DEV_BUILD -> Color(0xFFE040FB)
+                            else -> scheme.onSurface
+                        },
                     )
                     Text(
                         text = when (val state = updateCheckState) {
@@ -1088,34 +1396,20 @@ fun SettingsScreen(
                             UpdateCheckState.CHECKING -> stringResource(R.string.update_check_checking)
                             UpdateCheckState.CURRENT -> stringResource(R.string.update_check_current, versionName)
                             is UpdateCheckState.AVAILABLE -> stringResource(R.string.update_check_available, state.release.version)
+                            is UpdateCheckState.DEV_BUILD -> stringResource(R.string.update_check_dev_build_desc, versionName, state.releaseVersion)
                             UpdateCheckState.FAILED -> stringResource(R.string.update_check_failed)
                         },
                         style = MaterialTheme.typography.labelSmall,
                         color = when (updateCheckState) {
-                            UpdateCheckState.CURRENT -> Color(0xFF69F0AE)
+                            UpdateCheckState.CURRENT -> Color(0xFF00E676)
                             UpdateCheckState.FAILED -> scheme.error
-                            is UpdateCheckState.AVAILABLE -> Color(0xFFFFD54F)
+                            is UpdateCheckState.AVAILABLE -> Color(0xFFFFC107)
+                            is UpdateCheckState.DEV_BUILD -> Color(0xFFE040FB)
                             else -> scheme.onSurfaceVariant
                         },
                     )
                 }
-                Icon(
-                    imageVector = when (updateCheckState) {
-                        UpdateCheckState.CURRENT -> Icons.Filled.CheckCircle
-                        UpdateCheckState.FAILED -> Icons.Filled.Error
-                        is UpdateCheckState.AVAILABLE -> Icons.Filled.CloudDownload
-                        else -> Icons.Filled.Refresh
-                    },
-                    contentDescription = null,
-                    tint = when (updateCheckState) {
-                        UpdateCheckState.CURRENT -> Color(0xFF00E676)
-                        UpdateCheckState.FAILED -> scheme.error
-                        is UpdateCheckState.AVAILABLE -> Color(0xFFFFC107)
-                        else -> scheme.primary
-                    },
-                    modifier = Modifier.size(22.dp),
-                )
-                OutlinedButton(
+                androidx.compose.material3.Button(
                     onClick = {
                         updateCheckState = UpdateCheckState.CHECKING
                         scope.launch {
@@ -1124,10 +1418,11 @@ fun SettingsScreen(
                             }
                             updateCheckState = result.fold(
                                 onSuccess = { release ->
-                                    if (GithubReleaseChecker.isNewerVersion(versionName, release.version)) {
-                                        UpdateCheckState.AVAILABLE(release).also { showReleaseDialog = true }
-                                    } else {
-                                        UpdateCheckState.CURRENT
+                                    val comp = GithubReleaseChecker.compareVersions(versionName, release.version)
+                                    when {
+                                        comp > 0 -> UpdateCheckState.AVAILABLE(release).also { showReleaseDialog = true }
+                                        comp < 0 -> UpdateCheckState.DEV_BUILD(release.version)
+                                        else -> UpdateCheckState.CURRENT
                                     }
                                 },
                                 onFailure = { UpdateCheckState.FAILED },
@@ -1136,22 +1431,54 @@ fun SettingsScreen(
                     },
                     enabled = updateCheckState != UpdateCheckState.CHECKING,
                     shape = RoundedCornerShape(12.dp),
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF00B0FF),
+                        contentColor = Color.White
+                    ),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.update_check_action))
+                    Text(stringResource(R.string.update_check_action), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 }
             }
 
             Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = { showVersionHistoryDialog = true },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+
+            // Sürüm Geçmişi (Changelog Button) - Styled Card Button
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF7C4DFF).copy(alpha = 0.16f))
+                    .border(1.dp, Color(0xFF7C4DFF).copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                    .clickable { showVersionHistoryDialog = true }
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
-                Icon(Icons.Filled.History, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.version_history_button))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.History, contentDescription = null, tint = Color(0xFF7C4DFF), modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.version_history_button),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.onSurface
+                            )
+                            Text(
+                                text = "Geçmiş tüm sürümlerin değişiklik özeti",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = scheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Color(0xFF7C4DFF))
+                }
             }
 
             if (showReleaseDialog) {
@@ -1283,7 +1610,7 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
             Text(
                 text = stringResource(R.string.language),
                 style = MaterialTheme.typography.titleSmall,
@@ -1300,26 +1627,41 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 listOf(
-                    "" to stringResource(R.string.language_system),
-                    "tr" to stringResource(R.string.language_turkish),
-                    "en" to stringResource(R.string.language_english),
+                    "" to "🌐 " + stringResource(R.string.language_system),
+                    "tr" to "🇹🇷 " + stringResource(R.string.language_turkish),
+                    "en" to "🇬🇧 " + stringResource(R.string.language_english),
                 ).forEach { (tag, label) ->
-                    OutlinedButton(
-                        onClick = {
-                            AppCompatDelegate.setApplicationLocales(
-                                LocaleListCompat.forLanguageTags(tag),
+                    val currentLocales = AppCompatDelegate.getApplicationLocales()
+                    val isSelected = if (tag.isEmpty()) currentLocales.isEmpty else currentLocales.toLanguageTags().contains(tag)
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isSelected) Color(0xFF00E676).copy(alpha = 0.25f) else scheme.surfaceVariant.copy(alpha = 0.35f))
+                            .border(
+                                width = if (isSelected) 1.5.dp else 0.dp,
+                                color = if (isSelected) Color(0xFF00E676) else Color.Transparent,
+                                shape = RoundedCornerShape(10.dp)
                             )
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(14.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp),
+                            .clickable {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+                            }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(label, maxLines = 1, style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) Color(0xFF00E676) else scheme.onSurface,
+                            maxLines = 1
+                        )
                     }
                 }
             }
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = 10.dp),
+                modifier = Modifier.padding(vertical = 12.dp),
                 color = scheme.outlineVariant.copy(alpha = 0.45f),
             )
 
@@ -1329,49 +1671,87 @@ fun SettingsScreen(
                 color = scheme.onSurfaceVariant,
             )
 
-
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 10.dp),
-                color = scheme.outlineVariant.copy(alpha = 0.45f),
-            )
-            Text(
-                text = stringResource(R.string.about_upstream),
-                style = MaterialTheme.typography.bodySmall,
-                color = scheme.onSurfaceVariant,
-            )
             Spacer(Modifier.height(10.dp))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = {
+            // Akış Gesture Main GitHub Repository Card Button
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF24292E))
+                    .border(1.dp, Color(0xFF7C4DFF).copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                    .clickable {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/omeryol/AkisGesture")),
                         )
-                    },
+                    }
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.open_project_repo), fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(6.dp))
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("🐱", style = MaterialTheme.typography.titleMedium)
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.open_project_repo),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "omeryol / AkisGesture",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFB0BEC5)
+                            )
+                        }
+                    }
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = Color(0xFF7C4DFF))
                 }
+            }
 
-                OutlinedButton(
-                    onClick = {
+            Spacer(Modifier.height(8.dp))
+
+            // OpenSwipe Upstream Secondary Pill Button
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFFAB00).copy(alpha = 0.12f))
+                    .border(1.dp, Color(0xFFFFAB00).copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                    .clickable {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ARCJ137442/OpenSwipe")),
                         )
-                    },
+                    }
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            ) {
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(R.string.open_upstream))
-                    Spacer(Modifier.width(6.dp))
-                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Style, contentDescription = null, tint = Color(0xFFFFAB00), modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = stringResource(R.string.open_upstream),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = scheme.onSurface
+                            )
+                            Text(
+                                text = "ARCJ137442 / OpenSwipe",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = scheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = Color(0xFFFFAB00), modifier = Modifier.size(16.dp))
                 }
             }
 
@@ -1379,107 +1759,105 @@ fun SettingsScreen(
             HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
             Spacer(Modifier.height(12.dp))
 
-            // ── ROOT REHBER KARTI (en altta, ileri kullanıcılar için) ──
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFFF6D00).copy(alpha = 0.08f))
-                    .border(1.dp, Color(0xFFFF6D00).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.about_root_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF6D00)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00C853).copy(alpha = 0.2f) else scheme.surfaceVariant)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = when (rootAccess) {
-                                RootAccessState.CHECKING -> stringResource(R.string.root_checking)
-                                RootAccessState.AVAILABLE -> stringResource(R.string.root_available)
-                                RootAccessState.UNAVAILABLE -> stringResource(R.string.root_unavailable)
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                // UYARI: Root tavsiye edilmez
+            // ── ROOT REHBER KARTI (Yalnızca Root Yetkisi Olan Cihazlarda Görünür) ──
+            if (rootAccess == RootAccessState.AVAILABLE) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFFD50000).copy(alpha = 0.12f))
-                        .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                        .padding(10.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFFF6D00).copy(alpha = 0.08f))
+                        .border(1.dp, Color(0xFFFF6D00).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.about_root_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFF6D00)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0xFF00C853).copy(alpha = 0.2f))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.root_available),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF00E676),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    // UYARI: Root tavsiye edilmez
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFD50000).copy(alpha = 0.12f))
+                            .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.root_warning_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFF5252)
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.root_warning_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurface
+                        )
+                    }
+
+                    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+
                     Text(
-                        text = stringResource(R.string.root_warning_title),
+                        text = stringResource(R.string.about_root_not_required_title),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF5252)
+                        color = Color(0xFF00E676)
                     )
-                    Spacer(Modifier.height(4.dp))
                     Text(
-                        text = stringResource(R.string.root_warning_desc),
+                        text = stringResource(R.string.about_root_not_required_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurface
                     )
+
+                    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+
+                    Text(
+                        text = stringResource(R.string.about_root_features_title),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = scheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(R.string.about_root_features_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant
+                    )
+
+                    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+
+                    Text(
+                        text = stringResource(R.string.about_root_privacy_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = scheme.onSurface
+                    )
                 }
-
-                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                Text(
-                    text = stringResource(R.string.about_root_not_required_title),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00E676)
-                )
-                Text(
-                    text = stringResource(R.string.about_root_not_required_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurface
-                )
-
-                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                Text(
-                    text = stringResource(R.string.about_root_features_title),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = scheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.about_root_features_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant
-                )
-
-                HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                Text(
-                    text = stringResource(R.string.about_root_privacy_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Medium,
-                    color = scheme.onSurface
-                )
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
         }
 
     }
@@ -1544,6 +1922,7 @@ private sealed interface UpdateCheckState {
     data object CHECKING : UpdateCheckState
     data object CURRENT : UpdateCheckState
     data class AVAILABLE(val release: GithubRelease) : UpdateCheckState
+    data class DEV_BUILD(val releaseVersion: String) : UpdateCheckState
     data object FAILED : UpdateCheckState
 }
 

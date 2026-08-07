@@ -1,5 +1,17 @@
 # Değişiklik Günlüğü
 
+## [1.3.4] - 2026-08-07
+
+### Haptik Renk Geçişi İyileştirmesi
+- **Daha Yumuşak Renk Geçişleri**: Jest sırasında renk geçişleri için daha geniş aralık (0.12-1.25) ve power curve (0.85) uygulandı.
+- **L-Renk Geçişi Düzenlemesi**: L-renk geçişi için 0.75 power curve ile daha akıcı geçiş sağlandı.
+- **Kullanıcı Deneyimi**: Jest esnemesi sırasında renk değişimleri daha doğal ve görsel olarak daha hoş görünüyor.
+
+### Teknik
+- Sürüm `1.3.4`, version code `50`.
+
+---
+
 ## [1.3.3] - 2026-08-06
 
 ### Haptik Geri Bildirim Düzeltmesi
