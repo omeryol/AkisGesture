@@ -63,6 +63,7 @@ object SettingsBackupManager {
             snapshot(GestureConfig.KEY_HAPTIC_SOUND_ENABLED, config.hapticSoundEnabled),
             snapshot(GestureConfig.KEY_ANIMATION_SPEED, config.animationSpeed),
             snapshot(GestureConfig.KEY_ANIMATION_SIZE, config.animationSize),
+            snapshot(GestureConfig.KEY_ICON_SIZE, config.iconSize),
             snapshot(GestureConfig.KEY_HAPTIC_ENABLED, config.hapticEnabled),
             snapshot(GestureConfig.KEY_SHOW_GESTURE_INDICATOR_BAR, config.showGestureIndicatorBar),
             snapshot(GestureConfig.KEY_LEFT_DAMPING, config.leftDamping),

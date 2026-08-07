@@ -65,6 +65,7 @@ data class GestureConfig(
     val hapticSoundEnabled: Boolean = false, // tıklama sesi
     val animationSpeed: Float = 1f,          // 0.5..2.0 animasyon hız çarpanı
     val animationSize: Float = 1f,           // 0.5..2.0 animasyon boyut çarpanı
+    val iconSize: Float = 1f,                // 0.5..2.0 ikon boyut çarpanı
     val feedbackColorArgb: Int = 0xFF3D5AFE.toInt(),
     val secondaryColorArgb: Int = 0xFFFF9100.toInt(),
     val lSwipeColorArgb: Int = 0xFF00E676.toInt(),
@@ -93,6 +94,10 @@ data class GestureConfig(
     val pauseOnPhoneCall: Boolean = false,
     val appPauseMode: AppPauseMode = AppPauseMode.BLACKLIST,
     val hideFromRecents: Boolean = false,
+
+    // Root Watchdog auto-repair settings
+    val rootWatchdogEnabled: Boolean = false,
+    val rootWatchdogIntervalMinutes: Int = 15,
 ) {
 
 
@@ -165,6 +170,7 @@ data class GestureConfig(
         val KEY_HAPTIC_SOUND_ENABLED = booleanPreferencesKey("haptic_sound_enabled")
         val KEY_ANIMATION_SPEED = floatPreferencesKey("animation_speed")
         val KEY_ANIMATION_SIZE = floatPreferencesKey("animation_size")
+        val KEY_ICON_SIZE = floatPreferencesKey("icon_size")
         val KEY_HAPTIC_ENABLED = booleanPreferencesKey("haptic_enabled")
         val KEY_SHOW_GESTURE_INDICATOR_BAR = booleanPreferencesKey("show_gesture_indicator_bar")
         // Per-edge sensitivity
@@ -187,5 +193,7 @@ data class GestureConfig(
         val KEY_SHOW_SUMMARY_CHART = booleanPreferencesKey("show_summary_chart")
         val KEY_SHOW_PRESETS_CARD = booleanPreferencesKey("show_presets_card")
         val KEY_ACTION_ICON_PACK = stringPreferencesKey("action_icon_pack")
+        val KEY_ROOT_WATCHDOG_ENABLED = booleanPreferencesKey("root_watchdog_enabled")
+        val KEY_ROOT_WATCHDOG_INTERVAL_MINUTES = intPreferencesKey("root_watchdog_interval_minutes")
     }
 }
