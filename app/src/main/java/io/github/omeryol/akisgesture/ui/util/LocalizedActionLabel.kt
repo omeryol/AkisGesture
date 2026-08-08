@@ -4,7 +4,8 @@ import android.content.Context
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.model.ActionNode
 
-fun ActionNode.localizedLabel(context: Context): String = when (this) {
+fun ActionNode.localizedLabel(context: Context): String {
+    val label = when (this) {
     ActionNode.Back -> context.getString(R.string.action_back)
     ActionNode.Home -> context.getString(R.string.action_home)
     ActionNode.Recents -> context.getString(R.string.action_recents)
@@ -40,5 +41,7 @@ fun ActionNode.localizedLabel(context: Context): String = when (this) {
     ActionNode.BrightnessDown -> context.getString(R.string.action_brightness_down)
     ActionNode.NoAction -> context.getString(R.string.action_none)
     is ActionNode.AppShortcut -> shortcutLabel
-    is ActionNode.LaunchApp -> appName
+        is ActionNode.LaunchApp -> appName
+    }
+    return if (requiresRoot) context.getString(R.string.action_requires_root, label) else label
 }

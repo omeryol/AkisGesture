@@ -66,7 +66,7 @@ io.github.omeryol.akisgesture.action.STOP
 io.github.omeryol.akisgesture.action.TOGGLE
 ```
 
-The MacroDroid integration and Quick Settings tile use the same safe control
+The automation-app integration and Quick Settings tile use the same safe control
 path. These commands affect only the Akış Gesture service.
 
 ## Status and roadmap
@@ -81,3 +81,8 @@ Akış Gesture is an independent hobby project and does not guarantee device
 compatibility or individual support. Reproducible bug reports and contributions
 are welcome. OpenSwipe-derived code and Akış Gesture contributions are licensed
 under MIT; see [LICENSE](LICENSE) for details.
+
+## Community
+
+- [Telegram Group](https://t.me/+ZRMewoFvaIdhM2I0) — support, feedback, and device experiences
+- [Telegram Channel](https://t.me/+ZTbxUGG-ynowOWE0) — release announcements and development news

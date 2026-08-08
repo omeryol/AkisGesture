@@ -95,6 +95,7 @@ import io.github.omeryol.akisgesture.navigation.InternalNavigationBus
 import io.github.omeryol.akisgesture.ui.theme.AkisPrimary
 import io.github.omeryol.akisgesture.ui.theme.AkisSecondary
 import io.github.omeryol.akisgesture.ui.theme.AkisTertiary
+import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -315,11 +316,8 @@ fun RuleListScreen(
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                listOf(
-                    Triple(Edge.LEFT, edgeLabel(context, Edge.LEFT), MaterialTheme.colorScheme.primary),
-                    Triple(Edge.RIGHT, edgeLabel(context, Edge.RIGHT), MaterialTheme.colorScheme.secondary),
-                    Triple(Edge.BOTTOM, edgeLabel(context, Edge.BOTTOM), MaterialTheme.colorScheme.tertiary),
-                ).forEach { (edge, title, edgeColor) ->
+                EdgeUi.ordered.map { edge -> Triple(edge, edgeLabel(context, edge), EdgeUi.color(edge)) }
+                    .forEach { (edge, title, edgeColor) ->
                     val isSelected = selectedEdge == edge
                     val count = ruleGroups.count { it.representative.trigger.edge == edge }
                     Box(

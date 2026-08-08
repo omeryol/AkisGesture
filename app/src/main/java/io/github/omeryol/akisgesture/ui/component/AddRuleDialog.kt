@@ -52,6 +52,7 @@ import io.github.omeryol.akisgesture.model.TriggerNode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -517,11 +518,19 @@ private fun EdgeSelector(
     selected: Edge?,
     onSelect: (Edge) -> Unit,
 ) {
-    val edges = listOf(
-        Triple(Edge.LEFT, stringResource(R.string.edge_left_arrow), stringResource(R.string.edge_left_hint)),
-        Triple(Edge.RIGHT, stringResource(R.string.edge_right_arrow), stringResource(R.string.edge_right_hint)),
-        Triple(Edge.BOTTOM, stringResource(R.string.edge_bottom_arrow), stringResource(R.string.edge_bottom_hint)),
-    )
+    val edges = EdgeUi.ordered.map { edge ->
+        val label = when (edge) {
+            Edge.LEFT -> stringResource(R.string.edge_left_arrow)
+            Edge.BOTTOM -> stringResource(R.string.edge_bottom_arrow)
+            Edge.RIGHT -> stringResource(R.string.edge_right_arrow)
+        }
+        val description = when (edge) {
+            Edge.LEFT -> stringResource(R.string.edge_left_hint)
+            Edge.BOTTOM -> stringResource(R.string.edge_bottom_hint)
+            Edge.RIGHT -> stringResource(R.string.edge_right_hint)
+        }
+        Triple(edge, label, description)
+    }
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -538,9 +547,9 @@ private fun EdgeSelector(
                     }
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    selectedContainerColor = EdgeUi.color(edge).copy(alpha = 0.18f),
                 ),
-                border = if (selected == edge) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
+                border = if (selected == edge) BorderStroke(1.dp, EdgeUi.color(edge)) else null,
             )
         }
     }
