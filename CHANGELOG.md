@@ -1,5 +1,15 @@
 # Değişiklik Günlüğü
 
+## [1.5.0] - 2026-08-08
+
+### 🔄 Güvenilir Güncelleme Merkezi
+- **Dil Uyumlu Yayın Notları**: Güncelleme iletişim kutusu artık cihazın sistem dili yerine uygulamada seçilen dili kullanır.
+- **Doğrulanmış APK Asset'i**: Yalnızca release etiketiyle birebir eşleşen isimde, boş olmayan ve SHA-256 özeti yayınlanmış APK'lar sunulur.
+- **Bütünlük Kontrollü İndirme**: APK uygulama içinde indirilir, GitHub'ın SHA-256 özetiyle doğrulanır ve yalnızca başarılı kontrolden sonra Android yükleyicisine aktarılır.
+- **Şeffaf Durum Bilgisi**: Son güncelleme kontrolünün zamanı Hakkında kartında gösterilir; taslak ve ön-sürüm yayınlar reddedilir.
+
+---
+
 ## [1.4.0] - 2026-08-08
 
 ### 📱 3B Kenar Haritası

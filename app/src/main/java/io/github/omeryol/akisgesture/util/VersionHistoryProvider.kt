@@ -11,9 +11,24 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.4.0",
+            version = "1.5.0",
             date = "2026-08-08",
             isCurrent = true,
+            changesTr = listOf(
+                "🔄 Güvenilir Güncelleme Merkezi: Sürüm notları seçili uygulama dilinde gösterilir.",
+                "🔐 Doğrulanmış İndirme: APK yalnızca doğru release asset'i ve SHA-256 özeti doğrulandıktan sonra yükleyiciye aktarılır.",
+                "🕒 Son Kontrol: Hakkında kartı son GitHub kontrol zamanını gösterir.",
+            ),
+            changesEn = listOf(
+                "🔄 Reliable Update Center: Release notes follow the selected app language.",
+                "🔐 Verified Download: The installer opens only after the correct release asset and SHA-256 digest are verified.",
+                "🕒 Last Check: The About card shows the latest GitHub check time.",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.4.0",
+            date = "2026-08-08",
+            isCurrent = false,
             changesTr = listOf(
                 "📱 3B Kenar Haritası: Sol ve sağ tetik alanlarını ana sayfadaki telefon haritasından boyutlandırın ve dikeyde taşıyın.",
                 "📏 Canlı Ölçüler: İki kenarın uzunluğu ve başlangıç konumu birlikte gösterilerek eşit hizalama kolaylaştırıldı.",

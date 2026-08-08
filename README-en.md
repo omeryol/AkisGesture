@@ -11,12 +11,12 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
-## v1.4.0 highlights
+## v1.5.0 highlights
 
-- Added a 3D phone map on the Home screen for visually managing edge gestures.
-- Left and right trigger areas can be resized and repositioned vertically, with
-  live measurements for both edges shown together.
-- Refined translations, screen consistency, and visual feedback animations.
+- Update notes now follow the selected app language.
+- Only signed APK assets matching the release tag and carrying a SHA-256 digest
+  are offered as updates.
+- APKs download in-app, verify integrity, and then open the installer.
 
 ## Features
 

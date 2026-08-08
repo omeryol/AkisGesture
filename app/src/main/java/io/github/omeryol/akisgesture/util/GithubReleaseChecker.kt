@@ -9,7 +9,12 @@ data class GithubRelease(
     val url: String,
     val notes: String,
     val downloadUrl: String?,
+    val publishedAt: String?,
+    val assetName: String?,
+    val assetSha256: String?,
 )
+
+class ReleaseValidationException(message: String) : IllegalStateException(message)
 
 object GithubReleaseChecker {
     private const val LATEST_RELEASE_URL =
@@ -28,18 +33,33 @@ object GithubReleaseChecker {
                 "GitHub HTTP ${connection.responseCode}"
             }
             val release = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+            if (release.optBoolean("draft") || release.optBoolean("prerelease")) {
+                throw ReleaseValidationException("Latest release is not a stable release")
+            }
+            val version = release.getString("tag_name").removePrefix("v")
+            val expectedAssetName = "AkisGesture-v$version.apk"
+            val asset = release.optJSONArray("assets")
+                ?.let { assets ->
+                    (0 until assets.length())
+                        .map { assets.getJSONObject(it) }
+                        .firstOrNull { it.optString("name") == expectedAssetName }
+                }
+                ?: throw ReleaseValidationException("Expected APK asset is missing")
+            val downloadUrl = asset.optString("browser_download_url").takeIf(String::isNotBlank)
+                ?: throw ReleaseValidationException("APK download URL is missing")
+            val sha256 = asset.optString("digest")
+                .takeIf { it.startsWith("sha256:", ignoreCase = true) }
+                ?.substringAfter(':')
+                ?: throw ReleaseValidationException("APK SHA-256 digest is missing")
+            if (asset.optLong("size") <= 0L) throw ReleaseValidationException("APK asset is empty")
             GithubRelease(
-                version = release.getString("tag_name").removePrefix("v"),
+                version = version,
                 url = release.getString("html_url"),
                 notes = release.optString("body").trim(),
-                downloadUrl = release.optJSONArray("assets")
-                    ?.let { assets ->
-                        (0 until assets.length())
-                            .map { assets.getJSONObject(it) }
-                            .firstOrNull { it.optString("name").endsWith(".apk", ignoreCase = true) }
-                            ?.optString("browser_download_url")
-                            ?.takeIf(String::isNotBlank)
-                    },
+                downloadUrl = downloadUrl,
+                publishedAt = release.optString("published_at").takeIf(String::isNotBlank),
+                assetName = asset.optString("name"),
+                assetSha256 = sha256,
             )
         } finally {
             connection.disconnect()
@@ -138,4 +158,4 @@ object GithubReleaseChecker {
 
         return result.ifBlank { rawNotes.trim() }
     }
-}
+}
