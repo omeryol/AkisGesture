@@ -116,6 +116,7 @@ class AkisGestureApp : Application() {
                         ?.let { runCatching { io.github.omeryol.akisgesture.gesture.AppPauseMode.valueOf(it) }.getOrNull() }
                         ?: io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST,
                     hideFromRecents = prefs[GestureConfig.KEY_HIDE_FROM_RECENTS] ?: false,
+                    automationAppsEnabled = prefs[GestureConfig.KEY_AUTOMATION_APPS_ENABLED] ?: false,
 
 
                     hapticIntensity = prefs[GestureConfig.KEY_HAPTIC_INTENSITY] ?: 1f,
@@ -368,6 +369,10 @@ class AkisGestureApp : Application() {
 
     suspend fun updatePauseOnPhoneCall(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] = enabled }
+    }
+
+    suspend fun updateAutomationAppsEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_AUTOMATION_APPS_ENABLED] = enabled }
     }
 
     suspend fun updatePauseOnLauncher(enabled: Boolean) {

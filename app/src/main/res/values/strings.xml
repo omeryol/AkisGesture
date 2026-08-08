@@ -248,6 +248,8 @@
     <string name="l_left_badge">↖️ L-left</string>
     <string name="action_requires_root">%1$s (Root)</string>
     <string name="automation_apps">Automation apps</string>
+    <string name="automation_apps_title">Allow automation apps</string>
+    <string name="automation_apps_subtitle">Lets other apps use only Start, Stop, and Toggle for the Akış service</string>
     <string name="telegram_group_title">Telegram group</string>
     <string name="telegram_group_subtitle">Support, feedback, and device experiences</string>
     <string name="telegram_channel_title">Telegram channel</string>

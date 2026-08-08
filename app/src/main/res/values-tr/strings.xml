@@ -249,6 +249,8 @@
     <string name="l_left_badge">↖️ L-Sol</string>
     <string name="action_requires_root">%1$s (Root)</string>
     <string name="automation_apps">Otomasyon uygulamaları</string>
+    <string name="automation_apps_title">Otomasyon uygulamalarına izin ver</string>
+    <string name="automation_apps_subtitle">Diğer uygulamalar yalnızca Akış hizmetini Başlat, Durdur ve Aç/Kapat komutlarıyla yönetebilir</string>
     <string name="telegram_group_title">Telegram grubu</string>
     <string name="telegram_group_subtitle">Destek, geri bildirim ve cihaz deneyimleri</string>
     <string name="telegram_channel_title">Telegram kanalı</string>

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import io.github.omeryol.akisgesture.service.AccessibilityControl
+import io.github.omeryol.akisgesture.AkisGestureApp
 
 /**
  * Otomasyon uygulamaları için Broadcast Receiver.
@@ -19,6 +20,10 @@ import io.github.omeryol.akisgesture.service.AccessibilityControl
 class GestureCommandReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (!(context.applicationContext as AkisGestureApp).gestureConfigFlow.value.automationAppsEnabled) {
+            Log.w(LOG_TAG, "Ignoring external automation command because user consent is disabled")
+            return
+        }
         val action = intent.action ?: return
         Log.d(LOG_TAG, "Broadcast received with action: $action")
         when (action) {
