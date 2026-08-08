@@ -23,6 +23,7 @@
     <string name="update_check_dev_build_desc">Installed version (%1$s) is newer than GitHub latest release (%2$s). You are running a test APK.</string>
     <string name="update_check_available">New version available: %1$s</string>
     <string name="update_check_failed">Could not check for updates</string>
+    <string name="update_check_last_checked">Last checked: %1$s</string>
     <string name="update_check_action">Check</string>
     <string name="update_dialog_title">New release: %1$s</string>
     <string name="update_dialog_subtitle">Highlights and improvements</string>

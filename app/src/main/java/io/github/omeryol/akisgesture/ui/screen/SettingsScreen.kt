@@ -113,6 +113,10 @@ import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.core.content.FileProvider
+import io.github.omeryol.akisgesture.util.VerifiedApkDownloader
+import java.text.DateFormat
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,12 +136,19 @@ fun SettingsScreen(
     var selectedSection by remember { mutableStateOf(0) }
     var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
     var showReleaseDialog by remember { mutableStateOf(false) }
+    var updateDownloading by remember { mutableStateOf(false) }
+    var updateDownloadError by remember { mutableStateOf<String?>(null) }
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
     var showCustomColorPickers by remember { mutableStateOf(false) }
 
 
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
+    val updatePreferences = remember { context.getSharedPreferences("update_check", android.content.Context.MODE_PRIVATE) }
+    var lastCheckedAt by remember { mutableStateOf(updatePreferences.getLong("last_checked_at", 0L)) }
+    val lastCheckedLabel = remember(lastCheckedAt) {
+        if (lastCheckedAt > 0L) DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(lastCheckedAt)) else null
+    }
     val scope = rememberCoroutineScope()
     var sideRangeFeedback by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var sideRangeFeedbackJob by remember { mutableStateOf<Job?>(null) }
@@ -431,6 +442,9 @@ fun SettingsScreen(
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 6.dp),
                     )
+                    lastCheckedLabel?.let {
+                        Text(stringResource(R.string.update_check_last_checked, it), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+                    }
                 }
             }
 
@@ -1449,6 +1463,8 @@ fun SettingsScreen(
                             val result = withContext(Dispatchers.IO) {
                                 runCatching { GithubReleaseChecker.fetchLatestRelease() }
                             }
+                            lastCheckedAt = System.currentTimeMillis()
+                            updatePreferences.edit().putLong("last_checked_at", lastCheckedAt).apply()
                             updateCheckState = result.fold(
                                 onSuccess = { release ->
                                     val comp = GithubReleaseChecker.compareVersions(versionName, release.version)
@@ -1536,24 +1552,39 @@ fun SettingsScreen(
                             }
                         },
                         text = {
-                            val isTurkishLocale = java.util.Locale.getDefault().language == "tr"
-                            val cleanNotes = androidx.compose.runtime.remember(release.notes) {
+                            val isTurkishLocale = (AppCompatDelegate.getApplicationLocales()[0]
+                                ?: context.resources.configuration.locales[0]).language == "tr"
+                            val cleanNotes = androidx.compose.runtime.remember(release.notes, isTurkishLocale) {
                                 GithubReleaseChecker.extractCleanReleaseNotes(release.notes, isTurkish = isTurkishLocale)
                             }
-                            Text(
-                                text = cleanNotes.ifBlank { stringResource(R.string.update_dialog_no_notes) },
-                                modifier = Modifier.verticalScroll(rememberScrollState()),
-                                style = MaterialTheme.typography.bodySmall,
-                            )
+                            Column(Modifier.verticalScroll(rememberScrollState())) {
+                                Text(cleanNotes.ifBlank { stringResource(R.string.update_dialog_no_notes) }, style = MaterialTheme.typography.bodySmall)
+                                updateDownloadError?.let { Text(it, color = scheme.error, style = MaterialTheme.typography.labelSmall) }
+                            }
                         },
 
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(release.downloadUrl ?: release.url)))
+                                    updateDownloading = true
+                                    updateDownloadError = null
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) { runCatching { VerifiedApkDownloader.download(context, release) } }
+                                            .onSuccess { apk ->
+                                                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", apk)
+                                                context.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                                                    setDataAndType(uri, "application/vnd.android.package-archive")
+                                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                })
+                                                showReleaseDialog = false
+                                            }
+                                            .onFailure { updateDownloadError = it.message ?: "APK verification failed" }
+                                        updateDownloading = false
+                                    }
                                 },
+                                enabled = !updateDownloading,
                             ) {
-                                Text(stringResource(R.string.update_dialog_download))
+                                Text(if (updateDownloading) stringResource(R.string.update_check_checking) else stringResource(R.string.update_dialog_download))
                             }
                         },
                         dismissButton = {
@@ -1566,7 +1597,8 @@ fun SettingsScreen(
             }
 
             if (showVersionHistoryDialog) {
-                val isTurkishLocale = java.util.Locale.getDefault().language == "tr"
+                val isTurkishLocale = (AppCompatDelegate.getApplicationLocales()[0]
+                    ?: context.resources.configuration.locales[0]).language == "tr"
                 AlertDialog(
                     onDismissRequest = { showVersionHistoryDialog = false },
                     containerColor = scheme.surface,

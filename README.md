@@ -11,14 +11,12 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
-## v1.4.0 öne çıkanlar
+## v1.5.0 öne çıkanlar
 
-- Ana sayfaya kenar hareketlerini görsel olarak düzenlemek için 3B telefon
-  haritası eklendi.
-- Sol ve sağ tetik alanları haritadan yeniden boyutlandırılabilir ve dikeyde
-  taşınabilir; iki kenarın canlı ölçüleri birlikte gösterilir.
-- Hareketler, eylem ekleme ve ayarlar ekranlarındaki çeviri/tutarlılık
-  sorunları ile görsel geri bildirimler iyileştirildi.
+- Güncelleme kontrolü seçili uygulama dilinde yayın notlarını gösterir.
+- Yalnızca doğru sürüm etiketiyle eşleşen, SHA-256 özeti bulunan imzalı APK
+  asset'leri güncelleme olarak sunulur.
+- APK uygulama içinde indirilir, bütünlüğü doğrulanır ve ardından kurulum açılır.
 
 ## Özellikler
 

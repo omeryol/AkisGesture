@@ -23,6 +23,7 @@
     <string name="update_check_dev_build_desc">Cihazdaki sürüm (%1$s), GitHub’daki son yayından (%2$s) daha yeni. Test derlemesi kullanıyorsunuz.</string>
     <string name="update_check_available">Yeni sürüm mevcut: %1$s</string>
     <string name="update_check_failed">Güncellemeler kontrol edilemedi</string>
+    <string name="update_check_last_checked">Son kontrol: %1$s</string>
     <string name="update_check_action">Kontrol et</string>
     <string name="update_dialog_title">Yeni sürüm: %1$s</string>
     <string name="update_dialog_subtitle">Yenilikler ve geliştirmeler</string>
