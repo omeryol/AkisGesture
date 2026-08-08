@@ -1,5 +1,19 @@
 # Değişiklik Günlüğü
 
+## [1.5.1] - 2026-08-08
+
+### Kullanıcı deneyimi ve güvenlik
+- Ana sayfa, telefon haritası, Ayarlar ve Hareketler ekranlarında kenar sırası Sol → Alt → Sağ olarak tutarlı hale getirildi.
+- Otomasyon uygulamalarının Akış hizmetini yönetmesi açık kullanıcı iznine bağlandı; desteklenen komutlar Başlat, Durdur ve Aç/Kapat ile sınırlandırıldı.
+- Root açıklamaları sadeleştirildi. Temel hareketler root istemez; uygulama sistem gezinme çubuğunu yönetmez.
+- Hakkında bölümüne Telegram grup ve kanal bağlantıları eklendi, uygulama ikonu yenilendi.
+
+### Teknik
+- Sürüm `1.5.1`, version code `56`.
+- İmzalı APK: `AkisGesture-v1.5.1.apk`.
+
+---
+
 ## [1.5.0] - 2026-08-08
 
 ### 🔄 Güvenilir Güncelleme Merkezi

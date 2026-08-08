@@ -11,12 +11,15 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
-## v1.5.0 highlights
+## v1.5.1 highlights
 
-- Update notes now follow the selected app language.
-- Only signed APK assets matching the release tag and carrying a SHA-256 digest
-  are offered as updates.
-- APKs download in-app, verify integrity, and then open the installer.
+- Edge order is now consistent across Home, the phone map, Settings, and
+  Gestures: Left → Bottom → Right.
+- Automation apps cannot manage the service without explicit user consent;
+  when allowed, they can only Start, Stop, or Toggle it.
+- Root scope is clearer: core gestures do not require root and the app does not
+  manage the system navigation bar.
+- Telegram group and channel links were added, and the app icon was refreshed.
 
 ## Features
 
