@@ -174,12 +174,6 @@ class HardwareAndAppHandler(
         }
     }
 
-    suspend fun handleToggleNavBar(): ActionResult = withContext(Dispatchers.IO) {
-        when (val result = rootCommands.toggleNavBar()) {
-            RootResult.Success -> ActionResult.Success
-            is RootResult.Failure -> ActionResult.Failed(result.reason)
-        }
-    }
 
     companion object {
         private val MEDIA_KEY_CODES = setOf(

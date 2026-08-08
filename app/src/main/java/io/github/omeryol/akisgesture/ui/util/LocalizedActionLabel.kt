@@ -34,7 +34,6 @@ fun ActionNode.localizedLabel(context: Context): String {
     ActionNode.VoiceSearch -> context.getString(R.string.action_voice_search)
     ActionNode.VoiceAssistant -> context.getString(R.string.action_voice_assistant)
     is ActionNode.SendKeyCode -> context.getString(R.string.action_keycode, keyLabel)
-    ActionNode.ToggleNavBar -> context.getString(R.string.action_nav_bar)
     ActionNode.ToggleFlashlight -> context.getString(R.string.action_flashlight)
     ActionNode.ForceStopForeground -> context.getString(R.string.action_force_stop)
     ActionNode.BrightnessUp -> context.getString(R.string.action_brightness_up)

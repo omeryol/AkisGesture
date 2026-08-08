@@ -73,7 +73,6 @@ fun actionImageVector(action: ActionNode): ImageVector = when (action) {
     is ActionNode.AppShortcut -> Icons.Filled.Apps
     is ActionNode.SendKeyCode -> Icons.Filled.Keyboard
     is ActionNode.ToggleFlashlight -> Icons.Filled.FlashlightOn
-    is ActionNode.ToggleNavBar -> Icons.Filled.SwapHoriz
     is ActionNode.ForceStopForeground -> Icons.Filled.StopCircle
     is ActionNode.LaunchApp -> Icons.Filled.Apps
     is ActionNode.NoAction -> Icons.Filled.Block
@@ -89,7 +88,7 @@ fun actionCategoryColor(action: ActionNode): androidx.compose.ui.graphics.Color 
     is ActionNode.InputMethodPicker, is ActionNode.VolumePanel -> ActionPanelColor
     is ActionNode.MediaPlayPause, is ActionNode.MediaNext, is ActionNode.MediaPrevious,
     is ActionNode.VolumeUp, is ActionNode.VolumeDown, is ActionNode.ToggleMute -> ActionMediaColor
-    is ActionNode.ToggleFlashlight, is ActionNode.ToggleNavBar -> ActionHardwareColor
+    is ActionNode.ToggleFlashlight -> ActionHardwareColor
     is ActionNode.ForceStopForeground -> ActionRootColor
     else -> ActionNavColor
 }

@@ -32,6 +32,5 @@ fun actionCategories(actions: List<ActionNode> = ActionNode.allFixed()): List<Pa
         it is ActionNode.BrightnessUp || it is ActionNode.BrightnessDown
     },
     "Donanım" to actions.filter { it is ActionNode.ToggleFlashlight },
-    "Sistem Arayüzü" to actions.filter { it is ActionNode.ToggleNavBar },
     "Root" to actions.filter { it is ActionNode.ForceStopForeground },
 )
