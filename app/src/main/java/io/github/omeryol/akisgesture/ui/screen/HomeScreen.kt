@@ -72,6 +72,7 @@ import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
 import io.github.omeryol.akisgesture.ui.component.InteractivePhoneMap
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
+import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import io.github.omeryol.akisgesture.util.PermissionHelper
 import kotlinx.coroutines.launch
 
@@ -445,20 +446,20 @@ private fun AkisSummaryChartCard(
                         .background(Color(0xFF3D5AFE)),
                 )
             }
-            if (rightCount > 0 || totalCount == 0) {
-                Box(
-                    modifier = Modifier
-                        .weight(rightWeight)
-                        .fillMaxHeight()
-                        .background(Color(0xFF00E676)),
-                )
-            }
             if (bottomCount > 0 || totalCount == 0) {
                 Box(
                     modifier = Modifier
                         .weight(bottomWeight)
                         .fillMaxHeight()
-                        .background(Color(0xFFFF9100)),
+                        .background(EdgeUi.color(Edge.BOTTOM)),
+                )
+            }
+            if (rightCount > 0 || totalCount == 0) {
+                Box(
+                    modifier = Modifier
+                        .weight(rightWeight)
+                        .fillMaxHeight()
+                        .background(EdgeUi.color(Edge.RIGHT)),
                 )
             }
         }
@@ -470,9 +471,9 @@ private fun AkisSummaryChartCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            ChartLegendItem(color = Color(0xFF3D5AFE), label = stringResource(R.string.edge_left), count = leftCount)
-            ChartLegendItem(color = Color(0xFF00E676), label = stringResource(R.string.edge_right), count = rightCount)
-            ChartLegendItem(color = Color(0xFFFF9100), label = stringResource(R.string.edge_bottom), count = bottomCount)
+            ChartLegendItem(color = EdgeUi.color(Edge.LEFT), label = stringResource(R.string.edge_left), count = leftCount)
+            ChartLegendItem(color = EdgeUi.color(Edge.BOTTOM), label = stringResource(R.string.edge_bottom), count = bottomCount)
+            ChartLegendItem(color = EdgeUi.color(Edge.RIGHT), label = stringResource(R.string.edge_right), count = rightCount)
         }
 
         Spacer(Modifier.height(14.dp))

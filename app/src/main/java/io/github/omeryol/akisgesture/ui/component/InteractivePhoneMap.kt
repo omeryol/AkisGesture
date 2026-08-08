@@ -51,6 +51,7 @@ import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.delay
 
 data class PhoneZone(
@@ -304,7 +305,7 @@ fun InteractivePhoneMap(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM).forEach { edge ->
+            EdgeUi.ordered.forEach { edge ->
                 val title = when (edge) {
                     Edge.LEFT -> context.getString(io.github.omeryol.akisgesture.R.string.edge_left)
                     Edge.RIGHT -> context.getString(io.github.omeryol.akisgesture.R.string.edge_right)
