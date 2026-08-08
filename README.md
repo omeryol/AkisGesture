@@ -11,12 +11,15 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
-## v1.5.0 öne çıkanlar
+## v1.5.1 öne çıkanlar
 
-- Güncelleme kontrolü seçili uygulama dilinde yayın notlarını gösterir.
-- Yalnızca doğru sürüm etiketiyle eşleşen, SHA-256 özeti bulunan imzalı APK
-  asset'leri güncelleme olarak sunulur.
-- APK uygulama içinde indirilir, bütünlüğü doğrulanır ve ardından kurulum açılır.
+- Ana sayfa, telefon haritası, Ayarlar ve Hareketler'deki kenar sırası artık
+  tutarlı: Sol → Alt → Sağ.
+- Otomasyon uygulamaları açık kullanıcı izni olmadan hizmeti yönetemez; izin
+  verildiğinde yalnızca Başlat, Durdur ve Aç/Kapat komutları kullanılabilir.
+- Root kapsamı netleştirildi: temel hareketler root istemez ve uygulama sistem
+  gezinme çubuğunu yönetmez.
+- Telegram grup ve kanal bağlantıları eklendi; uygulama ikonu yenilendi.
 
 ## Özellikler
 

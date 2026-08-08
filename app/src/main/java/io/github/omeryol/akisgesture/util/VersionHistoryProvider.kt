@@ -11,9 +11,26 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.5.0",
+            version = "1.5.1",
             date = "2026-08-08",
             isCurrent = true,
+            changesTr = listOf(
+                "🧭 Tutarlı Kenar Düzeni: Ana sayfa, harita, Ayarlar ve Hareketler artık Sol → Alt → Sağ sırasını kullanır.",
+                "🔒 Otomasyon İzni: Otomasyon uygulamaları yalnızca açık kullanıcı izniyle Başlat, Durdur veya Aç/Kapat komutunu kullanabilir.",
+                "🛡️ Net Root Sınırı: Temel hareketler root istemez; uygulama sistem gezinme çubuğunu yönetmez.",
+                "✈️ Topluluk ve İkon: Telegram bağlantıları eklendi, uygulama ikonu yenilendi.",
+            ),
+            changesEn = listOf(
+                "🧭 Consistent Edge Order: Home, the map, Settings, and Gestures now use Left → Bottom → Right.",
+                "🔒 Automation Consent: Automation apps can only Start, Stop, or Toggle the service after explicit user approval.",
+                "🛡️ Clear Root Scope: Core gestures do not need root, and the app does not manage the system navigation bar.",
+                "✈️ Community and Icon: Telegram links were added and the app icon was refreshed.",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.5.0",
+            date = "2026-08-08",
+            isCurrent = false,
             changesTr = listOf(
                 "🔄 Güvenilir Güncelleme Merkezi: Sürüm notları seçili uygulama dilinde gösterilir.",
                 "🔐 Doğrulanmış İndirme: APK yalnızca doğru release asset'i ve SHA-256 özeti doğrulandıktan sonra yükleyiciye aktarılır.",
