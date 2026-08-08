@@ -7,7 +7,7 @@ import android.util.Log
 import io.github.omeryol.akisgesture.service.AccessibilityControl
 
 /**
- * Tasker / MacroDroid ve dış otomasyon uygulamaları için Broadcast Receiver.
+ * Otomasyon uygulamaları için Broadcast Receiver.
  *
  * START / STOP / TOGGLE intentleri root varsa erişilebilirlik hizmetini
  * doğrudan etkinleştirir/devre dışı bırakır. Root yoksa yalnızca istenilen

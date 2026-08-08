@@ -4,6 +4,7 @@ sealed interface ActionNode {
     val id: String
     val label: String
     val minApi: Int
+    val requiresRoot: Boolean get() = false
 
     // ═══ Gezinme ═══
     data object Back : ActionNode {
@@ -171,6 +172,7 @@ sealed interface ActionNode {
         override val id = "toggle_nav_bar"
         override val label = "Gezinme çubuğunu göster/gizle"
         override val minApi = 21
+        override val requiresRoot = true
     }
 
     // ═══ Donanım ═══
@@ -184,6 +186,7 @@ sealed interface ActionNode {
         override val id = "force_stop_foreground"
         override val label = "Öndeki uygulamayı kapat"
         override val minApi = 26
+        override val requiresRoot = true
     }
 
     // ═══ Uygulama Başlatma ═══

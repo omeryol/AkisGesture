@@ -37,7 +37,7 @@
     <string name="about_root_not_required_title">✅ Root is NOT Required!</string>
     <string name="about_root_not_required_desc">All core navigation gestures (Back, Home, Recents, Launch App, Media Controls, Screenshot, etc.) work 100% without root via standard Android Accessibility Service.</string>
     <string name="about_root_features_title">⚡ What Does Root Do In This App? (Optional)</string>
-    <string name="about_root_features_desc">In this app, root access is used exclusively for two optional actions:\n\n• Force-Kill App: Assign a gesture to forcefully terminate a selected app at the system level.\n• Custom Shell (su) Command: Assign a user-defined terminal command to a gesture trigger.\n\nRoot is not used for any other purpose whatsoever.</string>
+    <string name="about_root_features_desc">Root is used only for two optional actions and protection: force-stopping the foreground app, showing or hiding the navigation bar, and rebinding the accessibility entry after an unexpected system drop. It is never required for core gestures and remains the responsibility of users who understand these system-level changes.</string>
 <string name="about_root_privacy_desc" formatted="false">🛡️ Security &amp; Privacy: Even if root access is granted, Akış Gesture never transmits data over the internet. All your settings and rules stay 100% on your device.</string>
 
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>
@@ -167,7 +167,7 @@
     <string name="battery_restricted">Restricted (Optimized)</string>
     <string name="battery_open_settings">Request Exemption / Battery Settings</string>
     <string name="privileged_card_title">🛡️ Privileged Auto-Repair (Root / Shizuku)</string>
-    <string name="privileged_card_subtitle">Silently rebind service in background if disconnected</string>
+    <string name="privileged_card_subtitle">Rebind only after an unexpected accessibility drop; never overrides a user stop</string>
     <string name="backup_saved">Backup saved</string><string name="backup_save_failed">Could not save backup</string><string name="backup_loaded">Backup restored</string><string name="backup_load_failed">Could not restore backup</string><string name="file_open_failed">Could not open file</string><string name="generic_error">Error</string>
     <string name="restore_confirm_title">Restore this backup?</string><string name="restore_confirm_text">All current gesture rules and settings will be replaced by the selected backup.</string><string name="cancel">Cancel</string><string name="done">Done</string><string name="paused_apps_title">Apps where gestures are paused</string>
     <string name="preset_colors">Preset colors</string><string name="color_picker">Color picker bar</string><string name="hex_hue">HEX: %1$s | Hue: %2$d°</string><string name="hue_value">Hue: %d°</string><string name="saturation_value">Saturation: %d%%</string><string name="brightness_value">Brightness: %d%%</string>
@@ -246,4 +246,10 @@
     <string name="l_left_description">When you pull inward and slide left</string>
     <string name="l_right_badge">↗️ L-right</string>
     <string name="l_left_badge">↖️ L-left</string>
+    <string name="action_requires_root">%1$s (Root)</string>
+    <string name="automation_apps">Automation apps</string>
+    <string name="telegram_group_title">Telegram group</string>
+    <string name="telegram_group_subtitle">Support, feedback, and device experiences</string>
+    <string name="telegram_channel_title">Telegram channel</string>
+    <string name="telegram_channel_subtitle">Release announcements and development news</string>
 </resources>

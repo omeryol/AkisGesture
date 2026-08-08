@@ -64,7 +64,7 @@ io.github.omeryol.akisgesture.action.STOP
 io.github.omeryol.akisgesture.action.TOGGLE
 ```
 
-MacroDroid entegrasyonu ve Hızlı Ayarlar kutucuğu aynı güvenli denetim yolunu
+Otomasyon uygulaması entegrasyonu ve Hızlı Ayarlar kutucuğu aynı güvenli denetim yolunu
 kullanır. Bu komutlar yalnızca Akış Gesture hizmetini etkiler.
 
 ## Durum ve yol haritası
@@ -79,3 +79,8 @@ Akış Gesture bağımsız bir hobi projesidir; cihaz uyumluluğu veya bireysel 
 garantisi verilmez. Tekrarlanabilir hata raporları ve katkılar memnuniyetle
 karşılanır. Projenin OpenSwipe kaynaklı bölümleri ve Akış Gesture katkıları MIT
 lisansı altındadır; ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
+
+## Topluluk
+
+- [Telegram Grubu](https://t.me/+ZRMewoFvaIdhM2I0) — destek, geri bildirim ve cihaz deneyimleri
+- [Telegram Kanalı](https://t.me/+ZTbxUGG-ynowOWE0) — sürüm duyuruları ve geliştirme haberleri

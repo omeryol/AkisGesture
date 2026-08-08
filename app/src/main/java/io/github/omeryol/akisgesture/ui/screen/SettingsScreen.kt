@@ -103,6 +103,7 @@ import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RootAccessState
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import io.github.omeryol.akisgesture.util.GithubRelease
@@ -318,14 +319,15 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM).forEach { edge ->
+                EdgeUi.ordered.forEach { edge ->
                     val label = edgeLabel(context, edge)
                     val selected = selectedEdge == edge
+                    val edgeColor = EdgeUi.color(edge)
                     Box(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(if (selected) Color(0xFF3D5AFE) else scheme.surfaceVariant.copy(alpha = 0.4f))
+                            .background(if (selected) edgeColor else edgeColor.copy(alpha = 0.10f))
                             .clickable { selectedEdge = edge }
                             .padding(vertical = 6.dp),
                         contentAlignment = Alignment.Center
@@ -334,7 +336,7 @@ fun SettingsScreen(
                             text = label,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (selected) Color.White else scheme.onSurface
+                            color = if (selected) Color.White else edgeColor
                         )
                     }
                 }
@@ -1820,6 +1822,20 @@ fun SettingsScreen(
                 }
             }
 
+            Spacer(Modifier.height(8.dp))
+            TelegramLinkCard(
+                title = stringResource(R.string.telegram_group_title),
+                subtitle = stringResource(R.string.telegram_group_subtitle),
+                url = "https://t.me/+ZRMewoFvaIdhM2I0",
+                accent = Color(0xFF229ED9),
+            )
+            Spacer(Modifier.height(8.dp))
+            TelegramLinkCard(
+                title = stringResource(R.string.telegram_channel_title),
+                subtitle = stringResource(R.string.telegram_channel_subtitle),
+                url = "https://t.me/+ZTbxUGG-ynowOWE0",
+                accent = Color(0xFF1677B8),
+            )
             Spacer(Modifier.height(16.dp))
             HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
             Spacer(Modifier.height(12.dp))
@@ -1979,6 +1995,30 @@ fun SettingsScreen(
                 TextButton(onClick = { showAppPicker = false }) { Text(stringResource(R.string.done), fontWeight = FontWeight.Bold) }
             }
         )
+    }
+}
+
+@Composable
+private fun TelegramLinkCard(title: String, subtitle: String, url: String, accent: Color) {
+    val context = LocalContext.current
+    val scheme = MaterialTheme.colorScheme
+    Box(
+        modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(accent.copy(alpha = 0.12f))
+            .border(1.dp, accent.copy(alpha = 0.48f), RoundedCornerShape(12.dp))
+            .clickable { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("✈", style = MaterialTheme.typography.titleLarge, color = accent)
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = scheme.onSurface)
+                Text(subtitle, style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant, maxLines = 1)
+            }
+            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+        }
     }
 }
 

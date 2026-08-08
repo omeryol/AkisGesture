@@ -37,7 +37,7 @@
     <string name="about_root_not_required_title">✅ Root Kesinlikle Zorunlu DEĞİLDİR!</string>
     <string name="about_root_not_required_desc">Akış Gesture’ın tüm temel navigasyon hareketleri (Geri, Ana Ekran, Son Uygulamalar, Uygulama Açma, Medya Kontrolleri, Ekran Görüntüsü vb.) standart Android Erişilebilirlik Servisi ile %100 rootsuz çalışır.</string>
     <string name="about_root_features_title">⚡ Bu Uygulamada Root Ne İşe Yarar? (Opsiyonel)</string>
-    <string name="about_root_features_desc">• Anında Ekran Kapatma: Bazı ROM’larda gecikmesiz tuş kilidi sağlama.\n• Özel Shell (su) Komutları: Kullanıcının hareketlere özel terminal komutları atayabilmesi.\n• Gelişmiş Arka Plan Koruması: Süreç önceliğini sistem seviyesinde koruma.</string>
+    <string name="about_root_features_desc">Root yalnızca iki isteğe bağlı eylem ve koruma için kullanılır: öndeki uygulamayı zorla kapatma, gezinme çubuğunu gösterme/gizleme ve sistem erişilebilirlik kaydını beklenmedik düşüşten sonra yeniden bağlama. Bu işlemler temel hareketler için gerekli değildir; ne yaptığını bilen kullanıcıların kendi sorumluluğundadır.</string>
 <string name="about_root_privacy_desc" formatted="false">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
 
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
@@ -167,7 +167,7 @@
     <string name="battery_restricted">Kısıtlamalı (Riskli)</string>
     <string name="battery_open_settings">Pil Muafiyeti İste / Ayarları Aç</string>
     <string name="privileged_card_title">🛡️ Ayrıcalıklı Otomatik İyileştirme (Root / Shizuku)</string>
-    <string name="privileged_card_subtitle">Hizmet kapandığında arka planda sessizce yeniden bağlama</string>
+    <string name="privileged_card_subtitle">Yalnızca beklenmedik erişilebilirlik kopmasında yeniden bağlama; kullanıcı durdurursa çalışmaz</string>
     <string name="backup_section">Yedekleme ve geri yükleme</string><string name="backup_section_subtitle">Kurallar, uygulama profilleri ve ayarlar JSON yedeklemesi</string><string name="backup_action">Yedekle</string><string name="restore_action">Yükle</string><string name="root_status">Root durumu</string><string name="root_checking">Kontrol ediliyor…</string><string name="root_available">Root var (aktif)</string><string name="root_unavailable">Root yok</string>
     <string name="backup_saved">Yedek kaydedildi</string><string name="backup_save_failed">Yedek kaydedilemedi</string><string name="backup_loaded">Yedek yüklendi</string><string name="backup_load_failed">Yedek yüklenemedi</string><string name="file_open_failed">Dosya açılamadı</string><string name="generic_error">Hata</string>
     <string name="restore_confirm_title">Yedeği yüklemek istiyor musunuz?</string><string name="restore_confirm_text">Mevcut tüm hareket kuralları ve ayarlar seçtiğiniz yedekle değiştirilecek.</string><string name="cancel">Vazgeç</string><string name="done">Tamam</string><string name="paused_apps_title">Hareketlerin duraklatılacağı uygulamalar</string>
@@ -247,4 +247,10 @@
     <string name="l_left_description">İçeri çekip parmağınızı sola kaydırdığınızda</string>
     <string name="l_right_badge">↗️ L-Sağ</string>
     <string name="l_left_badge">↖️ L-Sol</string>
+    <string name="action_requires_root">%1$s (Root)</string>
+    <string name="automation_apps">Otomasyon uygulamaları</string>
+    <string name="telegram_group_title">Telegram grubu</string>
+    <string name="telegram_group_subtitle">Destek, geri bildirim ve cihaz deneyimleri</string>
+    <string name="telegram_channel_title">Telegram kanalı</string>
+    <string name="telegram_channel_subtitle">Sürüm duyuruları ve geliştirme haberleri</string>
 </resources>
