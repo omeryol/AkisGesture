@@ -106,7 +106,7 @@ fun AddRuleForEdgeDialog(
         title = {
             Column {
                 Text(
-                    "${edgeLabel(context, edge)} · Kural Ekle",
+                    context.getString(R.string.add_rule_for_edge, edgeLabel(context, edge)),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )
@@ -136,7 +136,7 @@ fun AddRuleForEdgeDialog(
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Hareket Eylemleri",
+                    stringResource(R.string.gesture_actions_title),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -289,7 +289,7 @@ fun AddRuleDialog(
         title = {
             Column {
                 Text(
-                    "Kural ekle - ${stepTitles[step]}",
+                    stringResource(R.string.add_rule_step, stepTitles[step]),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 )

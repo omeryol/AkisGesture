@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import io.github.omeryol.akisgesture.AkisGestureApp
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.gesture.GestureConfig
+import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.service.AccessibilityControl
 import io.github.omeryol.akisgesture.rule.RuleSerializer.toGestureRuleGraph
 import io.github.omeryol.akisgesture.rule.AppRuleProfilesSerializer
@@ -59,6 +60,7 @@ object SettingsBackupManager {
             snapshot(GestureConfig.KEY_PAUSE_IN_LANDSCAPE, config.pauseInLandscape),
             snapshot(GestureConfig.KEY_PAUSE_ON_FULL_SCREEN, config.pauseOnFullScreen),
             snapshot(GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN, config.pauseOnPermissionScreen),
+            snapshot(GestureConfig.KEY_PAUSE_ON_LAUNCHER, config.pauseOnLauncher),
             snapshot(GestureConfig.KEY_HAPTIC_INTENSITY, config.hapticIntensity),
             snapshot(GestureConfig.KEY_HAPTIC_SOUND_ENABLED, config.hapticSoundEnabled),
             snapshot(GestureConfig.KEY_ANIMATION_SPEED, config.animationSpeed),
@@ -145,7 +147,14 @@ object SettingsBackupManager {
                     "long" -> prefs[longPreferencesKey(key)] = item.getLong("value")
                     "float" -> prefs[floatPreferencesKey(key)] =
                         item.getDouble("value").toFloat()
-                    "string" -> prefs[stringPreferencesKey(key)] = item.getString("value")
+                    "string" -> {
+                        val value = item.getString("value")
+                        prefs[stringPreferencesKey(key)] = if (key == GestureConfig.KEY_FEEDBACK_ANIMATION.name) {
+                            FeedbackAnimation.fromStoredName(value)?.name ?: value
+                        } else {
+                            value
+                        }
+                    }
                     "string_set" -> {
                         val values = item.getJSONArray("value")
                         prefs[stringSetPreferencesKey(key)] =

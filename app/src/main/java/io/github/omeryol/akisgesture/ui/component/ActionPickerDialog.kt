@@ -133,6 +133,7 @@ fun ActionPickerScreen(
         filterActions(
             if (browsingApps) installedApps else allSearchableActions,
             query,
+            { action -> action.localizedLabel(context) },
         )
     }
     LaunchedEffect(context.packageName) {
@@ -480,7 +481,7 @@ private fun ActionPickerItem(
                 when {
                     !available -> stringResource(R.string.unavailable_android)
                     action is ActionNode.LaunchApp -> stringResource(R.string.launch_app)
-                    else -> "Hareket eylemi"
+                    else -> stringResource(R.string.gesture_action)
                 },
                 style = MaterialTheme.typography.labelSmall,
                 color = if (available) accent else scheme.onSurfaceVariant,

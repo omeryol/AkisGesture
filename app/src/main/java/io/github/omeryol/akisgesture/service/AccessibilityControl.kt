@@ -50,6 +50,9 @@ object AccessibilityControl {
         if (write !is CommandResult.Success) {
             return RootResult.Failure("Erişilebilirlik durumu değiştirilemedi")
         }
+        if (isEnabled(context) != enabled) {
+            return RootResult.Failure("Accessibility setting could not be verified")
+        }
         if (enabled) runRoot("settings put secure accessibility_enabled 1")
         setDesired(context, enabled)
         if (!enabled) {
@@ -97,6 +100,9 @@ object AccessibilityControl {
         delay(600)
         if (!writeServices(otherServices + component)) {
             return RootResult.Failure("Akış hizmeti yeniden bağlanamadı")
+        }
+        if (!isEnabled(context)) {
+            return RootResult.Failure("Accessibility rebind could not be verified")
         }
         runRoot("settings put secure accessibility_enabled 1")
         return RootResult.Success

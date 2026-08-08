@@ -27,6 +27,7 @@ import io.github.omeryol.akisgesture.feedback.animation.WaterSurfaceModule
 import io.github.omeryol.akisgesture.feedback.animation.WindModule
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.pow
+import kotlin.math.exp
 
 /** Orchestrates independent animation modules and the near-edge action cue. */
 class BezierStretchRenderer {
@@ -87,6 +88,9 @@ class BezierStretchRenderer {
 
     private val particleBurst = io.github.omeryol.akisgesture.feedback.animation.ParticleBurstModule()
     private var wasArmed = false
+    private var renderedStretch = 0f
+    private var lastDrawNanos = 0L
+    private var renderedStyle = FeedbackAnimation.OCEAN_WAVE
 
     fun draw(
         canvas: Canvas,
@@ -100,10 +104,23 @@ class BezierStretchRenderer {
     ) {
         if (animation == FeedbackAnimation.NONE && !particleBurst.isActive) return
         
-        // Fluid Non-Linear Spring Tension Curve
+        val nowNanos = System.nanoTime()
+        if (animation != renderedStyle) {
+            renderedStretch = stretch
+            renderedStyle = animation
+        }
+        val elapsedSeconds = ((nowNanos - lastDrawNanos).coerceAtLeast(0L) / 1_000_000_000f)
+            .coerceAtMost(0.1f)
+        lastDrawNanos = nowNanos
+        val responseHz = (15f - animation.viscosity * 7f) * (1f - animation.damping * 0.25f)
+        val follow = 1f - exp((-responseHz * elapsedSeconds).toDouble()).toFloat()
+        renderedStretch += (stretch - renderedStretch) * follow.coerceIn(0f, 1f)
+
+        // Viscosity keeps dense styles slightly behind the finger; tension sharpens their pull.
         val elasticStretch = if (peak > 0f) {
-            (stretch / peak).coerceIn(0f, 1.4f).pow(0.82f) * peak
-        } else stretch
+            (renderedStretch / peak).coerceIn(0f, 1.4f)
+                .pow(0.82f + animation.viscosity * 0.20f - animation.surfaceTension * 0.08f) * peak
+        } else renderedStretch
 
         val progress = (elasticStretch / peak.coerceAtLeast(1f)).coerceIn(0f, 1.35f)
         // Improved color transition with wider range and smoother curve
@@ -144,6 +161,7 @@ class BezierStretchRenderer {
             canvasWidth, canvasHeight, baseColor,
             (.46f + opacity * .54f).coerceIn(.55f, 1f), size,
             System.nanoTime() / 1_000_000_000.0 * animSpeed,
+            animation.viscosity, animation.surfaceTension, animation.damping,
         )
         if (showIndicatorBar) {
             drawIndicator(canvas, edge, touchPosition, canvasWidth, canvasHeight)
@@ -160,16 +178,15 @@ class BezierStretchRenderer {
     private fun moduleFor(style: FeedbackAnimation): NaturalAnimationModule = when (style) {
         FeedbackAnimation.OCEAN_WAVE -> water
         FeedbackAnimation.HYDRO_WIPE -> pressure
-        FeedbackAnimation.MERCURY_TEARDROP, FeedbackAnimation.DEWDROP_GLASS -> droplet
-        FeedbackAnimation.GLASS_RIPPLE, FeedbackAnimation.ICE_SHARDS, FeedbackAnimation.PRISM_SHATTER, FeedbackAnimation.ZIPPER_VOID, FeedbackAnimation.ICON_ONLY -> glass
+        FeedbackAnimation.MERCURY_TEARDROP -> droplet
+        FeedbackAnimation.GLASS_RIPPLE -> glass
         FeedbackAnimation.VORTEX -> vortex
         FeedbackAnimation.BLACK_HOLE_PULL -> night
-        FeedbackAnimation.INK_FLOW, FeedbackAnimation.MATRIX_DISSOLVE -> ink
+        FeedbackAnimation.INK_FLOW -> ink
         FeedbackAnimation.ATMOSPHERIC_MIST -> mist
         FeedbackAnimation.AURORA_RIBBON -> aurora
-        FeedbackAnimation.PLASMA_FIRE, FeedbackAnimation.SOLAR_FLARE, FeedbackAnimation.EMBER_BLOOM -> fire
+        FeedbackAnimation.PLASMA_FIRE -> fire
         FeedbackAnimation.SOLAR_CORONA -> sun
-        FeedbackAnimation.ELECTRIC_STORM, FeedbackAnimation.NEON_PULSE -> pressure
         FeedbackAnimation.QUANTUM_RING -> bubbles
         FeedbackAnimation.STARFIELD -> stars
         FeedbackAnimation.COMET_TAIL -> wind

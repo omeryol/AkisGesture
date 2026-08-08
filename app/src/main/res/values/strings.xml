@@ -37,7 +37,7 @@
     <string name="about_root_not_required_desc">All core navigation gestures (Back, Home, Recents, Launch App, Media Controls, Screenshot, etc.) work 100% without root via standard Android Accessibility Service.</string>
     <string name="about_root_features_title">⚡ What Does Root Do In This App? (Optional)</string>
     <string name="about_root_features_desc">In this app, root access is used exclusively for two optional actions:\n\n• Force-Kill App: Assign a gesture to forcefully terminate a selected app at the system level.\n• Custom Shell (su) Command: Assign a user-defined terminal command to a gesture trigger.\n\nRoot is not used for any other purpose whatsoever.</string>
-    <string name="about_root_privacy_desc">🛡️ Security &amp; Privacy: Even if root access is granted, Akış Gesture never transmits data over the internet. All your settings and rules stay 100% on your device.</string>
+<string name="about_root_privacy_desc" formatted="false">🛡️ Security &amp; Privacy: Even if root access is granted, Akış Gesture never transmits data over the internet. All your settings and rules stay 100% on your device.</string>
 
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>
     <string name="open_project_repo">Akış Gesture GitHub repository</string>
@@ -94,10 +94,37 @@
     <string name="animation_ocean">Water surface</string><string name="animation_droplet">Surface-tension droplet</string><string name="animation_fire">Natural flame</string><string name="animation_mist">Slow mist</string><string name="animation_electric">Electric arc</string><string name="animation_sun">Solar corona</string><string name="animation_aurora">Aurora flow</string><string name="animation_glass">Frosted glass wave</string><string name="animation_neon">Damped light ring</string><string name="animation_stars">Star flow</string><string name="animation_ice">Ice tension fracture</string><string name="animation_vortex">Water vortex</string><string name="animation_rain">Rain</string><string name="animation_ember">Rising ember</string><string name="animation_wind">Wind flow</string><string name="animation_bubbles">Water bubbles</string><string name="animation_ink">Ink in water</string><string name="animation_heat">Heat flow</string><string name="animation_elastic">Elastic surface split</string><string name="animation_night">Night light</string><string name="animation_particles">Particle dissolve</string><string name="animation_pressure">Pressure wave</string><string name="animation_dew">Dew on glass</string><string name="animation_prism">Prismatic tension</string><string name="animation_icon_only">Minimal glass icon</string><string name="animation_off">Off</string>
     <string name="service_channel_description">Keeps the gesture service available in the background</string>
     <string name="service_running">Akış Gesture service is running</string><string name="service_ready_tap">Edge gestures are ready. Tap to open settings.</string>
-    <string name="tile_label">Akış</string><string name="tile_on">Gestures on</string><string name="tile_off">Gestures off</string>
+<string name="tile_label">Akış</string><string name="tile_on">Gestures on</string><string name="tile_off">Gestures off</string><string name="tile_service_label">Akış gestures</string><string name="command_start_label">Akış · Start gestures</string><string name="command_stop_label">Akış · Stop gestures</string><string name="command_toggle_label">Akış · Toggle gesture state</string>
     <string name="macro_start">Start gestures</string><string name="macro_stop">Stop gestures</string><string name="macro_toggle">Toggle state</string><string name="macro_title">Akış Gesture action</string><string name="macro_blurb">Akış Gesture · %1$s</string>
     <string name="home_active">Akış active</string><string name="home_service_off">Service off</string><string name="home_summary">%1$d gestures · %2$d active edges · v%3$s</string><string name="home_enable_accessibility">Enable the accessibility permission</string>
     <string name="edge_map">📱 Edge map</string><string name="edit_arrow">Edit →</string><string name="left_right_edges">📐 Left &amp; right</string><string name="bottom_edge">🔽 Bottom edge</string>
+    <string name="home_map_resize_hint">Drag the wide handles to resize; drag the coloured edge to move its live area.</string>
+    <string name="edge_range_live">Position %1$d%% · Size %2$d%%</string>
+    <string name="edge_vertical_length_title">📏 Vertical edge length</string>
+    <string name="edge_vertical_length_hint">Shorten or extend the edge’s vertical active area.</string>
+    <string name="edge_vertical_position_title">📍 Vertical edge position</string>
+    <string name="edge_vertical_position_hint">Move the edge’s active area up or down.</string>
+    <string name="hold_physics_card_title">⏱️ Pull and hold physics</string>
+    <string name="hold_physics_card_subtitle">Choose hold duration and trigger timing.</string>
+    <string name="haptic_sound_card_title">⚡ Haptics and sound</string>
+    <string name="haptic_sound_card_subtitle">Set vibration strength and feedback tone.</string>
+    <string name="palette_icon_card_title">🎨 Colour palette and icon style</string>
+    <string name="palette_icon_card_subtitle">Choose coordinated colour presets and icon packs.</string>
+    <string name="manual_color_edit">🎨 Edit custom colours</string>
+    <string name="app_exceptions_card_title">📱 App exceptions</string>
+    <string name="app_exceptions_card_subtitle">Apps where gestures pause or use a special profile.</string>
+    <string name="remove">Remove</string>
+    <string name="version_history_subtitle">Summary of changes from every previous version</string>
+    <string name="add_rule_for_edge">%1$s · Add rule</string>
+    <string name="gesture_actions_title">Gesture actions</string>
+    <string name="add_rule_step">Add rule – %1$s</string>
+    <string name="gesture_action">Gesture action</string>
+    <string name="gestures_title">Gestures</string>
+    <string name="gesture_count">%1$d gesture</string>
+    <string name="add_action">+ Add action</string>
+    <string name="pause_on_launcher">Pause on home screen</string>
+    <string name="pause_on_launcher_subtitle">Disable gesture sensors while the default launcher is in front.</string>
+    <string name="no_assigned_actions">No action assigned</string>
     <string name="disable_battery_restriction">Disable battery restriction</string><string name="battery_restriction_description">Disable battery optimization for uninterrupted background operation</string>
     <plurals name="gesture_count"><item quantity="one">%d gesture</item><item quantity="other">%d gestures</item></plurals>
     <string name="permissions_title">Permissions</string><string name="permissions_intro">Akış Gesture needs the following permissions to work correctly.</string><string name="accessibility_service">Accessibility service</string><string name="accessibility_description">Detects edge gestures and performs selected actions.\nEnable the Akış Gesture service in Settings.</string><string name="battery_permission_title">Disable battery restriction</string><string name="battery_permission_description">Prevents HyperOS from stopping the gesture service in the background.</string><string name="start_using">Start using</string><string name="enable_accessibility_first">Enable the accessibility service first</string><string name="step_title">Step %1$d: %2$s</string><string name="required">Required</string><string name="open_settings">Open settings</string>

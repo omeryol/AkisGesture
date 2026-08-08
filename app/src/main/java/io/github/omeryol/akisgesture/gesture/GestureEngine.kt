@@ -1,6 +1,7 @@
 package io.github.omeryol.akisgesture.gesture
 
 import android.content.res.Configuration
+import android.content.Intent
 import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -106,8 +107,8 @@ class GestureEngine(
                         ruleProfiles,
                     )
 
-                    pausedForForegroundApp = AppPausePolicy.shouldPause(
-                        foregroundPackage = foregroundPackage,
+                    pausedForForegroundApp = shouldPauseForForegroundApp(
+                        packageName = foregroundPackage,
                         pausedPackages = inputs.pausedPackages,
                         mode = inputs.config.appPauseMode,
                     )
@@ -147,7 +148,7 @@ class GestureEngine(
             ruleProfiles,
         )
 
-        val shouldPause = AppPausePolicy.shouldPause(packageName, pausedPackages, currentConfig.appPauseMode)
+        val shouldPause = shouldPauseForForegroundApp(packageName, pausedPackages, currentConfig.appPauseMode)
         val pauseChanged = shouldPause != pausedForForegroundApp
         pausedForForegroundApp = shouldPause
 
@@ -227,6 +228,19 @@ class GestureEngine(
 
 
     private fun isPaused(): Boolean = pausedForForegroundApp || pausedForSystemContext
+
+    private fun shouldPauseForForegroundApp(
+        packageName: String?,
+        pausedPackages: Set<String>,
+        mode: AppPauseMode,
+    ): Boolean {
+        if (currentConfig.pauseOnLauncher && packageName == launcherPackage()) return true
+        return AppPausePolicy.shouldPause(packageName, pausedPackages, mode)
+    }
+
+    private fun launcherPackage(): String? = overlayManager.context.packageManager
+        .resolveActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)
+        ?.activityInfo?.packageName
 
     private fun clearOverlays() {
         overlayManager.removeAll()
@@ -309,6 +323,21 @@ class GestureEngine(
         val tag = "sensor_${edge.name.lowercase()}"
         val window = overlayManager.getWindow(tag)
         (window?.view as? EdgeSensorView)?.triggerHighlight(durationMs)
+    }
+
+    /** Moves an existing side sensor in-place so map dragging never rebuilds overlays. */
+    fun previewEdgeVerticalRange(edge: Edge, start: Float, end: Float) {
+        if (edge == Edge.BOTTOM || isPaused()) return
+        val window = overlayManager.getWindow("sensor_${edge.name.lowercase()}") ?: return
+        val displayMetrics = overlayManager.context.resources.displayMetrics
+        val screenHeight = displayMetrics.heightPixels
+        val safeStart = start.coerceIn(0f, 1f)
+        val safeEnd = end.coerceIn(safeStart + 0.20f, 1f)
+        window.params.y = (safeStart * screenHeight).toInt()
+        window.params.height = ((safeEnd - safeStart) * screenHeight).toInt().coerceAtLeast(1)
+        edgeLengths[edge] = window.params.height.toFloat()
+        overlayManager.updateWindow("sensor_${edge.name.lowercase()}")
+        highlightEdge(edge, durationMs = 2_000L)
     }
 
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {

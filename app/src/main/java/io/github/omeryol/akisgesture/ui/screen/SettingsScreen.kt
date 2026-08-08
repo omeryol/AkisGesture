@@ -103,6 +103,8 @@ import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RootAccessState
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import io.github.omeryol.akisgesture.util.GithubRelease
 import io.github.omeryol.akisgesture.util.GithubReleaseChecker
 import kotlinx.coroutines.Dispatchers
@@ -137,6 +139,16 @@ fun SettingsScreen(
     val context = LocalContext.current
     val app = context.applicationContext as AkisGestureApp
     val scope = rememberCoroutineScope()
+    var sideRangeFeedback by remember { mutableStateOf<Pair<Int, Int>?>(null) }
+    var sideRangeFeedbackJob by remember { mutableStateOf<Job?>(null) }
+    fun showSideRangeFeedback(start: Float, end: Float) {
+        sideRangeFeedback = (start * 100f).roundToInt() to ((end - start) * 100f).roundToInt()
+        sideRangeFeedbackJob?.cancel()
+        sideRangeFeedbackJob = scope.launch {
+            delay(3_000)
+            sideRangeFeedback = null
+        }
+    }
     val scheme = MaterialTheme.colorScheme
     val versionName = remember(context) {
         runCatching {
@@ -369,7 +381,7 @@ fun SettingsScreen(
                 val currentOffsetPercent = (vStart * 100f).roundToInt()
 
                 AkisSliderRow(
-                    title = "📏 Panel Dikey Boyu (Kısalıp Uzama)",
+                    title = stringResource(R.string.edge_vertical_length_title),
                     valueText = "%$currentLengthPercent",
                     value = currentLengthPercent.toFloat(),
                     valueRange = 20f..100f,
@@ -379,17 +391,18 @@ fun SettingsScreen(
                         val s = (center - newLen / 2f).coerceIn(0f, (1f - newLen).coerceAtLeast(0f))
                         val e = (s + newLen).coerceAtMost(1f)
                         viewModel.setEdgeVerticalRange(selectedEdge, s, e)
+                        showSideRangeFeedback(s, e)
                     }
                 )
                 Text(
-                    text = "Panelin ekrandaki dikey uzunluğunu kısaltıp uzatın.",
+                    text = stringResource(R.string.edge_vertical_length_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = scheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
 
                 AkisSliderRow(
-                    title = "📍 Panel Dikey Konumu",
+                    title = stringResource(R.string.edge_vertical_position_title),
                     valueText = "%$currentOffsetPercent",
                     value = currentOffsetPercent.toFloat(),
                     valueRange = 0f..(100f - currentLengthPercent.toFloat()).coerceAtLeast(0f),
@@ -398,14 +411,27 @@ fun SettingsScreen(
                         val len = vEnd - vStart
                         val newEnd = (newStart + len).coerceAtMost(1f)
                         viewModel.setEdgeVerticalRange(selectedEdge, newStart, newEnd)
+                        showSideRangeFeedback(newStart, newEnd)
                     }
                 )
                 Text(
-                    text = "Panelin dikey ekran konumunu yukarı veya aşağı kaydırın.",
+                    text = stringResource(R.string.edge_vertical_position_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = scheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
+            }
+
+            AnimatedVisibility(visible = sideRangeFeedback != null) {
+                sideRangeFeedback?.let { (position, length) ->
+                    Text(
+                        text = stringResource(R.string.edge_range_live, position, length),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = scheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                    )
+                }
             }
 
             AkisSliderRow(
@@ -454,8 +480,8 @@ fun SettingsScreen(
         // ── 1B. BEKLETME SÜRESİ VE FİZİĞİ (Electric Purple) ──
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFFD500F9)) {
             AkisSectionHeader(
-                title = "⏱️ Çek ve Tut Fiziği",
-                subtitle = "Bekletme süresi ve tetikleme anı seçimi",
+                title = stringResource(R.string.hold_physics_card_title),
+                subtitle = stringResource(R.string.hold_physics_card_subtitle),
                 icon = Icons.Filled.Speed
             )
             Spacer(Modifier.height(10.dp))
@@ -506,8 +532,8 @@ fun SettingsScreen(
         // ── 1C. DOKUNSAL TİTREŞİM VE SES (Vibrant Amber / Orange) ──
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
             AkisSectionHeader(
-                title = "⚡ Dokunsal Titreşim & Ses",
-                subtitle = "Titreşim şiddeti ve geri bildirim tonu",
+                title = stringResource(R.string.haptic_sound_card_title),
+                subtitle = stringResource(R.string.haptic_sound_card_subtitle),
                 icon = Icons.Filled.Speed
             )
             Spacer(Modifier.height(10.dp))
@@ -650,8 +676,8 @@ fun SettingsScreen(
         // ── 2B. RENK PALETİ VE TEMA (Deep Indigo Violet) ──
         if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF7C4DFF)) {
             AkisSectionHeader(
-                title = "🎨 Renk Paleti ve İkon Stili",
-                subtitle = "Uyumlu renk şablonları ve simge paketleri",
+                title = stringResource(R.string.palette_icon_card_title),
+                subtitle = stringResource(R.string.palette_icon_card_subtitle),
                 icon = Icons.Filled.Palette
             )
             Spacer(Modifier.height(10.dp))
@@ -746,7 +772,7 @@ fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "🎨 Özel Manuel Renk Düzenleme",
+                    text = stringResource(R.string.manual_color_edit),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = scheme.onSurface
@@ -930,14 +956,21 @@ fun SettingsScreen(
                 checked = config.pauseOnPhoneCall,
                 onCheckedChange = viewModel::setPauseOnPhoneCall
             )
+
+            AkisSwitchRow(
+                title = stringResource(R.string.pause_on_launcher),
+                subtitle = stringResource(R.string.pause_on_launcher_subtitle),
+                checked = config.pauseOnLauncher,
+                onCheckedChange = viewModel::setPauseOnLauncher,
+            )
         }
 
 
         // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
         if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
             AkisSectionHeader(
-                title = "📱 Uygulama İstisnaları",
-                subtitle = "Jestlerin devre dışı kalacağı veya özel çalışacağı uygulamalar",
+                title = stringResource(R.string.app_exceptions_card_title),
+                subtitle = stringResource(R.string.app_exceptions_card_subtitle),
                 icon = Icons.Filled.Apps
             )
             Spacer(Modifier.height(8.dp))
@@ -1045,7 +1078,7 @@ fun SettingsScreen(
                             )
                             Icon(
                                 imageVector = Icons.Filled.Close,
-                                contentDescription = "Kaldır",
+                                contentDescription = stringResource(R.string.remove),
                                 tint = Color(0xFFE040FB),
                                 modifier = Modifier
                                     .size(14.dp)
@@ -1471,7 +1504,7 @@ fun SettingsScreen(
                                 color = scheme.onSurface
                             )
                             Text(
-                                text = "Geçmiş tüm sürümlerin değişiklik özeti",
+                                text = stringResource(R.string.version_history_subtitle),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = scheme.onSurfaceVariant
                             )

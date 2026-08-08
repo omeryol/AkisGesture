@@ -210,7 +210,7 @@ fun RuleListScreen(
                 modifier = Modifier.statusBarsPadding(),
                 title = {
                     Text(
-                        "Hareketler",
+                        stringResource(R.string.gestures_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                     )
@@ -347,7 +347,7 @@ fun RuleListScreen(
                                 color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
-                                "$count Hareket",
+                                stringResource(R.string.gesture_count, count),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = if (isSelected) edgeColor else MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -1006,7 +1006,7 @@ private fun ActionCell(
             }
         } else {
             Text(
-                "+ Eylem Ekle",
+                stringResource(R.string.add_action),
                 style = MaterialTheme.typography.bodyMedium,
                 color = scheme.primary,
                 fontWeight = FontWeight.Medium,

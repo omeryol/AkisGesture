@@ -1,29 +1,28 @@
 package io.github.omeryol.akisgesture.ui.component
 
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,21 +38,20 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.gesture.GestureConfig
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
+import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
-
-import io.github.omeryol.akisgesture.model.ActionIconPack
-import io.github.omeryol.akisgesture.model.toSymbol
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import io.github.omeryol.akisgesture.gesture.GestureConfig
+import kotlinx.coroutines.delay
 
 data class PhoneZone(
     val edge: Edge,
@@ -67,50 +65,52 @@ data class PhoneZone(
     val ruleIds: Set<String>,
 )
 
+/** Keeps the side sensors usable while their endpoints are dragged on the home map. */
+internal object SideEdgeRangeEditor {
+    const val minimumLength = 0.20f
+
+    enum class Handle { START, END, MOVE }
+
+    fun drag(original: Pair<Float, Float>, handle: Handle, delta: Float): Pair<Float, Float> {
+        val (start, end) = original
+        return when (handle) {
+            Handle.START -> (start + delta).coerceIn(0f, end - minimumLength) to end
+            Handle.END -> start to (end + delta).coerceIn(start + minimumLength, 1f)
+            Handle.MOVE -> {
+                val length = end - start
+                val newStart = (start + delta).coerceIn(0f, 1f - length)
+                newStart to (newStart + length)
+            }
+        }
+    }
+}
+
 @Composable
 fun InteractivePhoneMap(
     rules: List<GestureRule>,
-    onZoneClick: (PhoneZone) -> Unit,
+    onSideRangeChange: (Edge, Float, Float) -> Unit,
+    onSideRangePreview: (Edge, Float, Float) -> Unit,
+    onEdgeClick: (Edge) -> Unit,
     modifier: Modifier = Modifier,
     iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
     config: GestureConfig? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
-    val wallpaperDrawable = remember(context) {
-        runCatching {
-            val wm = android.app.WallpaperManager.getInstance(context)
-            wm.drawable
-        }.getOrNull()
-    }
-    val wallpaperBitmap = remember(wallpaperDrawable) {
-        wallpaperDrawable?.let { drawable ->
-            runCatching {
-                val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 1080
-                val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 2400
-                val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
-                val canvas = android.graphics.Canvas(bitmap)
-                drawable.setBounds(0, 0, width, height)
-                drawable.draw(canvas)
-                bitmap.asImageBitmap()
-            }.getOrNull()
+    val handleRadius = with(LocalDensity.current) { 14.dp.toPx() }
+    val sensorTouchPadding = with(LocalDensity.current) { 12.dp.toPx() }
+    val zones = buildPhoneZones(rules, scheme)
+    var dragPreview by remember { mutableStateOf<Map<Edge, Pair<Float, Float>>>(emptyMap()) }
+    var rangeFeedback by remember { mutableStateOf<Pair<Edge, Pair<Float, Float>>?>(null) }
+    var dragging by remember { mutableStateOf(false) }
+
+    LaunchedEffect(rangeFeedback, dragging) {
+        if (rangeFeedback != null && !dragging) {
+            delay(3_000)
+            rangeFeedback = null
+            dragPreview = emptyMap()
         }
     }
-    val zones = buildPhoneZones(rules, scheme)
-    val leftZones = zones.filter { it.edge == Edge.LEFT }
-    val rightZones = zones.filter { it.edge == Edge.RIGHT }
-    val bottomZones = zones.filter { it.edge == Edge.BOTTOM }
-
-    val infiniteTransition = rememberInfiniteTransition(label = "radarScan")
-    val radarScanY by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2800, easing = androidx.compose.animation.core.LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "radarScanY",
-    )
 
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
@@ -121,325 +121,205 @@ fun InteractivePhoneMap(
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(zones) {
-                        detectTapGestures { tapOffset ->
-                            val z = hitTestPhoneZone(
-                                tapOffset.x, tapOffset.y,
-                                size.width.toFloat(), size.height.toFloat(),
-                                zones,
-                                config,
-                            )
-                            z?.let { onZoneClick(it) }
-                        }
+                    .pointerInput(config, zones) {
+                        var selectedEdge: Edge? = null
+                        var selectedHandle: SideEdgeRangeEditor.Handle? = null
+                        var originalRange = 0f to 1f
+                        var totalDelta = 0f
+
+                        detectDragGestures(
+                            onDragStart = { position ->
+                                val screen = phoneScreenRect(size.width.toFloat(), size.height.toFloat())
+                                val hit = sideHandleAt(position, screen, config, dragPreview, handleRadius, sensorTouchPadding)
+                                selectedEdge = hit?.first
+                                selectedHandle = hit?.second
+                                originalRange = selectedEdge?.let { sideRange(it, config, dragPreview) } ?: (0f to 1f)
+                                totalDelta = 0f
+                                dragging = selectedEdge != null
+                            },
+                            onDrag = { change, dragAmount ->
+                                val edge = selectedEdge ?: return@detectDragGestures
+                                val handle = selectedHandle ?: return@detectDragGestures
+                                totalDelta += dragAmount.y / size.height.toFloat()
+                                val updated = SideEdgeRangeEditor.drag(originalRange, handle, totalDelta)
+                                dragPreview = mapOf(edge to updated)
+                                rangeFeedback = edge to updated
+                                onSideRangePreview(edge, updated.first, updated.second)
+                                change.consume()
+                            },
+                            onDragEnd = {
+                                val edge = selectedEdge
+                                val range = edge?.let { dragPreview[it] }
+                                if (edge != null && range != null) {
+                                    rangeFeedback = edge to range
+                                    onSideRangeChange(edge, range.first, range.second)
+                                }
+                                selectedEdge = null
+                                selectedHandle = null
+                                dragging = false
+                            },
+                            onDragCancel = {
+                                selectedEdge?.let { edge ->
+                                    onSideRangePreview(edge, originalRange.first, originalRange.second)
+                                }
+                                selectedEdge = null
+                                selectedHandle = null
+                                dragging = false
+                            },
+                        )
                     },
             ) {
-                val w = size.width
-                val h = size.height
+                val screen = phoneScreenRect(size.width, size.height)
+                val body = Rect(screen.left - 8f, screen.top - 8f, screen.right + 8f, screen.bottom + 8f)
 
-                // Prominent, large phone dimensions (55% enlarged)
-                val phoneH = h * 0.96f
-                val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.78f)
-                val phoneLeft = (w - phoneW) / 2f
-                val phoneTop = (h - phoneH) / 2f
-                val outerCorner = CornerRadius(42f)
-                val innerCorner = CornerRadius(34f)
-
-                val phoneBody = Rect(phoneLeft, phoneTop, phoneLeft + phoneW, phoneTop + phoneH)
-
-                // ── 1. Outer Radial Ambient Glow ──
+                // Static 3D phone: cast shadow, deep side rail and a raised display surface.
                 drawRoundRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(scheme.primary.copy(alpha = 0.32f), scheme.primary.copy(alpha = 0.05f), Color.Transparent),
-                        center = phoneBody.center,
-                        radius = phoneW * 1.2f,
-                    ),
-                    topLeft = Offset(phoneBody.left - 24f, phoneBody.top - 16f),
-                    size = Size(phoneW + 48f, phoneH + 32f),
-                    cornerRadius = CornerRadius(50f),
+                    color = Color.Black.copy(alpha = 0.45f),
+                    topLeft = Offset(body.left + 10f, body.top + 14f),
+                    size = body.size,
+                    cornerRadius = CornerRadius(42f),
                 )
-
-                // ── 2. Phone Frame & Bezel ──
-                drawRoundRect(
-                    color = Color(0xFF07080E),
-                    topLeft = Offset(phoneBody.left - 4f, phoneBody.top - 4f),
-                    size = Size(phoneW + 8f, phoneH + 8f),
-                    cornerRadius = outerCorner,
-                )
-
                 drawRoundRect(
                     brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFF35384B), Color(0xFF191A26), Color(0xFF262836)),
-                        start = phoneBody.topLeft,
-                        end = phoneBody.bottomRight,
+                        colors = listOf(Color(0xFF60677A), Color(0xFF171A24), Color(0xFF343846)),
+                        start = body.topLeft,
+                        end = body.bottomRight,
                     ),
-                    topLeft = phoneBody.topLeft,
-                    size = phoneBody.size,
-                    cornerRadius = outerCorner,
+                    topLeft = body.topLeft,
+                    size = body.size,
+                    cornerRadius = CornerRadius(42f),
                 )
-
-                // ── 3. OLED Display Screen Surface ──
-                val screenMargin = 7f
-                val screenRect = Rect(
-                    phoneBody.left + screenMargin,
-                    phoneBody.top + screenMargin,
-                    phoneBody.right - screenMargin,
-                    phoneBody.bottom - screenMargin,
+                drawRoundRect(
+                    color = Color(0xFF090B12),
+                    topLeft = screen.topLeft,
+                    size = screen.size,
+                    cornerRadius = CornerRadius(34f),
                 )
-
-                // Keep a dark base under the real wallpaper for transparent/live sources.
                 drawRoundRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFF1E1B4B),
-                            Color(0xFF0F172A),
-                            Color(0xFF020617),
-                        ),
-                        center = Offset(screenRect.center.x, screenRect.top + screenRect.height * 0.35f),
-                        radius = screenRect.width * 1.5f,
+                        colors = listOf(Color(0xFF172554), Color(0xFF0F172A), Color(0xFF020617)),
+                        center = Offset(screen.center.x, screen.top + screen.height * 0.28f),
+                        radius = screen.width * 1.45f,
                     ),
-                    topLeft = screenRect.topLeft,
-                    size = screenRect.size,
-                    cornerRadius = innerCorner,
+                    topLeft = Offset(screen.left + 3f, screen.top + 3f),
+                    size = Size(screen.width - 6f, screen.height - 6f),
+                    cornerRadius = CornerRadius(30f),
+                )
+                drawLine(
+                    color = Color.White.copy(alpha = 0.26f),
+                    start = Offset(body.left + 4f, body.top + 30f),
+                    end = Offset(body.left + 4f, body.bottom - 30f),
+                    strokeWidth = 2f,
                 )
 
-                // Subtle Grid Lines inside Screen
-                for (i in 1 until 6) {
-                    val y = screenRect.top + screenRect.height * i / 6f
-                    drawLine(
-                        color = scheme.outline.copy(alpha = 0.08f),
-                        start = Offset(screenRect.left + 12f, y),
-                        end = Offset(screenRect.right - 12f, y),
-                        strokeWidth = 1f,
-                    )
-                }
-
-                // Simulated Dock App Icons near bottom
-                val dockY = screenRect.bottom - 32f
-                val iconW = 11f
-                val iconSpacing = 7f
-                val totalDockW = (iconW * 4) + (iconSpacing * 3)
-                val dockStart = screenRect.center.x - totalDockW / 2f
-
-                val appColors = listOf(
-                    Color(0xFF38BDF8),
-                    Color(0xFF818CF8),
-                    Color(0xFF34D399),
-                    Color(0xFFF472B6),
-                )
-                appColors.forEachIndexed { index, color ->
-                    val ix = dockStart + index * (iconW + iconSpacing)
-                    drawRoundRect(
-                        color = color.copy(alpha = 0.65f),
-                        topLeft = Offset(ix, dockY),
-                        size = Size(iconW, iconW),
-                        cornerRadius = CornerRadius(3f),
-                    )
-                }
-
-                // Glossy Outline Border
-                drawRoundRect(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            scheme.primary.copy(alpha = 0.65f),
-                            scheme.outline.copy(alpha = 0.15f),
-                            scheme.tertiary.copy(alpha = 0.45f),
-                        ),
-                        start = screenRect.topLeft,
-                        end = screenRect.bottomRight,
-                    ),
-                    topLeft = screenRect.topLeft,
-                    size = screenRect.size,
-                    cornerRadius = innerCorner,
-                    style = Stroke(2.5f),
-                )
-
-                // ── 4. Dynamic Island Notch & Home Bar ──
-                val islandW = phoneW * 0.28f
-                val islandH = 12f
-                val islandTop = screenRect.top + 8f
-                val islandLeft = screenRect.center.x - islandW / 2f
-
-                drawRoundRect(
-                    color = Color(0xFF020204),
-                    topLeft = Offset(islandLeft, islandTop),
-                    size = Size(islandW, islandH),
-                    cornerRadius = CornerRadius(6f),
-                )
-
-                val homeBarW = phoneW * 0.35f
-                val homeBarH = 4f
-                val homeBarBottom = screenRect.bottom - 10f
-                val homeBarLeft = screenRect.center.x - homeBarW / 2f
-
-                drawRoundRect(
-                    color = Color.White.copy(alpha = 0.40f),
-                    topLeft = Offset(homeBarLeft, homeBarBottom),
-                    size = Size(homeBarW, homeBarH),
-                    cornerRadius = CornerRadius(2.5f),
-                )
-
-                // ── 5. Draw Gesture Zones Inside Phone Screen Mask ──
                 val screenClip = androidx.compose.ui.graphics.Path().apply {
-                    addRoundRect(RoundRect(screenRect, innerCorner))
+                    addRoundRect(RoundRect(screen, CornerRadius(34f)))
                 }
                 clipPath(screenClip) {
-                    if (wallpaperBitmap != null) {
-                        drawImage(
-                            image = wallpaperBitmap,
-                            dstOffset = IntOffset(screenRect.left.toInt(), screenRect.top.toInt()),
-                            dstSize = IntSize(screenRect.width.toInt(), screenRect.height.toInt()),
-                            alpha = 0.96f,
-                        )
-                    } else {
-                        drawRoundRect(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    scheme.primary.copy(alpha = 0.45f),
-                                    Color(0xFF1E1B4B),
-                                    Color(0xFF0F172A),
-                                ),
-                                center = Offset(screenRect.center.x, screenRect.top + screenRect.height * 0.35f),
-                                radius = screenRect.width * 1.4f,
-                            ),
-                            topLeft = screenRect.topLeft,
-                            size = screenRect.size,
-                        )
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(scheme.tertiary.copy(alpha = 0.35f), Color.Transparent),
-                            ),
-                            radius = screenRect.width * 0.7f,
-                            center = Offset(screenRect.right * 0.8f, screenRect.bottom * 0.7f),
-                        )
-                    }
-
-                    // Live Radar Neon Scan Line
-                    val scanY = screenRect.top + radarScanY * screenRect.height
-                    drawLine(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, scheme.primary.copy(alpha = 0.50f), Color.Transparent),
-                            startY = scanY - 18f,
-                            endY = scanY + 18f,
-                        ),
-                        start = Offset(screenRect.left, scanY),
-                        end = Offset(screenRect.right, scanY),
-                        strokeWidth = 3f,
+                    drawCircle(
+                        brush = Brush.radialGradient(listOf(scheme.primary.copy(alpha = 0.32f), Color.Transparent)),
+                        radius = screen.width * 0.72f,
+                        center = Offset(screen.right * 0.82f, screen.top + screen.height * 0.36f),
                     )
-
                     zones.forEach { zone ->
-                        val zr = phoneZoneRect(zone, screenRect, config)
-                        val zoneColor = zone.color
-                        val zoneCorner = CornerRadius(10f)
-
-                        // Translucent Glow Fill
+                        val zoneRect = phoneZoneRect(zone, screen, config, dragPreview)
                         drawRoundRect(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    zoneColor.copy(alpha = 0.90f),
-                                    zoneColor.copy(alpha = 0.50f),
-                                ),
-                            ),
-                            topLeft = zr.topLeft,
-                            size = zr.size,
-                            cornerRadius = zoneCorner,
+                            brush = Brush.horizontalGradient(listOf(zone.color.copy(alpha = 0.78f), zone.color.copy(alpha = 0.38f))),
+                            topLeft = zoneRect.topLeft,
+                            size = zoneRect.size,
+                            cornerRadius = CornerRadius(10f),
                         )
-
-                        // Neon Border Outline
                         drawRoundRect(
-                            color = zoneColor,
-                            topLeft = zr.topLeft,
-                            size = zr.size,
-                            cornerRadius = zoneCorner,
-                            style = Stroke(2.5f),
-                        )
-
-                        // Highlight Dot
-                        val hasHold = zone.holdAction != null
-                        drawCircle(
-                            color = if (hasHold) Color.White else Color.White.copy(alpha = 0.60f),
-                            radius = 3.5f,
-                            center = Offset(zr.center.x, zr.center.y),
+                            color = zone.color,
+                            topLeft = zoneRect.topLeft,
+                            size = zoneRect.size,
+                            cornerRadius = CornerRadius(10f),
+                            style = Stroke(2f),
                         )
                     }
                 }
 
-                // ── 6. Direct On-Zone Action Overlay Badges (Zero Lines, Direct Overlay) ──
-                zones.forEach { zone ->
-                    val action = zone.quickAction ?: zone.holdAction
-                    if (action != null && action !is ActionNode.NoAction) {
-                        val zr = phoneZoneRect(zone, screenRect, config)
-                        val labelText = "${action.toSymbol(iconPack)} ${actionSymbolShort(action)}"
-
-                        val badgeX = when (zone.edge) {
-                            Edge.LEFT -> zr.left + 40f
-                            Edge.RIGHT -> zr.right - 40f
-                            Edge.BOTTOM -> zr.center.x
+                // High-contrast endpoint arrows stay inside the coloured trigger range.
+                listOf(Edge.LEFT, Edge.RIGHT).forEach { edge ->
+                    val range = sideRange(edge, config, dragPreview)
+                    val sensor = sideSensorRect(edge, screen, config, dragPreview)
+                    val x = sensor.center.x
+                    listOf(range.first, range.second).forEach { ratio ->
+                        val y = if (ratio == range.first) sensor.top + 10f else sensor.bottom - 10f
+                        val direction = if (ratio == range.first) -1f else 1f
+                        val triangle = androidx.compose.ui.graphics.Path().apply {
+                            moveTo(x - 9f, y - direction * 6f)
+                            lineTo(x + 9f, y - direction * 6f)
+                            lineTo(x, y + direction * 11f)
+                            close()
                         }
-                        val badgeY = when (zone.edge) {
-                            Edge.LEFT -> zr.center.y
-                            Edge.RIGHT -> zr.center.y
-                            Edge.BOTTOM -> (zr.top - 14f).coerceAtLeast(screenRect.top + 20f)
-                        }
-
-                        drawCalloutPill(badgeX, badgeY, labelText, zone.color, this)
+                        drawPath(triangle, color = Color(0xFFF1EEE6))
                     }
                 }
+
+                val islandWidth = screen.width * 0.30f
+                drawRoundRect(
+                    color = Color(0xFF020204),
+                    topLeft = Offset(screen.center.x - islandWidth / 2f, screen.top + 9f),
+                    size = Size(islandWidth, 11f),
+                    cornerRadius = CornerRadius(7f),
+                )
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.45f),
+                    topLeft = Offset(screen.center.x - screen.width * 0.16f, screen.bottom - 13f),
+                    size = Size(screen.width * 0.32f, 3f),
+                    cornerRadius = CornerRadius(2f),
+                )
             }
+            rangeFeedback?.let { (activeEdge, _) ->
+                val leftRange = sideRange(Edge.LEFT, config, dragPreview)
+                val rightRange = sideRange(Edge.RIGHT, config, dragPreview)
+                Text(
+                    text = rangeComparisonLabel(context, leftRange, rightRange, activeEdge),
+                    color = scheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 4.dp)
+                        .clip(RoundedCornerShape(12.dp)).background(scheme.primaryContainer).padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+            }
+            EdgeActionPanel(
+                title = "← ${context.getString(io.github.omeryol.akisgesture.R.string.edge_left)}",
+                entries = zones.filter { it.edge == Edge.LEFT }.flatMap { it.actionEntries() },
+                iconPack = iconPack,
+                modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp),
+            )
+            EdgeActionPanel(
+                title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_right)} →",
+                entries = zones.filter { it.edge == Edge.RIGHT }.flatMap { it.actionEntries() },
+                iconPack = iconPack,
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
+            )
         }
 
         Spacer(Modifier.height(8.dp))
 
-        // ── 7. Bottom Edge Interactive Quick Chips ──
+        // Compact edge indicators; assignments are shown beside the phone.
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            val edgeItems = listOf(
-                Triple("← Sol Kenar", Edge.LEFT, leftZones),
-                Triple("→ Sağ Kenar", Edge.RIGHT, rightZones),
-                Triple("↓ Alt Kenar", Edge.BOTTOM, bottomZones),
-            )
-
-            edgeItems.forEach { (title, edge, edgeZones) ->
-                val primaryAction = edgeZones.firstOrNull { it.quickAction != null || it.holdAction != null }?.let {
-                    it.quickAction ?: it.holdAction
+            listOf(Edge.LEFT, Edge.RIGHT, Edge.BOTTOM).forEach { edge ->
+                val title = when (edge) {
+                    Edge.LEFT -> context.getString(io.github.omeryol.akisgesture.R.string.edge_left)
+                    Edge.RIGHT -> context.getString(io.github.omeryol.akisgesture.R.string.edge_right)
+                    Edge.BOTTOM -> context.getString(io.github.omeryol.akisgesture.R.string.edge_bottom)
                 }
-                val actionLabel = primaryAction?.localizedLabel(context) ?: "Ayarla"
-
                 Box(
                     modifier = Modifier
                         .weight(1f)
+                        .clickable { onEdgeClick(edge) }
                         .clip(RoundedCornerShape(10.dp))
-                        .background(scheme.surfaceVariant.copy(alpha = 0.40f))
-                        .clickable {
-                            val targetZone = edgeZones.firstOrNull() ?: PhoneZone(
-                                edge = edge,
-                                start = 0f,
-                                end = 1f,
-                                quickAction = null,
-                                holdAction = null,
-                                color = scheme.primary,
-                                ruleIds = emptySet(),
-                            )
-                            onZoneClick(targetZone)
-                        }
+                        .background(scheme.surfaceVariant.copy(alpha = 0.45f))
                         .padding(horizontal = 8.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = scheme.onSurface,
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text = actionLabel,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = scheme.primary,
-                            maxLines = 1,
-                        )
+                        Text(title, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -447,151 +327,164 @@ fun InteractivePhoneMap(
     }
 }
 
-private fun drawCalloutPill(
-    x: Float,
-    y: Float,
-    text: String,
-    accentColor: Color,
-    drawScope: androidx.compose.ui.graphics.drawscope.DrawScope,
-) {
-    val paintBg = android.graphics.Paint().apply {
-        color = android.graphics.Color.argb(235, 14, 16, 26)
-        style = android.graphics.Paint.Style.FILL
-        isAntiAlias = true
-        setShadowLayer(6f, 0f, 2f, android.graphics.Color.argb(140, 0, 0, 0))
+private fun PhoneZone.actions(): List<ActionNode> = listOfNotNull(quickAction, holdAction, lUpAction, lDownAction)
+
+@Composable
+private fun EdgeActionPanel(title: String, entries: List<Pair<String, ActionNode>>, iconPack: ActionIconPack, modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    Column(
+        modifier = modifier
+            .width(72.dp)
+            .padding(4.dp),
+    ) {
+        Text(title, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        if (entries.isEmpty()) {
+            Text("—", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+        } else {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                entries.forEachIndexed { index, (kind, action) ->
+                    if (index > 0) Text("─", color = scheme.outline, style = MaterialTheme.typography.labelSmall)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(action.toSymbol(iconPack), style = MaterialTheme.typography.titleSmall)
+                        Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary)
+                    }
+                }
+            }
+        }
     }
-    val paintText = android.graphics.Paint().apply {
-        color = android.graphics.Color.WHITE
-        textSize = 19f
+}
+
+private fun PhoneZone.actionEntries(): List<Pair<String, ActionNode>> = listOfNotNull(
+    quickAction?.takeUnless { it is ActionNode.NoAction }?.let { "1" to it },
+    holdAction?.takeUnless { it is ActionNode.NoAction }?.let { "2" to it },
+    lUpAction?.takeUnless { it is ActionNode.NoAction }?.let { "L↑" to it },
+    lDownAction?.takeUnless { it is ActionNode.NoAction }?.let { "L↓" to it },
+)
+
+private fun edgeLabel(context: android.content.Context, edge: Edge): String = context.getString(
+    when (edge) {
+        Edge.LEFT -> io.github.omeryol.akisgesture.R.string.edge_left
+        Edge.RIGHT -> io.github.omeryol.akisgesture.R.string.edge_right
+        Edge.BOTTOM -> io.github.omeryol.akisgesture.R.string.edge_bottom
+    },
+)
+
+private fun rangeComparisonLabel(
+    context: android.content.Context,
+    left: Pair<Float, Float>,
+    right: Pair<Float, Float>,
+    activeEdge: Edge,
+): String {
+    fun values(range: Pair<Float, Float>): String =
+        "${((range.second - range.first) * 100).toInt()}% / ${(range.first * 100).toInt()}%"
+    val leftMarker = if (activeEdge == Edge.LEFT) "•" else ""
+    val rightMarker = if (activeEdge == Edge.RIGHT) "•" else ""
+    return "${edgeLabel(context, Edge.LEFT)} $leftMarker${values(left)}    ${edgeLabel(context, Edge.RIGHT)} $rightMarker${values(right)}"
+}
+
+private fun drawMapText(text: String, x: Float, y: Float, color: Color, scope: androidx.compose.ui.graphics.drawscope.DrawScope) {
+    val paint = android.graphics.Paint().apply {
+        this.color = android.graphics.Color.rgb((color.red * 255).toInt(), (color.green * 255).toInt(), (color.blue * 255).toInt())
+        textSize = 28f
         textAlign = android.graphics.Paint.Align.CENTER
         isFakeBoldText = true
-        isAntiAlias = true
     }
-
-    val fontMetrics = paintText.fontMetrics
-    val textWidth = paintText.measureText(text)
-    val paddingH = 12f
-    val paddingV = 7f
-
-    val pillRect = android.graphics.RectF(
-        x - textWidth / 2f - paddingH,
-        y + fontMetrics.top - paddingV,
-        x + textWidth / 2f + paddingH,
-        y + fontMetrics.bottom + paddingV,
-    )
-
-    drawScope.drawContext.canvas.nativeCanvas.drawRoundRect(pillRect, 10f, 10f, paintBg)
-
-    val paintBorder = android.graphics.Paint().apply {
-        color = android.graphics.Color.argb(190, accentColor.red.toColorInt(), accentColor.green.toColorInt(), accentColor.blue.toColorInt())
-        style = android.graphics.Paint.Style.STROKE
-        strokeWidth = 2f
-        isAntiAlias = true
-    }
-    drawScope.drawContext.canvas.nativeCanvas.drawRoundRect(pillRect, 10f, 10f, paintBorder)
-
-    drawScope.drawContext.canvas.nativeCanvas.drawText(text, x, y, paintText)
+    scope.drawContext.canvas.nativeCanvas.drawText(text, x, y, paint)
 }
 
-private fun Float.toColorInt(): Int = (this * 255f).coerceIn(0f, 255f).toInt()
-
-private fun actionSymbolShort(action: ActionNode): String = when (action) {
-    is ActionNode.Back -> "Geri"
-    is ActionNode.Home -> "Ana Sayfa"
-    is ActionNode.Recents -> "Son"
-    is ActionNode.SwitchLastApp -> "Son App"
-    is ActionNode.SwitchNextApp -> "Sonraki App"
-    is ActionNode.LockScreen -> "Kilit"
-    is ActionNode.Screenshot -> "Ekran Gör."
-    is ActionNode.NotificationPanel -> "Bildirimler"
-    is ActionNode.QuickSettings -> "Ayarlar"
-    is ActionNode.PowerMenu -> "Güç"
-    is ActionNode.MediaPlayPause -> "Oynat"
-    is ActionNode.Assistant -> "Asistan"
-    is ActionNode.ToggleFlashlight -> "Fener"
-    is ActionNode.ForceStopForeground -> "Kapat"
-    is ActionNode.LaunchApp -> "Uygulama"
-    else -> "Eylem"
+private fun phoneScreenRect(width: Float, height: Float): Rect {
+    val phoneHeight = height * 0.94f
+    val phoneWidth = (phoneHeight * 0.52f).coerceAtMost(width * 0.76f)
+    val left = (width - phoneWidth) / 2f
+    val top = (height - phoneHeight) / 2f
+    return Rect(left + 7f, top + 7f, left + phoneWidth - 7f, top + phoneHeight - 7f)
 }
 
-private fun phoneZoneRect(zone: PhoneZone, screen: Rect, config: GestureConfig? = null): Rect {
-    val leftThickness = config?.let { (it.leftTriggerWidthDp / 60f * (screen.width * 0.18f)).coerceIn(8f, screen.width * 0.28f) } ?: 16f
-    val rightThickness = config?.let { (it.rightTriggerWidthDp / 60f * (screen.width * 0.18f)).coerceIn(8f, screen.width * 0.28f) } ?: 16f
-    val bottomThickness = config?.let { (it.bottomTriggerHeightDp / 60f * (screen.height * 0.18f)).coerceIn(8f, screen.height * 0.25f) } ?: 16f
+private fun sideRange(edge: Edge, config: GestureConfig?, preview: Map<Edge, Pair<Float, Float>>): Pair<Float, Float> =
+    preview[edge] ?: config?.verticalRangeFor(edge) ?: (0f to 1f)
 
-    val (vStartLeft, vEndLeft) = config?.verticalRangeFor(Edge.LEFT) ?: (zone.start to zone.end)
-    val (vStartRight, vEndRight) = config?.verticalRangeFor(Edge.RIGHT) ?: (zone.start to zone.end)
+private fun sideHandleAt(
+    position: Offset,
+    screen: Rect,
+    config: GestureConfig?,
+    preview: Map<Edge, Pair<Float, Float>>,
+    handleRadius: Float,
+    sensorTouchPadding: Float,
+): Pair<Edge, SideEdgeRangeEditor.Handle>? {
+    return listOf(Edge.LEFT, Edge.RIGHT).firstNotNullOfOrNull { edge ->
+        val range = sideRange(edge, config, preview)
+        val x = if (edge == Edge.LEFT) screen.left + 10f else screen.right - 10f
+        val start = Offset(x, screen.top + range.first * screen.height)
+        val end = Offset(x, screen.top + range.second * screen.height)
+        when {
+            (position - start).getDistance() <= handleRadius * 1.5f -> edge to SideEdgeRangeEditor.Handle.START
+            (position - end).getDistance() <= handleRadius * 1.5f -> edge to SideEdgeRangeEditor.Handle.END
+            expanded(sideSensorRect(edge, screen, config, preview), sensorTouchPadding).contains(position) -> edge to SideEdgeRangeEditor.Handle.MOVE
+            else -> null
+        }
+    }
+}
 
+private fun phoneZoneRect(
+    zone: PhoneZone,
+    screen: Rect,
+    config: GestureConfig?,
+    preview: Map<Edge, Pair<Float, Float>>,
+): Rect {
+    val thickness = when (zone.edge) {
+        Edge.LEFT -> (config?.leftTriggerWidthDp ?: 24f) / 60f * (screen.width * 0.18f)
+        Edge.RIGHT -> (config?.rightTriggerWidthDp ?: 24f) / 60f * (screen.width * 0.18f)
+        Edge.BOTTOM -> (config?.bottomTriggerHeightDp ?: 24f) / 60f * (screen.height * 0.18f)
+    }
     return when (zone.edge) {
-        Edge.LEFT -> Rect(
-            screen.left + 2f,
-            screen.top + vStartLeft * screen.height + 4f,
-            screen.left + 2f + leftThickness,
-            screen.top + vEndLeft * screen.height - 4f,
-        )
-        Edge.RIGHT -> Rect(
-            screen.right - 2f - rightThickness,
-            screen.top + vStartRight * screen.height + 4f,
-            screen.right - 2f,
-            screen.top + vEndRight * screen.height - 4f,
-        )
-        Edge.BOTTOM -> Rect(
-            screen.left + zone.start * screen.width + 4f,
-            screen.bottom - 2f - bottomThickness,
-            screen.left + zone.end * screen.width - 4f,
-            screen.bottom - 2f,
-        )
+        Edge.LEFT, Edge.RIGHT -> sideSensorRect(zone.edge, screen, config, preview)
+        Edge.BOTTOM -> {
+            val height = thickness.coerceIn(8f, screen.height * 0.25f)
+            Rect(screen.left + zone.start * screen.width + 4f, screen.bottom - height - 2f, screen.left + zone.end * screen.width - 4f, screen.bottom - 2f)
+        }
     }
 }
+
+private fun sideSensorRect(
+    edge: Edge,
+    screen: Rect,
+    config: GestureConfig?,
+    preview: Map<Edge, Pair<Float, Float>>,
+): Rect {
+    val width = when (edge) {
+        Edge.LEFT -> (config?.leftTriggerWidthDp ?: 24f) / 60f * (screen.width * 0.18f)
+        Edge.RIGHT -> (config?.rightTriggerWidthDp ?: 24f) / 60f * (screen.width * 0.18f)
+        Edge.BOTTOM -> error("Bottom edge does not have a vertical range")
+    }.coerceIn(8f, screen.width * 0.28f)
+    val range = sideRange(edge, config, preview)
+    val left = if (edge == Edge.LEFT) screen.left + 2f else screen.right - width - 2f
+    return Rect(left, screen.top + range.first * screen.height + 4f, left + width, screen.top + range.second * screen.height - 4f)
+}
+
+private fun expanded(rect: Rect, amount: Float): Rect = Rect(
+    rect.left - amount,
+    rect.top - amount,
+    rect.right + amount,
+    rect.bottom + amount,
+)
 
 private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.material3.ColorScheme): List<PhoneZone> {
-    val colors = listOf(
-        Color(0xFF3D5AFE), Color(0xFF00E676), Color(0xFFFF9100),
-        Color(0xFFFF1744), Color(0xFFD500F9), Color(0xFF00E5FF),
-    )
-    return rules
-        .filter { it.enabled }
+    val colors = listOf(Color(0xFF3D5AFE), Color(0xFF00E676), Color(0xFFFF9100), Color(0xFFFF1744), Color(0xFFD500F9), Color(0xFF00E5FF))
+    return rules.filter { it.enabled }
         .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
         .values
-        .mapIndexed { idx, group ->
-            val rep = group.first()
-            val quick = group.firstOrNull { it.trigger.gestureType == GestureType.QUICK_SWIPE }?.action
-            val hold = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_HOLD }?.action
-            val lUp = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_UP_L }?.action
-            val lDown = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_DOWN_L }?.action
+        .mapIndexed { index, group ->
+            val representative = group.first()
             PhoneZone(
-                edge = rep.trigger.edge,
-                start = rep.trigger.section.start,
-                end = rep.trigger.section.end,
-                quickAction = quick,
-                holdAction = hold,
-                lUpAction = lUp,
-                lDownAction = lDown,
-                color = colors[idx % colors.size],
+                edge = representative.trigger.edge,
+                start = representative.trigger.section.start,
+                end = representative.trigger.section.end,
+                quickAction = group.firstOrNull { it.trigger.gestureType == GestureType.QUICK_SWIPE }?.action,
+                holdAction = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_HOLD }?.action,
+                lUpAction = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_UP_L }?.action,
+                lDownAction = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_DOWN_L }?.action,
+                color = colors[index % colors.size],
                 ruleIds = group.map { it.id }.toSet(),
             )
         }
-}
-
-private fun hitTestPhoneZone(x: Float, y: Float, w: Float, h: Float, zones: List<PhoneZone>, config: GestureConfig? = null): PhoneZone? {
-    val phoneH = h * 0.96f
-    val phoneW = (phoneH * 0.52f).coerceAtMost(w * 0.78f)
-    val phoneLeft = (w - phoneW) / 2f
-    val phoneTop = (h - phoneH) / 2f
-    val screenMargin = 7f
-    val screen = Rect(
-        phoneLeft + screenMargin,
-        phoneTop + screenMargin,
-        phoneLeft + phoneW - screenMargin,
-        phoneTop + phoneH - screenMargin,
-    )
-
-    return zones.firstOrNull { zone ->
-        val zr = phoneZoneRect(zone, screen, config)
-        val hit = Rect(
-            zr.left - 30f, zr.top - 20f,
-            zr.right + 30f, zr.bottom + 20f,
-        )
-        x in hit.left..hit.right && y in hit.top..hit.bottom
-    }
 }
