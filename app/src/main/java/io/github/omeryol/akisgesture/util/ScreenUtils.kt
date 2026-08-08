@@ -1,7 +1,6 @@
 package io.github.omeryol.akisgesture.util
 
 import android.content.Context
-import android.content.res.Resources
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.WindowInsets
@@ -53,26 +52,4 @@ object ScreenUtils {
         }
     }
 
-    fun getStatusBarHeight(context: Context): Int {
-        val resourceId = context.resources.getIdentifier(
-            "status_bar_height", "dimen", "android"
-        )
-        return if (resourceId > 0) {
-            context.resources.getDimensionPixelSize(resourceId)
-        } else {
-            dpToPx(24f, context)
-        }
-    }
-
-    fun getNavigationBarHeight(context: Context): Int {
-        val resources = context.resources
-        val resourceId = resources.getIdentifier(
-            "navigation_bar_height", "dimen", "android"
-        )
-        return if (resourceId > 0) {
-            resources.getDimensionPixelSize(resourceId)
-        } else {
-            dpToPx(48f, context)
-        }
-    }
 }
