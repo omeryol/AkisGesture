@@ -1200,6 +1200,14 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setHideFromRecents
                 )
 
+                Spacer(Modifier.height(10.dp))
+                AkisSwitchRow(
+                    title = stringResource(R.string.automation_apps_title),
+                    subtitle = stringResource(R.string.automation_apps_subtitle),
+                    checked = config.automationAppsEnabled,
+                    onCheckedChange = viewModel::setAutomationAppsEnabled,
+                )
+
                 Spacer(Modifier.height(8.dp))
                 Column(
                     modifier = Modifier

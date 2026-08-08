@@ -142,6 +142,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updatePauseOnPhoneCall(enabled) }
     }
 
+    fun setAutomationAppsEnabled(enabled: Boolean) {
+        viewModelScope.launch { app.updateAutomationAppsEnabled(enabled) }
+    }
+
     fun setPauseOnLauncher(enabled: Boolean) {
         viewModelScope.launch { app.updatePauseOnLauncher(enabled) }
     }

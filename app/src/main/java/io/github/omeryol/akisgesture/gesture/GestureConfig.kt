@@ -95,6 +95,7 @@ data class GestureConfig(
     val pauseOnLauncher: Boolean = false,
     val appPauseMode: AppPauseMode = AppPauseMode.BLACKLIST,
     val hideFromRecents: Boolean = false,
+    val automationAppsEnabled: Boolean = false,
 
     // Root Watchdog auto-repair settings
     val rootWatchdogEnabled: Boolean = false,
@@ -166,6 +167,7 @@ data class GestureConfig(
         val KEY_PAUSE_ON_LAUNCHER = booleanPreferencesKey("pause_on_launcher")
         val KEY_APP_PAUSE_MODE = stringPreferencesKey("app_pause_mode")
         val KEY_HIDE_FROM_RECENTS = booleanPreferencesKey("hide_from_recents")
+        val KEY_AUTOMATION_APPS_ENABLED = booleanPreferencesKey("automation_apps_enabled")
 
 
         val KEY_HAPTIC_INTENSITY = floatPreferencesKey("haptic_intensity")
