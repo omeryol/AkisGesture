@@ -15,6 +15,9 @@ data class AnimationFrame(
     val opacity: Float,
     val size: Float,
     val time: Double,
+    val viscosity: Float,
+    val surfaceTension: Float,
+    val damping: Float,
 )
 
 interface NaturalAnimationModule {

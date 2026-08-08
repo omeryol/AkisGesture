@@ -16,15 +16,15 @@ class WaterSurfaceModule : NaturalAnimationModule {
 
     override fun draw(f: AnimationFrame) {
         val growth = (f.progress / 1.35f).coerceIn(0f, 1f).pow(2.35f)
-        val span = (2f + growth * 300f) * f.size
-        val depth = (f.stretch * 1.28f).coerceAtMost(380f * f.size)
+        val span = (2f + growth * (250f + f.surfaceTension * 75f)) * f.size
+        val depth = (f.stretch * (1.12f + f.surfaceTension * .28f)).coerceAtMost(380f * f.size)
         path.reset()
         for (i in 0..40) {
             val u = i / 40f
             val envelope = sin(PI * u).toFloat()
             val ripple = (
-                sin(u * PI * 4.0 + f.time * 2.2) * (2.0 + growth * 12.0) +
-                    sin(u * PI * 7.0 - f.time * 1.35) * growth * 5.0
+                sin(u * PI * (3.4 + f.surfaceTension * 1.4) + f.time * (1.5 + f.damping * 1.4)) * (2.0 + growth * (8.0 + f.surfaceTension * 5.0)) +
+                    sin(u * PI * 7.0 - f.time * (1.0 + f.viscosity)) * growth * (3.0 + f.viscosity * 4.0)
                 ).toFloat()
             val p = point(f, f.touch - span + u * span * 2f, (depth + ripple) * envelope)
             if (i == 0) path.moveTo(p.first, p.second) else path.lineTo(p.first, p.second)

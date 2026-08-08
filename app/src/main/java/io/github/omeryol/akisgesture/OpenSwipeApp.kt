@@ -95,18 +95,7 @@ class AkisGestureApp : Application() {
                     useAppAdaptiveColor = prefs[GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR] ?: false,
                     feedbackOpacity = prefs[GestureConfig.KEY_FEEDBACK_OPACITY] ?: 0.57f,
                     feedbackAnimation = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION]
-                        ?.let { str ->
-                            runCatching { FeedbackAnimation.valueOf(str) }.getOrNull()
-                                ?: when (str) {
-                                    "FLUID", "WATER", "OCEAN_LIQUID", "MINIMAL_PADDLE" -> FeedbackAnimation.OCEAN_WAVE
-                                    "TEARDROP", "BUBBLE", "MERCURY_TEARDROP" -> FeedbackAnimation.MERCURY_TEARDROP
-                                    "FIRE", "PLASMA_FIRE" -> FeedbackAnimation.PLASMA_FIRE
-                                    "STEAM", "ATMOSPHERIC_MIST" -> FeedbackAnimation.ATMOSPHERIC_MIST
-                                    "LIGHTNING", "NEON_PULSE", "CYBER_HEX", "ELECTRIC_STORM" -> FeedbackAnimation.ELECTRIC_STORM
-                                    "SUN", "ORB_GLOW", "SOLAR_CORONA" -> FeedbackAnimation.SOLAR_CORONA
-                                    else -> FeedbackAnimation.OCEAN_WAVE
-                                }
-                        }
+                        ?.let(FeedbackAnimation::fromStoredName)
                         ?: FeedbackAnimation.OCEAN_WAVE,
                     quickFeedbackIcon = prefs[GestureConfig.KEY_QUICK_FEEDBACK_ICON]
                         ?.let { runCatching { FeedbackIcon.valueOf(it) }.getOrNull() }
@@ -122,6 +111,7 @@ class AkisGestureApp : Application() {
                     pauseOnPermissionScreen = prefs[GestureConfig.KEY_PAUSE_ON_PERMISSION_SCREEN] ?: true,
                     pauseOnCamera = prefs[GestureConfig.KEY_PAUSE_ON_CAMERA] ?: false,
                     pauseOnPhoneCall = prefs[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] ?: false,
+                    pauseOnLauncher = prefs[GestureConfig.KEY_PAUSE_ON_LAUNCHER] ?: false,
                     appPauseMode = prefs[GestureConfig.KEY_APP_PAUSE_MODE]
                         ?.let { runCatching { io.github.omeryol.akisgesture.gesture.AppPauseMode.valueOf(it) }.getOrNull() }
                         ?: io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST,
@@ -166,6 +156,13 @@ class AkisGestureApp : Application() {
 
         // Load rules from DataStore on startup
         appScope.launch(Dispatchers.IO) {
+            settingsDataStore.edit { prefs ->
+                val stored = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION] ?: return@edit
+                val canonical = FeedbackAnimation.fromStoredName(stored) ?: return@edit
+                if (stored != canonical.name) {
+                    prefs[GestureConfig.KEY_FEEDBACK_ANIMATION] = canonical.name
+                }
+            }
             val prefs = settingsDataStore.data.first()
             val json = prefs[KEY_RULES_JSON]
             val graph = if (json != null) {
@@ -371,6 +368,10 @@ class AkisGestureApp : Application() {
 
     suspend fun updatePauseOnPhoneCall(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] = enabled }
+    }
+
+    suspend fun updatePauseOnLauncher(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_LAUNCHER] = enabled }
     }
 
     suspend fun updateAppPauseMode(mode: io.github.omeryol.akisgesture.gesture.AppPauseMode) {

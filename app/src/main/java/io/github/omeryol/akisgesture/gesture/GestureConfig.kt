@@ -92,6 +92,7 @@ data class GestureConfig(
     val pauseOnPermissionScreen: Boolean = true,
     val pauseOnCamera: Boolean = false,
     val pauseOnPhoneCall: Boolean = false,
+    val pauseOnLauncher: Boolean = false,
     val appPauseMode: AppPauseMode = AppPauseMode.BLACKLIST,
     val hideFromRecents: Boolean = false,
 
@@ -162,6 +163,7 @@ data class GestureConfig(
         val KEY_PAUSE_ON_PERMISSION_SCREEN = booleanPreferencesKey("pause_on_permission_screen")
         val KEY_PAUSE_ON_CAMERA = booleanPreferencesKey("pause_on_camera")
         val KEY_PAUSE_ON_PHONE_CALL = booleanPreferencesKey("pause_on_phone_call")
+        val KEY_PAUSE_ON_LAUNCHER = booleanPreferencesKey("pause_on_launcher")
         val KEY_APP_PAUSE_MODE = stringPreferencesKey("app_pause_mode")
         val KEY_HIDE_FROM_RECENTS = booleanPreferencesKey("hide_from_recents")
 

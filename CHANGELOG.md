@@ -1,5 +1,23 @@
 # Değişiklik Günlüğü
 
+## [1.4.0] - 2026-08-08
+
+### 📱 3B Kenar Haritası
+- **Canlı Tetik Alanı Düzenleme**: Ana sayfadaki 3B telefon haritasından sol ve sağ tetik alanlarının boyutu ile dikey konumu doğrudan değiştirilebilir.
+- **Karşılaştırmalı Ölçüler**: Düzenleme sırasında iki kenarın uzunluğu ve başlangıç konumu birlikte gösterilir; eşit hizalama kolaylaşır.
+- **Akıcı Cihaz Önizlemesi**: Gerçek tetik alanı sürükleme boyunca anında güncellenir, kalıcı ayar yalnızca işlem tamamlandığında kaydedilir.
+
+### ✨ Arayüz ve Tutarlılık
+- Tetik alanı uçları ve harita üzerindeki eylem gösterimi daha görünür ve okunur hale getirildi.
+- Hareketler, eylem ekleme ve ayarlar ekranlarındaki Türkçe/İngilizce çeviri tutarsızlıkları düzeltildi.
+- Görsel geri bildirim animasyonları sadeleştirildi ve iyileştirildi.
+
+### Teknik
+- Sürüm `1.4.0`, version code `54`.
+- İmzalı APK: `AkisGesture-v1.4.0.apk`.
+
+---
+
 ## [1.3.7] - 2026-08-07
 
 ### 🐛 Kural Ekleme Kritik Düzeltmesi
@@ -49,6 +67,11 @@
 ### Teknik
 - Sürüm `1.3.5`, version code `51`.
 - İmzalı APK: `AkisGesture-v1.3.5.apk`.
+
+---
+
+> **Sürüm notu:** `1.3.4` yalnızca yerel, küçük ara yamalar için kullanıldı ve
+> bağımsız bir yayın olarak dağıtılmadı. Bu nedenle ayrı bir CHANGELOG bölümü yoktur.
 
 ---
 
@@ -1113,7 +1136,7 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 - Island iş profiline yanlışlıkla kurulum yapılmaması için cihaz kurulum komutu
   yalnızca kişisel kullanıcıyı (`--user 0`) hedefleyecek şekilde belgelendi.
 
-### Bilinen durumlar
+### 1.1.0 sürümündeki bilinen durumlar (tarihsel kayıt)
 
 - Uygulama profilleri, ayrıntılı alan geometrisi, alternatif animasyon biçimleri
   ve ayar yedekleme/geri yükleme henüz eklenmedi.

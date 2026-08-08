@@ -14,8 +14,8 @@ android {
         applicationId = "io.github.omeryol.akisgesture"
         minSdk = 26
         targetSdk = 35
-        versionCode = 53
-        versionName = "1.3.7"
+        versionCode = 54
+        versionName = "1.4.0"
 
 
 
@@ -25,17 +25,23 @@ android {
         create("release") {
             val keystorePropsFile = rootProject.file("keystore.properties")
             val keystoreProps = Properties()
-            if (keystorePropsFile.exists()) {
-                keystorePropsFile.inputStream().use { keystoreProps.load(it) }
+            check(keystorePropsFile.exists()) {
+                "Release signing requires local keystore.properties."
             }
-            val ksPath = keystoreProps.getProperty("RELEASE_KEYSTORE_PATH") ?: "C:/Users/Omer/Documents/AkisGesture-signing/akisgesture-release.jks"
+            keystorePropsFile.inputStream().use { keystoreProps.load(it) }
+            fun requiredSigningProperty(name: String): String =
+                keystoreProps.getProperty(name)?.takeIf(String::isNotBlank)
+                    ?: error("Release signing property $name is missing in keystore.properties.")
+
+            val ksPath = requiredSigningProperty("RELEASE_KEYSTORE_PATH")
             val ksFile = file(ksPath)
-            if (ksFile.exists()) {
-                storeFile = ksFile
-                storePassword = keystoreProps.getProperty("RELEASE_STORE_PASSWORD") ?: (project.findProperty("RELEASE_STORE_PASSWORD") as? String) ?: ""
-                keyAlias = keystoreProps.getProperty("RELEASE_KEY_ALIAS") ?: (project.findProperty("RELEASE_KEY_ALIAS") as? String) ?: "akisgesture"
-                keyPassword = keystoreProps.getProperty("RELEASE_KEY_PASSWORD") ?: (project.findProperty("RELEASE_KEY_PASSWORD") as? String) ?: ""
+            check(ksFile.exists()) {
+                "Release keystore file does not exist: $ksPath"
             }
+            storeFile = ksFile
+            storePassword = requiredSigningProperty("RELEASE_STORE_PASSWORD")
+            keyAlias = requiredSigningProperty("RELEASE_KEY_ALIAS")
+            keyPassword = requiredSigningProperty("RELEASE_KEY_PASSWORD")
         }
     }
 

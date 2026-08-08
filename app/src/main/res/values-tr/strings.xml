@@ -37,7 +37,7 @@
     <string name="about_root_not_required_desc">Akış Gesture’ın tüm temel navigasyon hareketleri (Geri, Ana Ekran, Son Uygulamalar, Uygulama Açma, Medya Kontrolleri, Ekran Görüntüsü vb.) standart Android Erişilebilirlik Servisi ile %100 rootsuz çalışır.</string>
     <string name="about_root_features_title">⚡ Bu Uygulamada Root Ne İşe Yarar? (Opsiyonel)</string>
     <string name="about_root_features_desc">• Anında Ekran Kapatma: Bazı ROM’larda gecikmesiz tuş kilidi sağlama.\n• Özel Shell (su) Komutları: Kullanıcının hareketlere özel terminal komutları atayabilmesi.\n• Gelişmiş Arka Plan Koruması: Süreç önceliğini sistem seviyesinde koruma.</string>
-    <string name="about_root_privacy_desc">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
+<string name="about_root_privacy_desc" formatted="false">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
 
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
     <string name="open_project_repo">Akış Gesture GitHub deposu</string>
@@ -94,10 +94,37 @@
     <string name="animation_ocean">Su yüzeyi</string><string name="animation_droplet">Yüzey gerilimli damla</string><string name="animation_fire">Doğal alev</string><string name="animation_mist">Yavaş sis</string><string name="animation_electric">Elektrik arkı</string><string name="animation_sun">Isı koronası</string><string name="animation_aurora">Aurora akışı</string><string name="animation_glass">Buzlu cam dalgası</string><string name="animation_neon">Sönümlü ışık halkası</string><string name="animation_stars">Yıldız akışı</string><string name="animation_ice">Buz gerilim çatlağı</string><string name="animation_vortex">Su girdabı</string><string name="animation_rain">Yağmur</string><string name="animation_ember">Yükselen kor</string><string name="animation_wind">Rüzgâr akışı</string><string name="animation_bubbles">Su baloncukları</string><string name="animation_ink">Suda mürekkep</string><string name="animation_heat">Isıl akış</string><string name="animation_elastic">Elastik yüzey ayrımı</string><string name="animation_night">Gece ışığı</string><string name="animation_particles">Tanecik çözünmesi</string><string name="animation_pressure">Basınç dalgası</string><string name="animation_dew">Cam üzerinde çiy</string><string name="animation_prism">Prizmatik gerilim</string><string name="animation_icon_only">Sade cam simge</string><string name="animation_off">Kapalı</string>
     <string name="service_channel_description">Hareket hizmetini arka planda kullanılabilir tutar</string>
     <string name="service_running">Akış Gesture hareket hizmeti çalışıyor</string><string name="service_ready_tap">Kenar hareketleri hazır. Ayarları açmak için dokunun.</string>
-    <string name="tile_label">Akış</string><string name="tile_on">Hareketler açık</string><string name="tile_off">Hareketler kapalı</string>
+<string name="tile_label">Akış</string><string name="tile_on">Hareketler açık</string><string name="tile_off">Hareketler kapalı</string><string name="tile_service_label">Akış hareketleri</string><string name="command_start_label">Akış · Hareketleri başlat</string><string name="command_stop_label">Akış · Hareketleri durdur</string><string name="command_toggle_label">Akış · Hareket durumunu değiştir</string>
     <string name="macro_start">Hareketleri başlat</string><string name="macro_stop">Hareketleri durdur</string><string name="macro_toggle">Durumu değiştir</string><string name="macro_title">Akış Gesture işlemi</string><string name="macro_blurb">Akış Gesture · %1$s</string>
     <string name="home_active">Akış aktif</string><string name="home_service_off">Servis kapalı</string><string name="home_summary">%1$d hareket · %2$d aktif kenar · v%3$s</string><string name="home_enable_accessibility">Erişilebilirlik iznini etkinleştirin</string>
     <string name="edge_map">📱 Kenar haritası</string><string name="edit_arrow">Düzenle →</string><string name="left_right_edges">📐 Sol ve sağ</string><string name="bottom_edge">🔽 Alt kenar</string>
+    <string name="home_map_resize_hint">Boyut için geniş tutamaçları, konum için renkli kenar şeridini sürükleyin.</string>
+    <string name="edge_range_live">Konum %1$d%% · Boyut %2$d%%</string>
+    <string name="edge_vertical_length_title">📏 Panel Dikey Boyu</string>
+    <string name="edge_vertical_length_hint">Panelin ekrandaki dikey uzunluğunu kısaltıp uzatın.</string>
+    <string name="edge_vertical_position_title">📍 Panel Dikey Konumu</string>
+    <string name="edge_vertical_position_hint">Panelin dikey ekran konumunu yukarı veya aşağı kaydırın.</string>
+    <string name="hold_physics_card_title">⏱️ Çek ve Tut Fiziği</string>
+    <string name="hold_physics_card_subtitle">Bekletme süresi ve tetikleme anı seçimi</string>
+    <string name="haptic_sound_card_title">⚡ Dokunsal Titreşim ve Ses</string>
+    <string name="haptic_sound_card_subtitle">Titreşim şiddeti ve geri bildirim tonu</string>
+    <string name="palette_icon_card_title">🎨 Renk Paleti ve İkon Stili</string>
+    <string name="palette_icon_card_subtitle">Uyumlu renk şablonları ve simge paketleri</string>
+    <string name="manual_color_edit">🎨 Özel Manuel Renk Düzenleme</string>
+    <string name="app_exceptions_card_title">📱 Uygulama İstisnaları</string>
+    <string name="app_exceptions_card_subtitle">Jestlerin devre dışı kalacağı veya özel çalışacağı uygulamalar</string>
+    <string name="remove">Kaldır</string>
+    <string name="version_history_subtitle">Geçmiş tüm sürümlerin değişiklik özeti</string>
+    <string name="add_rule_for_edge">%1$s · Kural ekle</string>
+    <string name="gesture_actions_title">Hareket Eylemleri</string>
+    <string name="add_rule_step">Kural ekle – %1$s</string>
+    <string name="gesture_action">Hareket eylemi</string>
+    <string name="gestures_title">Hareketler</string>
+    <string name="gesture_count">%1$d hareket</string>
+    <string name="add_action">+ Eylem Ekle</string>
+    <string name="pause_on_launcher">Ana ekranda duraklat</string>
+    <string name="pause_on_launcher_subtitle">Varsayılan launcher öndeyken hareket sensörlerini kapatır.</string>
+    <string name="no_assigned_actions">Atanmış eylem yok</string>
     <string name="disable_battery_restriction">Pil kısıtlamasını kaldır</string><string name="battery_restriction_description">Arka planda kesintisiz çalışması için pil optimizasyonunu kapatın</string>
     <plurals name="gesture_count"><item quantity="one">%d hareket</item><item quantity="other">%d hareket</item></plurals>
     <string name="permissions_title">İzinler</string><string name="permissions_intro">Akış Gesture düzgün çalışmak için aşağıdaki izinlere ihtiyaç duyar.</string><string name="accessibility_service">Erişilebilirlik hizmeti</string><string name="accessibility_description">Kenar hareketlerini algılar ve seçilen işlemleri uygular.\nAyarlar içinde Akış Gesture hizmetini etkinleştirin.</string><string name="battery_permission_title">Pil kısıtlamasını kaldır</string><string name="battery_permission_description">HyperOS sisteminin hareket hizmetini arka planda durdurmasını önler.</string><string name="start_using">Kullanmaya başla</string><string name="enable_accessibility_first">Önce erişilebilirlik hizmetini açın</string><string name="step_title">Adım %1$d: %2$s</string><string name="required">Gerekli</string><string name="open_settings">Ayarları aç</string>

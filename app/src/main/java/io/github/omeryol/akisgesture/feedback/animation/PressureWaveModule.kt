@@ -15,11 +15,11 @@ class PressureWaveModule : NaturalAnimationModule {
         val tip = when(f.edge){ Edge.LEFT->depth to f.touch; Edge.RIGHT->f.width-depth to f.touch; Edge.BOTTOM->f.touch to f.height-depth }
         for (layer in 3 downTo 0) {
             val phase = ((f.time * .72 + layer * .19) % 1.0).toFloat()
-            val radius = (28f + f.progress * 75f + phase * 58f) * f.size
-            val squeeze = .52f + layer * .06f
+            val radius = (28f + f.progress * (60f + f.surfaceTension * 30f) + phase * (45f + f.damping * 22f)) * f.size
+            val squeeze = .48f + layer * .06f + f.surfaceTension * .08f
             val alpha = ((1f-phase) * (105 + layer*22) * f.opacity).toInt()
             paint.shader = RadialGradient(tip.first,tip.second,radius*1.5f,intArrayOf(withAlpha(lighten(f.color,.38f),alpha),withAlpha(f.color,alpha/2),Color.TRANSPARENT),floatArrayOf(0f,.48f,1f),Shader.TileMode.CLAMP)
-            val pulse = 1f + sin(f.time*3.0+layer).toFloat()*.06f
+            val pulse = 1f + sin(f.time*(2.2 + f.damping * 1.6)+layer).toFloat()*(.035f + f.viscosity * .045f)
             f.canvas.drawOval(RectF(tip.first-radius*pulse,tip.second-radius*squeeze,tip.first+radius*pulse,tip.second+radius*squeeze),paint)
         }
         paint.shader=null

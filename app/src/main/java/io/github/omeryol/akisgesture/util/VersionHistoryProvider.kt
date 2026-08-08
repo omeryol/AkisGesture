@@ -11,9 +11,26 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.4.0",
+            date = "2026-08-08",
+            isCurrent = true,
+            changesTr = listOf(
+                "📱 3B Kenar Haritası: Sol ve sağ tetik alanlarını ana sayfadaki telefon haritasından boyutlandırın ve dikeyde taşıyın.",
+                "📏 Canlı Ölçüler: İki kenarın uzunluğu ve başlangıç konumu birlikte gösterilerek eşit hizalama kolaylaştırıldı.",
+                "✨ Akıcı Önizleme: Gerçek tetik alanı sürükleme boyunca anında güncellenir; ayar işlem sonunda kalıcı olarak kaydedilir.",
+                "🌍 Arayüz Düzenlemeleri: Hareketler, eylem ekleme ve ayarlar ekranlarında çeviri ve görünüm tutarlılığı iyileştirildi.",
+            ),
+            changesEn = listOf(
+                "📱 3D Edge Map: Resize and reposition left and right trigger areas directly from the Home screen phone map.",
+                "📏 Live Measurements: Length and start position for both edges are shown together for easier matching.",
+                "✨ Smooth Preview: The real trigger area updates live while dragging, then saves when editing finishes.",
+                "🌍 Interface Refinements: Improved translation and visual consistency across Gestures, Add Action, and Settings.",
+            )
+        ),
+        VersionHistoryItem(
             version = "1.3.7",
             date = "2026-08-07",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "🐛 Kural Ekleme Düzeltmesi: Kural ekleme diyaloğunda eylem seçici (ActionPicker) navigation tetiklediğinde diyalog durumunun sıfırlanması sorunu giderildi.",
                 "⚡ Inline ActionPicker: Eylem seçici artık navigation olmadan tam ekran dialog olarak açılıyor; seçilen eylemler ve tüm diyalog durumu korunuyor.",

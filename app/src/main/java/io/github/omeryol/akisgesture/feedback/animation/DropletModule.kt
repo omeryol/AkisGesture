@@ -12,8 +12,8 @@ import kotlin.math.sin
 class DropletModule : NaturalAnimationModule {
     private val paint=Paint(Paint.ANTI_ALIAS_FLAG); private val path=Path()
     override fun draw(f:AnimationFrame){
-        val depth=(10f+f.stretch*1.32f).coerceAtMost(340f*f.size); val c=when(f.edge){Edge.LEFT->depth to f.touch;Edge.RIGHT->f.width-depth to f.touch;Edge.BOTTOM->f.touch to f.height-depth}
-        val r=(12f+f.progress*72f)*f.size; val neck=(r*(1.18f-f.progress*.72f)).coerceAtLeast(8f*f.size); val wobble=sin(f.time*PI*2.1).toFloat()*r*.055f
+        val depth=(10f+f.stretch*(1.16f+f.surfaceTension*.22f)).coerceAtMost(340f*f.size); val c=when(f.edge){Edge.LEFT->depth to f.touch;Edge.RIGHT->f.width-depth to f.touch;Edge.BOTTOM->f.touch to f.height-depth}
+        val r=(12f+f.progress*(58f+f.surfaceTension*18f))*f.size; val neck=(r*(1.22f-f.progress*(.62f+f.surfaceTension*.10f))).coerceAtLeast(8f*f.size); val wobble=sin(f.time*PI*(1.5+f.damping*1.4)).toFloat()*r*(.035f+f.viscosity*.035f)
         path.reset()
         val detached = f.progress >= 1.02f
         when(f.edge){

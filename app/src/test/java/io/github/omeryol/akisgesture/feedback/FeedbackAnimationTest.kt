@@ -14,10 +14,10 @@ class FeedbackAnimationTest {
     }
 
     @Test
-    fun legacyStylesRemainAvailableForSavedPreferences() {
-        val names = FeedbackAnimation.entries.map { it.name }.toSet()
-        assertTrue("OCEAN_WAVE" in names)
-        assertTrue("MATRIX_DISSOLVE" in names)
-        assertTrue("PRISM_SHATTER" in names)
+    fun `legacy stored names migrate to canonical styles`() {
+        assertTrue(FeedbackAnimation.entries.count { it != FeedbackAnimation.NONE } == 15)
+        assertTrue(FeedbackAnimation.fromStoredName("MATRIX_DISSOLVE") == FeedbackAnimation.INK_FLOW)
+        assertTrue(FeedbackAnimation.fromStoredName("PRISM_SHATTER") == FeedbackAnimation.GLASS_RIPPLE)
+        assertTrue(FeedbackAnimation.fromStoredName("ELECTRIC_STORM") == FeedbackAnimation.HYDRO_WIPE)
     }
 }

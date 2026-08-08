@@ -22,6 +22,16 @@ class ActionSearchTest {
     }
 
     @Test
+    fun `search can use localized action labels`() {
+        assertEquals(
+            listOf(ActionNode.QuickSettings),
+            filterActions(actions, "quick") { action ->
+                if (action == ActionNode.QuickSettings) "Quick settings" else action.label
+            },
+        )
+    }
+
+    @Test
     fun `search matches application name or package`() {
         val app = actions.last()
         assertEquals(listOf(app), filterActions(actions, "whatsapp"))

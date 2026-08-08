@@ -235,6 +235,11 @@ class GestureAccessibilityService : AccessibilityService() {
         super.onDestroy()
     }
 
+    /** Updates the visible edge sensor during map dragging without persisting a setting. */
+    fun previewEdgeVerticalRange(edge: io.github.omeryol.akisgesture.overlay.Edge, start: Float, end: Float) {
+        if (::gestureEngine.isInitialized) gestureEngine.previewEdgeVerticalRange(edge, start, end)
+    }
+
     private fun cleanup() {
         serviceScope.cancel()
         if (::gestureEngine.isInitialized) gestureEngine.stop()
@@ -314,14 +319,6 @@ class GestureAccessibilityService : AccessibilityService() {
         val stroke = GestureDescription.StrokeDescription(path, 0, 1)
         val gesture = GestureDescription.Builder().addStroke(stroke).build()
         dispatchGesture(gesture, null, null)
-    }
-
-    fun dispatchActionFromExternal(actionNode: io.github.omeryol.akisgesture.model.ActionNode) {
-        if (::actionDispatcher.isInitialized) {
-            serviceScope.launch(kotlinx.coroutines.Dispatchers.Main) {
-                actionDispatcher.dispatch(actionNode)
-            }
-        }
     }
 
     enum class ServiceState { DISCONNECTED, CONNECTED }

@@ -64,7 +64,7 @@
             android:name=".service.GestureTileService"
             android:exported="true"
             android:icon="@drawable/ic_gesture_24"
-            android:label="Akış hareketleri"
+            android:label="@string/tile_service_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
@@ -75,12 +75,10 @@
             android:name=".receiver.GestureCommandReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="io.github.omeryol.akisgesture.action.TRIGGER_GESTURE" />
-                <!-- Eski OpenSwipe otomasyonlarını bozmamak için geçici uyumluluk adları. -->
-                <action android:name="com.openswipe.ACTION_TRIGGER_GESTURE" />
                 <action android:name="io.github.omeryol.akisgesture.action.START" />
                 <action android:name="io.github.omeryol.akisgesture.action.STOP" />
                 <action android:name="io.github.omeryol.akisgesture.action.TOGGLE" />
+                <!-- Eski OpenSwipe durum komutları için geçici uyumluluk adları. -->
                 <action android:name="com.openswipe.action.START" />
                 <action android:name="com.openswipe.action.STOP" />
                 <action android:name="com.openswipe.action.TOGGLE" />
@@ -91,21 +89,21 @@
             android:name=".service.StartGestureActivity"
             android:exported="true"
             android:excludeFromRecents="true"
-            android:label="Akış · Hareketleri başlat"
+            android:label="@string/command_start_label"
             android:noHistory="true"
             android:theme="@style/Theme.AkisGesture" />
         <activity
             android:name=".service.StopGestureActivity"
             android:exported="true"
             android:excludeFromRecents="true"
-            android:label="Akış · Hareketleri durdur"
+            android:label="@string/command_stop_label"
             android:noHistory="true"
             android:theme="@style/Theme.AkisGesture" />
         <activity
             android:name=".service.ToggleGestureActivity"
             android:exported="true"
             android:excludeFromRecents="true"
-            android:label="Akış · Durumu değiştir"
+            android:label="@string/command_toggle_label"
             android:noHistory="true"
             android:theme="@style/Theme.AkisGesture" />
 

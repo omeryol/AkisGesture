@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -80,7 +79,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToPermissions: () -> Unit,
-    onNavigateToRules: (Edge) -> Unit = {},
+    onNavigateToRules: (Edge) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
@@ -133,12 +132,20 @@ fun HomeScreen(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
+                    .padding(bottom = innerPadding.calculateBottomPadding())
                     .verticalScroll(rememberScrollState())
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp),
+                    .padding(start = 16.dp, end = 16.dp, top = 2.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
             // ── 1. Live Master Service Status Card ──
+            Text(
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = scheme.onBackground,
+                modifier = Modifier.padding(start = 2.dp),
+            )
+
             AkisGlassCard(
                 onClick = {
                     if (!isConnected) {
@@ -227,7 +234,6 @@ fun HomeScreen(
             // ── 2. Redesigned Interactive Phone Map ──
             if (gestureConfig.showPhoneMap) {
                 AkisGlassCard(
-                    onClick = { onNavigateToRules(Edge.LEFT) },
                     modifier = Modifier.fillMaxWidth(),
                     accentTint = scheme.primary,
                 ) {
@@ -244,20 +250,18 @@ fun HomeScreen(
                         ) {
                             AkisSectionHeader(
                                 title = stringResource(R.string.edge_map),
-                                subtitle = stringResource(R.string.map_expanded_hint),
+                                subtitle = stringResource(R.string.home_map_resize_hint),
                                 icon = Icons.Filled.Smartphone,
                                 modifier = Modifier.weight(1f),
-                            )
-                            Text(
-                                text = stringResource(R.string.edit_arrow),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = scheme.primary,
                             )
                         }
                         InteractivePhoneMap(
                             rules = rules,
-                            onZoneClick = { zone -> onNavigateToRules(zone.edge) },
+                            onSideRangeChange = viewModel::setEdgeVerticalRange,
+                            onSideRangePreview = { edge, start, end ->
+                                GestureAccessibilityService.instance?.previewEdgeVerticalRange(edge, start, end)
+                            },
+                            onEdgeClick = onNavigateToRules,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(360.dp),

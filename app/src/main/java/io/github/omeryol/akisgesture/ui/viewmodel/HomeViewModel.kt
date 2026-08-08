@@ -142,6 +142,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updatePauseOnPhoneCall(enabled) }
     }
 
+    fun setPauseOnLauncher(enabled: Boolean) {
+        viewModelScope.launch { app.updatePauseOnLauncher(enabled) }
+    }
+
     fun setAppPauseMode(mode: io.github.omeryol.akisgesture.gesture.AppPauseMode) {
         viewModelScope.launch { app.updateAppPauseMode(mode) }
     }
