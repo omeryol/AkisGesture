@@ -104,6 +104,5 @@ class ActionDispatcherImpl(
         is ActionNode.VoiceAssistant -> hardwareHandler.handleVoiceAssistant()
         is ActionNode.SendKeyCode -> hardwareHandler.handleSendKeyEvent(action.keyCode)
         is ActionNode.ForceStopForeground -> hardwareHandler.handleForceStopForeground()
-        is ActionNode.ToggleNavBar -> hardwareHandler.handleToggleNavBar()
     }
 }

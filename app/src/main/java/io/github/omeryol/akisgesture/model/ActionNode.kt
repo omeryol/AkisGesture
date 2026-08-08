@@ -167,14 +167,6 @@ sealed interface ActionNode {
         override val minApi = 16
     }
 
-    // ═══ Sistem arayüzü ═══
-    data object ToggleNavBar : ActionNode {
-        override val id = "toggle_nav_bar"
-        override val label = "Gezinme çubuğunu göster/gizle"
-        override val minApi = 21
-        override val requiresRoot = true
-    }
-
     // ═══ Donanım ═══
     data object ToggleFlashlight : ActionNode {
         override val id = "toggle_flashlight"
@@ -237,7 +229,7 @@ sealed interface ActionNode {
         fun allFixed(): List<ActionNode> = allFixed
 
         private val fixedById: Map<String, ActionNode> by lazy {
-            (allFixed + ToggleNavBar).associateBy { it.id }
+            allFixed.associateBy { it.id }
         }
 
         fun fromId(id: String): ActionNode? {

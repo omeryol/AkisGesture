@@ -37,7 +37,7 @@
     <string name="about_root_not_required_title">✅ Root is NOT Required!</string>
     <string name="about_root_not_required_desc">All core navigation gestures (Back, Home, Recents, Launch App, Media Controls, Screenshot, etc.) work 100% without root via standard Android Accessibility Service.</string>
     <string name="about_root_features_title">⚡ What Does Root Do In This App? (Optional)</string>
-    <string name="about_root_features_desc">Root is used only for two optional actions and protection: force-stopping the foreground app, showing or hiding the navigation bar, and rebinding the accessibility entry after an unexpected system drop. It is never required for core gestures and remains the responsibility of users who understand these system-level changes.</string>
+    <string name="about_root_features_desc">Root is used only for the optional foreground-app force-stop action and for rebinding the accessibility entry after an unexpected system drop. It is never required for core gestures and remains the responsibility of users who understand these system-level changes.</string>
 <string name="about_root_privacy_desc" formatted="false">🛡️ Security &amp; Privacy: Even if root access is granted, Akış Gesture never transmits data over the internet. All your settings and rules stay 100% on your device.</string>
 
     <string name="about_upstream">Akış Gesture is based on the MIT-licensed OpenSwipe source code. OpenSwipe copyright and license notices are preserved; Akış Gesture is an independent project.</string>
@@ -82,7 +82,6 @@
     <string name="action_voice_search">Voice search</string>
     <string name="action_voice_assistant">Voice assistant</string>
     <string name="action_keycode">Key: %1$s</string>
-    <string name="action_nav_bar">Show/hide navigation bar</string>
     <string name="action_flashlight">Toggle flashlight</string>
     <string name="action_force_stop">Close foreground app</string>
     <string name="action_brightness_up">Increase brightness</string>

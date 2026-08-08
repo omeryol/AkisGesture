@@ -37,7 +37,7 @@
     <string name="about_root_not_required_title">✅ Root Kesinlikle Zorunlu DEĞİLDİR!</string>
     <string name="about_root_not_required_desc">Akış Gesture’ın tüm temel navigasyon hareketleri (Geri, Ana Ekran, Son Uygulamalar, Uygulama Açma, Medya Kontrolleri, Ekran Görüntüsü vb.) standart Android Erişilebilirlik Servisi ile %100 rootsuz çalışır.</string>
     <string name="about_root_features_title">⚡ Bu Uygulamada Root Ne İşe Yarar? (Opsiyonel)</string>
-    <string name="about_root_features_desc">Root yalnızca iki isteğe bağlı eylem ve koruma için kullanılır: öndeki uygulamayı zorla kapatma, gezinme çubuğunu gösterme/gizleme ve sistem erişilebilirlik kaydını beklenmedik düşüşten sonra yeniden bağlama. Bu işlemler temel hareketler için gerekli değildir; ne yaptığını bilen kullanıcıların kendi sorumluluğundadır.</string>
+    <string name="about_root_features_desc">Root yalnızca isteğe bağlı öndeki uygulamayı zorla kapatma eylemi ve sistem erişilebilirlik kaydını beklenmedik düşüşten sonra yeniden bağlama için kullanılır. Temel hareketler için gerekli değildir; ne yaptığını bilen kullanıcıların kendi sorumluluğundadır.</string>
 <string name="about_root_privacy_desc" formatted="false">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
 
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
@@ -82,7 +82,6 @@
     <string name="action_voice_search">Sesli arama</string>
     <string name="action_voice_assistant">Sesli asistan</string>
     <string name="action_keycode">Tuş: %1$s</string>
-    <string name="action_nav_bar">Gezinme çubuğunu göster/gizle</string>
     <string name="action_flashlight">Feneri aç/kapat</string>
     <string name="action_force_stop">Öndeki uygulamayı kapat</string>
     <string name="action_brightness_up">Parlaklığı artır</string>
