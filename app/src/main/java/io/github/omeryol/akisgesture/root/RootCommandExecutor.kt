@@ -98,6 +98,9 @@ class RootCommandExecutor(private val context: Context) {
         return result
     }
 
+    private fun executeForOutput(command: String): String? =
+        runCommand(command)?.takeIf { it.exitCode == 0 }?.output
+
     fun execute(command: String): RootResult {
         val result = runCommand(command)
             ?: return RootResult.Failure("Root işlemi zaman aşımına uğradı veya başlatılamadı")
