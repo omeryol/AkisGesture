@@ -22,6 +22,7 @@ class RingMenuRenderer {
         height: Float,
         stretch: Float,
         threshold: Float,
+        extraInsetPx: Float,
         color: Int,
         opacity: Float,
         symbols: List<String>,
@@ -40,7 +41,8 @@ class RingMenuRenderer {
             Edge.LEFT, Edge.RIGHT -> width
             Edge.BOTTOM -> height
         }.coerceAtLeast(1f)
-        val menuInset = (edgeSpan * 0.34f).coerceIn(280f, 420f)
+        val menuInset = (edgeSpan * 0.34f + extraInsetPx)
+            .coerceIn(280f, edgeSpan * 0.64f)
         val revealEnd = menuInset.coerceAtLeast(threshold + 1f)
         val progress = ((stretch - threshold) / (revealEnd - threshold)).coerceIn(0f, 1f)
         val anchor = when (edge) {

@@ -191,6 +191,7 @@ class FeedbackView(context: Context) : View(context) {
                 height = height.toFloat(),
                 stretch = stretchDistance,
                 threshold = peakThreshold,
+                extraInsetPx = 100f * resources.displayMetrics.density,
                 color = feedbackColor,
                 opacity = feedbackOpacity,
                 symbols = ringSymbols,
