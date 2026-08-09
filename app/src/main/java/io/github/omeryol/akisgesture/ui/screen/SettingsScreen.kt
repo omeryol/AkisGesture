@@ -88,6 +88,7 @@ import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.AkisGestureApp
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.backup.SettingsBackupManager
+import io.github.omeryol.akisgesture.diagnostics.DiagnosticsSettingsEntry
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.overlay.Edge
@@ -1148,6 +1149,9 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            Spacer(Modifier.height(10.dp))
+            DiagnosticsSettingsEntry()
 
             Spacer(Modifier.height(10.dp))
 

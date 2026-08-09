@@ -9,6 +9,7 @@ import io.github.omeryol.akisgesture.action.handler.HardwareAndAppHandler
 import io.github.omeryol.akisgesture.action.handler.MediaActionHandler
 import io.github.omeryol.akisgesture.action.handler.NavigationActionHandler
 import io.github.omeryol.akisgesture.action.handler.SystemActionHandler
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.root.RootCommandExecutor
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
@@ -53,11 +54,13 @@ class ActionDispatcherImpl(
     private val hardwareHandler by lazy { HardwareAndAppHandler(service, rootCommands, audioManager, cameraManager) }
 
     override suspend fun dispatch(action: ActionNode): ActionResult = dispatchMutex.withLock {
-        try {
+        val result = try {
             dispatchInternal(action)
         } catch (error: Exception) {
             ActionResult.Failed(error.message ?: "Aksiyon çalıştırılamadı")
         }
+        RuntimeDiagnostics.actionFinished(action.id, result)
+        result
     }
 
     private suspend fun dispatchInternal(action: ActionNode): ActionResult = when (action) {

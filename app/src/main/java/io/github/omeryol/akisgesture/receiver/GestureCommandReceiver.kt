@@ -21,11 +21,9 @@ class GestureCommandReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (!(context.applicationContext as AkisGestureApp).gestureConfigFlow.value.automationAppsEnabled) {
-            Log.w(LOG_TAG, "Ignoring external automation command because user consent is disabled")
             return
         }
         val action = intent.action ?: return
-        Log.d(LOG_TAG, "Broadcast received with action: $action")
         when (action) {
             ACTION_START, LEGACY_ACTION_START -> enableService(context, true)
             ACTION_STOP, LEGACY_ACTION_STOP -> enableService(context, false)
@@ -49,12 +47,8 @@ class GestureCommandReceiver : BroadcastReceiver() {
                 if (result is io.github.omeryol.akisgesture.root.RootResult.Failure) {
                     // Root kullanılamıyor — en azından desired state'i kaydet
                     AccessibilityControl.setDesired(context, target)
-                    Log.w(LOG_TAG, "Root unavailable, saved desired state: $target")
-                } else {
-                    Log.d(LOG_TAG, "Service ${if (target) "enabled" else "disabled"} via root")
                 }
-            } catch (e: Exception) {
-                Log.e(LOG_TAG, "enableService failed", e)
+            } catch (_: Exception) {
             } finally {
                 pending.finish()
             }

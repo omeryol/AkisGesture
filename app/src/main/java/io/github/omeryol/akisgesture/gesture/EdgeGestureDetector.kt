@@ -2,7 +2,7 @@ package io.github.omeryol.akisgesture.gesture
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import android.view.MotionEvent
 import io.github.omeryol.akisgesture.gesture.detector.DirectionValidator
 import io.github.omeryol.akisgesture.gesture.detector.LSwipeDetector
@@ -56,7 +56,7 @@ class EdgeGestureDetector(
             hasHoldActionAt(lastTouchAlongEdge)
         ) {
             holdArmed = true
-            Log.d(LOG_TAG, "hold_armed edge=$edge stretch=$lastStretch threshold=$swipeThresholdPx")
+            RuntimeDiagnostics.gestureSignal(edge.name, "hold_armed")
             publishProgress(active = true)
 
             if (config.holdFireMode == HoldFireMode.ON_THRESHOLD &&
@@ -70,7 +70,7 @@ class EdgeGestureDetector(
                     gestureType = GestureType.SWIPE_HOLD,
                     touchAlongEdgePx = initialTouchCoord(),
                 )
-                Log.d(LOG_TAG, "hold_fire_on_threshold edge=$edge")
+                RuntimeDiagnostics.gestureSignal(edge.name, "hold_fired_on_threshold")
                 onGestureResult(result)
             }
         }
@@ -135,7 +135,7 @@ class EdgeGestureDetector(
                     if (isValidSwipe && edge != Edge.BOTTOM) {
                         if (!DirectionValidator.isAngleWithinTolerance(edge, dx, dy, config.directionToleranceDegrees)) {
                             state = GestureState.REJECTED
-                            Log.d(LOG_TAG, "direction_rejected edge=$edge tolerance=${config.directionToleranceDegrees}")
+                            RuntimeDiagnostics.gestureSignal(edge.name, "direction_rejected")
                             return
                         }
                     }
@@ -191,14 +191,14 @@ class EdgeGestureDetector(
         }
         if (quickArmed && !wasArmed) {
             wasArmed = true
-            Log.d(LOG_TAG, "GESTURE_ARMED edge=$edge damped=$dampedDisplacement threshold=$swipeThresholdPx")
+            RuntimeDiagnostics.gestureSignal(edge.name, "armed")
         }
 
         // Multi-tier Hysteresis logic:
         // Hold cancels at 88% of threshold (pulling back ~12% of the distance)
         if (holdArmed || holdScheduled) {
             if (dampedDisplacement < swipeThresholdPx * 0.88f) {
-                if (holdArmed) Log.d(LOG_TAG, "HOLD_CANCELLED edge=$edge damped=$dampedDisplacement threshold=$swipeThresholdPx")
+                if (holdArmed) RuntimeDiagnostics.gestureSignal(edge.name, "hold_cancelled")
                 cancelHold()
             }
         }
@@ -211,7 +211,7 @@ class EdgeGestureDetector(
                 maxInwardDisplacement = maxDampedDisplacement,
             )
         ) {
-            Log.d(LOG_TAG, "GESTURE_CANCELLED edge=$edge damped=$dampedDisplacement maxDamped=$maxDampedDisplacement threshold=$swipeThresholdPx ratio=${config.hysteresisRatio}")
+            RuntimeDiagnostics.gestureSignal(edge.name, "cancelled_after_armed")
             state = GestureState.CANCELLED
             lSwipeDetector.reset()
             cancelHold()
@@ -247,7 +247,7 @@ class EdgeGestureDetector(
                 gestureType = detectedLGesture,
                 touchAlongEdgePx = initialTouchPx,
             )
-            Log.d(LOG_TAG, "2_phase_L_swipe_executed edge=$edge type=$detectedLGesture section=$section")
+            RuntimeDiagnostics.gestureSignal(edge.name, "l_swipe_executed")
             onGestureResult(result)
             finishProgress(event)
             reset()
@@ -270,7 +270,7 @@ class EdgeGestureDetector(
         val dampedDisplacement = GestureThresholds.dampedDisplacement(rawDisplacement, edgeDamping)
 
         if (dampedDisplacement < swipeThresholdPx * config.hysteresisRatio && !holdFiredOnThreshold) {
-            Log.d(LOG_TAG, "handleUp_cancelled_below_hysteresis displacement=$dampedDisplacement threshold=$swipeThresholdPx")
+            RuntimeDiagnostics.gestureSignal(edge.name, "released_below_hysteresis")
             finishProgress(event)
             reset()
             return
@@ -285,15 +285,14 @@ class EdgeGestureDetector(
                     gestureType = GestureType.QUICK_SWIPE,
                     touchAlongEdgePx = initialTouchPx,
                 )
-                Log.d(LOG_TAG, "hold_already_fired edge=$edge — emitting quick")
+                RuntimeDiagnostics.gestureSignal(edge.name, "hold_already_fired")
                 onGestureResult(result)
             } else {
                 val result = resolveGestureResult(dampedDisplacement, section, dx, dy, initialTouchPx)
                 if (result != null) {
-                    Log.d(LOG_TAG, "gesture_result edge=$edge result=${result::class.simpleName} section=$section")
                     onGestureResult(result)
                 } else {
-                    Log.d(LOG_TAG, "gesture_result edge=$edge -> CANCELLED (no emission)")
+                    RuntimeDiagnostics.gestureSignal(edge.name, "no_result_emitted")
                 }
             }
         }
@@ -388,7 +387,7 @@ class EdgeGestureDetector(
             }
             wasArmed -> {
                 // Was once armed (swipe initiated & pulled back): DO NOT convert to Tap!
-                Log.d(LOG_TAG, "resolveGestureResult_cancelled_swipe edge=$edge displacement=$displacement threshold=$minThreshold")
+                RuntimeDiagnostics.gestureSignal(edge.name, "resolved_as_cancelled")
                 null
             }
             edge != Edge.BOTTOM -> {

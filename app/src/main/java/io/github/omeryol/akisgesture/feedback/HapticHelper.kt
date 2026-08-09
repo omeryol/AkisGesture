@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.util.Log
 import android.view.View
 
 object HapticHelper {
@@ -27,7 +26,6 @@ object HapticHelper {
     }
 
     fun performHaptic(context: Context, type: HapticType) {
-        Log.d(TAG, "performHaptic type=$type enabled=$enabled intensity=$intensity soundEnabled=$soundEnabled")
         if (enabled && intensity > 0f) {
             getVibrator(context)?.takeIf { it.hasVibrator() }?.let { vibrator ->
                 val strength = intensity.coerceIn(0f, 1f)
@@ -58,19 +56,18 @@ object HapticHelper {
                     VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE)
                 }
                 vibrator.vibrate(effect)
-            }.onFailure { Log.w(TAG, "vibrate failed", it) }
+            }
         } else {
             runCatching {
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(durationMs)
-            }.onFailure { Log.w(TAG, "legacy vibrate failed", it) }
+            }
         }
     }
 
     fun cancel(context: Context) {
         getVibrator(context)?.takeIf { it.hasVibrator() }?.let { vibrator ->
             runCatching { vibrator.cancel() }
-                .onFailure { Log.w(TAG, "cancel vibrate failed", it) }
         }
     }
 

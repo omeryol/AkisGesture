@@ -2,11 +2,11 @@ package io.github.omeryol.akisgesture.gesture
 
 import android.content.res.Configuration
 import android.content.Intent
-import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import io.github.omeryol.akisgesture.action.ActionDispatcher
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import io.github.omeryol.akisgesture.feedback.ActionSymbols
 import io.github.omeryol.akisgesture.feedback.FeedbackView
 import io.github.omeryol.akisgesture.feedback.HapticHelper
@@ -584,16 +584,24 @@ class GestureEngine(
                 io.github.omeryol.akisgesture.gesture.model.SwipeDirection.LEFT -> ActionNode.SwitchNextApp
                 else -> return
             }
+            RuntimeDiagnostics.gestureMatched(
+                edge = Edge.BOTTOM.name,
+                gesture = "BOTTOM_HORIZONTAL_${result.direction.name}",
+                actionId = action.id,
+            )
             performResultHapticIfNeeded()
             scope.launch {
-                val dispatchResult = actionDispatcher.dispatch(action)
-                Log.d("AkisGesture", "bottom_app_switch direction=${result.direction} result=$dispatchResult")
+                actionDispatcher.dispatch(action)
             }
             return
         }
 
         val actionNode = matchViaRuleSet(result)
-        Log.d("AkisGesture", "matched_result result=$result action=$actionNode")
+        RuntimeDiagnostics.gestureMatched(
+            edge = result.edgeName(),
+            gesture = result.gestureName(),
+            actionId = actionNode?.id,
+        )
         if (actionNode == null) return
 
         // Record real runtime gesture usage stats
@@ -608,9 +616,22 @@ class GestureEngine(
         performResultHapticIfNeeded()
 
         scope.launch {
-            val dispatchResult = actionDispatcher.dispatch(actionNode)
-            Log.d("AkisGesture", "dispatch_result action=$actionNode result=$dispatchResult")
+            actionDispatcher.dispatch(actionNode)
         }
+    }
+
+    private fun GestureResult.edgeName(): String = when (this) {
+        is GestureResult.EdgeSwipe -> edge.name
+        is GestureResult.VerticalSwipe -> edge.name
+        is GestureResult.Tap -> edge.name
+        is GestureResult.BottomHorizontalSwipe -> Edge.BOTTOM.name
+    }
+
+    private fun GestureResult.gestureName(): String = when (this) {
+        is GestureResult.EdgeSwipe -> gestureType.name
+        is GestureResult.VerticalSwipe -> "VERTICAL_SWIPE"
+        is GestureResult.Tap -> "TAP"
+        is GestureResult.BottomHorizontalSwipe -> "BOTTOM_HORIZONTAL_${direction.name}"
     }
 
     private fun performResultHapticIfNeeded() {

@@ -17,8 +17,7 @@ class OverlayManager(
         try {
             windowManager.addView(window.view, window.params)
             windows[tag] = window
-        } catch (e: Exception) {
-            Log.e("AkisGesture", "overlay_add_failed tag=$tag", e)
+        } catch (_: Exception) {
         }
     }
 

@@ -1,0 +1,11 @@
+<resources>
+    <string name="diagnostic_title">Diagnostic session</string>
+    <string name="diagnostic_subtitle">Records only while you explicitly start a session. The last 300 events stay in memory and are written only when you export a report.</string>
+    <string name="diagnostic_recording">Recording • %1$d events</string>
+    <string name="diagnostic_idle">Not recording • %1$d events retained</string>
+    <string name="diagnostic_start">Start</string>
+    <string name="diagnostic_stop">Stop</string>
+    <string name="diagnostic_export">Export report</string>
+    <string name="diagnostic_exported">Diagnostic report exported</string>
+    <string name="diagnostic_export_failed">Diagnostic report could not be exported</string>
+</resources>

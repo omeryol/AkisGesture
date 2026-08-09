@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
 import io.github.omeryol.akisgesture.root.RootResult
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -76,11 +77,13 @@ object AccessibilityControl {
         )
         if (action == AccessibilityHealthPolicy.Action.NONE) return RootResult.Success
         prefs.edit().putLong(KEY_LAST_REPAIR, nowMillis).apply()
-        return when (action) {
+        val result = when (action) {
             AccessibilityHealthPolicy.Action.ENABLE_SETTING -> setEnabled(context, true)
             AccessibilityHealthPolicy.Action.REBIND_SERVICE -> rebind(context)
             AccessibilityHealthPolicy.Action.NONE -> RootResult.Success
         }
+        RuntimeDiagnostics.repairFinished(action.name, result)
+        return result
     }
 
     private suspend fun rebind(context: Context): RootResult {

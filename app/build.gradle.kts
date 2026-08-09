@@ -54,6 +54,12 @@ android {
                 "proguard-rules.pro"
             )
         }
+        create("diagnostic") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".diagnostic"
+            versionNameSuffix = "-diagnostic"
+            matchingFallbacks += listOf("debug")
+        }
     }
 
     compileOptions {

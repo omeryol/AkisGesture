@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import io.github.omeryol.akisgesture.AkisGestureApp
 import io.github.omeryol.akisgesture.action.ActionDispatcher
 import io.github.omeryol.akisgesture.action.ActionDispatcherImpl
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import io.github.omeryol.akisgesture.gesture.GestureEngine
 import io.github.omeryol.akisgesture.overlay.OverlayManager
 import kotlinx.coroutines.CoroutineScope
@@ -68,6 +69,7 @@ class GestureAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
+        RuntimeDiagnostics.serviceConnected()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         serviceInfo = serviceInfo?.apply {
@@ -133,6 +135,7 @@ class GestureAccessibilityService : AccessibilityService() {
             if (instance === this && ::gestureEngine.isInitialized) {
                 gestureEngine.start()
                 updateSystemContext()
+                RuntimeDiagnostics.engineStarted()
             }
         }
     }
@@ -226,12 +229,12 @@ class GestureAccessibilityService : AccessibilityService() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        cleanup()
+        cleanup("unbind")
         return super.onUnbind(intent)
     }
 
     override fun onDestroy() {
-        cleanup()
+        cleanup("destroy")
         super.onDestroy()
     }
 
@@ -240,7 +243,7 @@ class GestureAccessibilityService : AccessibilityService() {
         if (::gestureEngine.isInitialized) gestureEngine.previewEdgeVerticalRange(edge, start, end)
     }
 
-    private fun cleanup() {
+    private fun cleanup(reason: String) {
         serviceScope.cancel()
         if (::gestureEngine.isInitialized) gestureEngine.stop()
         if (::overlayManager.isInitialized) overlayManager.removeAll()
@@ -255,6 +258,7 @@ class GestureAccessibilityService : AccessibilityService() {
 
         instance = null
         _serviceState.value = ServiceState.DISCONNECTED
+        RuntimeDiagnostics.serviceDisconnected(reason)
     }
 
 

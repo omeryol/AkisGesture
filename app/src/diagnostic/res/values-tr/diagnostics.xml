@@ -1,0 +1,11 @@
+<resources>
+    <string name="diagnostic_title">Tanılama oturumu</string>
+    <string name="diagnostic_subtitle">Yalnızca sizin başlattığınız oturumda kayıt tutar. Son 300 olay bellekte kalır; rapor dışa aktarılana kadar dosya oluşturulmaz.</string>
+    <string name="diagnostic_recording">Kayıt alınıyor • %1$d olay</string>
+    <string name="diagnostic_idle">Kayıt kapalı • %1$d olay bellekte</string>
+    <string name="diagnostic_start">Başlat</string>
+    <string name="diagnostic_stop">Durdur</string>
+    <string name="diagnostic_export">Raporu dışa aktar</string>
+    <string name="diagnostic_exported">Tanılama raporu dışa aktarıldı</string>
+    <string name="diagnostic_export_failed">Tanılama raporu dışa aktarılamadı</string>
+</resources>
