@@ -279,12 +279,27 @@ class BezierStretchRenderer {
             armed -> 1.02f
             else -> 1f
         }
-        iconFill.maskFilter = BlurMaskFilter(9f*size, BlurMaskFilter.Blur.NORMAL)
-        iconFill.color = withAlpha(baseColor,(115*opacity*alphaValue).toInt())
+        // Frosted-glass backing: a soft translucent halo instead of a solid cue.
+        iconFill.maskFilter = BlurMaskFilter(12f*size, BlurMaskFilter.Blur.NORMAL)
+        iconFill.color = withAlpha(lighten(baseColor, .18f), (62*opacity*alphaValue).toInt())
         canvas.drawCircle(c.first,c.second,radius*1.55f*pulse,iconFill)
         iconFill.maskFilter=null
-        iconFill.shader=RadialGradient(c.first-radius*.3f,c.second-radius*.35f,radius*1.65f,intArrayOf(withAlpha(lighten(baseColor,.62f),(235*opacity).toInt()),withAlpha(baseColor,(220*opacity).toInt()),withAlpha(darken(baseColor,.42f),(175*opacity).toInt())),floatArrayOf(0f,.45f,1f),Shader.TileMode.CLAMP)
+        iconFill.shader=RadialGradient(
+            c.first-radius*.36f, c.second-radius*.42f, radius*1.72f,
+            intArrayOf(
+                withAlpha(Color.WHITE, (92*opacity*alphaValue).toInt()),
+                withAlpha(lighten(baseColor,.28f), (112*opacity*alphaValue).toInt()),
+                withAlpha(darken(baseColor,.18f), (68*opacity*alphaValue).toInt()),
+                Color.TRANSPARENT,
+            ),
+            floatArrayOf(0f,.34f,.78f,1f), Shader.TileMode.CLAMP,
+        )
         canvas.drawCircle(c.first,c.second,radius*pulse,iconFill);iconFill.shader=null
+        iconFill.style = Paint.Style.STROKE
+        iconFill.strokeWidth = (1.4f + lEmphasis * 1.2f) * size
+        iconFill.color = withAlpha(Color.WHITE, (105*opacity*alphaValue).toInt())
+        canvas.drawCircle(c.first,c.second,radius*pulse,iconFill)
+        iconFill.style = Paint.Style.FILL
 
         val elapsed=((System.nanoTime()-symbolChangedAt)/1_000_000_000f).coerceAtLeast(0f)
         val transition=smoothStep(0f,.20f,elapsed)
