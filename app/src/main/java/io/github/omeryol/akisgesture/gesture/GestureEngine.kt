@@ -495,8 +495,9 @@ class GestureEngine(
         val height = metrics.heightPixels.toFloat()
         val span = if (edge == Edge.BOTTOM) height else width
         val radius = currentConfig.ringSizeDp * currentConfig.iconSize
-        val inset = (span * 0.34f + currentConfig.ringGroupInsetDp * density)
-            .coerceIn(280f, span * 0.64f)
+        val maxInset = if (edge == Edge.BOTTOM) span * 0.5f else span * 0.9f
+        val inset = (currentConfig.ringGroupInsetDp * density)
+            .coerceIn(radius * 1.2f, maxInset)
         val spread = (currentConfig.ringGroupSpacingDp * density).coerceAtLeast(36f)
         val anchor = when (edge) {
             Edge.LEFT -> inset

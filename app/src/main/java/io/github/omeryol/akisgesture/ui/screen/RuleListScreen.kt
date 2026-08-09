@@ -128,9 +128,9 @@ fun RuleListScreen(
 
     var selectedEdge by remember(initialEdge) { mutableStateOf(initialEdge) }
     val ringInsetRange = if (selectedEdge == Edge.BOTTOM) {
-        (screenConfig.screenHeightDp * .05f)..(screenConfig.screenHeightDp * .50f)
+        0f..(screenConfig.screenHeightDp * .50f)
     } else {
-        (screenConfig.screenWidthDp * .10f)..screenConfig.screenWidthDp.toFloat()
+        0f..screenConfig.screenWidthDp.toFloat()
     }
     var showAddDialog by remember { mutableStateOf(false) }
     var showMap by remember { mutableStateOf(false) }
@@ -502,13 +502,6 @@ fun RuleListScreen(
                                 subtitle = stringResource(R.string.ring_menu_enabled_subtitle),
                                 checked = gestureConfig.ringMenuEnabled,
                                 onCheckedChange = viewModel::setRingMenuEnabled,
-                            )
-                            RingMenuPreview(
-                                edge = selectedEdge,
-                                actions = gestureConfig.ringActionsFor(selectedEdge),
-                                insetDp = gestureConfig.ringGroupInsetDp,
-                                sizeDp = gestureConfig.ringSizeDp,
-                                spacingDp = gestureConfig.ringGroupSpacingDp,
                             )
                             AkisSliderRow(
                                 title = stringResource(R.string.ring_group_inset),
