@@ -230,7 +230,7 @@ class EdgeGestureDetector(
             }
         }
 
-        if (switchDirection == null && GestureCancelPolicy.shouldCancel(
+        if (!ringActive && switchDirection == null && GestureCancelPolicy.shouldCancel(
                 wasArmed = wasArmed || lSwipeDetector.inwardArmed,
                 inwardDisplacement = dampedDisplacement,
                 activationThreshold = swipeThresholdPx,
@@ -257,7 +257,7 @@ class EdgeGestureDetector(
         }
 
         if (ringActive) {
-            if (dampedDisplacement < swipeThresholdPx * 0.88f) {
+            if (dampedDisplacement < swipeThresholdPx * 0.72f) {
                 RuntimeDiagnostics.ringDismissed(edge.name)
                 ringActive = false
                 ringSelectedIndex = -1
