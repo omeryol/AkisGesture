@@ -73,6 +73,22 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         pendingTarget = null
     }
 
+    fun setRingMenuEnabled(enabled: Boolean) {
+        viewModelScope.launch { app.updateRingMenuEnabled(enabled) }
+    }
+
+    fun setRingActions(edge: Edge, actions: List<ActionNode>) {
+        viewModelScope.launch { app.updateRingActions(edge, actions.map(ActionNode::id)) }
+    }
+
+    fun setRingGroupInsetDp(value: Float) {
+        viewModelScope.launch { app.updateRingGroupInsetDp(value) }
+    }
+
+    fun setRingGroupSpacingDp(value: Float) {
+        viewModelScope.launch { app.updateRingGroupSpacingDp(value) }
+    }
+
     private val _rules = MutableStateFlow<List<GestureRule>>(emptyList())
     val rules: StateFlow<List<GestureRule>> = _rules.asStateFlow()
 

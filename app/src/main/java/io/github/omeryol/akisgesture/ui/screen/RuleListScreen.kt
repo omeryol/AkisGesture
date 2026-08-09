@@ -77,10 +77,14 @@ import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
+import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.component.ActionIcon
 import io.github.omeryol.akisgesture.ui.component.AddRuleDialog
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
+import io.github.omeryol.akisgesture.ui.component.AkisSliderRow
+import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
+import io.github.omeryol.akisgesture.ui.component.ActionPickerScreen
 import io.github.omeryol.akisgesture.ui.component.EdgeZoneVisual
 import io.github.omeryol.akisgesture.ui.component.GestureMapCard
 import io.github.omeryol.akisgesture.ui.util.appLabel
@@ -97,6 +101,7 @@ import io.github.omeryol.akisgesture.ui.theme.AkisSecondary
 import io.github.omeryol.akisgesture.ui.theme.AkisTertiary
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import java.util.UUID
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,6 +134,7 @@ fun RuleListScreen(
     var actionPickerToken by remember { mutableStateOf<String?>(null) }
     var showPresetMenu by remember { mutableStateOf(false) }
     var showProfileMenu by remember { mutableStateOf(false) }
+    var ringEditor by remember { mutableStateOf<Pair<Edge, Int>?>(null) }
     var showProfileAppPicker by remember { mutableStateOf(false) }
     var deleteProfilePackage by remember { mutableStateOf<String?>(null) }
 
@@ -137,6 +143,27 @@ fun RuleListScreen(
         actionPickerToken = token
         InternalNavigationBus.requestActionPicker(
             InternalNavigationBus.ActionPickerRequest(token),
+        )
+    }
+
+    ringEditor?.let { (edge, slot) ->
+        AlertDialog(
+            onDismissRequest = { ringEditor = null },
+            title = { Text(stringResource(R.string.ring_choose_action, slot + 1)) },
+            text = {
+                ActionPickerScreen(
+                    onDismiss = { ringEditor = null },
+                    onSelect = { action ->
+                        val updated = gestureConfig.ringActionsFor(edge).toMutableList()
+                        while (updated.size <= slot) updated += ActionNode.NoAction
+                        updated[slot] = action
+                        viewModel.setRingActions(edge, updated)
+                        ringEditor = null
+                    },
+                    iconPack = gestureConfig.actionIconPack,
+                )
+            },
+            confirmButton = {},
         )
     }
 
@@ -449,6 +476,55 @@ fun RuleListScreen(
                             onDeleteRule = { ruleId -> viewModel.removeRule(ruleId) },
                         )
                     }
+                    item(key = "ring_menu_header") {
+                        AkisGlassCard(accentTint = AkisTertiary) {
+                            Text(
+                                stringResource(R.string.ring_menu_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                stringResource(R.string.ring_menu_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            AkisSwitchRow(
+                                title = stringResource(R.string.ring_menu_enabled),
+                                subtitle = stringResource(R.string.ring_menu_enabled_subtitle),
+                                checked = gestureConfig.ringMenuEnabled,
+                                onCheckedChange = viewModel::setRingMenuEnabled,
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.ring_group_inset),
+                                valueText = "${gestureConfig.ringGroupInsetDp.roundToInt()} dp",
+                                value = gestureConfig.ringGroupInsetDp,
+                                valueRange = 0f..220f,
+                                onValueChange = viewModel::setRingGroupInsetDp,
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.ring_group_spacing),
+                                valueText = "${gestureConfig.ringGroupSpacingDp.roundToInt()} dp",
+                                value = gestureConfig.ringGroupSpacingDp,
+                                valueRange = 36f..120f,
+                                onValueChange = viewModel::setRingGroupSpacingDp,
+                            )
+                        }
+                    }
+                    items(Edge.entries, key = { "ring_edge_${it.name}" }) { edge ->
+                        RingEdgeCard(
+                            edge = edge,
+                            config = gestureConfig,
+                            onEdit = { slot -> ringEditor = edge to slot },
+                            onDelete = { slot ->
+                                viewModel.setRingActions(
+                                    edge,
+                                    gestureConfig.ringActionsFor(edge).filterIndexed { index, _ -> index != slot },
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -733,6 +809,59 @@ fun RuleListScreen(
         )
     }
 
+}
+
+@Composable
+private fun RingEdgeCard(
+    edge: Edge,
+    config: GestureConfig,
+    onEdit: (Int) -> Unit,
+    onDelete: (Int) -> Unit,
+) {
+    val context = LocalContext.current
+    val actions = config.ringActionsFor(edge)
+    AkisGlassCard(accentTint = EdgeUi.color(edge)) {
+        Text(
+            edgeLabel(context, edge),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            stringResource(R.string.ring_edge_card_subtitle),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(6.dp))
+        repeat(3) { slot ->
+            val action = actions.getOrNull(slot)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    stringResource(
+                        R.string.ring_slot,
+                        slot + 1,
+                        action?.label ?: stringResource(R.string.ring_unassigned),
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    TextButton(onClick = { onEdit(slot) }) {
+                        Text(if (action == null) stringResource(R.string.add_action) else stringResource(R.string.change))
+                    }
+                    if (action != null) {
+                        TextButton(onClick = { onDelete(slot) }) {
+                            Text(stringResource(R.string.delete))
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private fun templateAccent(index: Int): Color = listOf(
