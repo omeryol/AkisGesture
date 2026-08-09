@@ -267,7 +267,7 @@ class EdgeGestureDetector(
                 return
             }
             ringSelectedIndex = resolveRingHover(dx, dy, dampedDisplacement - ringOpenedStretch)
-            ringHitIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
+            ringHitIndex = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
         }
 
         publishProgress(active = visuallyActive)
@@ -302,7 +302,7 @@ class EdgeGestureDetector(
 
         if (ringActive) {
             lastTouchAlongEdge = touchCoord(event)
-            ringHitIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
+            ringHitIndex = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
             if (ringHitIndex >= 0) {
                 RuntimeDiagnostics.ringSelected(edge.name, ringHitIndex)
                 onRingActionSelected(ringHitIndex)
