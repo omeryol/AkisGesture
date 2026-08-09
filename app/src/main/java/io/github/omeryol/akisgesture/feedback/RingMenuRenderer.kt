@@ -31,7 +31,7 @@ class RingMenuRenderer {
         // Keep the bubbles attached to the finger's inward travel instead of
         // pinning them to the trigger edge. The small lead offset keeps the
         // selected bubble visible around the fingertip.
-        val radius = 52f * iconScale
+        val radius = 58f * iconScale
         // Start from the opposite edge and converge toward the fingertip as
         // the finger travels inward. This keeps the menu visibly in front of
         // the gesture instead of leaving it pinned to the trigger edge.
@@ -41,28 +41,38 @@ class RingMenuRenderer {
         }.coerceAtLeast(1f)
         // Let the bubbles catch up slightly faster than the fingertip while
         // still clamping them to the fingertip position at the far end.
-        val progress = (stretch / edgeSpan * 1.20f).coerceIn(0f, 1f)
+        val progress = (stretch / edgeSpan * 1.85f).coerceIn(0f, 1f)
         val anchor = when (edge) {
             Edge.LEFT -> width + (stretch - width) * progress
             Edge.RIGHT -> (width - stretch) * progress
             Edge.BOTTOM -> (height - stretch) * progress
         }
-        val spread = 108f * iconScale
+        val spread = 156f * iconScale
+        val sideY = listOf(
+            (touch - spread).coerceIn(radius, height - radius),
+            touch.coerceIn(radius, height - radius),
+            (touch + spread).coerceIn(radius, height - radius),
+        )
+        val bottomX = listOf(
+            (touch - spread).coerceIn(radius, width - radius),
+            touch.coerceIn(radius, width - radius),
+            (touch + spread).coerceIn(radius, width - radius),
+        )
         val positions = when (edge) {
             Edge.LEFT -> listOf(
-                anchor to touch - spread,
-                anchor to touch,
-                anchor to touch + spread,
+                anchor to sideY[0],
+                anchor to sideY[1],
+                anchor to sideY[2],
             )
             Edge.RIGHT -> listOf(
-                anchor to touch - spread,
-                anchor to touch,
-                anchor to touch + spread,
+                anchor to sideY[0],
+                anchor to sideY[1],
+                anchor to sideY[2],
             )
             Edge.BOTTOM -> listOf(
-                touch - spread to anchor,
-                touch to anchor,
-                touch + spread to anchor,
+                bottomX[0] to anchor,
+                bottomX[1] to anchor,
+                bottomX[2] to anchor,
             )
         }
         symbols.take(3).forEachIndexed { index, value ->
@@ -70,7 +80,8 @@ class RingMenuRenderer {
             val selected = index == selectedIndex
             val scale = if (selected) 1.18f else 1f
             val r = radius * scale
-            val baseAlpha = ((if (selected) 0.70f else 0.42f) * opacity * 255).toInt()
+            val reveal = (0.18f + 0.82f * progress).coerceIn(0f, 1f)
+            val baseAlpha = ((if (selected) 0.72f else 0.46f) * reveal * opacity * 255).toInt()
             fill.shader = RadialGradient(
                 x - r * .32f,
                 y - r * .38f,
@@ -90,7 +101,7 @@ class RingMenuRenderer {
             canvas.drawCircle(x, y, r, stroke)
             if (value.isNotEmpty()) {
                 symbol.textSize = r * 1.00f
-                symbol.color = Color.argb((opacity * 255).toInt(), 255, 255, 255)
+                symbol.color = Color.argb((opacity * reveal * 255).toInt(), 255, 255, 255)
                 canvas.drawText(value, x, y - (symbol.ascent() + symbol.descent()) / 2f, symbol)
             }
         }
