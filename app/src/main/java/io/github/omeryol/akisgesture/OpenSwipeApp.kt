@@ -394,7 +394,7 @@ class AkisGestureApp : Application() {
     }
 
     suspend fun updateRingGroupInsetDp(value: Float) {
-        settingsDataStore.edit { it[GestureConfig.KEY_RING_GROUP_INSET_DP] = value.coerceIn(0f, 220f) }
+        settingsDataStore.edit { it[GestureConfig.KEY_RING_GROUP_INSET_DP] = value.coerceIn(0f, 2000f) }
     }
 
     suspend fun updateRingGroupSpacingDp(value: Float) {
