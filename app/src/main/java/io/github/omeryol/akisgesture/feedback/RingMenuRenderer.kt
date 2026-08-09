@@ -48,13 +48,13 @@ class RingMenuRenderer {
             Edge.RIGHT -> width - menuInset
             Edge.BOTTOM -> height - menuInset
         }
-        val middleLead = 48f * iconScale
+        val middleLead = 72f * iconScale
         val middleAnchor = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT -> anchor - middleLead
             Edge.BOTTOM -> anchor - middleLead
         }
-        val spread = 156f * iconScale
+        val spread = 180f * iconScale
         val sideY = listOf(
             (touch - spread).coerceIn(radius, height - radius),
             touch.coerceIn(radius, height - radius),
