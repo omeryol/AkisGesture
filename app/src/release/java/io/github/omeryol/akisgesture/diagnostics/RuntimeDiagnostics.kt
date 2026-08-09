@@ -14,6 +14,7 @@ object RuntimeDiagnostics {
     fun ringSelected(edge: String, index: Int) = Unit
     fun ringAction(edge: String, index: Int, actionId: String) = Unit
     fun ringDismissed(edge: String) = Unit
+    fun ringHitProbe(edge: String, index: Int, x: Float, y: Float, touch: Float) = Unit
     fun actionFinished(actionId: String, result: ActionResult) = Unit
     fun repairFinished(action: String, result: RootResult) = Unit
 }

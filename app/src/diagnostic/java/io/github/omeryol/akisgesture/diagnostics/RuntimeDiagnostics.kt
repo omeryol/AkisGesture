@@ -78,6 +78,15 @@ object RuntimeDiagnostics {
         mapOf("edge" to edge, "slot" to index.toString(), "action" to actionId),
     )
     fun ringDismissed(edge: String) = record("ring", "dismissed", mapOf("edge" to edge))
+    fun ringHitProbe(edge: String, index: Int, x: Float, y: Float, touch: Float) = record(
+        "ring", "hit_probe", mapOf(
+            "edge" to edge,
+            "hit" to index.toString(),
+            "x" to "%.1f".format(java.util.Locale.US, x),
+            "y" to "%.1f".format(java.util.Locale.US, y),
+            "touch" to "%.1f".format(java.util.Locale.US, touch),
+        ),
+    )
 
     fun actionFinished(actionId: String, result: ActionResult) = record(
         category = "action",

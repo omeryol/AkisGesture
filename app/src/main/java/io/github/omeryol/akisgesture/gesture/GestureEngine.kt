@@ -526,7 +526,9 @@ class GestureEngine(
             )
         }
         val hitRadius = radius * 1.15f
-        return centers.indexOfFirst { (cx, cy) -> hypot(x - cx, y - cy) <= hitRadius }
+        val hit = centers.indexOfFirst { (cx, cy) -> hypot(x - cx, y - cy) <= hitRadius }
+        RuntimeDiagnostics.ringHitProbe(edge.name, hit, x, y, touchAlongEdge)
+        return hit
     }
 
     private fun handleGestureProgress(progress: GestureProgress) {
