@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringArrayResource
 import io.github.omeryol.akisgesture.R
@@ -114,6 +115,7 @@ fun RuleListScreen(
     val context = LocalContext.current
     val rules by viewModel.rules.collectAsState()
     val gestureConfig by viewModel.gestureConfig.collectAsState()
+    val screenConfig = LocalConfiguration.current
     val conflicts by viewModel.conflicts.collectAsState()
     val activePreset by viewModel.activePresetName.collectAsState()
     val activeProfilePackage by viewModel.activeProfilePackage.collectAsState()
@@ -125,6 +127,11 @@ fun RuleListScreen(
     }
 
     var selectedEdge by remember(initialEdge) { mutableStateOf(initialEdge) }
+    val ringInsetRange = if (selectedEdge == Edge.BOTTOM) {
+        (screenConfig.screenHeightDp * .05f)..(screenConfig.screenHeightDp * .50f)
+    } else {
+        (screenConfig.screenWidthDp * .10f)..screenConfig.screenWidthDp.toFloat()
+    }
     var showAddDialog by remember { mutableStateOf(false) }
     var showMap by remember { mutableStateOf(false) }
     var selectedGroupKey by remember { mutableStateOf<String?>(null) }
@@ -496,11 +503,17 @@ fun RuleListScreen(
                                 checked = gestureConfig.ringMenuEnabled,
                                 onCheckedChange = viewModel::setRingMenuEnabled,
                             )
+                            RingMenuPreview(
+                                edge = selectedEdge,
+                                actions = gestureConfig.ringActionsFor(selectedEdge),
+                                sizeDp = gestureConfig.ringSizeDp,
+                                spacingDp = gestureConfig.ringGroupSpacingDp,
+                            )
                             AkisSliderRow(
                                 title = stringResource(R.string.ring_group_inset),
                                 valueText = "${gestureConfig.ringGroupInsetDp.roundToInt()} dp",
                                 value = gestureConfig.ringGroupInsetDp,
-                                valueRange = 0f..220f,
+                                valueRange = ringInsetRange,
                                 onValueChange = viewModel::setRingGroupInsetDp,
                             )
                             AkisSliderRow(
@@ -880,6 +893,44 @@ private fun RingEdgeCard(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RingMenuPreview(
+    edge: Edge,
+    actions: List<ActionNode>,
+    sizeDp: Float,
+    spacingDp: Float,
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth().height(112.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .34f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy((spacingDp / 4f).coerceIn(12f, 28f).dp)) {
+            repeat(3) { index ->
+                val label = actions.getOrNull(index)?.label?.take(4) ?: "—"
+                Box(
+                    modifier = Modifier.size(sizeDp.coerceIn(40f, 72f).dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.radialGradient(
+                                listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = .42f),
+                                    MaterialTheme.colorScheme.primary.copy(alpha = .16f),
+                                    Color.Transparent,
+                                ),
+                            ),
+                        )
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = .42f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
