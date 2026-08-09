@@ -28,7 +28,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlin.math.hypot
 
 /**
  * Main Orchestration Engine for Akış Gesture.
@@ -526,8 +525,16 @@ class GestureEngine(
                 side[2] to anchor,
             )
         }
-        val hitRadius = radius * 1.15f
-        val hit = centers.indexOfFirst { (cx, cy) -> hypot(x - cx, y - cy) <= hitRadius }
+        // Treat contact with any visible part of the bubble as a hit. The
+        // extra margin also covers the selected bubble's animated growth.
+        val hitRadius = radius * 1.30f
+        val hitRadiusSquared = hitRadius * hitRadius
+        val nearest = centers.mapIndexed { index, (cx, cy) ->
+            val dx = x - cx
+            val dy = y - cy
+            index to (dx * dx + dy * dy)
+        }.minByOrNull { it.second }
+        val hit = if (nearest != null && nearest.second <= hitRadiusSquared) nearest.first else -1
         RuntimeDiagnostics.ringHitProbe(edge.name, hit, x, y, touchAlongEdge)
         return hit
     }
