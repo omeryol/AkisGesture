@@ -426,8 +426,11 @@ class EdgeGestureDetector(
             Edge.LEFT, Edge.RIGHT -> dy
             Edge.BOTTOM -> dx
         }
-        val shift = scaledTouchSlop * 1.45f
+        val shift = maxOf(scaledTouchSlop * 1.45f, swipeThresholdPx * 0.22f)
+        val inwardDominant = inwardTravelAfterOpen >= swipeThresholdPx * 0.55f &&
+            abs(perpendicular) < inwardTravelAfterOpen * 0.58f
         return when {
+            inwardDominant -> 1
             perpendicular < -shift -> 0
             perpendicular > shift -> 2
             inwardTravelAfterOpen >= swipeThresholdPx * 0.55f -> 1
