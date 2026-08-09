@@ -241,7 +241,12 @@ class EdgeGestureDetector(
 
         if (switchDirection == null && quickArmed && !holdScheduled && !holdArmed) {
             holdScheduled = true
-            handler.postDelayed(holdRunnable, config.holdTimeMs)
+            val delayMs = if (hasRingActions()) {
+                maxOf(config.holdTimeMs, RING_REVEAL_DELAY_MS)
+            } else {
+                config.holdTimeMs
+            }
+            handler.postDelayed(holdRunnable, delayMs)
         }
 
         if (ringActive) {
@@ -488,6 +493,7 @@ class EdgeGestureDetector(
 
     companion object {
         private const val LOG_TAG = "AkisGesture"
+        private const val RING_REVEAL_DELAY_MS = 1_000L
     }
 }
 

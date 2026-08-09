@@ -48,6 +48,12 @@ class RingMenuRenderer {
             Edge.RIGHT -> width - menuInset
             Edge.BOTTOM -> height - menuInset
         }
+        val middleLead = 48f * iconScale
+        val middleAnchor = when (edge) {
+            Edge.LEFT -> anchor + middleLead
+            Edge.RIGHT -> anchor - middleLead
+            Edge.BOTTOM -> anchor - middleLead
+        }
         val spread = 156f * iconScale
         val sideY = listOf(
             (touch - spread).coerceIn(radius, height - radius),
@@ -62,17 +68,17 @@ class RingMenuRenderer {
         val positions = when (edge) {
             Edge.LEFT -> listOf(
                 anchor to sideY[0],
-                anchor to sideY[1],
+                middleAnchor to sideY[1],
                 anchor to sideY[2],
             )
             Edge.RIGHT -> listOf(
                 anchor to sideY[0],
-                anchor to sideY[1],
+                middleAnchor to sideY[1],
                 anchor to sideY[2],
             )
             Edge.BOTTOM -> listOf(
                 bottomX[0] to anchor,
-                bottomX[1] to anchor,
+                bottomX[1] to middleAnchor,
                 bottomX[2] to anchor,
             )
         }
