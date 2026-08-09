@@ -39,7 +39,9 @@ class RingMenuRenderer {
             Edge.LEFT, Edge.RIGHT -> width
             Edge.BOTTOM -> height
         }.coerceAtLeast(1f)
-        val progress = (stretch / edgeSpan).coerceIn(0f, 1f)
+        // Let the bubbles catch up slightly faster than the fingertip while
+        // still clamping them to the fingertip position at the far end.
+        val progress = (stretch / edgeSpan * 1.20f).coerceIn(0f, 1f)
         val anchor = when (edge) {
             Edge.LEFT -> width + (stretch - width) * progress
             Edge.RIGHT -> (width - stretch) * progress
