@@ -21,6 +21,7 @@ class RingMenuRenderer {
         width: Float,
         height: Float,
         stretch: Float,
+        threshold: Float,
         color: Int,
         opacity: Float,
         symbols: List<String>,
@@ -32,20 +33,20 @@ class RingMenuRenderer {
         // pinning them to the trigger edge. The small lead offset keeps the
         // selected bubble visible around the fingertip.
         val radius = 58f * iconScale
-        // Start from the opposite edge and converge toward the fingertip as
-        // the finger travels inward. This keeps the menu visibly in front of
-        // the gesture instead of leaving it pinned to the trigger edge.
+        // Use a stable, screen-relative menu position. The finger's actual
+        // inward pixel distance controls reveal only, so the three bubbles
+        // never chase the fingertip or collapse on top of one another.
         val edgeSpan = when (edge) {
             Edge.LEFT, Edge.RIGHT -> width
             Edge.BOTTOM -> height
         }.coerceAtLeast(1f)
-        // Let the bubbles catch up slightly faster than the fingertip while
-        // still clamping them to the fingertip position at the far end.
-        val progress = (stretch / edgeSpan * 1.85f).coerceIn(0f, 1f)
+        val menuInset = (edgeSpan * 0.34f).coerceIn(280f, 420f)
+        val revealEnd = menuInset.coerceAtLeast(threshold + 1f)
+        val progress = ((stretch - threshold) / (revealEnd - threshold)).coerceIn(0f, 1f)
         val anchor = when (edge) {
-            Edge.LEFT -> width + (stretch - width) * progress
-            Edge.RIGHT -> (width - stretch) * progress
-            Edge.BOTTOM -> (height - stretch) * progress
+            Edge.LEFT -> menuInset
+            Edge.RIGHT -> width - menuInset
+            Edge.BOTTOM -> height - menuInset
         }
         val spread = 156f * iconScale
         val sideY = listOf(

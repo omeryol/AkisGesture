@@ -190,6 +190,7 @@ class FeedbackView(context: Context) : View(context) {
                 width = width.toFloat(),
                 height = height.toFloat(),
                 stretch = stretchDistance,
+                threshold = peakThreshold,
                 color = feedbackColor,
                 opacity = feedbackOpacity,
                 symbols = ringSymbols,
