@@ -44,6 +44,7 @@ class EdgeGestureDetector(
     private var holdFiredOnThreshold = false
     private var ringActive = false
     private var ringSelectedIndex = -1
+    private var ringOpenedStretch = 0f
     private var lastLPreviewGesture: GestureType? = null
 
     private var lastStretch = 0f
@@ -64,7 +65,8 @@ class EdgeGestureDetector(
             RuntimeDiagnostics.gestureSignal(edge.name, "hold_armed")
             if (hasRingActions()) {
                 ringActive = true
-                ringSelectedIndex = 1
+                ringSelectedIndex = -1
+                ringOpenedStretch = lastStretch
                 RuntimeDiagnostics.ringOpened(edge.name)
             }
             publishProgress(active = true)
@@ -250,7 +252,16 @@ class EdgeGestureDetector(
         }
 
         if (ringActive) {
-            ringSelectedIndex = resolveRingSelection(dx, dy)
+            if (dampedDisplacement < swipeThresholdPx * 0.88f) {
+                RuntimeDiagnostics.ringDismissed(edge.name)
+                ringActive = false
+                ringSelectedIndex = -1
+                state = GestureState.CANCELLED
+                cancelHold()
+                publishProgress(active = false)
+                return
+            }
+            ringSelectedIndex = resolveRingSelection(dx, dy, dampedDisplacement - ringOpenedStretch)
         }
 
         publishProgress(active = visuallyActive)
@@ -467,6 +478,7 @@ class EdgeGestureDetector(
         holdFiredOnThreshold = false
         ringActive = false
         ringSelectedIndex = -1
+        ringOpenedStretch = 0f
         lastLPreviewGesture = null
         lastStretch = 0f
         lastTouchAlongEdge = 0f
@@ -478,7 +490,7 @@ class EdgeGestureDetector(
         touchState.reset()
     }
 
-    private fun resolveRingSelection(dx: Float, dy: Float): Int {
+    private fun resolveRingSelection(dx: Float, dy: Float, inwardTravelAfterOpen: Float): Int {
         val perpendicular = when (edge) {
             Edge.LEFT, Edge.RIGHT -> dy
             Edge.BOTTOM -> dx
@@ -487,7 +499,8 @@ class EdgeGestureDetector(
         return when {
             perpendicular < -shift -> 0
             perpendicular > shift -> 2
-            else -> 1
+            inwardTravelAfterOpen >= swipeThresholdPx * 0.75f -> 1
+            else -> -1
         }
     }
 
