@@ -579,7 +579,13 @@ class GestureEngine(
         // Keep the selected action visible through the release animation. Clearing
         // it on ACTION_UP makes the renderer fall back to intermediate icons.
         if (progress.active) {
-            view.actionSymbol = ActionSymbols.symbolFor(matchedAction, currentConfig.actionIconPack)
+            // The L guide is its own visual cue. Do not place the action's
+            // fallback "L" glyph inside the trigger bubble while previewing.
+            view.actionSymbol = if (progress.lPreviewGesture != null) {
+                ""
+            } else {
+                ActionSymbols.symbolFor(matchedAction, currentConfig.actionIconPack)
+            }
         }
         view.updateGestureState(
             edge = progress.edge,
