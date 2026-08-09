@@ -3,6 +3,7 @@ package io.github.omeryol.akisgesture.diagnostics
 import android.content.Context
 import android.os.Build
 import android.os.SystemClock
+import android.util.Log
 import io.github.omeryol.akisgesture.BuildConfig
 import io.github.omeryol.akisgesture.action.ActionResult
 import io.github.omeryol.akisgesture.root.RootResult
@@ -11,8 +12,9 @@ import org.json.JSONObject
 import java.io.OutputStream
 
 /**
- * Diagnostic-only, opt-in flight recorder. Events remain in memory until the
- * user explicitly exports a report; nothing is written to disk automatically.
+ * Diagnostic-only flight recorder. The diagnostic APK records by default and
+ * mirrors every event to Logcat for direct inspection; nothing is written to
+ * disk automatically.
  */
 object RuntimeDiagnostics {
     private const val MAX_EVENTS = 300
@@ -20,8 +22,12 @@ object RuntimeDiagnostics {
     private val events = ArrayDeque<DiagnosticEvent>(MAX_EVENTS)
 
     @Volatile
-    var isRecording: Boolean = false
+    var isRecording: Boolean = true
         private set
+
+    init {
+        recordLocked("session", "started_default")
+    }
 
     fun startSession() {
         synchronized(lock) {
@@ -143,6 +149,8 @@ object RuntimeDiagnostics {
                 details = details,
             ),
         )
+        val detailsText = details.entries.joinToString(", ") { (key, value) -> "$key=$value" }
+        Log.i(LOG_TAG, "${category}/${name}${if (detailsText.isBlank()) "" else " | $detailsText"}")
     }
 
     private data class DiagnosticEvent(
@@ -158,4 +166,6 @@ object RuntimeDiagnostics {
             put("details", JSONObject(details))
         }
     }
+
+    private const val LOG_TAG = "AkisGestureDiag"
 }
