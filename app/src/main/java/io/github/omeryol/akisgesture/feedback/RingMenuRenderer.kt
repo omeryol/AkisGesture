@@ -32,26 +32,35 @@ class RingMenuRenderer {
         // pinning them to the trigger edge. The small lead offset keeps the
         // selected bubble visible around the fingertip.
         val radius = 52f * iconScale
-        // Place the menu on the visible side of the fingertip, toward the
-        // trigger edge, so the finger never trails across the bubbles.
-        val lead = (radius * 1.20f).coerceAtLeast(62f * iconScale)
-        val depth = (stretch - lead).coerceAtLeast(84f * iconScale)
+        // Start from the opposite edge and converge toward the fingertip as
+        // the finger travels inward. This keeps the menu visibly in front of
+        // the gesture instead of leaving it pinned to the trigger edge.
+        val edgeSpan = when (edge) {
+            Edge.LEFT, Edge.RIGHT -> width
+            Edge.BOTTOM -> height
+        }.coerceAtLeast(1f)
+        val progress = (stretch / edgeSpan).coerceIn(0f, 1f)
+        val anchor = when (edge) {
+            Edge.LEFT -> width + (stretch - width) * progress
+            Edge.RIGHT -> (width - stretch) * progress
+            Edge.BOTTOM -> (height - stretch) * progress
+        }
         val spread = 108f * iconScale
         val positions = when (edge) {
             Edge.LEFT -> listOf(
-                depth - 14f to touch - spread,
-                depth to touch,
-                depth - 14f to touch + spread,
+                anchor to touch - spread,
+                anchor to touch,
+                anchor to touch + spread,
             )
             Edge.RIGHT -> listOf(
-                width - depth + 14f to touch - spread,
-                width - depth to touch,
-                width - depth + 14f to touch + spread,
+                anchor to touch - spread,
+                anchor to touch,
+                anchor to touch + spread,
             )
             Edge.BOTTOM -> listOf(
-                touch - spread to height - depth + 14f,
-                touch to height - depth,
-                touch + spread to height - depth + 14f,
+                touch - spread to anchor,
+                touch to anchor,
+                touch + spread to anchor,
             )
         }
         symbols.take(3).forEachIndexed { index, value ->
