@@ -821,41 +821,55 @@ private fun RingEdgeCard(
     val context = LocalContext.current
     val actions = config.ringActionsFor(edge)
     AkisGlassCard(accentTint = EdgeUi.color(edge)) {
-        Text(
-            edgeLabel(context, edge),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-            stringResource(R.string.ring_edge_card_subtitle),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(6.dp))
-        repeat(3) { slot ->
-            val action = actions.getOrNull(slot)
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            EdgeZoneVisual(
+                edge = edge,
+                section = io.github.omeryol.akisgesture.model.SectionRange.ALL,
+                zoneColor = EdgeUi.color(edge),
+                modifier = Modifier.size(56.dp, 80.dp),
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
                 Text(
-                    stringResource(
-                        R.string.ring_slot,
-                        slot + 1,
-                        action?.label ?: stringResource(R.string.ring_unassigned),
-                    ),
+                    edgeLabel(context, edge),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    stringResource(R.string.ring_edge_card_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    TextButton(onClick = { onEdit(slot) }) {
-                        Text(if (action == null) stringResource(R.string.add_action) else stringResource(R.string.change))
-                    }
-                    if (action != null) {
-                        TextButton(onClick = { onDelete(slot) }) {
-                            Text(stringResource(R.string.delete))
+                Spacer(Modifier.height(6.dp))
+                repeat(3) { slot ->
+                    val action = actions.getOrNull(slot)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            stringResource(
+                                R.string.ring_slot,
+                                slot + 1,
+                                action?.label ?: stringResource(R.string.ring_unassigned),
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            TextButton(onClick = { onEdit(slot) }) {
+                                Text(if (action == null) stringResource(R.string.add_action) else stringResource(R.string.change))
+                            }
+                            if (action != null) {
+                                TextButton(onClick = { onDelete(slot) }) {
+                                    Text(stringResource(R.string.delete))
+                                }
+                            }
                         }
                     }
                 }
