@@ -45,6 +45,7 @@ class EdgeGestureDetector(
     private var holdFiredOnThreshold = false
     private var ringActive = false
     private var ringSelectedIndex = -1
+    private var ringHitIndex = -1
     private var ringOpenedStretch = 0f
     private var lastLPreviewGesture: GestureType? = null
 
@@ -67,6 +68,7 @@ class EdgeGestureDetector(
             if (hasRingActions()) {
                 ringActive = true
                 ringSelectedIndex = -1
+                ringHitIndex = -1
                 ringOpenedStretch = lastStretch
                 RuntimeDiagnostics.ringOpened(edge.name)
             }
@@ -262,7 +264,8 @@ class EdgeGestureDetector(
                 publishProgress(active = false)
                 return
             }
-            ringSelectedIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
+            ringSelectedIndex = resolveRingHover(dx, dy, dampedDisplacement - ringOpenedStretch)
+            ringHitIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
         }
 
         publishProgress(active = visuallyActive)
@@ -297,10 +300,10 @@ class EdgeGestureDetector(
 
         if (ringActive) {
             lastTouchAlongEdge = touchCoord(event)
-            ringSelectedIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
-            if (ringSelectedIndex >= 0) {
-                RuntimeDiagnostics.ringSelected(edge.name, ringSelectedIndex)
-                onRingActionSelected(ringSelectedIndex)
+            ringHitIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
+            if (ringHitIndex >= 0) {
+                RuntimeDiagnostics.ringSelected(edge.name, ringHitIndex)
+                onRingActionSelected(ringHitIndex)
             } else {
                 RuntimeDiagnostics.ringDismissed(edge.name)
             }
@@ -416,6 +419,20 @@ class EdgeGestureDetector(
         holdArmed = false
     }
 
+    private fun resolveRingHover(dx: Float, dy: Float, inwardTravelAfterOpen: Float): Int {
+        val perpendicular = when (edge) {
+            Edge.LEFT, Edge.RIGHT -> dy
+            Edge.BOTTOM -> dx
+        }
+        val shift = scaledTouchSlop * 1.45f
+        return when {
+            perpendicular < -shift -> 0
+            perpendicular > shift -> 2
+            inwardTravelAfterOpen >= swipeThresholdPx * 0.55f -> 1
+            else -> -1
+        }
+    }
+
     private fun resolveGestureResult(
         displacement: Float,
         section: Int,
@@ -481,6 +498,7 @@ class EdgeGestureDetector(
         holdFiredOnThreshold = false
         ringActive = false
         ringSelectedIndex = -1
+        ringHitIndex = -1
         ringOpenedStretch = 0f
         lastLPreviewGesture = null
         lastStretch = 0f
