@@ -512,15 +512,16 @@ fun RuleListScreen(
                             )
                         }
                     }
-                    items(Edge.entries, key = { "ring_edge_${it.name}" }) { edge ->
+                    item(key = "ring_edge_${selectedEdge.name}") {
                         RingEdgeCard(
-                            edge = edge,
+                            edge = selectedEdge,
                             config = gestureConfig,
-                            onEdit = { slot -> ringEditor = edge to slot },
+                            onEdit = { slot -> ringEditor = selectedEdge to slot },
                             onDelete = { slot ->
                                 viewModel.setRingActions(
-                                    edge,
-                                    gestureConfig.ringActionsFor(edge).filterIndexed { index, _ -> index != slot },
+                                    selectedEdge,
+                                    gestureConfig.ringActionsFor(selectedEdge)
+                                        .filterIndexed { index, _ -> index != slot },
                                 )
                             },
                         )
