@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.LinearGradient
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.graphics.Typeface
@@ -172,79 +171,10 @@ class BezierStretchRenderer {
         if (stretch >= 0.25f && animation != FeedbackAnimation.NONE) {
             moduleFor(animation).draw(frame)
             drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
-            if (lPreviewGesture != null && lColorProgress > 0.03f) {
-                drawLGuide(canvas, edge, touchPosition, canvasWidth, canvasHeight, size)
-            }
         }
 
         // Draw particle burst on top
         particleBurst.draw(canvas, System.currentTimeMillis())
-    }
-
-    private fun drawLGuide(canvas: Canvas, edge: Edge, touch: Float, width: Float, height: Float, size: Float) {
-        val t = smoothStep(0f, 1f, lColorProgress)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeCap = Paint.Cap.ROUND
-            strokeJoin = Paint.Join.ROUND
-            strokeWidth = (2.2f + t * 2.2f) * size
-        }
-        val start = when (edge) {
-            Edge.LEFT -> 42f * size to touch
-            Edge.RIGHT -> width - 42f * size to touch
-            Edge.BOTTOM -> touch to height - 42f * size
-        }
-        val inward = 42f * size
-        val turn = 40f * size * t
-        val path = Path().apply {
-            moveTo(start.first, start.second)
-            when (edge) {
-                Edge.LEFT -> {
-                    lineTo(start.first + inward, start.second)
-                    lineTo(start.first + inward, start.second + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn)
-                }
-                Edge.RIGHT -> {
-                    lineTo(start.first - inward, start.second)
-                    lineTo(start.first - inward, start.second + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn)
-                }
-                Edge.BOTTOM -> {
-                    lineTo(start.first, start.second - inward)
-                    lineTo(start.first + if (lPreviewGesture == GestureType.SWIPE_UP_L) turn else -turn, start.second - inward)
-                }
-            }
-        }
-        val endX = when (edge) {
-            Edge.LEFT -> start.first + inward
-            Edge.RIGHT -> start.first - inward
-            Edge.BOTTOM -> start.first + if (lPreviewGesture == GestureType.SWIPE_UP_L) turn else -turn
-        }
-        val endY = when (edge) {
-            Edge.LEFT, Edge.RIGHT -> start.second + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn
-            Edge.BOTTOM -> start.second - inward
-        }
-        val alpha = (72f + t * 150f).toInt()
-        val glow = Paint(paint).apply {
-            strokeWidth = (8f + t * 7f) * size
-            color = withAlpha(lSwipeColor, (alpha * .28f).toInt())
-            maskFilter = BlurMaskFilter((7f + t * 6f) * size, BlurMaskFilter.Blur.NORMAL)
-        }
-        canvas.drawPath(path, glow)
-        paint.shader = LinearGradient(
-            start.first,
-            start.second,
-            endX,
-            endY,
-            intArrayOf(
-                withAlpha(Color.WHITE, (alpha * .36f).toInt()),
-                withAlpha(lSwipeColor, alpha),
-                withAlpha(Color.WHITE, (alpha * .58f).toInt()),
-            ),
-            floatArrayOf(0f, .52f, 1f),
-            Shader.TileMode.CLAMP,
-        )
-        paint.maskFilter = null
-        canvas.drawPath(path, paint)
-        paint.shader = null
     }
 
     private fun moduleFor(style: FeedbackAnimation): NaturalAnimationModule = when (style) {
