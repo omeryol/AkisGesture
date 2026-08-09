@@ -260,6 +260,7 @@
     <string name="ring_menu_enabled_subtitle">Yalnızca bu kenara halka eylemi atandığında çekip bekletme sonrası açılır</string>
     <string name="ring_group_inset">Tetiklemeden uzaklık</string>
     <string name="ring_group_spacing">Halkalar arası uzaklık</string>
+    <string name="ring_size">Halka boyutu</string>
     <string name="ring_edge_card_subtitle">Bu kenar için en fazla üç eylem atayın</string>
     <string name="ring_choose_action">%1$d. halka için eylem seç</string>
     <string name="ring_slot">%1$d. halka: %2$s</string>

@@ -510,6 +510,13 @@ fun RuleListScreen(
                                 valueRange = 36f..120f,
                                 onValueChange = viewModel::setRingGroupSpacingDp,
                             )
+                            AkisSliderRow(
+                                title = stringResource(R.string.ring_size),
+                                valueText = "${gestureConfig.ringSizeDp.roundToInt()} dp",
+                                value = gestureConfig.ringSizeDp,
+                                valueRange = 40f..92f,
+                                onValueChange = viewModel::setRingSizeDp,
+                            )
                         }
                     }
                     item(key = "ring_edge_${selectedEdge.name}") {

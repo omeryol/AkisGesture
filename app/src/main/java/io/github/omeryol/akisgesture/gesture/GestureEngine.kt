@@ -494,7 +494,7 @@ class GestureEngine(
         val width = metrics.widthPixels.toFloat()
         val height = metrics.heightPixels.toFloat()
         val span = if (edge == Edge.BOTTOM) height else width
-        val radius = 58f * currentConfig.iconSize
+        val radius = currentConfig.ringSizeDp * currentConfig.iconSize
         val inset = (span * 0.34f + currentConfig.ringGroupInsetDp * density)
             .coerceIn(280f, span * 0.64f)
         val spread = (currentConfig.ringGroupSpacingDp * density).coerceAtLeast(36f)
@@ -556,6 +556,7 @@ class GestureEngine(
         view.showIndicatorBar = currentConfig.showGestureIndicatorBar
         view.ringGroupInsetDp = currentConfig.ringGroupInsetDp
         view.ringGroupSpacingDp = currentConfig.ringGroupSpacingDp
+        view.ringSizeDp = currentConfig.ringSizeDp
         view.ringSymbols = if (currentConfig.hasRingActionsFor(progress.edge)) {
             currentConfig.ringActionsFor(progress.edge).map { action ->
                 ActionSymbols.symbolFor(action, currentConfig.actionIconPack)

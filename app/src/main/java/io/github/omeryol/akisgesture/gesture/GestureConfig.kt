@@ -65,6 +65,7 @@ data class GestureConfig(
     val bottomRingActionIds: List<String> = emptyList(),
     val ringGroupInsetDp: Float = 100f,
     val ringGroupSpacingDp: Float = 60f,
+    val ringSizeDp: Float = 58f,
 
     // Bölümleme
     val sectionCount: Int = 1,
@@ -174,6 +175,7 @@ data class GestureConfig(
         val KEY_BOTTOM_RING_ACTIONS = stringPreferencesKey("bottom_ring_action_ids")
         val KEY_RING_GROUP_INSET_DP = floatPreferencesKey("ring_group_inset_dp")
         val KEY_RING_GROUP_SPACING_DP = floatPreferencesKey("ring_group_spacing_dp")
+        val KEY_RING_SIZE_DP = floatPreferencesKey("ring_size_dp")
         val KEY_FEEDBACK_COLOR = intPreferencesKey("feedback_color_argb")
         val KEY_SECONDARY_COLOR = intPreferencesKey("secondary_color_argb")
         val KEY_L_SWIPE_COLOR = intPreferencesKey("l_swipe_color_argb")

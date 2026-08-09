@@ -31,12 +31,13 @@ class RingMenuRenderer {
         symbols: List<String>,
         selectedIndex: Int,
         iconScale: Float,
+        ringSizeDp: Float,
     ) {
         if (symbols.isEmpty()) return
         // Keep the bubbles attached to the finger's inward travel instead of
         // pinning them to the trigger edge. The small lead offset keeps the
         // selected bubble visible around the fingertip.
-        val radius = 58f * iconScale
+        val radius = ringSizeDp * iconScale
         // Use a stable, screen-relative menu position. The finger's actual
         // inward pixel distance controls reveal only, so the three bubbles
         // never chase the fingertip or collapse on top of one another.
