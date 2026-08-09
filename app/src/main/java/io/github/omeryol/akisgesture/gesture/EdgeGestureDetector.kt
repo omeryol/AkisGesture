@@ -267,7 +267,8 @@ class EdgeGestureDetector(
                 return
             }
             ringSelectedIndex = resolveRingHover(dx, dy, dampedDisplacement - ringOpenedStretch)
-            ringHitIndex = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            val hit = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            if (hit >= 0) ringHitIndex = hit
         }
 
         publishProgress(active = visuallyActive)
@@ -302,7 +303,8 @@ class EdgeGestureDetector(
 
         if (ringActive) {
             lastTouchAlongEdge = touchCoord(event)
-            ringHitIndex = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            val hitAtRelease = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            if (hitAtRelease >= 0) ringHitIndex = hitAtRelease
             if (ringHitIndex >= 0) {
                 RuntimeDiagnostics.ringSelected(edge.name, ringHitIndex)
                 onRingActionSelected(ringHitIndex)
