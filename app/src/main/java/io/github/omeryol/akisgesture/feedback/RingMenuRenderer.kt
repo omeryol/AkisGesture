@@ -23,6 +23,7 @@ class RingMenuRenderer {
         stretch: Float,
         threshold: Float,
         extraInsetPx: Float,
+        spreadPx: Float,
         color: Int,
         opacity: Float,
         symbols: List<String>,
@@ -56,7 +57,7 @@ class RingMenuRenderer {
             Edge.RIGHT -> anchor - middleLead
             Edge.BOTTOM -> anchor - middleLead
         }
-        val spread = 180f * iconScale
+        val spread = spreadPx.coerceAtLeast(36f)
         val sideY = listOf(
             (touch - spread).coerceIn(radius, height - radius),
             touch.coerceIn(radius, height - radius),

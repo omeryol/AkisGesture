@@ -257,6 +257,8 @@
     <string name="ring_menu_subtitle">Three optional actions shared by every area of the same edge</string>
     <string name="ring_menu_enabled">Enable ring menu</string>
     <string name="ring_menu_enabled_subtitle">Opens after a swipe and hold only when this edge has an assigned ring action</string>
+    <string name="ring_group_inset">Distance from trigger edge</string>
+    <string name="ring_group_spacing">Distance between rings</string>
     <string name="ring_choose_action">Choose action for ring %1$d</string>
     <string name="ring_slot">Ring %1$d: %2$s</string>
     <string name="ring_unassigned">Not assigned</string>

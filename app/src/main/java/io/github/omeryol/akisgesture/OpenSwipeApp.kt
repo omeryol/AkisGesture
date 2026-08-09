@@ -76,6 +76,8 @@ class AkisGestureApp : Application() {
                     leftRingActionIds = prefs[GestureConfig.KEY_LEFT_RING_ACTIONS].toRingActionIds(),
                     rightRingActionIds = prefs[GestureConfig.KEY_RIGHT_RING_ACTIONS].toRingActionIds(),
                     bottomRingActionIds = prefs[GestureConfig.KEY_BOTTOM_RING_ACTIONS].toRingActionIds(),
+                    ringGroupInsetDp = prefs[GestureConfig.KEY_RING_GROUP_INSET_DP] ?: 100f,
+                    ringGroupSpacingDp = prefs[GestureConfig.KEY_RING_GROUP_SPACING_DP] ?: 60f,
                     leftDamping = prefs[GestureConfig.KEY_LEFT_DAMPING] ?: 2.0f,
                     rightDamping = prefs[GestureConfig.KEY_RIGHT_DAMPING] ?: 2.0f,
                     bottomDamping = prefs[GestureConfig.KEY_BOTTOM_DAMPING] ?: 2.0f,
@@ -388,6 +390,14 @@ class AkisGestureApp : Application() {
                 Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_RING_ACTIONS] = stored
             }
         }
+    }
+
+    suspend fun updateRingGroupInsetDp(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RING_GROUP_INSET_DP] = value.coerceIn(0f, 220f) }
+    }
+
+    suspend fun updateRingGroupSpacingDp(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RING_GROUP_SPACING_DP] = value.coerceIn(36f, 120f) }
     }
 
     suspend fun updateAutomationAppsEnabled(enabled: Boolean) {

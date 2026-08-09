@@ -258,6 +258,8 @@
     <string name="ring_menu_subtitle">Aynı kenardaki tüm alanlar için ortak, isteğe bağlı üç eylem</string>
     <string name="ring_menu_enabled">Halka menüsünü etkinleştir</string>
     <string name="ring_menu_enabled_subtitle">Yalnızca bu kenara halka eylemi atandığında çekip bekletme sonrası açılır</string>
+    <string name="ring_group_inset">Tetiklemeden uzaklık</string>
+    <string name="ring_group_spacing">Halkalar arası uzaklık</string>
     <string name="ring_choose_action">%1$d. halka için eylem seç</string>
     <string name="ring_slot">%1$d. halka: %2$s</string>
     <string name="ring_unassigned">Atanmamış</string>

@@ -502,6 +502,8 @@ class GestureEngine(
         view.animationSize = currentConfig.animationSize
         view.iconSize = currentConfig.iconSize
         view.showIndicatorBar = currentConfig.showGestureIndicatorBar
+        view.ringGroupInsetDp = currentConfig.ringGroupInsetDp
+        view.ringGroupSpacingDp = currentConfig.ringGroupSpacingDp
         view.ringSymbols = if (currentConfig.hasRingActionsFor(progress.edge)) {
             currentConfig.ringActionsFor(progress.edge).map { action ->
                 ActionSymbols.symbolFor(action, currentConfig.actionIconPack)

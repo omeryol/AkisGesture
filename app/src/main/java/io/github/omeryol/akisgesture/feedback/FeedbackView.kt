@@ -139,6 +139,8 @@ class FeedbackView(context: Context) : View(context) {
 
     var ringSymbols: List<String> = emptyList()
     var ringSelectedIndex: Int = -1
+    var ringGroupInsetDp: Float = 100f
+    var ringGroupSpacingDp: Float = 60f
     private var ringActive: Boolean = false
 
     private val arrowAlpha: Float
@@ -191,7 +193,8 @@ class FeedbackView(context: Context) : View(context) {
                 height = height.toFloat(),
                 stretch = stretchDistance,
                 threshold = peakThreshold,
-                extraInsetPx = 100f * resources.displayMetrics.density,
+                extraInsetPx = ringGroupInsetDp * resources.displayMetrics.density,
+                spreadPx = ringGroupSpacingDp * resources.displayMetrics.density,
                 color = feedbackColor,
                 opacity = feedbackOpacity,
                 symbols = ringSymbols,

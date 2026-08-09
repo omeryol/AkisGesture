@@ -584,6 +584,20 @@ fun SettingsScreen(
                 checked = config.ringMenuEnabled,
                 onCheckedChange = viewModel::setRingMenuEnabled,
             )
+            AkisSliderRow(
+                title = stringResource(R.string.ring_group_inset),
+                valueText = "${config.ringGroupInsetDp.roundToInt()} dp",
+                value = config.ringGroupInsetDp,
+                valueRange = 0f..220f,
+                onValueChange = viewModel::setRingGroupInsetDp,
+            )
+            AkisSliderRow(
+                title = stringResource(R.string.ring_group_spacing),
+                valueText = "${config.ringGroupSpacingDp.roundToInt()} dp",
+                value = config.ringGroupSpacingDp,
+                valueRange = 36f..120f,
+                onValueChange = viewModel::setRingGroupSpacingDp,
+            )
             Edge.entries.forEach { edge ->
                 val actions = config.ringActionsFor(edge)
                 Text(

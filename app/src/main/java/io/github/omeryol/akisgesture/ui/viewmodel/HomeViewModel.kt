@@ -151,6 +151,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateRingActions(edge, actions.map(ActionNode::id)) }
     }
 
+    fun setRingGroupInsetDp(value: Float) {
+        viewModelScope.launch { app.updateRingGroupInsetDp(value) }
+    }
+
+    fun setRingGroupSpacingDp(value: Float) {
+        viewModelScope.launch { app.updateRingGroupSpacingDp(value) }
+    }
+
     fun setAutomationAppsEnabled(enabled: Boolean) {
         viewModelScope.launch { app.updateAutomationAppsEnabled(enabled) }
     }
