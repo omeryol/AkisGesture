@@ -47,6 +47,7 @@ class EdgeGestureDetector(
     private var ringSelectedIndex = -1
     private var ringHitIndex = -1
     private var ringOpenedStretch = 0f
+    private var ringAnchorTouch = 0f
     private var lastLPreviewGesture: GestureType? = null
 
     private var lastStretch = 0f
@@ -70,6 +71,7 @@ class EdgeGestureDetector(
                 ringSelectedIndex = -1
                 ringHitIndex = -1
                 ringOpenedStretch = lastStretch
+                ringAnchorTouch = lastTouchAlongEdge
                 RuntimeDiagnostics.ringOpened(edge.name)
             }
             publishProgress(active = true)
@@ -123,7 +125,7 @@ class EdgeGestureDetector(
             GestureProgress(
                 edge = edge,
                 stretch = 0f,
-                touchAlongEdgePx = lastTouchAlongEdge,
+                touchAlongEdgePx = if (ringActive) ringAnchorTouch else lastTouchAlongEdge,
                 active = true,
                 armed = false,
                 holdArmed = false,
@@ -397,7 +399,7 @@ class EdgeGestureDetector(
             GestureProgress(
                 edge = edge,
                 stretch = lastStretch,
-                touchAlongEdgePx = lastTouchAlongEdge,
+                touchAlongEdgePx = if (ringActive) ringAnchorTouch else lastTouchAlongEdge,
                 active = active,
                 armed = armedNow,
                 holdArmed = holdArmed,
@@ -500,6 +502,7 @@ class EdgeGestureDetector(
         ringSelectedIndex = -1
         ringHitIndex = -1
         ringOpenedStretch = 0f
+        ringAnchorTouch = 0f
         lastLPreviewGesture = null
         lastStretch = 0f
         lastTouchAlongEdge = 0f
