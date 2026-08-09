@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.LinearGradient
 import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.graphics.Typeface
@@ -187,8 +188,6 @@ class BezierStretchRenderer {
             strokeCap = Paint.Cap.ROUND
             strokeJoin = Paint.Join.ROUND
             strokeWidth = (2.2f + t * 2.2f) * size
-            color = withAlpha(lSwipeColor, (70f + t * 170f).toInt())
-            maskFilter = BlurMaskFilter((4f + t * 5f) * size, BlurMaskFilter.Blur.NORMAL)
         }
         val start = when (edge) {
             Edge.LEFT -> 42f * size to touch
@@ -214,9 +213,38 @@ class BezierStretchRenderer {
                 }
             }
         }
-        canvas.drawPath(path, paint)
+        val endX = when (edge) {
+            Edge.LEFT -> start.first + inward
+            Edge.RIGHT -> start.first - inward
+            Edge.BOTTOM -> start.first + if (lPreviewGesture == GestureType.SWIPE_UP_L) turn else -turn
+        }
+        val endY = when (edge) {
+            Edge.LEFT, Edge.RIGHT -> start.second + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn
+            Edge.BOTTOM -> start.second - inward
+        }
+        val alpha = (72f + t * 150f).toInt()
+        val glow = Paint(paint).apply {
+            strokeWidth = (8f + t * 7f) * size
+            color = withAlpha(lSwipeColor, (alpha * .28f).toInt())
+            maskFilter = BlurMaskFilter((7f + t * 6f) * size, BlurMaskFilter.Blur.NORMAL)
+        }
+        canvas.drawPath(path, glow)
+        paint.shader = LinearGradient(
+            start.first,
+            start.second,
+            endX,
+            endY,
+            intArrayOf(
+                withAlpha(Color.WHITE, (alpha * .36f).toInt()),
+                withAlpha(lSwipeColor, alpha),
+                withAlpha(Color.WHITE, (alpha * .58f).toInt()),
+            ),
+            floatArrayOf(0f, .52f, 1f),
+            Shader.TileMode.CLAMP,
+        )
         paint.maskFilter = null
         canvas.drawPath(path, paint)
+        paint.shader = null
     }
 
     private fun moduleFor(style: FeedbackAnimation): NaturalAnimationModule = when (style) {
