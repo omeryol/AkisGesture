@@ -605,7 +605,18 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.bodySmall,
                             color = scheme.onSurfaceVariant,
                         )
-                        TextButton(onClick = { ringEditor = edge to slot }) { Text(stringResource(R.string.change)) }
+                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                            TextButton(onClick = { ringEditor = edge to slot }) {
+                                Text(stringResource(R.string.change))
+                            }
+                            if (action != null) {
+                                TextButton(onClick = {
+                                    viewModel.setRingActions(edge, actions.filterIndexed { index, _ -> index != slot })
+                                }) {
+                                    Text(stringResource(R.string.delete))
+                                }
+                            }
+                        }
                     }
                 }
             }
