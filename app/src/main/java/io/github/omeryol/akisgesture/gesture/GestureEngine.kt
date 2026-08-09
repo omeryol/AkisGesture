@@ -28,6 +28,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlin.math.hypot
 
 /**
  * Main Orchestration Engine for Akış Gesture.
@@ -476,7 +477,56 @@ class GestureEngine(
                     handleRingAction(edge, index, action)
                 }
             },
+            ringHitTest = { x, y, touchAlongEdge ->
+                ringHitTest(edge, x, y, touchAlongEdge, displayMetrics)
+            },
         )
+    }
+
+    private fun ringHitTest(
+        edge: Edge,
+        x: Float,
+        y: Float,
+        touchAlongEdge: Float,
+        metrics: android.util.DisplayMetrics,
+    ): Int {
+        val density = metrics.density
+        val width = metrics.widthPixels.toFloat()
+        val height = metrics.heightPixels.toFloat()
+        val span = if (edge == Edge.BOTTOM) height else width
+        val radius = 58f * currentConfig.iconSize
+        val inset = (span * 0.34f + currentConfig.ringGroupInsetDp * density)
+            .coerceIn(280f, span * 0.64f)
+        val spread = (currentConfig.ringGroupSpacingDp * density).coerceAtLeast(36f)
+        val anchor = when (edge) {
+            Edge.LEFT -> inset
+            Edge.RIGHT -> width - inset
+            Edge.BOTTOM -> height - inset
+        }
+        val middleLead = 72f * currentConfig.iconSize
+        val middle = when (edge) {
+            Edge.LEFT -> anchor + middleLead
+            Edge.RIGHT, Edge.BOTTOM -> anchor - middleLead
+        }
+        val side = listOf(
+            (touchAlongEdge - spread).coerceIn(radius, if (edge == Edge.BOTTOM) width - radius else height - radius),
+            touchAlongEdge.coerceIn(radius, if (edge == Edge.BOTTOM) width - radius else height - radius),
+            (touchAlongEdge + spread).coerceIn(radius, if (edge == Edge.BOTTOM) width - radius else height - radius),
+        )
+        val centers = when (edge) {
+            Edge.LEFT, Edge.RIGHT -> listOf(
+                anchor to side[0],
+                middle to side[1],
+                anchor to side[2],
+            )
+            Edge.BOTTOM -> listOf(
+                side[0] to anchor,
+                side[1] to middle,
+                side[2] to anchor,
+            )
+        }
+        val hitRadius = radius * 1.15f
+        return centers.indexOfFirst { (cx, cy) -> hypot(x - cx, y - cy) <= hitRadius }
     }
 
     private fun handleGestureProgress(progress: GestureProgress) {

@@ -33,6 +33,7 @@ class EdgeGestureDetector(
     private val hasLActionAt: (Float) -> Boolean = { false },
     private val hasRingActions: () -> Boolean = { false },
     private val onRingActionSelected: (Int) -> Unit = {},
+    private val ringHitTest: (Float, Float, Float) -> Int = { _, _, _ -> -1 },
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
@@ -261,7 +262,7 @@ class EdgeGestureDetector(
                 publishProgress(active = false)
                 return
             }
-            ringSelectedIndex = resolveRingSelection(dx, dy, dampedDisplacement - ringOpenedStretch)
+            ringSelectedIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
         }
 
         publishProgress(active = visuallyActive)
@@ -295,6 +296,8 @@ class EdgeGestureDetector(
         }
 
         if (ringActive) {
+            lastTouchAlongEdge = touchCoord(event)
+            ringSelectedIndex = ringHitTest(event.rawX, event.rawY, lastTouchAlongEdge)
             if (ringSelectedIndex >= 0) {
                 RuntimeDiagnostics.ringSelected(edge.name, ringSelectedIndex)
                 onRingActionSelected(ringSelectedIndex)
@@ -488,20 +491,6 @@ class EdgeGestureDetector(
         lSwipeDetector.reset()
         state = GestureState.IDLE
         touchState.reset()
-    }
-
-    private fun resolveRingSelection(dx: Float, dy: Float, inwardTravelAfterOpen: Float): Int {
-        val perpendicular = when (edge) {
-            Edge.LEFT, Edge.RIGHT -> dy
-            Edge.BOTTOM -> dx
-        }
-        val shift = scaledTouchSlop * 2.2f
-        return when {
-            perpendicular < -shift -> 0
-            perpendicular > shift -> 2
-            inwardTravelAfterOpen >= swipeThresholdPx * 0.75f -> 1
-            else -> -1
-        }
     }
 
     companion object {
