@@ -428,7 +428,9 @@ class EdgeGestureDetector(
             Edge.LEFT, Edge.RIGHT -> dy
             Edge.BOTTOM -> dx
         }
-        val shift = maxOf(scaledTouchSlop * 1.45f, swipeThresholdPx * 0.22f)
+        // Small vertical motion while the finger is inside the middle bubble
+        // must not make the neighbouring bubbles appear selected.
+        val shift = maxOf(scaledTouchSlop * 1.45f, swipeThresholdPx * 0.65f)
         val inwardDominant = inwardTravelAfterOpen >= swipeThresholdPx * 0.55f &&
             abs(perpendicular) < inwardTravelAfterOpen * 0.58f
         return when {
