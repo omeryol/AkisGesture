@@ -34,6 +34,7 @@ class EdgeGestureDetector(
     private val hasRingActions: () -> Boolean = { false },
     private val onRingActionSelected: (Int) -> Unit = {},
     private val ringHitTest: (Float, Float, Float) -> Int = { _, _, _ -> -1 },
+    private val ringHoverTest: (Float, Float, Float) -> Int = { _, _, _ -> -1 },
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
@@ -266,7 +267,7 @@ class EdgeGestureDetector(
                 publishProgress(active = false)
                 return
             }
-            ringSelectedIndex = resolveRingHover(dx, dy, dampedDisplacement - ringOpenedStretch)
+            ringSelectedIndex = ringHoverTest(event.rawX, event.rawY, ringAnchorTouch)
             val hit = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
             if (hit >= 0) ringHitIndex = hit
         }

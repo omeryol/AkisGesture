@@ -479,6 +479,9 @@ class GestureEngine(
             ringHitTest = { x, y, touchAlongEdge ->
                 ringHitTest(edge, x, y, touchAlongEdge, displayMetrics)
             },
+            ringHoverTest = { x, y, touchAlongEdge ->
+                ringHitTest(edge, x, y, touchAlongEdge, displayMetrics, hitScale = 2.2f)
+            },
         )
     }
 
@@ -488,6 +491,7 @@ class GestureEngine(
         y: Float,
         touchAlongEdge: Float,
         metrics: android.util.DisplayMetrics,
+        hitScale: Float = 1.3f,
     ): Int {
         val density = metrics.density
         val width = metrics.widthPixels.toFloat()
@@ -527,7 +531,7 @@ class GestureEngine(
         }
         // Treat contact with any visible part of the bubble as a hit. The
         // extra margin also covers the selected bubble's animated growth.
-        val hitRadius = radius * 1.30f
+        val hitRadius = radius * hitScale
         val hitRadiusSquared = hitRadius * hitRadius
         val nearest = centers.mapIndexed { index, (cx, cy) ->
             val dx = x - cx
