@@ -189,6 +189,7 @@ class FeedbackView(context: Context) : View(context) {
                 touch = touchPosition,
                 width = width.toFloat(),
                 height = height.toFloat(),
+                stretch = stretchDistance,
                 color = feedbackColor,
                 opacity = feedbackOpacity,
                 symbols = ringSymbols,

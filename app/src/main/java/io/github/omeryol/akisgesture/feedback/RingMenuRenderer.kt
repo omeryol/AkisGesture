@@ -20,6 +20,7 @@ class RingMenuRenderer {
         touch: Float,
         width: Float,
         height: Float,
+        stretch: Float,
         color: Int,
         opacity: Float,
         symbols: List<String>,
@@ -27,9 +28,12 @@ class RingMenuRenderer {
         iconScale: Float,
     ) {
         if (symbols.isEmpty()) return
-        val radius = 25f * iconScale
-        val depth = 78f * iconScale
-        val spread = 43f * iconScale
+        // Keep the bubbles attached to the finger's inward travel instead of
+        // pinning them to the trigger edge. The small lead offset keeps the
+        // selected bubble visible around the fingertip.
+        val radius = 32f * iconScale
+        val depth = (stretch + 30f * iconScale).coerceAtLeast(76f * iconScale)
+        val spread = 52f * iconScale
         val positions = when (edge) {
             Edge.LEFT -> listOf(
                 depth - 14f to touch - spread,
