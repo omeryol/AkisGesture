@@ -32,7 +32,10 @@ class RingMenuRenderer {
         // pinning them to the trigger edge. The small lead offset keeps the
         // selected bubble visible around the fingertip.
         val radius = 32f * iconScale
-        val depth = (stretch + 30f * iconScale).coerceAtLeast(76f * iconScale)
+        // Keep every bubble ahead of the fingertip in the inward travel
+        // direction, with enough clearance for the larger frosted surface.
+        val lead = (radius * 1.35f).coerceAtLeast(42f * iconScale)
+        val depth = (stretch + lead).coerceAtLeast(76f * iconScale)
         val spread = 52f * iconScale
         val positions = when (edge) {
             Edge.LEFT -> listOf(
