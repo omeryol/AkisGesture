@@ -506,6 +506,7 @@ fun RuleListScreen(
                             RingMenuPreview(
                                 edge = selectedEdge,
                                 actions = gestureConfig.ringActionsFor(selectedEdge),
+                                insetDp = gestureConfig.ringGroupInsetDp,
                                 sizeDp = gestureConfig.ringSizeDp,
                                 spacingDp = gestureConfig.ringGroupSpacingDp,
                             )
@@ -903,16 +904,23 @@ private fun RingEdgeCard(
 private fun RingMenuPreview(
     edge: Edge,
     actions: List<ActionNode>,
+    insetDp: Float,
     sizeDp: Float,
     spacingDp: Float,
 ) {
+    val sideOffset = insetDp.coerceIn(0f, 320f).dp
+    val groupModifier = when (edge) {
+        Edge.LEFT -> Modifier.offset(x = sideOffset)
+        Edge.RIGHT -> Modifier.offset(x = -sideOffset)
+        Edge.BOTTOM -> Modifier.offset(y = -sideOffset.coerceAtMost(72.dp))
+    }
     Box(
         modifier = Modifier.fillMaxWidth().height(112.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .34f)),
         contentAlignment = Alignment.Center,
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy((spacingDp / 4f).coerceIn(12f, 28f).dp)) {
+        val content: @Composable () -> Unit = {
             repeat(3) { index ->
                 val label = actions.getOrNull(index)?.label?.take(4) ?: "—"
                 Box(
@@ -933,6 +941,11 @@ private fun RingMenuPreview(
                     Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
+        }
+        if (edge == Edge.BOTTOM) {
+            Row(modifier = groupModifier.align(Alignment.BottomCenter), horizontalArrangement = Arrangement.spacedBy((spacingDp / 4f).coerceIn(12f, 28f).dp)) { content() }
+        } else {
+            Column(modifier = groupModifier.align(if (edge == Edge.LEFT) Alignment.CenterStart else Alignment.CenterEnd), verticalArrangement = Arrangement.spacedBy((spacingDp / 4f).coerceIn(12f, 28f).dp)) { content() }
         }
     }
 }
@@ -1006,7 +1019,6 @@ private fun GestureSlotButton(
         }
     }
 }
-
 @Composable
 private fun RuleTableRow(
     group: RuleGroup,
