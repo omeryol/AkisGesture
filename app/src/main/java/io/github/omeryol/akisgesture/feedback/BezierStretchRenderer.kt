@@ -170,9 +170,6 @@ class BezierStretchRenderer {
         }
         if (stretch >= 0.25f && animation != FeedbackAnimation.NONE) {
             moduleFor(animation).draw(frame)
-            if (lPreviewGesture != null && lColorProgress > 0.04f) {
-                drawLActionRing(canvas, edge, touchPosition, canvasWidth, canvasHeight, size)
-            }
             drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
         }
 
@@ -199,49 +196,12 @@ class BezierStretchRenderer {
         FeedbackAnimation.NONE -> water
     }
 
-    private fun drawLActionRing(canvas: Canvas, edge: Edge, touch: Float, width: Float, height: Float, size: Float) {
-        val progress = smoothStep(0f, 1f, lColorProgress)
-        val radius = (24f + 10f * progress) * size
-        val depth = 84f * size
-        val turn = 40f * size
-        val center = when (edge) {
-            Edge.LEFT -> depth to (bendStartY + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn)
-            Edge.RIGHT -> (width - depth) to (bendStartY + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn)
-            Edge.BOTTOM -> (touch + if (lPreviewGesture == GestureType.SWIPE_UP_L) turn else -turn) to (height - depth)
-        }
-        val alpha = (45f + 150f * progress).toInt().coerceIn(0, 210)
-        iconFill.shader = RadialGradient(
-            center.first - radius * .28f, center.second - radius * .34f, radius * 1.55f,
-            intArrayOf(
-                withAlpha(Color.WHITE, (alpha * .42f).toInt()),
-                withAlpha(lSwipeColor, (alpha * .26f).toInt()),
-                Color.TRANSPARENT,
-            ), floatArrayOf(0f, .48f, 1f), Shader.TileMode.CLAMP,
-        )
-        canvas.drawCircle(center.first, center.second, radius, iconFill)
-        iconFill.shader = null
-        iconFill.style = Paint.Style.STROKE
-        iconFill.strokeWidth = (1.5f + progress * 1.5f) * size
-        iconFill.color = withAlpha(Color.WHITE, alpha)
-        canvas.drawCircle(center.first, center.second, radius, iconFill)
-        iconFill.style = Paint.Style.FILL
-    }
-
     private fun drawActionCue(canvas: Canvas, edge: Edge, touch: Float, progress: Float, alphaValue: Float, width: Float, height: Float, size: Float) {
         // Deliberately stays near the edge while the liquid tip follows the finger.
         val cueGrowth = (progress / 1.35f).coerceIn(0f, 1f).pow(1.55f)
         val lEmphasis = smoothStep(0f, 1f, lColorProgress)
         val depth = (24f + cueGrowth * 30f).coerceAtMost(56f) * size
-        val baseCue = when (edge) { Edge.LEFT -> depth to touch; Edge.RIGHT -> width-depth to touch; Edge.BOTTOM -> touch to height-depth }
-        val c = if (lPreviewGesture != null && bendStartY > 0f) {
-            val l = smoothStep(0f, 1f, lColorProgress)
-            val endpoint = when (edge) {
-                Edge.LEFT -> 84f * size to (bendStartY + if (lPreviewGesture == GestureType.SWIPE_UP_L) -40f * size else 40f * size)
-                Edge.RIGHT -> width - 84f * size to (bendStartY + if (lPreviewGesture == GestureType.SWIPE_UP_L) -40f * size else 40f * size)
-                Edge.BOTTOM -> (touch + if (lPreviewGesture == GestureType.SWIPE_UP_L) 40f * size else -40f * size) to height - 84f * size
-            }
-            (baseCue.first + (endpoint.first - baseCue.first) * l) to (baseCue.second + (endpoint.second - baseCue.second) * l)
-        } else baseCue
+        val c = when (edge) { Edge.LEFT -> depth to touch; Edge.RIGHT -> width-depth to touch; Edge.BOTTOM -> touch to height-depth }
         val radius = (7f + cueGrowth * 38f + lEmphasis * 28f + if (holdArmed) 6f else 0f) * size
         val pulse = when {
             lColorProgress >= 1f -> 1.08f
