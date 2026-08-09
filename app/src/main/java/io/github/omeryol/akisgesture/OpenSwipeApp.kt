@@ -72,6 +72,10 @@ class AkisGestureApp : Application() {
                     holdFireMode = prefs[GestureConfig.KEY_HOLD_FIRE_MODE]
                         ?.let { runCatching { HoldFireMode.valueOf(it) }.getOrNull() }
                         ?: HoldFireMode.ON_RELEASE,
+                    ringMenuEnabled = prefs[GestureConfig.KEY_RING_MENU_ENABLED] ?: true,
+                    leftRingActionIds = prefs[GestureConfig.KEY_LEFT_RING_ACTIONS].toRingActionIds(),
+                    rightRingActionIds = prefs[GestureConfig.KEY_RIGHT_RING_ACTIONS].toRingActionIds(),
+                    bottomRingActionIds = prefs[GestureConfig.KEY_BOTTOM_RING_ACTIONS].toRingActionIds(),
                     leftDamping = prefs[GestureConfig.KEY_LEFT_DAMPING] ?: 2.0f,
                     rightDamping = prefs[GestureConfig.KEY_RIGHT_DAMPING] ?: 2.0f,
                     bottomDamping = prefs[GestureConfig.KEY_BOTTOM_DAMPING] ?: 2.0f,
@@ -371,6 +375,21 @@ class AkisGestureApp : Application() {
         settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] = enabled }
     }
 
+    suspend fun updateRingMenuEnabled(enabled: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RING_MENU_ENABLED] = enabled }
+    }
+
+    suspend fun updateRingActions(edge: Edge, actionIds: List<String>) {
+        val stored = actionIds.filter { it.isNotBlank() && it != "no_action" }.distinct().take(3).joinToString("|")
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_RING_ACTIONS] = stored
+                Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_RING_ACTIONS] = stored
+                Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_RING_ACTIONS] = stored
+            }
+        }
+    }
+
     suspend fun updateAutomationAppsEnabled(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_AUTOMATION_APPS_ENABLED] = enabled }
     }
@@ -500,3 +519,9 @@ class AkisGestureApp : Application() {
         fun getInstance(): AkisGestureApp = instance
     }
 }
+
+private fun String?.toRingActionIds(): List<String> = this
+    ?.split('|')
+    ?.filter { it.isNotBlank() }
+    ?.take(3)
+    .orEmpty()

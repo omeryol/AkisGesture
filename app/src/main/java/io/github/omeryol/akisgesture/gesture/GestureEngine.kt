@@ -470,6 +470,12 @@ class GestureEngine(
                         activeRuleSet.match(edge, GestureType.SWIPE_DOWN_L, ratio) != null
                 }
             },
+            hasRingActions = { currentConfig.hasRingActionsFor(edge) },
+            onRingActionSelected = { index ->
+                currentConfig.ringActionsFor(edge).getOrNull(index)?.let { action ->
+                    handleRingAction(edge, index, action)
+                }
+            },
         )
     }
 
@@ -496,6 +502,14 @@ class GestureEngine(
         view.animationSize = currentConfig.animationSize
         view.iconSize = currentConfig.iconSize
         view.showIndicatorBar = currentConfig.showGestureIndicatorBar
+        view.ringSymbols = if (currentConfig.hasRingActionsFor(progress.edge)) {
+            currentConfig.ringActionsFor(progress.edge).map { action ->
+                ActionSymbols.symbolFor(action, currentConfig.actionIconPack)
+            }
+        } else {
+            emptyList()
+        }
+        view.ringSelectedIndex = progress.ringSelectedIndex
 
         val matchedAction = if (progress.active) {
             val sensorLen = edgeLengths[progress.edge] ?: 0f
@@ -503,6 +517,7 @@ class GestureEngine(
             val gestureType = when {
                 progress.isLUp -> GestureType.SWIPE_UP_L
                 progress.isLDown -> GestureType.SWIPE_DOWN_L
+                progress.lPreviewGesture != null -> progress.lPreviewGesture
                 progress.holdArmed -> GestureType.SWIPE_HOLD
                 else -> GestureType.QUICK_SWIPE
             }
@@ -526,6 +541,8 @@ class GestureEngine(
             isLDown = progress.isLDown,
             bendStartY = progress.bendStartY,
             lColorProgress = progress.lColorProgress,
+            lPreviewGesture = progress.lPreviewGesture,
+            ringActive = progress.ringActive,
         )
 
         // Haptic and sound execution
@@ -618,6 +635,18 @@ class GestureEngine(
         scope.launch {
             actionDispatcher.dispatch(actionNode)
         }
+    }
+
+    private fun handleRingAction(edge: Edge, index: Int, action: ActionNode) {
+        RuntimeDiagnostics.ringAction(edge.name, index, action.id)
+        RuntimeDiagnostics.gestureMatched(edge.name, "RING_$index", action.id)
+        io.github.omeryol.akisgesture.util.GestureTracker.recordGesture(
+            overlayManager.context,
+            edge,
+            GestureType.SWIPE_HOLD,
+        )
+        performResultHapticIfNeeded()
+        scope.launch { actionDispatcher.dispatch(action) }
     }
 
     private fun GestureResult.edgeName(): String = when (this) {

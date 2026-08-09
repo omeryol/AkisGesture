@@ -13,6 +13,7 @@ import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.root.RootCommandExecutor
@@ -140,6 +141,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setPauseOnPhoneCall(enabled: Boolean) {
         viewModelScope.launch { app.updatePauseOnPhoneCall(enabled) }
+    }
+
+    fun setRingMenuEnabled(enabled: Boolean) {
+        viewModelScope.launch { app.updateRingMenuEnabled(enabled) }
+    }
+
+    fun setRingActions(edge: Edge, actions: List<ActionNode>) {
+        viewModelScope.launch { app.updateRingActions(edge, actions.map(ActionNode::id)) }
     }
 
     fun setAutomationAppsEnabled(enabled: Boolean) {

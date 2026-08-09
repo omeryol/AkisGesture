@@ -100,10 +100,12 @@ import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
 import io.github.omeryol.akisgesture.ui.component.AkisSliderRow
 import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
+import io.github.omeryol.akisgesture.ui.component.ActionPickerScreen
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RootAccessState
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -142,6 +144,7 @@ fun SettingsScreen(
     var updateDownloadError by remember { mutableStateOf<String?>(null) }
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
     var showCustomColorPickers by remember { mutableStateOf(false) }
+    var ringEditor by remember { mutableStateOf<Pair<Edge, Int>?>(null) }
 
 
     val context = LocalContext.current
@@ -154,6 +157,27 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     var sideRangeFeedback by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var sideRangeFeedbackJob by remember { mutableStateOf<Job?>(null) }
+
+    ringEditor?.let { (edge, slot) ->
+        AlertDialog(
+            onDismissRequest = { ringEditor = null },
+            title = { Text(stringResource(R.string.ring_choose_action, slot + 1)) },
+            text = {
+                ActionPickerScreen(
+                    onDismiss = { ringEditor = null },
+                    onSelect = { action ->
+                        val updated = config.ringActionsFor(edge).toMutableList()
+                        while (updated.size <= slot) updated += ActionNode.NoAction
+                        updated[slot] = action
+                        viewModel.setRingActions(edge, updated)
+                        ringEditor = null
+                    },
+                    iconPack = config.actionIconPack,
+                )
+            },
+            confirmButton = {},
+        )
+    }
     fun showSideRangeFeedback(start: Float, end: Float) {
         sideRangeFeedback = (start * 100f).roundToInt() to ((end - start) * 100f).roundToInt()
         sideRangeFeedbackJob?.cancel()
@@ -547,6 +571,46 @@ fun SettingsScreen(
         }
 
         // ── 1C. DOKUNSAL TİTREŞİM VE SES (Vibrant Amber / Orange) ──
+        if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF5E7BFF)) {
+            AkisSectionHeader(
+                title = stringResource(R.string.ring_menu_title),
+                subtitle = stringResource(R.string.ring_menu_subtitle),
+                icon = Icons.Filled.Apps,
+            )
+            Spacer(Modifier.height(8.dp))
+            AkisSwitchRow(
+                title = stringResource(R.string.ring_menu_enabled),
+                subtitle = stringResource(R.string.ring_menu_enabled_subtitle),
+                checked = config.ringMenuEnabled,
+                onCheckedChange = viewModel::setRingMenuEnabled,
+            )
+            Edge.entries.forEach { edge ->
+                val actions = config.ringActionsFor(edge)
+                Text(
+                    text = edgeLabel(context, edge),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = scheme.onSurface,
+                    modifier = Modifier.padding(top = 10.dp, bottom = 2.dp),
+                )
+                repeat(3) { slot ->
+                    val action = actions.getOrNull(slot)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.ring_slot, slot + 1, action?.label ?: stringResource(R.string.ring_unassigned)),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurfaceVariant,
+                        )
+                        TextButton(onClick = { ringEditor = edge to slot }) { Text(stringResource(R.string.change)) }
+                    }
+                }
+            }
+        }
+
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFFFF9100)) {
             AkisSectionHeader(
                 title = stringResource(R.string.haptic_sound_card_title),
@@ -2031,6 +2095,7 @@ private fun TelegramLinkCard(title: String, subtitle: String, url: String, accen
             }
             Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
         }
+
     }
 }
 

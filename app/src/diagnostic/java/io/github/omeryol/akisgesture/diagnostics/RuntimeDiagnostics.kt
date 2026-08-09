@@ -64,6 +64,15 @@ object RuntimeDiagnostics {
         details = mapOf("edge" to edge),
     )
 
+    fun ringOpened(edge: String) = record("ring", "opened", mapOf("edge" to edge))
+    fun ringSelected(edge: String, index: Int) = record("ring", "selected", mapOf("edge" to edge, "slot" to index.toString()))
+    fun ringAction(edge: String, index: Int, actionId: String) = record(
+        "ring",
+        "action",
+        mapOf("edge" to edge, "slot" to index.toString(), "action" to actionId),
+    )
+    fun ringDismissed(edge: String) = record("ring", "dismissed", mapOf("edge" to edge))
+
     fun actionFinished(actionId: String, result: ActionResult) = record(
         category = "action",
         name = "finished",

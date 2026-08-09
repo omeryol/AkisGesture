@@ -26,6 +26,7 @@ import io.github.omeryol.akisgesture.feedback.animation.VortexModule
 import io.github.omeryol.akisgesture.feedback.animation.WaterSurfaceModule
 import io.github.omeryol.akisgesture.feedback.animation.WindModule
 import io.github.omeryol.akisgesture.overlay.Edge
+import io.github.omeryol.akisgesture.model.GestureType
 import kotlin.math.pow
 import kotlin.math.exp
 
@@ -60,6 +61,7 @@ class BezierStretchRenderer {
     var isLDown = false
     var bendStartY = 0f
     var lColorProgress = 0f
+    var lPreviewGesture: GestureType? = null
     var primaryColor = Color.rgb(61, 90, 254)
     var secondaryColor = Color.rgb(255, 145, 0)
     var lSwipeColor = Color.rgb(0, 230, 118)
@@ -169,10 +171,52 @@ class BezierStretchRenderer {
         if (stretch >= 0.25f && animation != FeedbackAnimation.NONE) {
             moduleFor(animation).draw(frame)
             drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
+            if (lPreviewGesture != null && lColorProgress > 0.03f) {
+                drawLGuide(canvas, edge, touchPosition, canvasWidth, canvasHeight, size)
+            }
         }
 
         // Draw particle burst on top
         particleBurst.draw(canvas, System.currentTimeMillis())
+    }
+
+    private fun drawLGuide(canvas: Canvas, edge: Edge, touch: Float, width: Float, height: Float, size: Float) {
+        val t = smoothStep(0f, 1f, lColorProgress)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+            strokeWidth = (2.2f + t * 2.2f) * size
+            color = withAlpha(lSwipeColor, (70f + t * 170f).toInt())
+            maskFilter = BlurMaskFilter((4f + t * 5f) * size, BlurMaskFilter.Blur.NORMAL)
+        }
+        val start = when (edge) {
+            Edge.LEFT -> 42f * size to touch
+            Edge.RIGHT -> width - 42f * size to touch
+            Edge.BOTTOM -> touch to height - 42f * size
+        }
+        val inward = 42f * size
+        val turn = 40f * size * t
+        val path = Path().apply {
+            moveTo(start.first, start.second)
+            when (edge) {
+                Edge.LEFT -> {
+                    lineTo(start.first + inward, start.second)
+                    lineTo(start.first + inward, start.second + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn)
+                }
+                Edge.RIGHT -> {
+                    lineTo(start.first - inward, start.second)
+                    lineTo(start.first - inward, start.second + if (lPreviewGesture == GestureType.SWIPE_UP_L) -turn else turn)
+                }
+                Edge.BOTTOM -> {
+                    lineTo(start.first, start.second - inward)
+                    lineTo(start.first + if (lPreviewGesture == GestureType.SWIPE_UP_L) turn else -turn, start.second - inward)
+                }
+            }
+        }
+        canvas.drawPath(path, paint)
+        paint.maskFilter = null
+        canvas.drawPath(path, paint)
     }
 
     private fun moduleFor(style: FeedbackAnimation): NaturalAnimationModule = when (style) {

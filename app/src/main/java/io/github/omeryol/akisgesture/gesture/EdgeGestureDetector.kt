@@ -31,6 +31,8 @@ class EdgeGestureDetector(
     private val onProgress: (GestureProgress) -> Unit = {},
     private val hasHoldActionAt: (Float) -> Boolean = { true },
     private val hasLActionAt: (Float) -> Boolean = { false },
+    private val hasRingActions: () -> Boolean = { false },
+    private val onRingActionSelected: (Int) -> Unit = {},
 ) {
     private var state = GestureState.IDLE
     private val touchState = TouchState()
@@ -40,6 +42,9 @@ class EdgeGestureDetector(
     private var holdScheduled = false
     private var holdArmed = false
     private var holdFiredOnThreshold = false
+    private var ringActive = false
+    private var ringSelectedIndex = -1
+    private var lastLPreviewGesture: GestureType? = null
 
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
@@ -53,14 +58,19 @@ class EdgeGestureDetector(
         holdScheduled = false
         if (state == GestureState.DETECTED &&
             lastStretch >= swipeThresholdPx &&
-            hasHoldActionAt(lastTouchAlongEdge)
+            (hasHoldActionAt(lastTouchAlongEdge) || hasRingActions())
         ) {
             holdArmed = true
             RuntimeDiagnostics.gestureSignal(edge.name, "hold_armed")
+            if (hasRingActions()) {
+                ringActive = true
+                ringSelectedIndex = 1
+                RuntimeDiagnostics.ringOpened(edge.name)
+            }
             publishProgress(active = true)
 
             if (config.holdFireMode == HoldFireMode.ON_THRESHOLD &&
-                !hasLActionAt(initialTouchCoord())
+                !hasLActionAt(initialTouchCoord()) && !ringActive
             ) {
                 holdFiredOnThreshold = true
                 val section = resolveSection(initialTouchCoord())
@@ -173,6 +183,16 @@ class EdgeGestureDetector(
             lSwipeThresholdPx = lSwipeThresholdPx,
             hasLActionAtInitialTouch = hasLActionAt(initialTouchCoord()),
         )
+        if (lSwipeDetector.previewDirection != lastLPreviewGesture) {
+            val signal = when (lSwipeDetector.previewDirection) {
+                GestureType.SWIPE_UP_L -> "l_guide_up"
+                GestureType.SWIPE_DOWN_L -> "l_guide_down"
+                null -> "l_guide_cleared"
+                else -> "l_guide_cleared"
+            }
+            RuntimeDiagnostics.gestureSignal(edge.name, signal)
+            lastLPreviewGesture = lSwipeDetector.previewDirection
+        }
 
         if (lSwipeDetector.detectedLGesture != null) {
             state = GestureState.DETECTED
@@ -224,6 +244,10 @@ class EdgeGestureDetector(
             handler.postDelayed(holdRunnable, config.holdTimeMs)
         }
 
+        if (ringActive) {
+            ringSelectedIndex = resolveRingSelection(dx, dy)
+        }
+
         publishProgress(active = visuallyActive)
     }
 
@@ -249,6 +273,18 @@ class EdgeGestureDetector(
             )
             RuntimeDiagnostics.gestureSignal(edge.name, "l_swipe_executed")
             onGestureResult(result)
+            finishProgress(event)
+            reset()
+            return
+        }
+
+        if (ringActive) {
+            if (ringSelectedIndex >= 0) {
+                RuntimeDiagnostics.ringSelected(edge.name, ringSelectedIndex)
+                onRingActionSelected(ringSelectedIndex)
+            } else {
+                RuntimeDiagnostics.ringDismissed(edge.name)
+            }
             finishProgress(event)
             reset()
             return
@@ -322,6 +358,8 @@ class EdgeGestureDetector(
                 armed = false,
                 holdArmed = false,
                 appSwitchDirection = null,
+                ringActive = false,
+                ringSelectedIndex = -1,
             )
         )
     }
@@ -346,6 +384,9 @@ class EdgeGestureDetector(
                 isLDown = isLDown,
                 bendStartY = bendStartY,
                 lColorProgress = lSwipeDetector.turnProgress,
+                lPreviewGesture = lSwipeDetector.previewDirection,
+                ringActive = ringActive,
+                ringSelectedIndex = ringSelectedIndex,
             )
         )
     }
@@ -419,6 +460,9 @@ class EdgeGestureDetector(
     private fun reset() {
         cancelHold()
         holdFiredOnThreshold = false
+        ringActive = false
+        ringSelectedIndex = -1
+        lastLPreviewGesture = null
         lastStretch = 0f
         lastTouchAlongEdge = 0f
         lastSwitchDirection = null
@@ -427,6 +471,19 @@ class EdgeGestureDetector(
         lSwipeDetector.reset()
         state = GestureState.IDLE
         touchState.reset()
+    }
+
+    private fun resolveRingSelection(dx: Float, dy: Float): Int {
+        val perpendicular = when (edge) {
+            Edge.LEFT, Edge.RIGHT -> dy
+            Edge.BOTTOM -> dx
+        }
+        val shift = scaledTouchSlop * 2.2f
+        return when {
+            perpendicular < -shift -> 0
+            perpendicular > shift -> 2
+            else -> 1
+        }
     }
 
     companion object {
@@ -446,6 +503,9 @@ data class GestureProgress(
     val isLDown: Boolean = false,
     val bendStartY: Float = 0f,
     val lColorProgress: Float = 0f,
+    val lPreviewGesture: GestureType? = null,
+    val ringActive: Boolean = false,
+    val ringSelectedIndex: Int = -1,
 )
 
 enum class GestureState {

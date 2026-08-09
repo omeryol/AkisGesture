@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionNode
+import io.github.omeryol.akisgesture.overlay.Edge
 
 enum class HoldFireMode(val label: String) {
     ON_RELEASE("Parmak kalkınca"),
@@ -54,6 +56,13 @@ data class GestureConfig(
     // Hold behavior
     val holdTimeMs: Long = 280L,
     val holdFireMode: HoldFireMode = HoldFireMode.ON_RELEASE,
+
+    // Optional three-action glass ring menu. The master switch defaults to on,
+    // but an edge only opens a ring once it has at least one assigned action.
+    val ringMenuEnabled: Boolean = true,
+    val leftRingActionIds: List<String> = emptyList(),
+    val rightRingActionIds: List<String> = emptyList(),
+    val bottomRingActionIds: List<String> = emptyList(),
 
     // Bölümleme
     val sectionCount: Int = 1,
@@ -137,6 +146,14 @@ data class GestureConfig(
         io.github.omeryol.akisgesture.overlay.Edge.BOTTOM -> bottomEnabled
     }
 
+    fun ringActionsFor(edge: Edge): List<ActionNode> = when (edge) {
+        Edge.LEFT -> leftRingActionIds
+        Edge.RIGHT -> rightRingActionIds
+        Edge.BOTTOM -> bottomRingActionIds
+    }.mapNotNull(ActionNode::fromId).filterNot { it is ActionNode.NoAction }.take(3)
+
+    fun hasRingActionsFor(edge: Edge): Boolean = ringMenuEnabled && ringActionsFor(edge).isNotEmpty()
+
     companion object {
         val KEY_MASTER_ENABLED = booleanPreferencesKey("master_enabled")
         val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")
@@ -149,6 +166,10 @@ data class GestureConfig(
         val KEY_BOTTOM_TRIGGER_HEIGHT = floatPreferencesKey("bottom_trigger_height_dp")
         val KEY_HOLD_TIME = longPreferencesKey("gesture_hold_time_ms")
         val KEY_HOLD_FIRE_MODE = stringPreferencesKey("hold_fire_mode")
+        val KEY_RING_MENU_ENABLED = booleanPreferencesKey("ring_menu_enabled")
+        val KEY_LEFT_RING_ACTIONS = stringPreferencesKey("left_ring_action_ids")
+        val KEY_RIGHT_RING_ACTIONS = stringPreferencesKey("right_ring_action_ids")
+        val KEY_BOTTOM_RING_ACTIONS = stringPreferencesKey("bottom_ring_action_ids")
         val KEY_FEEDBACK_COLOR = intPreferencesKey("feedback_color_argb")
         val KEY_SECONDARY_COLOR = intPreferencesKey("secondary_color_argb")
         val KEY_L_SWIPE_COLOR = intPreferencesKey("l_swipe_color_argb")

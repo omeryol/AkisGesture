@@ -7,6 +7,7 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.gesture.model.SwipeDirection
+import io.github.omeryol.akisgesture.model.GestureType
 
 /**
  * Dokunmayı engellemeyen erişilebilirlik katmanında akıcı hareket geri bildirimi.
@@ -16,6 +17,7 @@ class FeedbackView(context: Context) : View(context) {
 
     private val renderer = BezierStretchRenderer()
     private val appSwitchRenderer = AppSwitchFeedbackRenderer()
+    private val ringMenuRenderer = RingMenuRenderer()
     private var releaseAnimator: ValueAnimator? = null
 
     var edge: Edge = Edge.LEFT
@@ -135,6 +137,10 @@ class FeedbackView(context: Context) : View(context) {
             invalidate()
         }
 
+    var ringSymbols: List<String> = emptyList()
+    var ringSelectedIndex: Int = -1
+    private var ringActive: Boolean = false
+
     private val arrowAlpha: Float
         get() = if (peakThreshold > 0f) {
             (stretchDistance / peakThreshold).coerceIn(0f, 1f)
@@ -176,6 +182,20 @@ class FeedbackView(context: Context) : View(context) {
             canvasHeight = height.toFloat(),
             arrowAlpha = arrowAlpha,
         )
+        if (ringActive) {
+            ringMenuRenderer.draw(
+                canvas = canvas,
+                edge = edge,
+                touch = touchPosition,
+                width = width.toFloat(),
+                height = height.toFloat(),
+                color = feedbackColor,
+                opacity = feedbackOpacity,
+                symbols = ringSymbols,
+                selectedIndex = ringSelectedIndex,
+                iconScale = iconSize,
+            )
+        }
     }
 
     fun updateGestureState(
@@ -190,6 +210,8 @@ class FeedbackView(context: Context) : View(context) {
         isLDown: Boolean = false,
         bendStartY: Float = 0f,
         lColorProgress: Float = 0f,
+        lPreviewGesture: GestureType? = null,
+        ringActive: Boolean = false,
     ) {
         this.edge = edge
         // During the vertical leg of an L gesture, keep the visual anchored at
@@ -207,6 +229,8 @@ class FeedbackView(context: Context) : View(context) {
         renderer.isLDown = isLDown
         renderer.bendStartY = bendStartY
         renderer.lColorProgress = lColorProgress
+        renderer.lPreviewGesture = lPreviewGesture
+        this.ringActive = ringActive
         if (active) {
             releaseAnimator?.cancel()
             isActive = true
