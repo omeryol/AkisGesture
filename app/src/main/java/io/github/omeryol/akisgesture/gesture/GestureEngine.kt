@@ -602,9 +602,9 @@ class GestureEngine(
         }
         view.ringSelectedIndex = progress.ringSelectedIndex
 
-        val matchedAction = if (progress.active) {
-            val sensorLen = edgeLengths[progress.edge] ?: 0f
-            val ratio = if (sensorLen > 0f) (progress.touchAlongEdgePx / sensorLen).coerceIn(0f, 1f) else 0f
+            val matchedAction = if (progress.active) {
+                val sensorLen = edgeLengths[progress.edge] ?: 0f
+                val ratio = if (sensorLen > 0f) (progress.touchAlongEdgePx / sensorLen).coerceIn(0f, 1f) else 0f
             val gestureType = when {
                 progress.isLUp -> GestureType.SWIPE_UP_L
                 progress.isLDown -> GestureType.SWIPE_DOWN_L
@@ -613,17 +613,28 @@ class GestureEngine(
                 else -> GestureType.QUICK_SWIPE
             }
             activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
-        } else null
+            } else null
 
         // Keep the selected action visible through the release animation. Clearing
         // it on ACTION_UP makes the renderer fall back to intermediate icons.
         if (progress.active) {
             // The L guide is its own visual cue. Do not place the action's
             // fallback "L" glyph inside the trigger bubble while previewing.
-            val previewSymbol = if (progress.lPreviewGesture != null) {
+            // L detection is only a preview until ACTION_UP. If the user is
+            // already hold-armed and the L candidate has no matching action,
+            // keep showing the configured hold action instead of clearing the
+            // symbol for the whole remainder of the gesture.
+            val displayAction = matchedAction ?: if (progress.holdArmed) {
+                val sensorLen = edgeLengths[progress.edge] ?: 0f
+                val ratio = if (sensorLen > 0f) {
+                    (progress.touchAlongEdgePx / sensorLen).coerceIn(0f, 1f)
+                } else 0f
+                activeRuleSet.match(progress.edge, GestureType.SWIPE_HOLD, ratio)
+            } else null
+            val previewSymbol = if (progress.lPreviewGesture != null && displayAction == null) {
                 ""
             } else {
-                ActionSymbols.symbolFor(matchedAction, currentConfig.actionIconPack)
+                ActionSymbols.symbolFor(displayAction, currentConfig.actionIconPack)
             }
             view.actionSymbol = previewSymbol
             val previewGesture = when {
