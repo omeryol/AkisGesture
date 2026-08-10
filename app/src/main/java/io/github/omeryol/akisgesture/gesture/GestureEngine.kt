@@ -703,7 +703,12 @@ class GestureEngine(
                 gesture = "BOTTOM_HORIZONTAL_${result.direction.name}",
                 actionId = action.id,
             )
-            feedbackView?.showFinalActionSymbol(ActionSymbols.symbolFor(action, currentConfig.actionIconPack))
+            val finalSymbol = ActionSymbols.symbolFor(action, currentConfig.actionIconPack)
+            feedbackView?.showFinalActionSymbol(finalSymbol)
+            // ACTION_UP can enqueue the release animation immediately after
+            // this callback. Pin once on the next frame as well, so a stale
+            // preview symbol cannot win the race on any edge.
+            feedbackView?.post { feedbackView?.showFinalActionSymbol(finalSymbol) }
             performResultHapticIfNeeded()
             scope.launch {
                 actionDispatcher.dispatch(action)
@@ -722,7 +727,11 @@ class GestureEngine(
         // The progress preview can still be showing the previous gesture's
         // symbol when the final section match arrives. Pin the release cue to
         // the action that is actually about to run.
-        feedbackView?.showFinalActionSymbol(ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack))
+        val finalSymbol = ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack)
+        feedbackView?.showFinalActionSymbol(finalSymbol)
+        // Keep the final action icon authoritative after the detector closes
+        // its progress state and starts the release animation.
+        feedbackView?.post { feedbackView?.showFinalActionSymbol(finalSymbol) }
 
         // Record real runtime gesture usage stats
         val (edge, gestureType, _) = when (result) {
