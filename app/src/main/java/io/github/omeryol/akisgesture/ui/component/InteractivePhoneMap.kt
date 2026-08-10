@@ -385,16 +385,6 @@ private fun rangeComparisonLabel(
     return "${edgeLabel(context, Edge.LEFT)} $leftMarker${values(left)}    ${edgeLabel(context, Edge.RIGHT)} $rightMarker${values(right)}"
 }
 
-private fun drawMapText(text: String, x: Float, y: Float, color: Color, scope: androidx.compose.ui.graphics.drawscope.DrawScope) {
-    val paint = android.graphics.Paint().apply {
-        this.color = android.graphics.Color.rgb((color.red * 255).toInt(), (color.green * 255).toInt(), (color.blue * 255).toInt())
-        textSize = 28f
-        textAlign = android.graphics.Paint.Align.CENTER
-        isFakeBoldText = true
-    }
-    scope.drawContext.canvas.nativeCanvas.drawText(text, x, y, paint)
-}
-
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
     screen: Rect,
     config: GestureConfig?,

@@ -424,25 +424,6 @@ class EdgeGestureDetector(
         holdArmed = false
     }
 
-    private fun resolveRingHover(dx: Float, dy: Float, inwardTravelAfterOpen: Float): Int {
-        val perpendicular = when (edge) {
-            Edge.LEFT, Edge.RIGHT -> dy
-            Edge.BOTTOM -> dx
-        }
-        // Small vertical motion while the finger is inside the middle bubble
-        // must not make the neighbouring bubbles appear selected.
-        val shift = maxOf(scaledTouchSlop * 1.45f, swipeThresholdPx * 0.65f)
-        val inwardDominant = inwardTravelAfterOpen >= swipeThresholdPx * 0.55f &&
-            abs(perpendicular) < inwardTravelAfterOpen * 0.58f
-        return when {
-            inwardDominant -> 1
-            perpendicular < -shift -> 0
-            perpendicular > shift -> 2
-            inwardTravelAfterOpen >= swipeThresholdPx * 0.55f -> 1
-            else -> -1
-        }
-    }
-
     private fun resolveGestureResult(
         displacement: Float,
         section: Int,
