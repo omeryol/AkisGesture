@@ -54,16 +54,16 @@ class RingMenuRenderer {
             Edge.RIGHT -> width - menuInset
             Edge.BOTTOM -> height - menuInset
         }
-        val middleLead = 72f * iconScale
-        // Keep the two outer bubbles close to the edge while the middle one
-        // leads inward, making the group read as a visible half-arc.
-        val sideLead = middleLead * 0.22f
+        val spread = spreadPx.coerceAtLeast(36f)
+        // Make the center bubble visibly lead inward while the outer bubbles
+        // stay close to the edge, producing a pronounced half-arc.
+        val middleLead = spread * 1.45f
+        val sideLead = middleLead * 0.08f
         val middleAnchor = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT -> anchor - middleLead
             Edge.BOTTOM -> anchor - middleLead
         }
-        val spread = spreadPx.coerceAtLeast(36f)
         val sideY = listOf(
             (touch - spread).coerceIn(radius, height - radius),
             touch.coerceIn(radius, height - radius),
