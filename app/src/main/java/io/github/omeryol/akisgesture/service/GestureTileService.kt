@@ -27,6 +27,7 @@ class GestureTileService : TileService() {
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
+    @Suppress("DEPRECATION")
     private fun openAccessibilitySettings() {
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
