@@ -250,15 +250,15 @@ fun HomeScreen(
 
             // ── 2. Quick Start Permission Summary ──
             val allRecommendedPermissionsGranted = accessibilityGranted && writeSettingsGranted && batteryExemptionGranted
-            AkisGlassCard(
-                modifier = Modifier.fillMaxWidth(),
-                accentTint = if (allRecommendedPermissionsGranted) StatusConnected else scheme.tertiary,
-                containerColor = if (allRecommendedPermissionsGranted) StatusConnected.copy(alpha = 0.06f) else null,
-            ) {
-                Column(
+            if (!allRecommendedPermissionsGranted) {
+                AkisGlassCard(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    accentTint = scheme.tertiary,
                 ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                     Text(
                         text = stringResource(R.string.quick_start_title),
                         style = MaterialTheme.typography.titleMedium,
@@ -285,12 +285,13 @@ fun HomeScreen(
                         detail = if (batteryExemptionGranted) stringResource(R.string.permission_ready) else stringResource(R.string.quick_start_battery_missing),
                         granted = batteryExemptionGranted,
                     )
-                    Button(
-                        onClick = onNavigateToPermissions,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Text(stringResource(R.string.open_permission_steps))
+                        Button(
+                            onClick = onNavigateToPermissions,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(stringResource(R.string.open_permission_steps))
+                        }
                     }
                 }
             }
