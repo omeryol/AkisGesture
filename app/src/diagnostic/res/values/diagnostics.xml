@@ -6,6 +6,7 @@
     <string name="diagnostic_idle">Not recording • %1$d events retained</string>
     <string name="diagnostic_start">Start</string>
     <string name="diagnostic_stop">Stop</string>
+    <string name="diagnostic_clear">Clear</string>
     <string name="diagnostic_export">Export report</string>
     <string name="diagnostic_exported">Diagnostic report exported</string>
     <string name="diagnostic_export_failed">Diagnostic report could not be exported</string>

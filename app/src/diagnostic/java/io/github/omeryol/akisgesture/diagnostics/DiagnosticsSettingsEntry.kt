@@ -75,6 +75,13 @@ fun DiagnosticsSettingsEntry() {
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            OutlinedButton(onClick = {
+                RuntimeDiagnostics.clear()
+                refreshToken++
+            }) {
+                Text(stringResource(R.string.diagnostic_clear))
+            }
+            Spacer(Modifier.width(8.dp))
             if (recording) {
                 OutlinedButton(onClick = {
                     RuntimeDiagnostics.stopSession()

@@ -6,6 +6,7 @@
     <string name="diagnostic_idle">Kayıt kapalı • %1$d olay bellekte</string>
     <string name="diagnostic_start">Başlat</string>
     <string name="diagnostic_stop">Durdur</string>
+    <string name="diagnostic_clear">Kayıtları temizle</string>
     <string name="diagnostic_export">Raporu dışa aktar</string>
     <string name="diagnostic_exported">Tanılama raporu dışa aktarıldı</string>
     <string name="diagnostic_export_failed">Tanılama raporu dışa aktarılamadı</string>
