@@ -718,6 +718,11 @@ class GestureEngine(
         )
         if (actionNode == null) return
 
+        // The progress preview can still be showing the previous gesture's
+        // symbol when the final section match arrives. Pin the release cue to
+        // the action that is actually about to run.
+        feedbackView?.actionSymbol = ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack)
+
         // Record real runtime gesture usage stats
         val (edge, gestureType, _) = when (result) {
             is GestureResult.EdgeSwipe -> Triple(result.edge, result.gestureType, result.touchAlongEdgePx)
