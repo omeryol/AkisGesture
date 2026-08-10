@@ -265,4 +265,6 @@
     <string name="ring_choose_action">%1$d. halka için eylem seç</string>
     <string name="ring_slot">%1$d. halka: %2$s</string>
     <string name="ring_unassigned">Atanmamış</string>
+    <string name="write_settings_permission_title">Sistem ayarları izni</string>
+    <string name="write_settings_permission_description">Parlaklık artırma/azaltma için gerekir. Verilmezse parlaklık eylemleri çalışmaz.</string>
 </resources>

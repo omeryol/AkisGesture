@@ -52,11 +52,13 @@ fun PermissionGuideScreen(
     var isBatteryOptimized by remember {
         mutableStateOf(PermissionHelper.isBatteryOptimizationIgnored(context))
     }
+    var canWriteSettings by remember { mutableStateOf(PermissionHelper.canWriteSystemSettings(context)) }
 
     // Ayarlardan geri dönüldüğünde izin durumunu yenile
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         isAccessibilityEnabled = PermissionHelper.isAccessibilityServiceEnabled(context)
         isBatteryOptimized = PermissionHelper.isBatteryOptimizationIgnored(context)
+        canWriteSettings = PermissionHelper.canWriteSystemSettings(context)
     }
 
     Column(
@@ -96,6 +98,15 @@ fun PermissionGuideScreen(
             isGranted = isBatteryOptimized,
             required = false,
             onRequest = { PermissionHelper.requestIgnoreBatteryOptimization(context) },
+        )
+
+        PermissionCard(
+            step = 3,
+            title = stringResource(R.string.write_settings_permission_title),
+            description = stringResource(R.string.write_settings_permission_description),
+            isGranted = canWriteSettings,
+            required = false,
+            onRequest = { PermissionHelper.openWriteSettings(context) },
         )
 
         Spacer(modifier = Modifier.weight(1f))

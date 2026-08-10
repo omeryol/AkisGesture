@@ -264,4 +264,6 @@
     <string name="ring_choose_action">Choose action for ring %1$d</string>
     <string name="ring_slot">Ring %1$d: %2$s</string>
     <string name="ring_unassigned">Not assigned</string>
+    <string name="write_settings_permission_title">System settings access</string>
+    <string name="write_settings_permission_description">Needed for brightness up/down. Without it, brightness actions will not work.</string>
 </resources>

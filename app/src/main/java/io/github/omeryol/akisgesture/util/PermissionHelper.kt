@@ -43,6 +43,15 @@ object PermissionHelper {
         context.startActivity(intent)
     }
 
+    fun canWriteSystemSettings(context: Context): Boolean = Settings.System.canWrite(context)
+
+    fun openWriteSettings(context: Context) {
+        context.startActivity(Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+            data = Uri.parse("package:${context.packageName}")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+
     /**
      * Uygulamanın pil optimizasyonundan muaf olup olmadığını kontrol eder.
      */
