@@ -712,6 +712,7 @@ class GestureEngine(
             )
             val finalSymbol = ActionSymbols.symbolFor(action, currentConfig.actionIconPack)
             feedbackView?.showFinalActionSymbol(finalSymbol)
+            RuntimeDiagnostics.feedbackSymbol(Edge.BOTTOM.name, "FINAL_${result.direction.name}", finalSymbol)
             // ACTION_UP can enqueue the release animation immediately after
             // this callback. Pin once on the next frame as well, so a stale
             // preview symbol cannot win the race on any edge.
@@ -736,6 +737,7 @@ class GestureEngine(
         // the action that is actually about to run.
         val finalSymbol = ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack)
         feedbackView?.showFinalActionSymbol(finalSymbol)
+        RuntimeDiagnostics.feedbackSymbol(result.edgeName(), "FINAL_${result.gestureName()}", finalSymbol)
         // Keep the final action icon authoritative after the detector closes
         // its progress state and starts the release animation.
         feedbackView?.post { feedbackView?.showFinalActionSymbol(finalSymbol) }
