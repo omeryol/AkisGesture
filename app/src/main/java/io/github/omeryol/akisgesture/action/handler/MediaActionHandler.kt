@@ -14,15 +14,15 @@ class MediaActionHandler(
     fun handleMediaNext(): ActionResult = mediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
 
     fun handleVolumeUp(): ActionResult = audioAction {
-        audioManager.adjustVolume(AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI)
     }
 
     fun handleVolumeDown(): ActionResult = audioAction {
-        audioManager.adjustVolume(AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI)
     }
 
     fun handleToggleMute(): ActionResult = audioAction {
-        audioManager.adjustVolume(AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_TOGGLE_MUTE, AudioManager.FLAG_SHOW_UI)
     }
 
     private fun mediaKey(keyCode: Int): ActionResult = audioAction {

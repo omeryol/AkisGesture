@@ -60,6 +60,11 @@ class SystemActionHandler(
         val delta = if (increase) 30 else -30
         val next = (current + delta).coerceIn(15, 255)
         if (android.provider.Settings.System.canWrite(service)) {
+            android.provider.Settings.System.putInt(
+                resolver,
+                android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE,
+                android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL,
+            )
             if (android.provider.Settings.System.putInt(
                     resolver,
                     android.provider.Settings.System.SCREEN_BRIGHTNESS,
@@ -67,7 +72,9 @@ class SystemActionHandler(
                 )
             ) ActionResult.Success else ActionResult.Failed("Parlaklık ayarı değiştirilemedi")
         } else {
-            val res = rootCommands.execute("settings put system screen_brightness $next")
+            val res = rootCommands.execute(
+                "settings put system screen_brightness_mode 0; settings put system screen_brightness $next",
+            )
             if (res is RootResult.Success) ActionResult.Success
             else ActionResult.Failed("Ekran parlaklığını değiştirmek için sistem izni veya Root gerekli")
         }
