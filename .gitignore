@@ -1,0 +1,31 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.agents
+
+app/build/
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+.env
+local.properties
+
+# Local verification and generated media
+/tmp/
+/animation-frames/
+/screen-recording-frames/
+
+# Local-only notes and agent configuration
+*.local.md
+*.private.md
+.agents/
+AGENTS.md
