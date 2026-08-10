@@ -309,12 +309,19 @@ class EdgeGestureDetector(
             if (ringHitIndex >= 0) {
                 RuntimeDiagnostics.ringSelected(edge.name, ringHitIndex)
                 onRingActionSelected(ringHitIndex)
+                finishProgress(event)
+                reset()
+                return
             } else {
                 RuntimeDiagnostics.ringDismissed(edge.name)
+                // A ring menu opening is only a candidate. If the finger
+                // never reaches a ring, let the ordinary hold gesture finish
+                // so a configured hold action is not swallowed by the menu.
+                ringActive = false
+                ringSelectedIndex = -1
+                ringHitIndex = -1
+                RuntimeDiagnostics.gestureSignal(edge.name, "ring_miss_fallback_hold")
             }
-            finishProgress(event)
-            reset()
-            return
         }
 
         // Replay tap in SWIPE mode if no swipe occurred
