@@ -29,3 +29,17 @@ local.properties
 *.private.md
 .agents/
 AGENTS.md
+**/AGENTS.md
+.codex/
+
+# Local planning, diagnostics, and release working notes
+docs/plan/
+docs/ENGINEERING_RULES.md
+captures_*/
+SIMDIKI_HEDEFLER.md
+UPSTREAM.md
+FNG_*.md
+NAVIGASYON_*.md
+OTURUM*_*.md
+PROJECT_DEVELOPMENT_REPORT.md
+release_notes_*.md
