@@ -508,7 +508,7 @@ class GestureEngine(
             Edge.BOTTOM -> height - inset
         }
         val middleLead = 72f * currentConfig.iconSize
-        val sideLead = middleLead * 0.52f
+        val sideLead = middleLead * 0.22f
         val middle = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT, Edge.BOTTOM -> anchor - middleLead

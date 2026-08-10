@@ -55,7 +55,9 @@ class RingMenuRenderer {
             Edge.BOTTOM -> height - menuInset
         }
         val middleLead = 72f * iconScale
-        val sideLead = middleLead * 0.52f
+        // Keep the two outer bubbles close to the edge while the middle one
+        // leads inward, making the group read as a visible half-arc.
+        val sideLead = middleLead * 0.22f
         val middleAnchor = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT -> anchor - middleLead
