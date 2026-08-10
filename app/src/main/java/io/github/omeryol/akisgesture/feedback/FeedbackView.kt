@@ -241,6 +241,9 @@ class FeedbackView(context: Context) : View(context) {
         this.isArmed = armed
         this.isHoldArmed = holdArmed
         this.appSwitchDirection = appSwitchDirection
+        if (active && !isActive) {
+            renderer.clearPinnedActionSymbol()
+        }
         renderer.isLUp = isLUp
         renderer.isLDown = isLDown
         renderer.bendStartY = bendStartY

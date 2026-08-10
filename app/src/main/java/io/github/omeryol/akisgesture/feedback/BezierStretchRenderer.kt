@@ -77,6 +77,7 @@ class BezierStretchRenderer {
 
     private var previousSymbol = ""
     private var displayedSymbol = ""
+    private var pinnedActionSymbol: String? = null
     private var symbolChangedAt = 0L
     var actionSymbol: String = ""
         set(value) {
@@ -90,10 +91,15 @@ class BezierStretchRenderer {
 
     /** Pins the release frame to the action that was actually dispatched. */
     fun showFinalActionSymbol(symbol: String) {
+        pinnedActionSymbol = symbol.ifEmpty { null }
         previousSymbol = ""
         displayedSymbol = symbol
         symbolChangedAt = System.nanoTime()
         actionSymbol = symbol
+    }
+
+    fun clearPinnedActionSymbol() {
+        pinnedActionSymbol = null
     }
 
     private val particleBurst = io.github.omeryol.akisgesture.feedback.animation.ParticleBurstModule()
@@ -241,7 +247,7 @@ class BezierStretchRenderer {
 
         val elapsed=((System.nanoTime()-symbolChangedAt)/1_000_000_000f).coerceAtLeast(0f)
         val transition=smoothStep(0f,.20f,elapsed)
-        val symbol=displayedSymbol.ifEmpty{actionSymbol}
+        val symbol=pinnedActionSymbol ?: displayedSymbol.ifEmpty{actionSymbol}
         val iconRadius = radius * iconSize
         if(previousSymbol.isNotEmpty()&&transition<1f) drawSymbol(canvas,previousSymbol,c,iconRadius,(1f-transition)*alphaValue)
         if(symbol.isNotEmpty()) drawSymbol(canvas,symbol,c,iconRadius,transition*alphaValue)
