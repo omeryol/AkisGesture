@@ -85,7 +85,14 @@ class LSwipeDetector {
                 }
             }
             val directionAllowed = completedDirection == null || completedDirection == candidateDirection
-            if (directionAllowed && turnDistance >= turnThreshold && turnDistance >= perpendicularDistance * 1.0f) {
+            // The second leg must travel at least as far as the first leg
+            // travelled inward. A tiny vertical wobble must never complete
+            // an L gesture after a deeper edge pull.
+            val minimumTurnDistance = maxOf(turnThreshold, maxInwardPx)
+            if (directionAllowed &&
+                turnDistance >= minimumTurnDistance &&
+                turnDistance >= perpendicularDistance * 1.0f
+            ) {
                 completedDirection = candidateDirection
                 detectedLGesture = candidateDirection
             } else if (!directionAllowed || turnDistance < turnThreshold * 0.78f) {
