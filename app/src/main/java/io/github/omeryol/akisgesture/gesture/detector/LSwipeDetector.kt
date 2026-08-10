@@ -92,14 +92,18 @@ class LSwipeDetector {
                 }
             }
             val directionAllowed = completedDirection == null || completedDirection == candidateDirection
-            previewDirection = if (directionAllowed && turnDistance > 0f) candidateDirection else null
+            val minimumTurnDistance = maxOf(turnThreshold, maxInwardPx)
+            previewDirection = if (directionAllowed && turnDistance >= minimumTurnDistance) {
+                candidateDirection
+            } else {
+                null
+            }
             turnProgress = if (directionAllowed) {
-                (turnDistance / turnThreshold).coerceIn(0f, 1f)
+                (turnDistance / minimumTurnDistance).coerceIn(0f, 1f)
             } else {
                 0f
             }
 
-            val minimumTurnDistance = maxOf(turnThreshold, maxInwardPx)
             if (directionAllowed &&
                 turnDistance >= minimumTurnDistance &&
                 turnDistance >= perpendicularDistance * 1.0f
