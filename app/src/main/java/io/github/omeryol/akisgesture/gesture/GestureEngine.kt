@@ -508,6 +508,7 @@ class GestureEngine(
             Edge.BOTTOM -> height - inset
         }
         val middleLead = 72f * currentConfig.iconSize
+        val sideLead = middleLead * 0.52f
         val middle = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT, Edge.BOTTOM -> anchor - middleLead
@@ -519,14 +520,14 @@ class GestureEngine(
         )
         val centers = when (edge) {
             Edge.LEFT, Edge.RIGHT -> listOf(
-                anchor to side[0],
+                (if (edge == Edge.LEFT) anchor + sideLead else anchor - sideLead) to side[0],
                 middle to side[1],
-                anchor to side[2],
+                (if (edge == Edge.LEFT) anchor + sideLead else anchor - sideLead) to side[2],
             )
             Edge.BOTTOM -> listOf(
-                side[0] to anchor,
+                side[0] to (anchor - sideLead),
                 side[1] to middle,
-                side[2] to anchor,
+                side[2] to (anchor - sideLead),
             )
         }
         // Treat contact with any visible part of the bubble as a hit. The

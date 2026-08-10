@@ -55,6 +55,7 @@ class RingMenuRenderer {
             Edge.BOTTOM -> height - menuInset
         }
         val middleLead = 72f * iconScale
+        val sideLead = middleLead * 0.52f
         val middleAnchor = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT -> anchor - middleLead
@@ -73,19 +74,19 @@ class RingMenuRenderer {
         )
         val positions = when (edge) {
             Edge.LEFT -> listOf(
-                anchor to sideY[0],
+                (anchor + sideLead) to sideY[0],
                 middleAnchor to sideY[1],
-                anchor to sideY[2],
+                (anchor + sideLead) to sideY[2],
             )
             Edge.RIGHT -> listOf(
-                anchor to sideY[0],
+                (anchor - sideLead) to sideY[0],
                 middleAnchor to sideY[1],
-                anchor to sideY[2],
+                (anchor - sideLead) to sideY[2],
             )
             Edge.BOTTOM -> listOf(
-                bottomX[0] to anchor,
+                bottomX[0] to (anchor - sideLead),
                 bottomX[1] to middleAnchor,
-                bottomX[2] to anchor,
+                bottomX[2] to (anchor - sideLead),
             )
         }
         symbols.take(3).forEachIndexed { index, value ->

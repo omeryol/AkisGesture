@@ -406,6 +406,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
 
     val ringRadius = (config.ringSizeDp * density * 0.22f).coerceIn(13f, 24f)
     val ringSpacing = (config.ringGroupSpacingDp * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
+    val sideLead = ringSpacing * 0.52f
     val inset = (config.ringGroupInsetDp * density * 0.20f).coerceIn(ringRadius + 6f, screen.width * 0.30f)
     val edgeColors = mapOf(
         Edge.LEFT to EdgeUi.color(Edge.LEFT),
@@ -419,19 +420,19 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
         }
         val centers = when (edge) {
             Edge.LEFT -> listOf(
-                Offset(screen.left + inset, screen.center.y - ringSpacing),
-                Offset(screen.left + inset, screen.center.y),
-                Offset(screen.left + inset, screen.center.y + ringSpacing),
+                Offset(screen.left + inset + sideLead, screen.center.y - ringSpacing),
+                Offset(screen.left + inset + ringSpacing, screen.center.y),
+                Offset(screen.left + inset + sideLead, screen.center.y + ringSpacing),
             )
             Edge.RIGHT -> listOf(
-                Offset(screen.right - inset, screen.center.y - ringSpacing),
-                Offset(screen.right - inset, screen.center.y),
-                Offset(screen.right - inset, screen.center.y + ringSpacing),
+                Offset(screen.right - inset - sideLead, screen.center.y - ringSpacing),
+                Offset(screen.right - inset - ringSpacing, screen.center.y),
+                Offset(screen.right - inset - sideLead, screen.center.y + ringSpacing),
             )
             Edge.BOTTOM -> listOf(
-                Offset(screen.center.x - ringSpacing, screen.bottom - inset),
-                Offset(screen.center.x, screen.bottom - inset),
-                Offset(screen.center.x + ringSpacing, screen.bottom - inset),
+                Offset(screen.center.x - ringSpacing, screen.bottom - inset - sideLead),
+                Offset(screen.center.x, screen.bottom - inset - ringSpacing),
+                Offset(screen.center.x + ringSpacing, screen.bottom - inset - sideLead),
             )
         }
         centers.forEachIndexed { index, center ->
