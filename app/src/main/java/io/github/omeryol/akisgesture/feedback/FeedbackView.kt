@@ -80,6 +80,11 @@ class FeedbackView(context: Context) : View(context) {
             field = value
             invalidate()
         }
+
+    fun showFinalActionSymbol(symbol: String) {
+        renderer.showFinalActionSymbol(symbol)
+        invalidate()
+    }
     /** Animasyon hız ve boyut çarpanları */
     var animationSpeed: Float
         get() = renderer.animSpeed

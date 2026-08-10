@@ -88,6 +88,14 @@ class BezierStretchRenderer {
             }
         }
 
+    /** Pins the release frame to the action that was actually dispatched. */
+    fun showFinalActionSymbol(symbol: String) {
+        previousSymbol = ""
+        displayedSymbol = symbol
+        symbolChangedAt = System.nanoTime()
+        actionSymbol = symbol
+    }
+
     private val particleBurst = io.github.omeryol.akisgesture.feedback.animation.ParticleBurstModule()
     private var wasArmed = false
     private var renderedStretch = 0f

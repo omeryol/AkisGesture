@@ -703,6 +703,7 @@ class GestureEngine(
                 gesture = "BOTTOM_HORIZONTAL_${result.direction.name}",
                 actionId = action.id,
             )
+            feedbackView?.showFinalActionSymbol(ActionSymbols.symbolFor(action, currentConfig.actionIconPack))
             performResultHapticIfNeeded()
             scope.launch {
                 actionDispatcher.dispatch(action)
@@ -721,7 +722,7 @@ class GestureEngine(
         // The progress preview can still be showing the previous gesture's
         // symbol when the final section match arrives. Pin the release cue to
         // the action that is actually about to run.
-        feedbackView?.actionSymbol = ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack)
+        feedbackView?.showFinalActionSymbol(ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack))
 
         // Record real runtime gesture usage stats
         val (edge, gestureType, _) = when (result) {
