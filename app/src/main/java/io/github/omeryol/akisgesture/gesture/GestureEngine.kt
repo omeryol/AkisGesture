@@ -631,11 +631,7 @@ class GestureEngine(
                 } else 0f
                 activeRuleSet.match(progress.edge, GestureType.SWIPE_HOLD, ratio)
             } else null
-            val previewSymbol = if (progress.lPreviewGesture != null && displayAction == null) {
-                ""
-            } else {
-                ActionSymbols.symbolFor(displayAction, currentConfig.actionIconPack)
-            }
+            val previewSymbol = ActionSymbols.symbolFor(displayAction, currentConfig.actionIconPack)
             view.actionSymbol = previewSymbol
             val previewGesture = when {
                 progress.lPreviewGesture != null -> progress.lPreviewGesture.name
@@ -652,11 +648,13 @@ class GestureEngine(
             armed = progress.armed,
             holdArmed = progress.holdArmed,
             appSwitchDirection = progress.appSwitchDirection,
-            isLUp = progress.isLUp,
-            isLDown = progress.isLDown,
-            bendStartY = progress.bendStartY,
-            lColorProgress = progress.lColorProgress,
-            lPreviewGesture = progress.lPreviewGesture,
+            // L gestures remain detectable, but their guide is intentionally
+            // hidden; the edge feedback should stay a normal action cue.
+            isLUp = false,
+            isLDown = false,
+            bendStartY = 0f,
+            lColorProgress = 0f,
+            lPreviewGesture = null,
             ringActive = progress.ringActive,
         )
 
