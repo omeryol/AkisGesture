@@ -142,6 +142,7 @@ class FeedbackView(context: Context) : View(context) {
     var ringGroupInsetDp: Float = 100f
     var ringGroupSpacingDp: Float = 60f
     var ringSizeDp: Float = 58f
+    var ringArc: Float = 0.92f
     private var ringActive: Boolean = false
 
     private val arrowAlpha: Float
@@ -202,6 +203,7 @@ class FeedbackView(context: Context) : View(context) {
                 selectedIndex = ringSelectedIndex,
                 iconScale = iconSize,
                 ringSizeDp = ringSizeDp,
+                ringArc = ringArc,
             )
         }
     }

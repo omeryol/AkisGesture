@@ -32,6 +32,7 @@ class RingMenuRenderer {
         selectedIndex: Int,
         iconScale: Float,
         ringSizeDp: Float,
+        ringArc: Float,
     ) {
         if (symbols.isEmpty()) return
         // Keep the bubbles attached to the finger's inward travel instead of
@@ -58,7 +59,7 @@ class RingMenuRenderer {
         // Make the center bubble visibly lead inward while the outer bubbles
         // stay close to the edge, producing a pronounced half-arc.
         val middleLead = spread * 1.45f
-        val sideLead = middleLead * 0.08f
+        val sideLead = middleLead * (1f - ringArc.coerceIn(0f, 1f))
         val middleAnchor = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT -> anchor - middleLead

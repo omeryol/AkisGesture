@@ -508,7 +508,7 @@ class GestureEngine(
             Edge.BOTTOM -> height - inset
         }
         val middleLead = spread * 1.45f
-        val sideLead = middleLead * 0.08f
+        val sideLead = middleLead * (1f - currentConfig.ringArc.coerceIn(0f, 1f))
         val middle = when (edge) {
             Edge.LEFT -> anchor + middleLead
             Edge.RIGHT, Edge.BOTTOM -> anchor - middleLead
@@ -570,6 +570,7 @@ class GestureEngine(
         view.ringGroupInsetDp = currentConfig.ringGroupInsetDp
         view.ringGroupSpacingDp = currentConfig.ringGroupSpacingDp
         view.ringSizeDp = currentConfig.ringSizeDp
+        view.ringArc = currentConfig.ringArc
         view.ringSymbols = if (currentConfig.hasRingActionsFor(progress.edge)) {
             currentConfig.ringActionsFor(progress.edge).map { action ->
                 ActionSymbols.symbolFor(action, currentConfig.actionIconPack)

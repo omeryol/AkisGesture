@@ -406,7 +406,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
 
     val ringRadius = (config.ringSizeDp * density * 0.22f).coerceIn(13f, 24f)
     val ringSpacing = (config.ringGroupSpacingDp * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
-    val sideLead = ringSpacing * 0.52f
+    val sideLead = ringSpacing * (1f - config.ringArc.coerceIn(0f, 1f))
     val inset = (config.ringGroupInsetDp * density * 0.20f).coerceIn(ringRadius + 6f, screen.width * 0.30f)
     val edgeColors = mapOf(
         Edge.LEFT to EdgeUi.color(Edge.LEFT),

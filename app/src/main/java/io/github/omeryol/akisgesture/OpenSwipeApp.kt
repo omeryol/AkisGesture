@@ -79,6 +79,7 @@ class AkisGestureApp : Application() {
                     ringGroupInsetDp = prefs[GestureConfig.KEY_RING_GROUP_INSET_DP] ?: 100f,
                     ringGroupSpacingDp = prefs[GestureConfig.KEY_RING_GROUP_SPACING_DP] ?: 60f,
                     ringSizeDp = prefs[GestureConfig.KEY_RING_SIZE_DP] ?: 58f,
+                    ringArc = prefs[GestureConfig.KEY_RING_ARC] ?: 0.92f,
                     leftDamping = prefs[GestureConfig.KEY_LEFT_DAMPING] ?: 2.0f,
                     rightDamping = prefs[GestureConfig.KEY_RIGHT_DAMPING] ?: 2.0f,
                     bottomDamping = prefs[GestureConfig.KEY_BOTTOM_DAMPING] ?: 2.0f,
@@ -403,6 +404,10 @@ class AkisGestureApp : Application() {
 
     suspend fun updateRingSizeDp(value: Float) {
         settingsDataStore.edit { it[GestureConfig.KEY_RING_SIZE_DP] = value.coerceIn(40f, 92f) }
+    }
+
+    suspend fun updateRingArc(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RING_ARC] = value.coerceIn(0f, 1f) }
     }
 
     suspend fun updateAutomationAppsEnabled(enabled: Boolean) {

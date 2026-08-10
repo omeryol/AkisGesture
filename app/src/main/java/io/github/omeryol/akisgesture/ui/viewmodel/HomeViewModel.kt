@@ -163,6 +163,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateRingSizeDp(value) }
     }
 
+    fun setRingArc(value: Float) {
+        viewModelScope.launch { app.updateRingArc(value) }
+    }
+
     fun setAutomationAppsEnabled(enabled: Boolean) {
         viewModelScope.launch { app.updateAutomationAppsEnabled(enabled) }
     }

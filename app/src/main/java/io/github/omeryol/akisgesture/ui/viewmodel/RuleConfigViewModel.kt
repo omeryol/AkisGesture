@@ -93,6 +93,10 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch { app.updateRingSizeDp(value) }
     }
 
+    fun setRingArc(value: Float) {
+        viewModelScope.launch { app.updateRingArc(value) }
+    }
+
     private val _rules = MutableStateFlow<List<GestureRule>>(emptyList())
     val rules: StateFlow<List<GestureRule>> = _rules.asStateFlow()
 

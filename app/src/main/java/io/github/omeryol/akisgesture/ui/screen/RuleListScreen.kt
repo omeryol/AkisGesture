@@ -2,6 +2,7 @@ package io.github.omeryol.akisgesture.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -65,6 +66,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
@@ -78,6 +82,7 @@ import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
+import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.component.ActionIcon
@@ -496,6 +501,14 @@ fun RuleListScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                            RingArcPreview(
+                                edge = selectedEdge,
+                                config = gestureConfig,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(132.dp)
+                                    .padding(top = 8.dp),
+                            )
                             Spacer(Modifier.height(8.dp))
                             AkisSwitchRow(
                                 title = stringResource(R.string.ring_menu_enabled),
@@ -523,6 +536,13 @@ fun RuleListScreen(
                                 value = gestureConfig.ringSizeDp,
                                 valueRange = 40f..92f,
                                 onValueChange = viewModel::setRingSizeDp,
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.ring_arc),
+                                valueText = "${(gestureConfig.ringArc * 100f).roundToInt()}%",
+                                value = gestureConfig.ringArc,
+                                valueRange = 0f..1f,
+                                onValueChange = viewModel::setRingArc,
                             )
                         }
                     }
@@ -824,6 +844,70 @@ fun RuleListScreen(
         )
     }
 
+}
+
+@Composable
+private fun RingArcPreview(
+    edge: Edge,
+    config: GestureConfig,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val actions = config.ringActionsFor(edge).take(3).let { values ->
+        values + List(3 - values.size) { ActionNode.NoAction }
+    }
+    Canvas(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(scheme.surfaceVariant.copy(alpha = 0.28f)),
+    ) {
+        val radius = (config.ringSizeDp * 0.36f).coerceIn(18f, 30f)
+        val spacing = (config.ringGroupSpacingDp * 0.55f).coerceIn(radius * 1.8f, 54f)
+        val middleLead = (32f + config.ringArc.coerceIn(0f, 1f) * 58f)
+        val sideLead = middleLead * (1f - config.ringArc.coerceIn(0f, 1f))
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val centers = when (edge) {
+            Edge.LEFT -> listOf(
+                Offset(center.x - middleLead + sideLead, center.y - spacing),
+                Offset(center.x + middleLead, center.y),
+                Offset(center.x - middleLead + sideLead, center.y + spacing),
+            )
+            Edge.RIGHT -> listOf(
+                Offset(center.x + middleLead - sideLead, center.y - spacing),
+                Offset(center.x - middleLead, center.y),
+                Offset(center.x + middleLead - sideLead, center.y + spacing),
+            )
+            Edge.BOTTOM -> listOf(
+                Offset(center.x - spacing, center.y - middleLead + sideLead),
+                Offset(center.x, center.y - middleLead),
+                Offset(center.x + spacing, center.y - middleLead + sideLead),
+            )
+        }
+        val color = when (edge) {
+            Edge.LEFT -> Color(0xFF3D5AFE)
+            Edge.RIGHT -> Color(0xFFFF9100)
+            Edge.BOTTOM -> Color(0xFF00E5FF)
+        }
+        centers.forEachIndexed { index, bubble ->
+            drawCircle(Color.Black.copy(alpha = 0.30f), radius + 3f, bubble)
+            drawCircle(color.copy(alpha = 0.22f), radius, bubble)
+            drawCircle(Color.White.copy(alpha = 0.76f), radius, bubble, style = Stroke(2f))
+            val action = actions[index]
+            if (action !is ActionNode.NoAction) {
+                val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                    this.color = android.graphics.Color.WHITE
+                    textSize = radius * 0.90f
+                    textAlign = android.graphics.Paint.Align.CENTER
+                }
+                drawContext.canvas.nativeCanvas.drawText(
+                    action.toSymbol(config.actionIconPack),
+                    bubble.x,
+                    bubble.y - (paint.ascent() + paint.descent()) / 2f,
+                    paint,
+                )
+            }
+        }
+    }
 }
 
 @Composable
