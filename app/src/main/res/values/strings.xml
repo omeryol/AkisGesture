@@ -266,4 +266,11 @@
     <string name="ring_unassigned">Not assigned</string>
     <string name="write_settings_permission_title">System settings access</string>
     <string name="write_settings_permission_description">Needed for brightness up/down. Without it, brightness actions will not work.</string>
+    <string name="quick_start_title">Quick start</string>
+    <string name="quick_start_subtitle">Check the permissions needed for gestures and system actions.</string>
+    <string name="permission_ready">Ready</string>
+    <string name="quick_start_accessibility_missing">Gestures and their actions will not work.</string>
+    <string name="quick_start_write_settings_missing">Brightness up/down actions will not work.</string>
+    <string name="quick_start_battery_missing">The service may be stopped in the background.</string>
+    <string name="open_permission_steps">Open permission steps</string>
 </resources>

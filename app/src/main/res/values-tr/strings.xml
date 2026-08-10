@@ -267,4 +267,11 @@
     <string name="ring_unassigned">Atanmamış</string>
     <string name="write_settings_permission_title">Sistem ayarları izni</string>
     <string name="write_settings_permission_description">Parlaklık artırma/azaltma için gerekir. Verilmezse parlaklık eylemleri çalışmaz.</string>
+    <string name="quick_start_title">Hızlı başlangıç</string>
+    <string name="quick_start_subtitle">Jestler ve sistem eylemleri için gereken izinleri kontrol edin.</string>
+    <string name="permission_ready">Hazır</string>
+    <string name="quick_start_accessibility_missing">Jestler ve eylemleri çalışmaz.</string>
+    <string name="quick_start_write_settings_missing">Parlaklık artırma/azaltma eylemleri çalışmaz.</string>
+    <string name="quick_start_battery_missing">Hizmet arka planda durdurulabilir.</string>
+    <string name="open_permission_steps">İzin adımlarını aç</string>
 </resources>

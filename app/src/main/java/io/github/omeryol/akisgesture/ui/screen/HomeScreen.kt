@@ -37,6 +37,8 @@ import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -47,7 +49,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,8 +77,12 @@ import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
 import io.github.omeryol.akisgesture.ui.component.InteractivePhoneMap
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
+import io.github.omeryol.akisgesture.ui.theme.StatusConnected
+import io.github.omeryol.akisgesture.ui.theme.StatusDisconnected
 import io.github.omeryol.akisgesture.util.PermissionHelper
 import kotlinx.coroutines.launch
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 
 @Composable
 fun HomeScreen(
@@ -89,6 +97,14 @@ fun HomeScreen(
     val context = LocalContext.current
     val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
     val batteryOptimized = !PermissionHelper.isBatteryOptimizationIgnored(context)
+    var accessibilityGranted by remember { mutableStateOf(PermissionHelper.isAccessibilityServiceEnabled(context)) }
+    var writeSettingsGranted by remember { mutableStateOf(PermissionHelper.canWriteSystemSettings(context)) }
+    var batteryExemptionGranted by remember { mutableStateOf(PermissionHelper.isBatteryOptimizationIgnored(context)) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        accessibilityGranted = PermissionHelper.isAccessibilityServiceEnabled(context)
+        writeSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
+        batteryExemptionGranted = PermissionHelper.isBatteryOptimizationIgnored(context)
+    }
     val totalRules = ruleSet.totalRuleCount()
     val activeEdges = Edge.entries.count(ruleSet::hasRulesFor)
     val scheme = MaterialTheme.colorScheme
@@ -232,7 +248,54 @@ fun HomeScreen(
                 }
             }
 
-            // ── 2. Redesigned Interactive Phone Map ──
+            // ── 2. Quick Start Permission Summary ──
+            val allRecommendedPermissionsGranted = accessibilityGranted && writeSettingsGranted && batteryExemptionGranted
+            AkisGlassCard(
+                modifier = Modifier.fillMaxWidth(),
+                accentTint = if (allRecommendedPermissionsGranted) StatusConnected else scheme.tertiary,
+                containerColor = if (allRecommendedPermissionsGranted) StatusConnected.copy(alpha = 0.06f) else null,
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.quick_start_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = scheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.quick_start_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                    )
+                    PermissionStatusRow(
+                        title = stringResource(R.string.accessibility_service),
+                        detail = if (accessibilityGranted) stringResource(R.string.permission_ready) else stringResource(R.string.quick_start_accessibility_missing),
+                        granted = accessibilityGranted,
+                    )
+                    PermissionStatusRow(
+                        title = stringResource(R.string.write_settings_permission_title),
+                        detail = if (writeSettingsGranted) stringResource(R.string.permission_ready) else stringResource(R.string.quick_start_write_settings_missing),
+                        granted = writeSettingsGranted,
+                    )
+                    PermissionStatusRow(
+                        title = stringResource(R.string.battery_permission_title),
+                        detail = if (batteryExemptionGranted) stringResource(R.string.permission_ready) else stringResource(R.string.quick_start_battery_missing),
+                        granted = batteryExemptionGranted,
+                    )
+                    Button(
+                        onClick = onNavigateToPermissions,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(stringResource(R.string.open_permission_steps))
+                    }
+                }
+            }
+
+            // ── 3. Redesigned Interactive Phone Map ──
             if (gestureConfig.showPhoneMap) {
                 AkisGlassCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -386,6 +449,40 @@ fun HomeScreen(
         }
     }
 }
+}
+
+@Composable
+private fun PermissionStatusRow(
+    title: String,
+    detail: String,
+    granted: Boolean,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(
+            imageVector = if (granted) Icons.Filled.Check else Icons.Outlined.Warning,
+            contentDescription = null,
+            tint = if (granted) StatusConnected else StatusDisconnected,
+            modifier = Modifier.size(20.dp),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = scheme.onSurface,
+            )
+            Text(
+                text = detail,
+                style = MaterialTheme.typography.labelSmall,
+                color = if (granted) StatusConnected else scheme.error,
+            )
+        }
+    }
 }
 
 @Composable
