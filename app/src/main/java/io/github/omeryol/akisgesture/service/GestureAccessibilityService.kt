@@ -243,6 +243,10 @@ class GestureAccessibilityService : AccessibilityService() {
         if (::gestureEngine.isInitialized) gestureEngine.previewEdgeVerticalRange(edge, start, end)
     }
 
+    fun previewRingMenu(edge: io.github.omeryol.akisgesture.overlay.Edge, config: io.github.omeryol.akisgesture.gesture.GestureConfig) {
+        if (::gestureEngine.isInitialized) gestureEngine.previewRingMenu(edge, config)
+    }
+
     private fun cleanup(reason: String) {
         serviceScope.cancel()
         if (::gestureEngine.isInitialized) gestureEngine.stop()

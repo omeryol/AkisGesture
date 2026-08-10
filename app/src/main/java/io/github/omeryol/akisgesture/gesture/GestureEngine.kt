@@ -340,6 +340,28 @@ class GestureEngine(
         highlightEdge(edge, durationMs = 2_000L)
     }
 
+    /** Displays the actual ring overlay for live settings adjustment. */
+    fun previewRingMenu(edge: Edge, previewConfig: GestureConfig = currentConfig) {
+        val view = feedbackView ?: return
+        if (!previewConfig.ringMenuEnabled) return
+        view.ringGroupInsetDp = previewConfig.ringGroupInsetDp
+        view.ringGroupSpacingDp = previewConfig.ringGroupSpacingDp
+        view.ringSizeDp = previewConfig.ringSizeDp
+        view.ringArc = previewConfig.ringArc
+        view.iconSize = previewConfig.iconSize
+        view.feedbackOpacity = previewConfig.feedbackOpacity
+        view.primaryColor = previewConfig.feedbackColorArgb
+        view.ringSymbols = previewConfig.ringActionsFor(edge).map { action ->
+            ActionSymbols.symbolFor(action, previewConfig.actionIconPack)
+        }
+        view.peakThreshold = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            previewConfig.swipeThresholdDpFor(edge),
+            overlayManager.context.resources.displayMetrics,
+        )
+        view.showRingPreview(edge, view.ringSymbols)
+    }
+
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
         clearOverlays()
         addFeedbackOverlay()

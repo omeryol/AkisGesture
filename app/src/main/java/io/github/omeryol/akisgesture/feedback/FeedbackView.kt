@@ -143,6 +143,7 @@ class FeedbackView(context: Context) : View(context) {
     var ringGroupSpacingDp: Float = 60f
     var ringSizeDp: Float = 58f
     var ringArc: Float = 0.92f
+    private var ringPreviewToken: Int = 0
     private var ringActive: Boolean = false
 
     private val arrowAlpha: Float
@@ -248,6 +249,31 @@ class FeedbackView(context: Context) : View(context) {
         } else {
             animateRelease()
         }
+    }
+
+    /** Shows the real overlay rings while the user adjusts ring settings. */
+    fun showRingPreview(edge: Edge, symbols: List<String>) {
+        ringPreviewToken += 1
+        val token = ringPreviewToken
+        this.edge = edge
+        this.ringSymbols = symbols
+        this.ringSelectedIndex = -1
+        this.ringActive = symbols.isNotEmpty()
+        this.appSwitchDirection = null
+        this.isActive = true
+        this.stretchDistance = peakThreshold + 220f
+        this.touchPosition = when (edge) {
+            Edge.LEFT, Edge.RIGHT -> height * 0.5f
+            Edge.BOTTOM -> width * 0.5f
+        }
+        postInvalidateOnAnimation()
+        postDelayed({
+            if (ringPreviewToken == token) {
+                ringActive = false
+                isActive = false
+                invalidate()
+            }
+        }, 2_500L)
     }
 
     private fun animateRelease() {

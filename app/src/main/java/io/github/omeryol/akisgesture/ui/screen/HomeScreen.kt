@@ -105,8 +105,10 @@ fun HomeScreen(
         writeSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
         batteryExemptionGranted = PermissionHelper.isBatteryOptimizationIgnored(context)
     }
-    val totalRules = ruleSet.totalRuleCount()
-    val activeEdges = Edge.entries.count(ruleSet::hasRulesFor)
+    val gestureConfig by viewModel.configState.collectAsState()
+    val ringActionCount = Edge.entries.sumOf { gestureConfig.ringActionsFor(it).size }
+    val totalActions = ruleSet.totalRuleCount() + ringActionCount
+    val activeEdges = Edge.entries.count { edge -> ruleSet.hasRulesFor(edge) || gestureConfig.hasRingActionsFor(edge) }
     val scheme = MaterialTheme.colorScheme
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -124,7 +126,6 @@ fun HomeScreen(
         label = "pulseScale",
     )
 
-    val gestureConfig by viewModel.configState.collectAsState()
     val masterEnabled = gestureConfig.masterEnabled
     val isMasterActive = isConnected && masterEnabled
 
@@ -226,7 +227,7 @@ fun HomeScreen(
                             text = if (!isConnected) {
                                 stringResource(R.string.home_enable_accessibility)
                             } else if (isMasterActive) {
-                                stringResource(R.string.home_summary, totalRules, activeEdges, BuildConfig.VERSION_NAME)
+                                stringResource(R.string.home_summary, totalActions, activeEdges, BuildConfig.VERSION_NAME)
                             } else {
                                 stringResource(R.string.stream_paused_hint)
                             },
