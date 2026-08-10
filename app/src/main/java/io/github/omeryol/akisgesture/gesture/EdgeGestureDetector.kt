@@ -49,7 +49,6 @@ class EdgeGestureDetector(
     private var ringHitIndex = -1
     private var ringOpenedStretch = 0f
     private var ringAnchorTouch = 0f
-    private var lastLPreviewGesture: GestureType? = null
 
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
@@ -191,17 +190,6 @@ class EdgeGestureDetector(
             lSwipeThresholdPx = lSwipeThresholdPx,
             hasLActionAtInitialTouch = hasLActionAt(initialTouchCoord()),
         )
-        if (lSwipeDetector.previewDirection != lastLPreviewGesture) {
-            val signal = when (lSwipeDetector.previewDirection) {
-                GestureType.SWIPE_UP_L -> "l_guide_up"
-                GestureType.SWIPE_DOWN_L -> "l_guide_down"
-                null -> "l_guide_cleared"
-                else -> "l_guide_cleared"
-            }
-            RuntimeDiagnostics.gestureSignal(edge.name, signal)
-            lastLPreviewGesture = lSwipeDetector.previewDirection
-        }
-
         if (lSwipeDetector.detectedLGesture != null) {
             state = GestureState.DETECTED
             wasArmed = true
@@ -401,11 +389,6 @@ class EdgeGestureDetector(
 
     private fun publishProgress(active: Boolean) {
         val armedNow = state == GestureState.DETECTED && lastStretch >= swipeThresholdPx
-        val detectedL = lSwipeDetector.detectedLGesture
-        val isLUp = detectedL == GestureType.SWIPE_UP_L
-        val isLDown = detectedL == GestureType.SWIPE_DOWN_L
-        val bendStartY = if (isLUp || isLDown || lSwipeDetector.inwardArmed) lSwipeDetector.bendStartY else 0f
-
         onProgress(
             GestureProgress(
                 edge = edge,
@@ -415,11 +398,6 @@ class EdgeGestureDetector(
                 armed = armedNow,
                 holdArmed = holdArmed,
                 appSwitchDirection = lastSwitchDirection,
-                isLUp = isLUp,
-                isLDown = isLDown,
-                bendStartY = bendStartY,
-                lColorProgress = lSwipeDetector.turnProgress,
-                lPreviewGesture = lSwipeDetector.previewDirection,
                 ringActive = ringActive,
                 ringSelectedIndex = ringSelectedIndex,
             )
@@ -500,7 +478,6 @@ class EdgeGestureDetector(
         ringHitIndex = -1
         ringOpenedStretch = 0f
         ringAnchorTouch = 0f
-        lastLPreviewGesture = null
         lastStretch = 0f
         lastTouchAlongEdge = 0f
         lastSwitchDirection = null
@@ -525,11 +502,6 @@ data class GestureProgress(
     val armed: Boolean,
     val holdArmed: Boolean,
     val appSwitchDirection: SwipeDirection? = null,
-    val isLUp: Boolean = false,
-    val isLDown: Boolean = false,
-    val bendStartY: Float = 0f,
-    val lColorProgress: Float = 0f,
-    val lPreviewGesture: GestureType? = null,
     val ringActive: Boolean = false,
     val ringSelectedIndex: Int = -1,
 )

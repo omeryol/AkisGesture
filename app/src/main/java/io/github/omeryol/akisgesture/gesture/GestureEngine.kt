@@ -605,21 +605,13 @@ class GestureEngine(
             val matchedAction = if (progress.active) {
                 val sensorLen = edgeLengths[progress.edge] ?: 0f
                 val ratio = if (sensorLen > 0f) (progress.touchAlongEdgePx / sensorLen).coerceIn(0f, 1f) else 0f
-            val gestureType = when {
-                progress.isLUp -> GestureType.SWIPE_UP_L
-                progress.isLDown -> GestureType.SWIPE_DOWN_L
-                progress.lPreviewGesture != null -> progress.lPreviewGesture
-                progress.holdArmed -> GestureType.SWIPE_HOLD
-                else -> GestureType.QUICK_SWIPE
-            }
+            val gestureType = if (progress.holdArmed) GestureType.SWIPE_HOLD else GestureType.QUICK_SWIPE
             activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
             } else null
 
         // Keep the selected action visible through the release animation. Clearing
         // it on ACTION_UP makes the renderer fall back to intermediate icons.
         if (progress.active) {
-            // The L guide is its own visual cue. Do not place the action's
-            // fallback "L" glyph inside the trigger bubble while previewing.
             // L detection is only a preview until ACTION_UP. If the user is
             // already hold-armed and the L candidate has no matching action,
             // keep showing the configured hold action instead of clearing the
@@ -633,11 +625,7 @@ class GestureEngine(
             } else null
             val previewSymbol = ActionSymbols.symbolFor(displayAction, currentConfig.actionIconPack)
             view.actionSymbol = previewSymbol
-            val previewGesture = when {
-                progress.lPreviewGesture != null -> progress.lPreviewGesture.name
-                progress.holdArmed -> GestureType.SWIPE_HOLD.name
-                else -> GestureType.QUICK_SWIPE.name
-            }
+            val previewGesture = if (progress.holdArmed) GestureType.SWIPE_HOLD.name else GestureType.QUICK_SWIPE.name
             RuntimeDiagnostics.feedbackSymbol(progress.edge.name, previewGesture, previewSymbol)
         }
         view.updateGestureState(
@@ -648,13 +636,6 @@ class GestureEngine(
             armed = progress.armed,
             holdArmed = progress.holdArmed,
             appSwitchDirection = progress.appSwitchDirection,
-            // L gestures remain detectable, but their guide is intentionally
-            // hidden; the edge feedback should stay a normal action cue.
-            isLUp = false,
-            isLDown = false,
-            bendStartY = 0f,
-            lColorProgress = 0f,
-            lPreviewGesture = null,
             ringActive = progress.ringActive,
         )
 

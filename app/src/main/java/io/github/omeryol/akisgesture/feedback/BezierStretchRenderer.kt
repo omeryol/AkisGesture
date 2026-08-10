@@ -57,11 +57,6 @@ class BezierStretchRenderer {
     var halfSpan = 190f
     var armed = false
     var holdArmed = false
-    var isLUp = false
-    var isLDown = false
-    var bendStartY = 0f
-    var lColorProgress = 0f
-    var lPreviewGesture: GestureType? = null
     var primaryColor = Color.rgb(61, 90, 254)
     var secondaryColor = Color.rgb(255, 145, 0)
     var lSwipeColor = Color.rgb(0, 230, 118)
@@ -146,14 +141,7 @@ class BezierStretchRenderer {
         } else {
             primaryColor
         }
-        baseColor = when {
-            lColorProgress > 0f -> blend(
-                preLColor,
-                lSwipeColor,
-                smoothStep(0f, 1f, lColorProgress).pow(0.75f), // Smoother L-color transition
-            )
-            else -> preLColor
-        }
+        baseColor = preLColor
 
         // Trigger particle burst when gesture arms/fires
         val isNowArmed = armed || holdArmed
@@ -213,12 +201,10 @@ class BezierStretchRenderer {
     private fun drawActionCue(canvas: Canvas, edge: Edge, touch: Float, progress: Float, alphaValue: Float, width: Float, height: Float, size: Float) {
         // Deliberately stays near the edge while the liquid tip follows the finger.
         val cueGrowth = (progress / 1.35f).coerceIn(0f, 1f).pow(1.55f)
-        val lEmphasis = smoothStep(0f, 1f, lColorProgress)
         val depth = (24f + cueGrowth * 30f).coerceAtMost(56f) * size
         val c = when (edge) { Edge.LEFT -> depth to touch; Edge.RIGHT -> width-depth to touch; Edge.BOTTOM -> touch to height-depth }
-        val radius = (7f + cueGrowth * 38f + lEmphasis * 28f + if (holdArmed) 6f else 0f) * size
+        val radius = (7f + cueGrowth * 38f + if (holdArmed) 6f else 0f) * size
         val pulse = when {
-            lColorProgress >= 1f -> 1.08f
             holdArmed -> 1.04f
             armed -> 1.02f
             else -> 1f
@@ -240,7 +226,7 @@ class BezierStretchRenderer {
         )
         canvas.drawCircle(c.first,c.second,radius*pulse,iconFill);iconFill.shader=null
         iconFill.style = Paint.Style.STROKE
-        iconFill.strokeWidth = (1.4f + lEmphasis * 1.2f) * size
+        iconFill.strokeWidth = 1.4f * size
         iconFill.color = withAlpha(Color.WHITE, (105*opacity*alphaValue).toInt())
         canvas.drawCircle(c.first,c.second,radius*pulse,iconFill)
         iconFill.style = Paint.Style.FILL
