@@ -20,6 +20,10 @@ class LSwipeDetector {
         private set
     var detectedLGesture: GestureType? = null
         private set
+    var turnProgress: Float = 0f
+        private set
+    var previewDirection: GestureType? = null
+        private set
     private var completedDirection: GestureType? = null
 
     fun reset() {
@@ -27,6 +31,8 @@ class LSwipeDetector {
         inwardArmed = false
         bendStartY = 0f
         detectedLGesture = null
+        turnProgress = 0f
+        previewDirection = null
         completedDirection = null
     }
 
@@ -56,6 +62,7 @@ class LSwipeDetector {
             inwardArmed = false
             detectedLGesture = null
             completedDirection = null
+            previewDirection = null
         }
 
         if (inwardArmed) {
@@ -85,9 +92,13 @@ class LSwipeDetector {
                 }
             }
             val directionAllowed = completedDirection == null || completedDirection == candidateDirection
-            // The second leg must travel at least as far as the first leg
-            // travelled inward. A tiny vertical wobble must never complete
-            // an L gesture after a deeper edge pull.
+            previewDirection = if (directionAllowed && turnDistance > 0f) candidateDirection else null
+            turnProgress = if (directionAllowed) {
+                (turnDistance / turnThreshold).coerceIn(0f, 1f)
+            } else {
+                0f
+            }
+
             val minimumTurnDistance = maxOf(turnThreshold, maxInwardPx)
             if (directionAllowed &&
                 turnDistance >= minimumTurnDistance &&

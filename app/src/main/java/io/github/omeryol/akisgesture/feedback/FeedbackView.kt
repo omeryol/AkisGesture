@@ -222,19 +222,33 @@ class FeedbackView(context: Context) : View(context) {
         armed: Boolean,
         holdArmed: Boolean,
         appSwitchDirection: SwipeDirection? = null,
+        isLUp: Boolean = false,
+        isLDown: Boolean = false,
+        bendStartY: Float = 0f,
+        lColorProgress: Float = 0f,
+        lPreviewGesture: GestureType? = null,
         ringActive: Boolean = false,
     ) {
         this.edge = edge
         // During the vertical leg of an L gesture, keep the visual anchored at
         // the bend. Finger travel controls color/progress without dragging the
         // whole animation up or down the edge.
-        this.touchPosition = touchPos
+        this.touchPosition = if (
+            lColorProgress > 0f &&
+            (edge == Edge.LEFT || edge == Edge.RIGHT) &&
+            bendStartY > 0f
+        ) bendStartY else touchPos
         this.isArmed = armed
         this.isHoldArmed = holdArmed
         this.appSwitchDirection = appSwitchDirection
         if (active && !isActive) {
             renderer.clearPinnedActionSymbol()
         }
+        renderer.isLUp = isLUp
+        renderer.isLDown = isLDown
+        renderer.bendStartY = bendStartY
+        renderer.lColorProgress = lColorProgress
+        renderer.lPreviewGesture = lPreviewGesture
         this.ringActive = ringActive
         if (active) {
             releaseAnimator?.cancel()
