@@ -11,6 +11,13 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.6.0 highlights
+
+- Three configurable action rings per edge with action icons.
+- Live tuning for ring size, spacing, inset, and half-arc curvature.
+- Real device overlay preview while dragging ring settings.
+- Home permission guidance and diagnostic ring tracing.
+
 ## v1.5.1 highlights
 
 - Edge order is now consistent across Home, the phone map, Settings, and

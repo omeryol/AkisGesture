@@ -1,5 +1,23 @@
 # Değişiklik Günlüğü
 
+## [1.6.0] - 2026-08-10
+
+### Ring menu and live tuning
+- Added three configurable action rings per edge, with action icons inside the rings.
+- Ring size, spacing, inset, and half-arc curvature can be adjusted.
+- The real overlay rings are shown live while ring settings are dragged.
+- Home now includes ring actions in the total action count.
+
+### Permissions and diagnostics
+- Added a Home quick-start permission summary with affected-feature explanations.
+- Diagnostic builds can trace ring opening, selection, and action results.
+
+### Technical
+- Version `1.6.0`, version code `57`.
+- Signed APK: `AkisGesture-v1.6.0.apk`.
+
+---
+
 ## [1.5.1] - 2026-08-08
 
 ### Kullanıcı deneyimi ve güvenlik

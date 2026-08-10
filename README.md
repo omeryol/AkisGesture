@@ -11,6 +11,13 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.6.0 öne çıkanlar
+
+- Her kenar için üç eylemli halka menüsü ve simgeler.
+- Halka boyutu, aralığı, uzaklığı ve yarım halka eğriliği canlı ayarlanabilir.
+- Ayar sırasında cihaz ekranında gerçek halka overlay'i görünür.
+- Ana sayfada izin yönlendirmesi ve tanılama akışı bulunur.
+
 ## v1.5.1 öne çıkanlar
 
 - Ana sayfa, telefon haritası, Ayarlar ve Hareketler'deki kenar sırası artık

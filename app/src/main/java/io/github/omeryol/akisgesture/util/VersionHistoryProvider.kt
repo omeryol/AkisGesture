@@ -11,9 +11,24 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.6.0",
+            date = "2026-08-10",
+            isCurrent = true,
+            changesTr = listOf(
+                "Halka Menüsü: Her kenar için üç eylemli, simgeli ve ayarlanabilir halka grubu.",
+                "Canlı Ayarlama: Boyut, aralık, uzaklık ve yarım halka eğriliği gerçek overlay üzerinde görülebilir.",
+                "İzin ve Tanılama: Eksik izin etkileri ana sayfada açıklanır; tanılama APK'sı halka akışlarını izler.",
+            ),
+            changesEn = listOf(
+                "Ring Menu: Three configurable, icon-based action rings for every edge.",
+                "Live Tuning: Size, spacing, inset, and half-arc curvature are visible on the real overlay.",
+                "Permissions and Diagnostics: Missing permission effects are explained on Home; diagnostic builds trace ring flows.",
+            )
+        ),
+        VersionHistoryItem(
             version = "1.5.1",
             date = "2026-08-08",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "🧭 Tutarlı Kenar Düzeni: Ana sayfa, harita, Ayarlar ve Hareketler artık Sol → Alt → Sağ sırasını kullanır.",
                 "🔒 Otomasyon İzni: Otomasyon uygulamaları yalnızca açık kullanıcı izniyle Başlat, Durdur veya Aç/Kapat komutunu kullanabilir.",
