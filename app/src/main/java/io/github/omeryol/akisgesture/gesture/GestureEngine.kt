@@ -620,11 +620,18 @@ class GestureEngine(
         if (progress.active) {
             // The L guide is its own visual cue. Do not place the action's
             // fallback "L" glyph inside the trigger bubble while previewing.
-            view.actionSymbol = if (progress.lPreviewGesture != null) {
+            val previewSymbol = if (progress.lPreviewGesture != null) {
                 ""
             } else {
                 ActionSymbols.symbolFor(matchedAction, currentConfig.actionIconPack)
             }
+            view.actionSymbol = previewSymbol
+            val previewGesture = when {
+                progress.lPreviewGesture != null -> progress.lPreviewGesture.name
+                progress.holdArmed -> GestureType.SWIPE_HOLD.name
+                else -> GestureType.QUICK_SWIPE.name
+            }
+            RuntimeDiagnostics.feedbackSymbol(progress.edge.name, previewGesture, previewSymbol)
         }
         view.updateGestureState(
             edge = progress.edge,
