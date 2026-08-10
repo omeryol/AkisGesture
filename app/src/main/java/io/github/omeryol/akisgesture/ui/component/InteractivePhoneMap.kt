@@ -98,6 +98,7 @@ fun InteractivePhoneMap(
 ) {
     val scheme = MaterialTheme.colorScheme
     val context = LocalContext.current
+    val density = LocalDensity.current.density
     val handleRadius = with(LocalDensity.current) { 14.dp.toPx() }
     val sensorTouchPadding = with(LocalDensity.current) { 12.dp.toPx() }
     val zones = buildPhoneZones(rules, scheme)
@@ -238,6 +239,7 @@ fun InteractivePhoneMap(
                             style = Stroke(2f),
                         )
                     }
+                    drawRingPreviews(screen, config, iconPack, density, scheme)
                 }
 
                 // High-contrast endpoint arrows stay inside the coloured trigger range.
@@ -391,6 +393,72 @@ private fun drawMapText(text: String, x: Float, y: Float, color: Color, scope: a
         isFakeBoldText = true
     }
     scope.drawContext.canvas.nativeCanvas.drawText(text, x, y, paint)
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
+    screen: Rect,
+    config: GestureConfig?,
+    iconPack: ActionIconPack,
+    density: Float,
+    scheme: androidx.compose.material3.ColorScheme,
+) {
+    if (config == null || !config.ringMenuEnabled) return
+
+    val ringRadius = (config.ringSizeDp * density * 0.22f).coerceIn(13f, 24f)
+    val ringSpacing = (config.ringGroupSpacingDp * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
+    val inset = (config.ringGroupInsetDp * density * 0.20f).coerceIn(ringRadius + 6f, screen.width * 0.30f)
+    val edgeColors = mapOf(
+        Edge.LEFT to EdgeUi.color(Edge.LEFT),
+        Edge.RIGHT to EdgeUi.color(Edge.RIGHT),
+        Edge.BOTTOM to EdgeUi.color(Edge.BOTTOM),
+    )
+
+    EdgeUi.ordered.forEach { edge ->
+        val actions = config.ringActionsFor(edge).take(3).let { values ->
+            values + List(3 - values.size) { ActionNode.NoAction }
+        }
+        val centers = when (edge) {
+            Edge.LEFT -> listOf(
+                Offset(screen.left + inset, screen.center.y - ringSpacing),
+                Offset(screen.left + inset, screen.center.y),
+                Offset(screen.left + inset, screen.center.y + ringSpacing),
+            )
+            Edge.RIGHT -> listOf(
+                Offset(screen.right - inset, screen.center.y - ringSpacing),
+                Offset(screen.right - inset, screen.center.y),
+                Offset(screen.right - inset, screen.center.y + ringSpacing),
+            )
+            Edge.BOTTOM -> listOf(
+                Offset(screen.center.x - ringSpacing, screen.bottom - inset),
+                Offset(screen.center.x, screen.bottom - inset),
+                Offset(screen.center.x + ringSpacing, screen.bottom - inset),
+            )
+        }
+        centers.forEachIndexed { index, center ->
+            val color = edgeColors.getValue(edge)
+            drawCircle(color = Color.Black.copy(alpha = 0.34f), radius = ringRadius + 3f, center = center)
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color.White.copy(alpha = 0.30f), color.copy(alpha = 0.22f), color.copy(alpha = 0.08f)),
+                    center = center,
+                    radius = ringRadius * 1.7f,
+                ),
+                radius = ringRadius,
+                center = center,
+            )
+            drawCircle(color = color.copy(alpha = 0.88f), radius = ringRadius, center = center, style = Stroke(width = 2.2f))
+            val action = actions[index]
+            if (action !is ActionNode.NoAction) {
+                val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+                    this.color = android.graphics.Color.WHITE
+                    textSize = ringRadius * 0.95f
+                    textAlign = android.graphics.Paint.Align.CENTER
+                    isFakeBoldText = true
+                }
+                drawContext.canvas.nativeCanvas.drawText(action.toSymbol(iconPack), center.x, center.y - (paint.ascent() + paint.descent()) / 2f, paint)
+            }
+        }
+    }
 }
 
 private fun phoneScreenRect(width: Float, height: Float): Rect {
