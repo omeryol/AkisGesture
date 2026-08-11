@@ -1046,8 +1046,8 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 val modes = listOf(
-                    io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST to stringResource(R.string.app_pause_mode_blacklist),
-                    io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST to stringResource(R.string.app_pause_mode_whitelist),
+                    io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST to stringResource(R.string.app_pause_mode_blacklist_short),
+                    io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST to stringResource(R.string.app_pause_mode_whitelist_short),
                 )
                 modes.forEach { (mode, label) ->
                     val selected = config.appPauseMode == mode
@@ -1199,6 +1199,13 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = scheme.onSurfaceVariant,
             )
+
+            if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) {
+                PauseWarningCard(
+                    title = stringResource(R.string.app_pause_mode_whitelist_warning_title),
+                    description = stringResource(R.string.app_pause_mode_whitelist_warning_desc),
+                )
+            }
 
             Spacer(Modifier.height(10.dp))
             DiagnosticsSettingsEntry()
