@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="keyboard_open_warning_title">⚠️ Keyboard pause disables all Akış edge gestures</string>
+    <string name="keyboard_open_warning_desc">When enabled, Akış removes its gesture overlays while the keyboard is visible. Use the keyboard or system navigation to exit; gestures return automatically when the keyboard closes.</string>
     <string name="app_name">Akış Gesture</string>
     <string name="accessibility_service_description">Detects screen-edge gestures and performs selected actions such as Back, Home, or Recents. It does not record or collect screen content.</string>
     <string name="notification_channel_name">Gesture service</string>

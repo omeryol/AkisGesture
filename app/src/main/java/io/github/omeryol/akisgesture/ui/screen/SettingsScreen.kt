@@ -941,6 +941,40 @@ fun SettingsScreen(
                 onCheckedChange = viewModel::setPauseWhenKeyboardVisible
             )
 
+            if (config.pauseWhenKeyboardVisible) {
+                AkisGlassCard(
+                    modifier = Modifier.padding(top = 4.dp),
+                    accentTint = Color(0xFFFF6D00),
+                    containerColor = Color(0xFFFF6D00).copy(alpha = 0.08f),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Error,
+                            contentDescription = null,
+                            tint = Color(0xFFFF6D00),
+                            modifier = Modifier.size(22.dp),
+                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(
+                                text = stringResource(R.string.keyboard_open_warning_title),
+                                color = Color(0xFFFF6D00),
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                            Text(
+                                text = stringResource(R.string.keyboard_open_warning_desc),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
+                }
+            }
+
             AkisSwitchRow(
                 title = stringResource(R.string.landscape_screen),
                 subtitle = stringResource(R.string.landscape_screen_subtitle),

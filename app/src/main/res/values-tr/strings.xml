@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="keyboard_open_warning_title">⚠️ Klavye duraklatması tüm Akış kenar hareketlerini kapatır</string>
+    <string name="keyboard_open_warning_desc">Açıkken klavye görünür olduğu sürece Akış hareket katmanlarını kaldırır. Çıkmak için klavyeyi veya sistem gezinmesini kullanın; klavye kapanınca hareketler otomatik geri gelir.</string>
     <string name="app_name">Akış Gesture</string>
     <string name="accessibility_service_description">Ekran kenarı hareketlerini algılar ve geri, ana ekran veya son uygulamalar gibi seçtiğiniz işlemleri gerçekleştirir. Ekran içeriğini kaydetmez veya toplamaz.</string>
     <string name="notification_channel_name">Hareket hizmeti</string>
