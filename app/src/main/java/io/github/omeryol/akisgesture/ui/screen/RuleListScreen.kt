@@ -121,6 +121,7 @@ fun RuleListScreen(
     val conflicts by viewModel.conflicts.collectAsState()
     val activePreset by viewModel.activePresetName.collectAsState()
     val activeProfilePackage by viewModel.activeProfilePackage.collectAsState()
+    val pausedPackages by viewModel.pausedPackages.collectAsState()
     val presetNames = stringArrayResource(R.array.preset_names)
     val presetDescriptions = stringArrayResource(R.array.preset_descriptions)
 
@@ -341,6 +342,11 @@ fun RuleListScreen(
                         Icons.Filled.ExpandMore,
                         contentDescription = stringResource(R.string.change_profile),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (activeProfilePackage == null && pausedPackages.isNotEmpty()) {
+                    ProfilePauseWarning(
+                        whitelist = gestureConfig.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST,
                     )
                 }
             }
@@ -993,6 +999,32 @@ private data class RuleGroup(
         get() = "${representative.trigger.edge}:" +
             "${representative.trigger.section.start}:${representative.trigger.section.end}:" +
             representative.triggerMode
+}
+
+@Composable
+private fun ProfilePauseWarning(whitelist: Boolean) {
+    val tint = if (whitelist) Color(0xFF43A047) else Color(0xFFFF8F00)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(tint.copy(alpha = 0.12f))
+            .border(1.dp, tint.copy(alpha = 0.42f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Icon(Icons.Filled.Warning, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+        Text(
+            text = stringResource(
+                if (whitelist) R.string.general_layout_pause_warning_whitelist
+                else R.string.general_layout_pause_warning_blacklist,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
 }
 
 @Composable

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="general_layout_pause_warning_blacklist">App exceptions affect this general layout: gestures pause in the selected apps.</string>
+    <string name="general_layout_pause_warning_whitelist">App exceptions affect this general layout: gestures run only in the selected apps.</string>
     <string name="app_pause_mode_blacklist_hint">Selected apps pause gestures; gestures continue everywhere else.</string>
     <string name="app_pause_mode_whitelist_hint">Gestures run only in selected apps; all other apps pause them.</string>
     <string name="app_pause_mode_blacklist_short">Blacklist</string>

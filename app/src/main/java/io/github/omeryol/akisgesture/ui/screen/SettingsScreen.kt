@@ -1023,7 +1023,13 @@ fun SettingsScreen(
         // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
         if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
             AkisSectionHeader(
-                title = stringResource(R.string.app_exceptions_card_title),
+                title = stringResource(
+                    if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) {
+                        R.string.paused_apps_run_title
+                    } else {
+                        R.string.app_exceptions_card_title
+                    }
+                ),
                 subtitle = stringResource(R.string.app_exceptions_card_subtitle),
                 icon = Icons.Filled.Apps
             )
@@ -1107,6 +1113,11 @@ fun SettingsScreen(
             if (pausedPackages.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 val selectableAppsMap = selectableApps.associateBy { it.packageName }
+                val exceptionTint = if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) {
+                    Color(0xFF43A047)
+                } else {
+                    Color(0xFFFF8F00)
+                }
                 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
                 androidx.compose.foundation.layout.FlowRow(
                     modifier = Modifier.fillMaxWidth(),
@@ -1118,12 +1129,18 @@ fun SettingsScreen(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFFE040FB).copy(alpha = 0.18f))
-                                .border(1.dp, Color(0xFFE040FB).copy(alpha = 0.5f), RoundedCornerShape(16.dp))
+                                .background(exceptionTint.copy(alpha = 0.18f))
+                                .border(1.dp, exceptionTint.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
                                 .padding(horizontal = 10.dp, vertical = 5.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
+                            Icon(
+                                imageVector = if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) Icons.Filled.CheckCircle else Icons.Filled.Warning,
+                                contentDescription = null,
+                                tint = exceptionTint,
+                                modifier = Modifier.size(14.dp),
+                            )
                             Text(
                                 text = appLabel,
                                 style = MaterialTheme.typography.labelSmall,
@@ -1133,7 +1150,7 @@ fun SettingsScreen(
                             Icon(
                                 imageVector = Icons.Filled.Close,
                                 contentDescription = stringResource(R.string.remove),
-                                tint = Color(0xFFE040FB),
+                                tint = exceptionTint,
                                 modifier = Modifier
                                     .size(14.dp)
                                     .clickable { viewModel.setPackagePaused(pkg, false) }

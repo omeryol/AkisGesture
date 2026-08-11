@@ -48,6 +48,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     private val app = application as AkisGestureApp
     val gestureConfig = app.gestureConfigFlow
+    val pausedPackages = app.pausedPackagesFlow
 
     var pendingTarget: PendingActionTarget? = null
 

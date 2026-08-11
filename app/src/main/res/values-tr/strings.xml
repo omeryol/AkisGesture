@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="general_layout_pause_warning_blacklist">Uygulama istisnaları bu genel düzeni etkiler: seçilen uygulamalarda hareketler durur.</string>
+    <string name="general_layout_pause_warning_whitelist">Uygulama istisnaları bu genel düzeni etkiler: hareketler yalnızca seçilen uygulamalarda çalışır.</string>
     <string name="app_pause_mode_blacklist_hint">Seçilen uygulamalarda hareketler durur; diğer her yerde çalışır.</string>
     <string name="app_pause_mode_whitelist_hint">Hareketler yalnızca seçilen uygulamalarda çalışır; diğer tüm uygulamalarda durur.</string>
     <string name="app_pause_mode_blacklist_short">Kara liste</string>
