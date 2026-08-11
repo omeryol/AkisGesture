@@ -74,6 +74,15 @@ object RuntimeDiagnostics {
     )
 
     fun ringOpened(edge: String) = record("ring", "opened", mapOf("edge" to edge))
+    fun ringTiming(edge: String, phase: String, elapsedMs: Long) = record(
+        "ring", "timing", mapOf("edge" to edge, "phase" to phase, "elapsed_ms" to elapsedMs.toString()),
+    )
+    fun ringAnimation(edge: String, phase: String, slot: Int? = null) = record(
+        "ring", "animation_$phase", buildMap {
+            put("edge", edge)
+            slot?.let { put("slot", it.toString()) }
+        },
+    )
     fun ringSelected(edge: String, index: Int) = record("ring", "selected", mapOf("edge" to edge, "slot" to index.toString()))
     fun ringAction(edge: String, index: Int, actionId: String) = record(
         "ring",

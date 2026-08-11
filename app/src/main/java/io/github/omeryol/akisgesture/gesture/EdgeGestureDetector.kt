@@ -69,6 +69,13 @@ class EdgeGestureDetector(
             holdArmed = true
             RuntimeDiagnostics.gestureSignal(edge.name, "hold_armed")
             if (hasRingActions()) {
+                RuntimeDiagnostics.ringTiming(
+                    edge.name,
+                    "hold_ready",
+                    System.currentTimeMillis() - touchState.downTime,
+                )
+            }
+            if (hasRingActions()) {
                 // The ring has its own reveal timer. Keeping it separate from
                 // holdRunnable lets the secondary action become ready at the
                 // configured hold time instead of waiting for the visual menu.
@@ -105,6 +112,11 @@ class EdgeGestureDetector(
             ringOpenedStretch = lastStretch
             ringAnchorTouch = lastTouchAlongEdge
             RuntimeDiagnostics.ringOpened(edge.name)
+            RuntimeDiagnostics.ringTiming(
+                edge.name,
+                "revealed",
+                System.currentTimeMillis() - touchState.downTime,
+            )
             publishProgress(active = true)
         }
     }
@@ -265,6 +277,9 @@ class EdgeGestureDetector(
         if (switchDirection == null && quickArmed && !holdScheduled && !holdArmed) {
             holdScheduled = true
             handler.postDelayed(holdRunnable, config.holdTimeMs)
+            if (hasRingActions()) {
+                RuntimeDiagnostics.ringTiming(edge.name, "reveal_scheduled", RING_REVEAL_DELAY_MS)
+            }
             if (hasRingActions() && !ringRevealScheduled) {
                 ringRevealScheduled = true
                 handler.postDelayed(ringRevealRunnable, RING_REVEAL_DELAY_MS)

@@ -54,6 +54,8 @@ class GestureEngine(
     private var lastArmed = false
     private var lastProgressActive = false
     private var lastHoldArmed = false
+    private var lastRingActive = false
+    private var lastRingSelectedIndex = -1
 
     /** Suppresses haptic retriggering after overlay rebuilds while a touch is still active. */
     private var suppressHaptic = false
@@ -250,6 +252,8 @@ class GestureEngine(
         lastArmed = false
         lastProgressActive = false
         lastHoldArmed = false
+        lastRingActive = false
+        lastRingSelectedIndex = -1
         suppressHaptic = true
     }
 
@@ -600,6 +604,19 @@ class GestureEngine(
         } else {
             emptyList()
         }
+        if (progress.ringActive && !lastRingActive) {
+            RuntimeDiagnostics.ringAnimation(progress.edge.name, "reveal_start")
+        }
+        if (progress.ringActive && progress.ringSelectedIndex != lastRingSelectedIndex) {
+            RuntimeDiagnostics.ringAnimation(
+                progress.edge.name,
+                if (progress.ringSelectedIndex >= 0) "selection_changed" else "selection_cleared",
+                progress.ringSelectedIndex.takeIf { it >= 0 },
+            )
+        }
+        if (!progress.ringActive && lastRingActive) {
+            RuntimeDiagnostics.ringAnimation(progress.edge.name, "dismiss")
+        }
         view.ringSelectedIndex = progress.ringSelectedIndex
 
             val matchedAction = if (progress.active) {
@@ -694,6 +711,8 @@ class GestureEngine(
         lastArmed = progress.armed
         lastHoldArmed = progress.holdArmed
         lastProgressActive = progress.active
+        lastRingActive = progress.ringActive
+        lastRingSelectedIndex = progress.ringSelectedIndex
     }
 
 

@@ -15,6 +15,11 @@ class RingMenuRenderer {
     private val halo = Paint(Paint.ANTI_ALIAS_FLAG)
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val symbol = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private var appearanceStartedAtMs = 0L
+
+    fun resetAnimation() {
+        appearanceStartedAtMs = 0L
+    }
 
     fun draw(
         canvas: Canvas,
@@ -35,6 +40,8 @@ class RingMenuRenderer {
         ringArc: Float,
     ) {
         if (symbols.isEmpty()) return
+        val now = SystemClock.uptimeMillis()
+        if (appearanceStartedAtMs == 0L) appearanceStartedAtMs = now
         // Keep the bubbles attached to the finger's inward travel instead of
         // pinning them to the trigger edge. The small lead offset keeps the
         // selected bubble visible around the fingertip.
@@ -101,10 +108,14 @@ class RingMenuRenderer {
             } else 0f
             val scale = if (selected) 1.24f + pulse else 1f
             val r = radius * scale
-            val reveal = (0.18f + 0.82f * progress).coerceIn(0f, 1f)
+            val staggeredStart = appearanceStartedAtMs + index * 45L
+            val appearance = ((now - staggeredStart) / 220f).coerceIn(0f, 1f)
+            val easedAppearance = appearance * appearance * (3f - 2f * appearance)
+            val reveal = ((0.18f + 0.82f * progress) * easedAppearance).coerceIn(0f, 1f)
+            val visualRadius = r * (0.88f + 0.12f * easedAppearance)
             val baseAlpha = ((if (selected) 0.72f else 0.46f) * reveal * opacity * 255).toInt()
             if (selected) {
-                val haloRadius = r * 1.72f
+                val haloRadius = visualRadius * 1.72f
                 halo.shader = RadialGradient(
                     x - r * .18f,
                     y - r * .20f,
@@ -132,13 +143,13 @@ class RingMenuRenderer {
                 floatArrayOf(0f, .52f, 1f),
                 Shader.TileMode.CLAMP,
             )
-            canvas.drawCircle(x, y, r, fill)
+            canvas.drawCircle(x, y, visualRadius, fill)
             fill.shader = null
             stroke.strokeWidth = if (selected) 2.2f else 1.2f
             stroke.color = Color.argb((baseAlpha * .95f).toInt(), 255, 255, 255)
-            canvas.drawCircle(x, y, r, stroke)
+            canvas.drawCircle(x, y, visualRadius, stroke)
             if (value.isNotEmpty()) {
-                symbol.textSize = r * 1.00f
+                symbol.textSize = visualRadius * 1.00f
                 symbol.color = Color.argb((opacity * reveal * 255).toInt(), 255, 255, 255)
                 canvas.drawText(value, x, y - (symbol.ascent() + symbol.descent()) / 2f, symbol)
             }

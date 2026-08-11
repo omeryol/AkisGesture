@@ -211,6 +211,8 @@ class FeedbackView(context: Context) : View(context) {
                 ringSizeDp = ringSizeDp,
                 ringArc = ringArc,
             )
+        } else {
+            ringMenuRenderer.resetAnimation()
         }
     }
 

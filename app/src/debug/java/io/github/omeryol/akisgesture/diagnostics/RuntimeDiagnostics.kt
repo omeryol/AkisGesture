@@ -12,6 +12,8 @@ object RuntimeDiagnostics {
     fun gestureSignal(edge: String, signal: String) = Unit
     fun feedbackSymbol(edge: String, gesture: String, symbol: String) = Unit
     fun ringOpened(edge: String) = Unit
+    fun ringTiming(edge: String, phase: String, elapsedMs: Long) = Unit
+    fun ringAnimation(edge: String, phase: String, slot: Int? = null) = Unit
     fun ringSelected(edge: String, index: Int) = Unit
     fun ringAction(edge: String, index: Int, actionId: String) = Unit
     fun ringDismissed(edge: String) = Unit
