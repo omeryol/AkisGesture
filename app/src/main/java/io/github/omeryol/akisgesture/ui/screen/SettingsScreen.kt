@@ -942,37 +942,10 @@ fun SettingsScreen(
             )
 
             if (config.pauseWhenKeyboardVisible) {
-                AkisGlassCard(
-                    modifier = Modifier.padding(top = 4.dp),
-                    accentTint = Color(0xFFFF6D00),
-                    containerColor = Color(0xFFFF6D00).copy(alpha = 0.08f),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.Top,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Error,
-                            contentDescription = null,
-                            tint = Color(0xFFFF6D00),
-                            modifier = Modifier.size(22.dp),
-                        )
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text(
-                                text = stringResource(R.string.keyboard_open_warning_title),
-                                color = Color(0xFFFF6D00),
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                            Text(
-                                text = stringResource(R.string.keyboard_open_warning_desc),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                    }
-                }
+                PauseWarningCard(
+                    title = stringResource(R.string.keyboard_open_warning_title),
+                    description = stringResource(R.string.keyboard_open_warning_desc),
+                )
             }
 
             AkisSwitchRow(
@@ -981,12 +954,20 @@ fun SettingsScreen(
                 checked = config.pauseInLandscape,
                 onCheckedChange = viewModel::setPauseInLandscape
             )
+            if (config.pauseInLandscape) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_landscape_title),
+                description = stringResource(R.string.pause_warning_landscape_desc),
+            )
 
             AkisSwitchRow(
                 title = stringResource(R.string.immersive_fullscreen),
                 subtitle = stringResource(R.string.immersive_fullscreen_subtitle),
                 checked = config.pauseOnFullScreen,
                 onCheckedChange = viewModel::setPauseOnFullScreen
+            )
+            if (config.pauseOnFullScreen) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_fullscreen_title),
+                description = stringResource(R.string.pause_warning_fullscreen_desc),
             )
 
             AkisSwitchRow(
@@ -995,12 +976,20 @@ fun SettingsScreen(
                 checked = config.pauseOnPermissionScreen,
                 onCheckedChange = viewModel::setPauseOnPermissionScreen
             )
+            if (config.pauseOnPermissionScreen) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_permission_title),
+                description = stringResource(R.string.pause_warning_permission_desc),
+            )
 
             AkisSwitchRow(
                 title = stringResource(R.string.camera_active),
                 subtitle = stringResource(R.string.camera_active_subtitle),
                 checked = config.pauseOnCamera,
                 onCheckedChange = viewModel::setPauseOnCamera
+            )
+            if (config.pauseOnCamera) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_camera_title),
+                description = stringResource(R.string.pause_warning_camera_desc),
             )
 
             AkisSwitchRow(
@@ -1009,12 +998,20 @@ fun SettingsScreen(
                 checked = config.pauseOnPhoneCall,
                 onCheckedChange = viewModel::setPauseOnPhoneCall
             )
+            if (config.pauseOnPhoneCall) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_call_title),
+                description = stringResource(R.string.pause_warning_call_desc),
+            )
 
             AkisSwitchRow(
                 title = stringResource(R.string.pause_on_launcher),
                 subtitle = stringResource(R.string.pause_on_launcher_subtitle),
                 checked = config.pauseOnLauncher,
                 onCheckedChange = viewModel::setPauseOnLauncher,
+            )
+            if (config.pauseOnLauncher) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_launcher_title),
+                description = stringResource(R.string.pause_warning_launcher_desc),
             )
         }
 
@@ -1185,6 +1182,19 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            Text(
+                text = stringResource(
+                    if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST) {
+                        R.string.app_pause_mode_blacklist_hint
+                    } else {
+                        R.string.app_pause_mode_whitelist_hint
+                    }
+                ),
+                modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = scheme.onSurfaceVariant,
+            )
 
             Spacer(Modifier.height(10.dp))
             DiagnosticsSettingsEntry()
@@ -2017,7 +2027,17 @@ fun SettingsScreen(
     if (showAppPicker) {
         AlertDialog(
             onDismissRequest = { showAppPicker = false },
-            title = { Text(stringResource(R.string.paused_apps_title)) },
+            title = {
+                Text(
+                    stringResource(
+                        if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST) {
+                            R.string.paused_apps_title
+                        } else {
+                            R.string.paused_apps_run_title
+                        }
+                    )
+                )
+            },
             text = {
                 LazyColumn(modifier = Modifier.height(300.dp)) {
                     items(selectableApps) { appInfo ->
@@ -2043,6 +2063,41 @@ fun SettingsScreen(
                 TextButton(onClick = { showAppPicker = false }) { Text(stringResource(R.string.done), fontWeight = FontWeight.Bold) }
             }
         )
+    }
+}
+
+@Composable
+private fun PauseWarningCard(title: String, description: String) {
+    AkisGlassCard(
+        modifier = Modifier.padding(top = 4.dp),
+        accentTint = Color(0xFFFF6D00),
+        containerColor = Color(0xFFFF6D00).copy(alpha = 0.08f),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Error,
+                contentDescription = null,
+                tint = Color(0xFFFF6D00),
+                modifier = Modifier.size(22.dp),
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    text = title,
+                    color = Color(0xFFFF6D00),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    text = description,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
     }
 }
 

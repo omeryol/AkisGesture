@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_pause_mode_blacklist_hint">Selected apps pause gestures; gestures continue everywhere else.</string>
+    <string name="app_pause_mode_whitelist_hint">Gestures run only in selected apps; all other apps pause them.</string>
+    <string name="paused_apps_run_title">Apps where gestures are allowed</string>
+    <string name="pause_warning_landscape_title">Landscape pause is enabled</string>
+    <string name="pause_warning_landscape_desc">Akış gestures will be unavailable while the display is rotated to landscape.</string>
+    <string name="pause_warning_fullscreen_title">Full-screen pause is enabled</string>
+    <string name="pause_warning_fullscreen_desc">Akış gestures will be unavailable in immersive full-screen apps. Use system navigation or the app itself to exit.</string>
+    <string name="pause_warning_permission_title">Permission-screen pause is enabled</string>
+    <string name="pause_warning_permission_desc">Akış gestures will be unavailable while Android permission or APK installation screens are open.</string>
+    <string name="pause_warning_camera_title">Camera pause is enabled</string>
+    <string name="pause_warning_camera_desc">Akış gestures will pause while the camera or video recording is active.</string>
+    <string name="pause_warning_call_title">Call pause is enabled</string>
+    <string name="pause_warning_call_desc">Akış gestures will pause during incoming or active calls.</string>
+    <string name="pause_warning_launcher_title">Launcher pause is enabled</string>
+    <string name="pause_warning_launcher_desc">Akış gestures will pause on the home screen.</string>
     <string name="keyboard_open_warning_title">⚠️ Keyboard pause disables all Akış edge gestures</string>
     <string name="keyboard_open_warning_desc">When enabled, Akış removes its gesture overlays while the keyboard is visible. Use the keyboard or system navigation to exit; gestures return automatically when the keyboard closes.</string>
     <string name="app_name">Akış Gesture</string>

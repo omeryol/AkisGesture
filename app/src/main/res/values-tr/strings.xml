@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_pause_mode_blacklist_hint">Seçilen uygulamalarda hareketler durur; diğer her yerde çalışır.</string>
+    <string name="app_pause_mode_whitelist_hint">Hareketler yalnızca seçilen uygulamalarda çalışır; diğer tüm uygulamalarda durur.</string>
+    <string name="paused_apps_run_title">Hareketlerin çalışacağı uygulamalar</string>
+    <string name="pause_warning_landscape_title">Yatay ekran duraklatması açık</string>
+    <string name="pause_warning_landscape_desc">Ekran yatay konumdayken Akış hareketleri kullanılamaz.</string>
+    <string name="pause_warning_fullscreen_title">Tam ekran duraklatması açık</string>
+    <string name="pause_warning_fullscreen_desc">Tam ekran uygulamalarda Akış hareketleri kullanılamaz. Çıkmak için sistem gezinmesini veya uygulamanın kendi kontrollerini kullanın.</string>
+    <string name="pause_warning_permission_title">İzin ekranı duraklatması açık</string>
+    <string name="pause_warning_permission_desc">Android izin veya APK yükleme ekranları açıkken Akış hareketleri kullanılamaz.</string>
+    <string name="pause_warning_camera_title">Kamera duraklatması açık</string>
+    <string name="pause_warning_camera_desc">Kamera veya video kaydı açıkken Akış hareketleri duraklar.</string>
+    <string name="pause_warning_call_title">Arama duraklatması açık</string>
+    <string name="pause_warning_call_desc">Gelen veya devam eden aramalarda Akış hareketleri duraklar.</string>
+    <string name="pause_warning_launcher_title">Ana ekran duraklatması açık</string>
+    <string name="pause_warning_launcher_desc">Ana ekranda Akış hareketleri duraklar.</string>
     <string name="keyboard_open_warning_title">⚠️ Klavye duraklatması tüm Akış kenar hareketlerini kapatır</string>
     <string name="keyboard_open_warning_desc">Açıkken klavye görünür olduğu sürece Akış hareket katmanlarını kaldırır. Çıkmak için klavyeyi veya sistem gezinmesini kullanın; klavye kapanınca hareketler otomatik geri gelir.</string>
     <string name="app_name">Akış Gesture</string>
