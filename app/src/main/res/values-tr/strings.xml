@@ -4,6 +4,8 @@
     <string name="app_pause_mode_whitelist_hint">Hareketler yalnızca seçilen uygulamalarda çalışır; diğer tüm uygulamalarda durur.</string>
     <string name="paused_apps_run_title">Hareketlerin çalışacağı uygulamalar</string>
     <string name="pause_warning_landscape_title">Yatay ekran duraklatması açık</string>
+    <string name="pause_warning_lock_title">Kilit ekranı duraklatması açık</string>
+    <string name="pause_warning_lock_desc">Cihaz kilitliyken Akış hareketleri kullanılamaz.</string>
     <string name="pause_warning_landscape_desc">Ekran yatay konumdayken Akış hareketleri kullanılamaz.</string>
     <string name="pause_warning_fullscreen_title">Tam ekran duraklatması açık</string>
     <string name="pause_warning_fullscreen_desc">Tam ekran uygulamalarda Akış hareketleri kullanılamaz. Çıkmak için sistem gezinmesini veya uygulamanın kendi kontrollerini kullanın.</string>

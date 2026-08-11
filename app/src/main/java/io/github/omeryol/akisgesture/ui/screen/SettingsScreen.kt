@@ -933,6 +933,10 @@ fun SettingsScreen(
                 checked = config.pauseOnLockScreen,
                 onCheckedChange = viewModel::setPauseOnLockScreen
             )
+            if (config.pauseOnLockScreen) PauseWarningCard(
+                title = stringResource(R.string.pause_warning_lock_title),
+                description = stringResource(R.string.pause_warning_lock_desc),
+            )
 
             AkisSwitchRow(
                 title = stringResource(R.string.keyboard_open),

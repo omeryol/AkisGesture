@@ -4,6 +4,8 @@
     <string name="app_pause_mode_whitelist_hint">Gestures run only in selected apps; all other apps pause them.</string>
     <string name="paused_apps_run_title">Apps where gestures are allowed</string>
     <string name="pause_warning_landscape_title">Landscape pause is enabled</string>
+    <string name="pause_warning_lock_title">Lock-screen pause is enabled</string>
+    <string name="pause_warning_lock_desc">Akış gestures will be unavailable while the device is locked.</string>
     <string name="pause_warning_landscape_desc">Akış gestures will be unavailable while the display is rotated to landscape.</string>
     <string name="pause_warning_fullscreen_title">Full-screen pause is enabled</string>
     <string name="pause_warning_fullscreen_desc">Akış gestures will be unavailable in immersive full-screen apps. Use system navigation or the app itself to exit.</string>
