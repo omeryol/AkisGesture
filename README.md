@@ -11,6 +11,13 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.6.1 öne çıkanlar
+
+- Genel kullanıcı deneyimi ve arayüz iyileştirmeleri.
+- Kenar bazlı halka açma/kapatma ve yenilenen halka eylem kartları.
+- Kara liste ve beyaz liste durum göstergelerinde iyileştirmeler.
+- Ana ekran Akış durumu kartında daha net renkler ve kontroller.
+
 ## v1.6.0 öne çıkanlar
 
 - Her kenar için üç eylemli halka menüsü ve simgeler.

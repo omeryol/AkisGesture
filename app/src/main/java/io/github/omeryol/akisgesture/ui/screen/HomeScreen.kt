@@ -2,11 +2,6 @@ package io.github.omeryol.akisgesture.ui.screen
 
 import android.content.Intent
 import android.provider.Settings
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,7 +51,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -71,8 +65,8 @@ import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.rule.Presets
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
-import io.github.omeryol.akisgesture.ui.component.AkisFluidSwitch
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
+import io.github.omeryol.akisgesture.ui.component.AkisFluidSwitch
 import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
 import io.github.omeryol.akisgesture.ui.component.InteractivePhoneMap
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
@@ -113,18 +107,6 @@ fun HomeScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
-    // Pulse Animation for live service status
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 0.92f,
-        targetValue = 1.15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1100, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "pulseScale",
-    )
 
     val masterEnabled = gestureConfig.masterEnabled
     val isMasterActive = isConnected && masterEnabled
@@ -173,7 +155,8 @@ fun HomeScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                accentTint = if (isMasterActive) scheme.primary else if (!isConnected) scheme.error else scheme.outline,
+                accentTint = if (isMasterActive) Color(0xFF43A047) else scheme.error,
+                containerColor = (if (isMasterActive) Color(0xFF43A047) else scheme.error).copy(alpha = 0.12f),
             ) {
                 Row(
                     modifier = Modifier
@@ -184,12 +167,10 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier
                             .size(42.dp)
-                            .scale(if (isMasterActive) pulseScale else 1f)
                             .clip(CircleShape)
                             .background(
-                                if (isMasterActive) scheme.primary
-                                else if (!isConnected) scheme.error
-                                else scheme.surfaceVariant
+                                if (isMasterActive) Color(0xFF43A047)
+                                else scheme.error
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -238,6 +219,7 @@ fun HomeScreen(
 
                     AkisFluidSwitch(
                         checked = isMasterActive,
+                        activeColor = Color(0xFF43A047),
                         onCheckedChange = { checked ->
                             if (!isConnected) {
                                 onNavigateToPermissions()
@@ -246,6 +228,7 @@ fun HomeScreen(
                             }
                         },
                     )
+
                 }
             }
 

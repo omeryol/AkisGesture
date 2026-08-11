@@ -73,6 +73,9 @@ class AkisGestureApp : Application() {
                         ?.let { runCatching { HoldFireMode.valueOf(it) }.getOrNull() }
                         ?: HoldFireMode.ON_RELEASE,
                     ringMenuEnabled = prefs[GestureConfig.KEY_RING_MENU_ENABLED] ?: true,
+                    leftRingMenuEnabled = prefs[GestureConfig.KEY_LEFT_RING_MENU_ENABLED] ?: (prefs[GestureConfig.KEY_RING_MENU_ENABLED] ?: true),
+                    rightRingMenuEnabled = prefs[GestureConfig.KEY_RIGHT_RING_MENU_ENABLED] ?: (prefs[GestureConfig.KEY_RING_MENU_ENABLED] ?: true),
+                    bottomRingMenuEnabled = prefs[GestureConfig.KEY_BOTTOM_RING_MENU_ENABLED] ?: (prefs[GestureConfig.KEY_RING_MENU_ENABLED] ?: true),
                     leftRingActionIds = prefs[GestureConfig.KEY_LEFT_RING_ACTIONS].toRingActionIds(),
                     rightRingActionIds = prefs[GestureConfig.KEY_RIGHT_RING_ACTIONS].toRingActionIds(),
                     bottomRingActionIds = prefs[GestureConfig.KEY_BOTTOM_RING_ACTIONS].toRingActionIds(),
@@ -381,6 +384,16 @@ class AkisGestureApp : Application() {
 
     suspend fun updateRingMenuEnabled(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_RING_MENU_ENABLED] = enabled }
+    }
+
+    suspend fun updateRingMenuEnabled(edge: Edge, enabled: Boolean) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_RING_MENU_ENABLED] = enabled
+                Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_RING_MENU_ENABLED] = enabled
+                Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_RING_MENU_ENABLED] = enabled
+            }
+        }
     }
 
     suspend fun updateRingActions(edge: Edge, actionIds: List<String>) {

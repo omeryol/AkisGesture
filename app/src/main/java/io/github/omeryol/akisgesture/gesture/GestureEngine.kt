@@ -347,7 +347,7 @@ class GestureEngine(
     /** Displays the actual ring overlay for live settings adjustment. */
     fun previewRingMenu(edge: Edge, previewConfig: GestureConfig = currentConfig) {
         val view = feedbackView ?: return
-        if (!previewConfig.ringMenuEnabled) return
+        if (!previewConfig.ringMenuEnabledFor(edge)) return
         view.ringGroupInsetDp = previewConfig.ringGroupInsetDp
         view.ringGroupSpacingDp = previewConfig.ringGroupSpacingDp
         view.ringSizeDp = previewConfig.ringSizeDp

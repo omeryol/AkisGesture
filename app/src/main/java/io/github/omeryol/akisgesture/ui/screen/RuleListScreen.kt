@@ -49,6 +49,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -543,7 +544,23 @@ fun RuleListScreen(
                             onDeleteRule = { ruleId -> viewModel.removeRule(ruleId) },
                         )
                     }
-                    item(key = "ring_menu_header") {
+                    item(key = "ring_edge_${selectedEdge.name}") {
+                        RingEdgeCard(
+                            edge = selectedEdge,
+                            config = gestureConfig,
+                            enabled = gestureConfig.ringMenuEnabledFor(selectedEdge),
+                            onToggleEnabled = { viewModel.setRingMenuEnabled(selectedEdge, it) },
+                            onEdit = { slot -> ringEditor = selectedEdge to slot },
+                            onDelete = { slot ->
+                                viewModel.setRingActions(
+                                    selectedEdge,
+                                    gestureConfig.ringActionsFor(selectedEdge)
+                                        .filterIndexed { index, _ -> index != slot },
+                                )
+                            },
+                        )
+                    }
+                    if (gestureConfig.ringMenuEnabledFor(selectedEdge)) item(key = "ring_menu_header") {
                         AkisGlassCard(accentTint = AkisTertiary) {
                             Text(
                                 stringResource(R.string.ring_menu_title),
@@ -557,12 +574,6 @@ fun RuleListScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Spacer(Modifier.height(8.dp))
-                            AkisSwitchRow(
-                                title = stringResource(R.string.ring_menu_enabled),
-                                subtitle = stringResource(R.string.ring_menu_enabled_subtitle),
-                                checked = gestureConfig.ringMenuEnabled,
-                                onCheckedChange = viewModel::setRingMenuEnabled,
-                            )
                             AkisSliderRow(
                                 title = stringResource(R.string.ring_group_inset),
                                 valueText = "${gestureConfig.ringGroupInsetDp.roundToInt()} dp",
@@ -617,19 +628,8 @@ fun RuleListScreen(
                             )
                         }
                     }
-                    item(key = "ring_edge_${selectedEdge.name}") {
-                        RingEdgeCard(
-                            edge = selectedEdge,
-                            config = gestureConfig,
-                            onEdit = { slot -> ringEditor = selectedEdge to slot },
-                            onDelete = { slot ->
-                                viewModel.setRingActions(
-                                    selectedEdge,
-                                    gestureConfig.ringActionsFor(selectedEdge)
-                                        .filterIndexed { index, _ -> index != slot },
-                                )
-                            },
-                        )
+                    item(key = "ring_menu_bottom_spacer") {
+                        Spacer(Modifier.height(88.dp))
                     }
                 }
             }
@@ -921,6 +921,8 @@ fun RuleListScreen(
 private fun RingEdgeCard(
     edge: Edge,
     config: GestureConfig,
+    enabled: Boolean,
+    onToggleEnabled: (Boolean) -> Unit,
     onEdit: (Int) -> Unit,
     onDelete: (Int) -> Unit,
 ) {
@@ -939,65 +941,110 @@ private fun RingEdgeCard(
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(
-                    edgeLabel(context, edge),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    stringResource(R.string.ring_edge_card_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.ring_edge_card_title, edgeLabel(context, edge)),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(checked = enabled, onCheckedChange = onToggleEnabled)
+                }
+                if (enabled) {
+                    Text(
+                        stringResource(R.string.ring_edge_card_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (!enabled) return@Column
                 Spacer(Modifier.height(6.dp))
                 repeat(3) { slot ->
                     val action = actions.getOrNull(slot)
-                    val slotTint = EdgeUi.color(edge)
+                    var menuOpen by remember { mutableStateOf(false) }
+                    val scheme = MaterialTheme.colorScheme
+                    val slotTint = listOf(
+                        scheme.primary,
+                        scheme.secondary,
+                        scheme.tertiary,
+                    )[slot]
+                    val badgeBackground = slotTint.copy(alpha = 0.16f)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(slotTint.copy(alpha = 0.10f))
-                            .border(1.dp, slotTint.copy(alpha = 0.28f), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                            .background(scheme.surfaceVariant.copy(alpha = 0.42f))
+                            .clickable { onEdit(slot) }
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(badgeBackground)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.ring_slot_label, slot + 1),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = slotTint,
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
                         if (action != null) {
                             ActionIcon(
                                 action = action,
                                 contentDescription = null,
-                                modifier = Modifier.size(22.dp),
+                                modifier = Modifier.size(20.dp),
                             )
-                            Spacer(Modifier.width(7.dp))
+                            Spacer(Modifier.width(8.dp))
                         }
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.ring_slot_label, slot + 1),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = slotTint,
-                            )
-                            Text(
-                                text = action?.label ?: stringResource(R.string.ring_unassigned),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            TextButton(onClick = { onEdit(slot) }) {
-                                Text(if (action == null) stringResource(R.string.add_action) else stringResource(R.string.change))
+                        Text(
+                            text = action?.label ?: stringResource(R.string.ring_unassigned),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (action == null) slotTint else scheme.onSurface,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Box {
+                            IconButton(
+                                onClick = { menuOpen = true },
+                                modifier = Modifier.size(32.dp),
+                            ) {
+                                Icon(
+                                    Icons.Filled.MoreVert,
+                                    contentDescription = stringResource(R.string.ring_actions_menu),
+                                    tint = scheme.onSurfaceVariant,
+                                )
                             }
-                            if (action != null) {
-                                TextButton(onClick = { onDelete(slot) }) {
-                                    Text(stringResource(R.string.delete))
+                            DropdownMenu(
+                                expanded = menuOpen,
+                                onDismissRequest = { menuOpen = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(if (action == null) stringResource(R.string.add_action) else stringResource(R.string.change)) },
+                                    onClick = {
+                                        menuOpen = false
+                                        onEdit(slot)
+                                    },
+                                )
+                                if (action != null) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.delete)) },
+                                        onClick = {
+                                            menuOpen = false
+                                            onDelete(slot)
+                                        },
+                                    )
                                 }
                             }
                         }
                     }
+                    if (slot < 2) Spacer(Modifier.height(6.dp))
                 }
             }
         }

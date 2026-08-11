@@ -78,6 +78,10 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch { app.updateRingMenuEnabled(enabled) }
     }
 
+    fun setRingMenuEnabled(edge: Edge, enabled: Boolean) {
+        viewModelScope.launch { app.updateRingMenuEnabled(edge, enabled) }
+    }
+
     fun setRingActions(edge: Edge, actions: List<ActionNode>) {
         viewModelScope.launch { app.updateRingActions(edge, actions.map(ActionNode::id)) }
     }

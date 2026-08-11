@@ -392,7 +392,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
     density: Float,
     scheme: androidx.compose.material3.ColorScheme,
 ) {
-    if (config == null || !config.ringMenuEnabled) return
+    if (config == null) return
 
     val ringRadius = (config.ringSizeDp * density * 0.22f).coerceIn(13f, 24f)
     val ringSpacing = (config.ringGroupSpacingDp * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
@@ -404,7 +404,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
         Edge.BOTTOM to EdgeUi.color(Edge.BOTTOM),
     )
 
-    EdgeUi.ordered.forEach { edge ->
+    EdgeUi.ordered.filter { config.ringMenuEnabledFor(it) }.forEach { edge ->
         val actions = config.ringActionsFor(edge).take(3).let { values ->
             values + List(3 - values.size) { ActionNode.NoAction }
         }

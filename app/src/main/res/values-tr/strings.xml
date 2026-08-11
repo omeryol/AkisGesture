@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ring_slot_label">Halka %1$d</string>
+    <string name="ring_slot_label">⭕ %1$d</string>
+    <string name="ring_actions_menu">Halka eylemleri menüsü</string>
     <string name="general_layout_pause_details_title">Genel düzeni etkileyen uygulama istisnaları</string>
     <string name="general_layout_pause_open_settings">Uygulama istisnası ayarlarını aç</string>
     <string name="general_layout_pause_warning_blacklist">Uygulama istisnaları bu genel düzeni etkiler: seçilen uygulamalarda hareketler durur.</string>
@@ -290,6 +291,7 @@
     <string name="ring_group_spacing">Halkalar arası uzaklık</string>
     <string name="ring_size">Halka boyutu</string>
     <string name="ring_arc">Yarım halka eğriliği</string>
+    <string name="ring_edge_card_title">%1$s halkaları</string>
     <string name="ring_edge_card_subtitle">Bu kenar için en fazla üç eylem atayın</string>
     <string name="ring_choose_action">%1$d. halka için eylem seç</string>
     <string name="ring_slot">%1$d. halka: %2$s</string>

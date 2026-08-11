@@ -11,8 +11,8 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.6.0",
-            date = "2026-08-10",
+            version = "1.6.1",
+            date = "2026-08-11",
             isCurrent = true,
             changesTr = listOf(
                 "Halka Menüsü: Her kenar için üç eylemli, simgeli ve ayarlanabilir halka grubu.",

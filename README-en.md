@@ -11,6 +11,13 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.6.1 highlights
+
+- General user-experience and interface refinements.
+- Per-edge ring toggles and refreshed ring action cards.
+- Improved blacklist and whitelist status guidance.
+- Clearer colors and controls for the Home service-status card.
+
 ## v1.6.0 highlights
 
 - Three configurable action rings per edge with action icons.

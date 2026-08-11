@@ -60,6 +60,9 @@ data class GestureConfig(
     // Optional three-action glass ring menu. The master switch defaults to on,
     // but an edge only opens a ring once it has at least one assigned action.
     val ringMenuEnabled: Boolean = true,
+    val leftRingMenuEnabled: Boolean = true,
+    val rightRingMenuEnabled: Boolean = true,
+    val bottomRingMenuEnabled: Boolean = true,
     val leftRingActionIds: List<String> = emptyList(),
     val rightRingActionIds: List<String> = emptyList(),
     val bottomRingActionIds: List<String> = emptyList(),
@@ -157,7 +160,13 @@ data class GestureConfig(
         Edge.BOTTOM -> bottomRingActionIds
     }.mapNotNull(ActionNode::fromId).filterNot { it is ActionNode.NoAction }.take(3)
 
-    fun hasRingActionsFor(edge: Edge): Boolean = ringMenuEnabled && ringActionsFor(edge).isNotEmpty()
+    fun ringMenuEnabledFor(edge: Edge): Boolean = when (edge) {
+        Edge.LEFT -> leftRingMenuEnabled
+        Edge.RIGHT -> rightRingMenuEnabled
+        Edge.BOTTOM -> bottomRingMenuEnabled
+    }
+
+    fun hasRingActionsFor(edge: Edge): Boolean = ringMenuEnabledFor(edge) && ringActionsFor(edge).isNotEmpty()
 
     companion object {
         val KEY_MASTER_ENABLED = booleanPreferencesKey("master_enabled")
@@ -172,6 +181,9 @@ data class GestureConfig(
         val KEY_HOLD_TIME = longPreferencesKey("gesture_hold_time_ms")
         val KEY_HOLD_FIRE_MODE = stringPreferencesKey("hold_fire_mode")
         val KEY_RING_MENU_ENABLED = booleanPreferencesKey("ring_menu_enabled")
+        val KEY_LEFT_RING_MENU_ENABLED = booleanPreferencesKey("left_ring_menu_enabled")
+        val KEY_RIGHT_RING_MENU_ENABLED = booleanPreferencesKey("right_ring_menu_enabled")
+        val KEY_BOTTOM_RING_MENU_ENABLED = booleanPreferencesKey("bottom_ring_menu_enabled")
         val KEY_LEFT_RING_ACTIONS = stringPreferencesKey("left_ring_action_ids")
         val KEY_RIGHT_RING_ACTIONS = stringPreferencesKey("right_ring_action_ids")
         val KEY_BOTTOM_RING_ACTIONS = stringPreferencesKey("bottom_ring_action_ids")

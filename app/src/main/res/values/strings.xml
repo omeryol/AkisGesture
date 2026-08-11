@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ring_slot_label">Ring %1$d</string>
+    <string name="ring_slot_label">⭕ %1$d</string>
+    <string name="ring_actions_menu">Ring actions menu</string>
     <string name="general_layout_pause_details_title">App exceptions affecting the general layout</string>
     <string name="general_layout_pause_open_settings">Open app exception settings</string>
     <string name="general_layout_pause_warning_blacklist">App exceptions affect this general layout: gestures pause in the selected apps.</string>
@@ -289,6 +290,7 @@
     <string name="ring_group_spacing">Distance between rings</string>
     <string name="ring_size">Ring size</string>
     <string name="ring_arc">Half-arc curvature</string>
+    <string name="ring_edge_card_title">%1$s rings</string>
     <string name="ring_edge_card_subtitle">Assign up to three actions for this edge</string>
     <string name="ring_choose_action">Choose action for ring %1$d</string>
     <string name="ring_slot">Ring %1$d: %2$s</string>

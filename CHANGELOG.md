@@ -1,5 +1,18 @@
 # Değişiklik Günlüğü
 
+## [1.6.1] - 2026-08-11
+
+### Kullanıcı deneyimi ve arayüz iyileştirmeleri
+- Halka menüsü, kenar bazlı açma/kapatma ve daha anlaşılır eylem kartlarıyla yenilendi.
+- Kara liste ve beyaz liste yönetimi ile durum göstergeleri iyileştirildi.
+- Ana ekran durum kartı, renkleri ve kontrol akışı sadeleştirildi.
+
+### Teknik
+- Sürüm `1.6.1`, version code `58`.
+- İmzalı APK: `AkisGesture-v1.6.1.apk`.
+
+---
+
 ## [1.6.0] - 2026-08-10
 
 ### Ring menu and live tuning
