@@ -1136,7 +1136,7 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Icon(
-                                imageVector = if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) Icons.Filled.CheckCircle else Icons.Filled.Warning,
+                                imageVector = if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) Icons.Filled.CheckCircle else Icons.Filled.Error,
                                 contentDescription = null,
                                 tint = exceptionTint,
                                 modifier = Modifier.size(14.dp),
