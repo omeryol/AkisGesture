@@ -42,6 +42,7 @@ class EdgeGestureDetector(
     private val handler = Handler(Looper.getMainLooper())
 
     private var holdScheduled = false
+    private var ringRevealScheduled = false
     private var holdArmed = false
     private var holdFiredOnThreshold = false
     private var ringActive = false
@@ -68,17 +69,14 @@ class EdgeGestureDetector(
             holdArmed = true
             RuntimeDiagnostics.gestureSignal(edge.name, "hold_armed")
             if (hasRingActions()) {
-                ringActive = true
-                ringSelectedIndex = -1
-                ringHitIndex = -1
-                ringOpenedStretch = lastStretch
-                ringAnchorTouch = lastTouchAlongEdge
-                RuntimeDiagnostics.ringOpened(edge.name)
+                // The ring has its own reveal timer. Keeping it separate from
+                // holdRunnable lets the secondary action become ready at the
+                // configured hold time instead of waiting for the visual menu.
             }
             publishProgress(active = true)
 
             if (config.holdFireMode == HoldFireMode.ON_THRESHOLD &&
-                !hasLActionAt(initialTouchCoord()) && !ringActive
+                !hasLActionAt(initialTouchCoord()) && !hasRingActions()
             ) {
                 holdFiredOnThreshold = true
                 val section = resolveSection(initialTouchCoord())
@@ -91,6 +89,23 @@ class EdgeGestureDetector(
                 RuntimeDiagnostics.gestureSignal(edge.name, "hold_fired_on_threshold")
                 onGestureResult(result)
             }
+        }
+    }
+
+    private val ringRevealRunnable = Runnable {
+        ringRevealScheduled = false
+        if (state == GestureState.DETECTED &&
+            holdArmed &&
+            lastStretch >= swipeThresholdPx &&
+            hasRingActions()
+        ) {
+            ringActive = true
+            ringSelectedIndex = -1
+            ringHitIndex = -1
+            ringOpenedStretch = lastStretch
+            ringAnchorTouch = lastTouchAlongEdge
+            RuntimeDiagnostics.ringOpened(edge.name)
+            publishProgress(active = true)
         }
     }
 
@@ -249,12 +264,11 @@ class EdgeGestureDetector(
 
         if (switchDirection == null && quickArmed && !holdScheduled && !holdArmed) {
             holdScheduled = true
-            val delayMs = if (hasRingActions()) {
-                maxOf(config.holdTimeMs, RING_REVEAL_DELAY_MS)
-            } else {
-                config.holdTimeMs
+            handler.postDelayed(holdRunnable, config.holdTimeMs)
+            if (hasRingActions() && !ringRevealScheduled) {
+                ringRevealScheduled = true
+                handler.postDelayed(ringRevealRunnable, RING_REVEAL_DELAY_MS)
             }
-            handler.postDelayed(holdRunnable, delayMs)
         }
 
         if (ringActive) {
@@ -428,7 +442,9 @@ class EdgeGestureDetector(
 
     private fun cancelHold() {
         handler.removeCallbacks(holdRunnable)
+        handler.removeCallbacks(ringRevealRunnable)
         holdScheduled = false
+        ringRevealScheduled = false
         holdArmed = false
     }
 
