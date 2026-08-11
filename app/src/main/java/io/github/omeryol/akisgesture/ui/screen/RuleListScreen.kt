@@ -113,6 +113,7 @@ fun RuleListScreen(
     onRuleClick: (String) -> Unit,
     initialEdge: Edge = Edge.LEFT,
     modifier: Modifier = Modifier,
+    onNavigateToSettings: (Int) -> Unit = {},
 ) {
     val context = LocalContext.current
     val rules by viewModel.rules.collectAsState()
@@ -147,6 +148,7 @@ fun RuleListScreen(
     var ringEditor by remember { mutableStateOf<Pair<Edge, Int>?>(null) }
     var showProfileAppPicker by remember { mutableStateOf(false) }
     var deleteProfilePackage by remember { mutableStateOf<String?>(null) }
+    var showPauseDetails by remember { mutableStateOf(false) }
 
     fun openActionPicker() {
         val token = UUID.randomUUID().toString()
@@ -174,6 +176,55 @@ fun RuleListScreen(
                 )
             },
             confirmButton = {},
+        )
+    }
+
+    if (showPauseDetails && pausedPackages.isNotEmpty()) {
+        val whitelist = gestureConfig.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST
+        val tint = if (whitelist) Color(0xFF43A047) else Color(0xFFFF8F00)
+        AlertDialog(
+            onDismissRequest = { showPauseDetails = false },
+            title = { Text(stringResource(R.string.general_layout_pause_details_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = stringResource(
+                            if (whitelist) R.string.general_layout_pause_warning_whitelist
+                            else R.string.general_layout_pause_warning_blacklist,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+                    androidx.compose.foundation.layout.FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        pausedPackages.forEach { packageName ->
+                            Text(
+                                text = appLabel(context, packageName),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(tint.copy(alpha = 0.16f))
+                                    .border(1.dp, tint.copy(alpha = 0.45f), RoundedCornerShape(16.dp))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showPauseDetails = false
+                    onNavigateToSettings(2)
+                }) {
+                    Text(stringResource(R.string.general_layout_pause_open_settings))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPauseDetails = false }) { Text(stringResource(R.string.close)) }
+            },
         )
     }
 
@@ -347,6 +398,7 @@ fun RuleListScreen(
                 if (activeProfilePackage == null && pausedPackages.isNotEmpty()) {
                     ProfilePauseWarning(
                         whitelist = gestureConfig.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST,
+                        onClick = { showPauseDetails = true },
                     )
                 }
             }
@@ -901,20 +953,40 @@ private fun RingEdgeCard(
                 Spacer(Modifier.height(6.dp))
                 repeat(3) { slot ->
                     val action = actions.getOrNull(slot)
+                    val slotTint = EdgeUi.color(edge)
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(slotTint.copy(alpha = 0.10f))
+                            .border(1.dp, slotTint.copy(alpha = 0.28f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(
-                            stringResource(
-                                R.string.ring_slot,
-                                slot + 1,
-                                action?.label ?: stringResource(R.string.ring_unassigned),
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        if (action != null) {
+                            ActionIcon(
+                                action = action,
+                                contentDescription = null,
+                                modifier = Modifier.size(22.dp),
+                            )
+                            Spacer(Modifier.width(7.dp))
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.ring_slot_label, slot + 1),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = slotTint,
+                            )
+                            Text(
+                                text = action?.label ?: stringResource(R.string.ring_unassigned),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                             TextButton(onClick = { onEdit(slot) }) {
                                 Text(if (action == null) stringResource(R.string.add_action) else stringResource(R.string.change))
@@ -1002,7 +1074,7 @@ private data class RuleGroup(
 }
 
 @Composable
-private fun ProfilePauseWarning(whitelist: Boolean) {
+private fun ProfilePauseWarning(whitelist: Boolean, onClick: () -> Unit) {
     val tint = if (whitelist) Color(0xFF43A047) else Color(0xFFFF8F00)
     Row(
         modifier = Modifier
@@ -1011,6 +1083,7 @@ private fun ProfilePauseWarning(whitelist: Boolean) {
             .clip(RoundedCornerShape(10.dp))
             .background(tint.copy(alpha = 0.12f))
             .border(1.dp, tint.copy(alpha = 0.42f), RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.Top,

@@ -80,7 +80,7 @@ private fun AkisGestureApp() {
     val isRulesRoute = currentRoute.startsWith("rules")
     val isRuleDetailRoute = currentRoute.startsWith("rule_detail")
     val isActionPickerRoute = currentRoute.startsWith("action_picker")
-    val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || currentRoute == "settings"
+    val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || currentRoute.startsWith("settings")
     val activity = LocalContext.current as? Activity
     val context = LocalContext.current
     val homeViewModel: HomeViewModel = viewModel()
@@ -144,10 +144,17 @@ private fun AkisGestureApp() {
                     },
                 )
             }
-            composable("settings") {
+            composable(
+                "settings?section={section}",
+                arguments = listOf(navArgument("section") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }),
+            ) { backStackEntry ->
                 val homeViewModel: HomeViewModel = viewModel()
                 SettingsScreen(
                     viewModel = homeViewModel,
+                    initialSection = backStackEntry.arguments?.getInt("section") ?: 0,
                 )
             }
             composable(
@@ -165,6 +172,9 @@ private fun AkisGestureApp() {
                     initialEdge = initialEdge,
                     onRuleClick = { ruleId ->
                         navController.navigate("rule_detail/$ruleId")
+                    },
+                    onNavigateToSettings = { section ->
+                        navController.navigate("settings?section=$section")
                     },
                 )
             }
@@ -242,12 +252,12 @@ private fun AkisGestureBottomBar(
             navigationItems.forEach { (route, label, icon) ->
                 val selected = when (route) {
                     "rules" -> currentRoute.startsWith("rules")
-                    else -> currentRoute == route
+                    else -> currentRoute.startsWith(route)
                 }
                 Surface(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val destination = if (route == "rules") "rules?edge=LEFT" else route
+                        val destination = if (route == "rules") "rules?edge=LEFT" else if (route == "settings") "settings?section=0" else route
                         if (currentRoute != route && !(route == "rules" && currentRoute.startsWith("rules"))) {
                             navController.navigate(destination) {
                                 popUpTo(navController.graph.findStartDestination().id) {

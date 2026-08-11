@@ -126,6 +126,7 @@ import java.util.Date
 fun SettingsScreen(
     viewModel: HomeViewModel,
     modifier: Modifier = Modifier,
+    initialSection: Int = 0,
 ) {
     val config by viewModel.configState.collectAsState()
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
@@ -136,7 +137,7 @@ fun SettingsScreen(
     var showAppPicker by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
-    var selectedSection by remember { mutableStateOf(0) }
+    var selectedSection by remember(initialSection) { mutableStateOf(initialSection.coerceIn(0, 4)) }
     var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
     var showReleaseDialog by remember { mutableStateOf(false) }
     var updateDownloading by remember { mutableStateOf(false) }

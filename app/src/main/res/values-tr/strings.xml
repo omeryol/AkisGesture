@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ring_slot_label">Halka %1$d</string>
+    <string name="general_layout_pause_details_title">Genel düzeni etkileyen uygulama istisnaları</string>
+    <string name="general_layout_pause_open_settings">Uygulama istisnası ayarlarını aç</string>
     <string name="general_layout_pause_warning_blacklist">Uygulama istisnaları bu genel düzeni etkiler: seçilen uygulamalarda hareketler durur.</string>
     <string name="general_layout_pause_warning_whitelist">Uygulama istisnaları bu genel düzeni etkiler: hareketler yalnızca seçilen uygulamalarda çalışır.</string>
     <string name="app_pause_mode_blacklist_hint">Seçilen uygulamalarda hareketler durur; diğer her yerde çalışır.</string>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="ring_slot_label">Ring %1$d</string>
+    <string name="general_layout_pause_details_title">App exceptions affecting the general layout</string>
+    <string name="general_layout_pause_open_settings">Open app exception settings</string>
     <string name="general_layout_pause_warning_blacklist">App exceptions affect this general layout: gestures pause in the selected apps.</string>
     <string name="general_layout_pause_warning_whitelist">App exceptions affect this general layout: gestures run only in the selected apps.</string>
     <string name="app_pause_mode_blacklist_hint">Selected apps pause gestures; gestures continue everywhere else.</string>
