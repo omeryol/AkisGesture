@@ -293,13 +293,12 @@ fun HomeScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 6.dp),
+                                .padding(bottom = 0.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             AkisSectionHeader(
                                 title = stringResource(R.string.edge_map),
-                                subtitle = stringResource(R.string.home_map_resize_hint),
                                 icon = Icons.Filled.Smartphone,
                                 modifier = Modifier.weight(1f),
                             )
@@ -312,8 +311,7 @@ fun HomeScreen(
                             },
                             onEdgeClick = onNavigateToRules,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(360.dp),
+                                .fillMaxWidth(),
                             iconPack = gestureConfig.actionIconPack,
                             config = gestureConfig,
                         )

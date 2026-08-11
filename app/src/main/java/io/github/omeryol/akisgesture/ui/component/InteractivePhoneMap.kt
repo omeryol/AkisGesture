@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -41,7 +40,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.model.ActionIconPack
@@ -50,7 +48,6 @@ import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.overlay.Edge
-import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.delay
 
@@ -118,11 +115,13 @@ fun InteractivePhoneMap(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .height(560.dp),
         ) {
             Canvas(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .height(430.dp)
+                    .align(Alignment.TopCenter)
                     .pointerInput(config, zones) {
                         var selectedEdge: Edge? = null
                         var selectedHandle: SideEdgeRangeEditor.Handle? = null
@@ -286,17 +285,31 @@ fun InteractivePhoneMap(
                         .clip(RoundedCornerShape(12.dp)).background(scheme.primaryContainer).padding(horizontal = 10.dp, vertical = 6.dp),
                 )
             }
-            EdgeActionPanel(
-                title = "← ${context.getString(io.github.omeryol.akisgesture.R.string.edge_left)}",
-                entries = zones.filter { it.edge == Edge.LEFT }.flatMap { it.actionEntries() },
+            Row(
+                modifier = Modifier.fillMaxWidth().height(430.dp).align(Alignment.TopCenter),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                EdgeActionPanelDirectional(
+                    title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_left)} →",
+                    edge = Edge.LEFT,
+                    entries = zones.filter { it.edge == Edge.LEFT }.flatMap { it.actionEntries() },
+                    iconPack = iconPack,
+                    modifier = Modifier.weight(0.25f).padding(start = 8.dp, end = 14.dp),
+                )
+                Spacer(Modifier.weight(0.50f))
+                EdgeActionPanelDirectional(
+                    title = "← ${context.getString(io.github.omeryol.akisgesture.R.string.edge_right)}",
+                    edge = Edge.RIGHT,
+                    entries = zones.filter { it.edge == Edge.RIGHT }.flatMap { it.actionEntries() },
+                    iconPack = iconPack,
+                    modifier = Modifier.weight(0.25f).padding(start = 14.dp, end = 8.dp),
+                )
+            }
+            EdgeActionColumn(
+                title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_bottom)} ↑",
+                groups = zones.filter { it.edge == Edge.BOTTOM }.map { it.actionEntries() },
                 iconPack = iconPack,
-                modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp),
-            )
-            EdgeActionPanel(
-                title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_right)} →",
-                entries = zones.filter { it.edge == Edge.RIGHT }.flatMap { it.actionEntries() },
-                iconPack = iconPack,
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
             )
         }
 
@@ -331,6 +344,113 @@ fun InteractivePhoneMap(
 }
 
 private fun PhoneZone.actions(): List<ActionNode> = listOfNotNull(quickAction, holdAction, lUpAction, lDownAction)
+
+@Composable
+private fun EdgeActionPanelDirectional(
+    title: String,
+    edge: Edge,
+    entries: List<Pair<String, ActionNode>>,
+    iconPack: ActionIconPack,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val numbered = entries.filter { it.first == "1" || it.first == "2" }
+    val lUp = entries.filter { it.first == "L\u2191" }
+    val lDown = entries.filter { it.first == "L\u2193" }
+    Column(modifier = modifier.height(184.dp).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(title, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        if (entries.isEmpty()) {
+            Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+        } else {
+            if (lUp.isEmpty()) Spacer(Modifier.height(34.dp)) else lUp.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+            if (numbered.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val ordered = if (edge == Edge.RIGHT) numbered.asReversed() else numbered
+                    ordered.forEachIndexed { index, (kind, action) ->
+                        if (index > 0) Text("\u2190", color = scheme.outline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        ActionBadge(kind, action, iconPack, scheme)
+                    }
+                }
+            }
+            if (lDown.isEmpty()) Spacer(Modifier.height(34.dp)) else lDown.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+        }
+    }
+}
+
+@Composable
+private fun EdgeActionColumn(
+    title: String,
+    groups: List<List<Pair<String, ActionNode>>>,
+    iconPack: ActionIconPack,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+    Column(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(10.dp))
+        if (groups.isEmpty()) {
+            Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                groups.take(3).forEachIndexed { index, entries ->
+                    Column(
+                        modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text("Bölüm ${index + 1}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = scheme.onSurface)
+                        Spacer(Modifier.height(8.dp))
+                        BottomDirectionalActions(entries, iconPack, scheme)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomDirectionalActions(
+    entries: List<Pair<String, ActionNode>>,
+    iconPack: ActionIconPack,
+    scheme: androidx.compose.material3.ColorScheme,
+) {
+    val left = entries.firstOrNull { it.first == "L\u2191" }
+    val right = entries.firstOrNull { it.first == "L\u2193" }
+    val numbered = entries.filter { it.first == "1" || it.first == "2" }.sortedByDescending { it.first }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            left?.let { (_, action) -> ActionBadge("L \u2190", action, iconPack, scheme) }
+        }
+        Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+            numbered.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+        }
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            right?.let { (_, action) -> ActionBadge("L \u2192", action, iconPack, scheme) }
+        }
+    }
+}
+
+@Composable
+private fun ActionBadge(kind: String, action: ActionNode, iconPack: ActionIconPack, scheme: androidx.compose.material3.ColorScheme) {
+    Column(modifier = Modifier.padding(horizontal = 3.dp, vertical = 1.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(action.toSymbol(iconPack), style = MaterialTheme.typography.titleMedium)
+        Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary, maxLines = 1)
+    }
+}
 
 @Composable
 private fun EdgeActionPanel(title: String, entries: List<Pair<String, ActionNode>>, iconPack: ActionIconPack, modifier: Modifier = Modifier) {
@@ -453,8 +573,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
 }
 
 private fun phoneScreenRect(width: Float, height: Float): Rect {
-    val phoneHeight = height * 0.94f
-    val phoneWidth = (phoneHeight * 0.52f).coerceAtMost(width * 0.76f)
+    val phoneHeight = minOf(height * 0.94f, (width * 0.50f) / 0.52f)
+    val phoneWidth = phoneHeight * 0.52f
     val left = (width - phoneWidth) / 2f
     val top = (height - phoneHeight) / 2f
     return Rect(left + 7f, top + 7f, left + phoneWidth - 7f, top + phoneHeight - 7f)
