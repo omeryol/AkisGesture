@@ -39,7 +39,9 @@ fun ActionIcon(
     val resolvedTint = tint ?: when (resolvedColorMode) {
         ActionIconColorMode.MONOCHROME -> LocalContentColor.current
         ActionIconColorMode.THEME -> MaterialTheme.colorScheme.primary
+        ActionIconColorMode.ACCENT -> MaterialTheme.colorScheme.secondary
         ActionIconColorMode.FUNCTIONAL -> actionCategoryColor(action)
+        ActionIconColorMode.NEON -> Color(resolvedColorMode.resolveColorInt(action))
     }
     when (visual) {
         is ActionVisual.ApplicationIcon -> {

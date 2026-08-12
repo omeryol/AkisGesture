@@ -273,6 +273,8 @@
     <string name="icon_color_mode_monochrome">Tek renk</string>
     <string name="icon_color_mode_theme">Tema</string>
     <string name="icon_color_mode_functional">İşleve göre</string>
+    <string name="icon_color_mode_neon">Sönümlü neon</string>
+    <string name="icon_color_mode_accent">İkincil vurgu</string>
     <string name="open_source_licenses">Açık kaynak lisansları</string>
     <string name="open_source_licenses_desc">Akış Gesture tarafından kullanılan ikon ailelerinin MIT lisansları</string>
     <string name="close_licenses">Lisansları kapat</string>

@@ -924,6 +924,8 @@ fun SettingsScreen(
                         ActionIconColorMode.MONOCHROME -> R.string.icon_color_mode_monochrome
                         ActionIconColorMode.THEME -> R.string.icon_color_mode_theme
                         ActionIconColorMode.FUNCTIONAL -> R.string.icon_color_mode_functional
+                        ActionIconColorMode.NEON -> R.string.icon_color_mode_neon
+                        ActionIconColorMode.ACCENT -> R.string.icon_color_mode_accent
                     }
                     Text(
                         text = stringResource(label),

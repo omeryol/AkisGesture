@@ -272,6 +272,8 @@
     <string name="icon_color_mode_monochrome">Monochrome</string>
     <string name="icon_color_mode_theme">Theme</string>
     <string name="icon_color_mode_functional">Functional</string>
+    <string name="icon_color_mode_neon">Cyber neon</string>
+    <string name="icon_color_mode_accent">Secondary accent</string>
     <string name="open_source_licenses">Open-source licenses</string>
     <string name="open_source_licenses_desc">MIT licenses for the icon families used by Akış Gesture</string>
     <string name="close_licenses">Close licenses</string>
