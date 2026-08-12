@@ -601,6 +601,7 @@ fun SettingsScreen(
             )
             Spacer(Modifier.height(4.dp))
             val anims = listOf(
+                FeedbackAnimation.NONE,
                 FeedbackAnimation.OCEAN_WAVE,
                 FeedbackAnimation.HYDRO_WIPE,
                 FeedbackAnimation.MERCURY_TEARDROP,
