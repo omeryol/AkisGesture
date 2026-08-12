@@ -115,8 +115,6 @@ class BezierStretchRenderer {
         canvasHeight: Float,
         arrowAlpha: Float = 1f,
     ) {
-        if (animation == FeedbackAnimation.NONE && !particleBurst.isActive) return
-        
         val nowNanos = System.nanoTime()
         if (animation != renderedStyle) {
             renderedStretch = stretch
@@ -179,8 +177,10 @@ class BezierStretchRenderer {
         if (showIndicatorBar) {
             drawIndicator(canvas, edge, touchPosition, canvasWidth, canvasHeight)
         }
-        if (stretch >= 0.25f && animation != FeedbackAnimation.NONE) {
-            moduleFor(animation).draw(frame)
+        if (stretch >= 0.25f) {
+            if (animation != FeedbackAnimation.NONE) {
+                moduleFor(animation).draw(frame)
+            }
             drawActionCue(canvas, edge, touchPosition, progress, arrowAlpha, canvasWidth, canvasHeight, size)
         }
 
