@@ -1074,6 +1074,14 @@ fun SettingsScreen(
             )
         }
 
+        // ── Beyaz Liste Uyarısı: 1. kart ile 2. kart arasında göster ──
+        if (selectedSection == 2 && config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) {
+            PauseWarningCard(
+                title = stringResource(R.string.app_pause_mode_whitelist_warning_title),
+                description = stringResource(R.string.app_pause_mode_whitelist_warning_desc),
+            )
+        }
+
 
         // ── 3B. UYGULAMA İSTİSNALARI (Bright Magenta) ──
         if (selectedSection == 2) AkisGlassCard(accentTint = Color(0xFFE040FB)) {
@@ -1257,26 +1265,6 @@ fun SettingsScreen(
                         Text(stringResource(R.string.health_status_rebind), style = MaterialTheme.typography.labelMedium)
                     }
                 }
-            }
-
-            Text(
-                text = stringResource(
-                    if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.BLACKLIST) {
-                        R.string.app_pause_mode_blacklist_hint
-                    } else {
-                        R.string.app_pause_mode_whitelist_hint
-                    }
-                ),
-                modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = scheme.onSurfaceVariant,
-            )
-
-            if (config.appPauseMode == io.github.omeryol.akisgesture.gesture.AppPauseMode.WHITELIST) {
-                PauseWarningCard(
-                    title = stringResource(R.string.app_pause_mode_whitelist_warning_title),
-                    description = stringResource(R.string.app_pause_mode_whitelist_warning_desc),
-                )
             }
 
             Spacer(Modifier.height(10.dp))
