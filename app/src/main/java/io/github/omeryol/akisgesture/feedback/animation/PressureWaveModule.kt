@@ -1,80 +1,117 @@
 package io.github.omeryol.akisgesture.feedback.animation
 
 import android.graphics.Color
-import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.RadialGradient
 import android.graphics.Shader
+import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 
+/** High-Velocity Kinetic Hydro Shockwave & Supersonic Pressure Rings. */
 class PressureWaveModule : NaturalAnimationModule {
-    private val mainPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val shockPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val shockArcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
+    private val rayPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
+    private val corePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val particlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val mainPath = Path()
-    private val shockPath = Path()
+    private val arcPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val timeSec = f.time
-        val depth = (18f + f.stretch * 1.25f).coerceAtMost(400f * f.size)
-        val span = (50f + f.progress * 220f) * f.size
+        val growth = (f.progress / 1.1f).coerceIn(0f, 1.3f)
+        val maxRadius = (40f + growth * 240f) * f.size
+        val origin = point(f, f.touch, 0f)
 
-        // ── 1. Main Hydraulic Pressure Wave Body ──
-        mainPath.reset()
-        shockPath.reset()
-        val steps = 40
-        for (i in 0..steps) {
-            val u = i / steps.toFloat()
-            val env = sin(PI * u).toFloat()
-            val shock = (sin(u * PI * 4.0 + timeSec * 4.0) * 6.0).toFloat()
-            val d = (depth + shock) * env
-
-            val p = when (f.edge) {
-                Edge.LEFT -> d to (f.touch - span + u * span * 2f)
-                Edge.RIGHT -> (f.width - d) to (f.touch - span + u * span * 2f)
-                Edge.BOTTOM -> (f.touch - span + u * span * 2f) to (f.height - d)
-            }
-
-            if (i == 0) {
-                mainPath.moveTo(p.first, p.second)
-                shockPath.moveTo(p.first, p.second)
-            } else {
-                mainPath.lineTo(p.first, p.second)
-                shockPath.lineTo(p.first, p.second)
-            }
-        }
-
-        when (f.edge) {
-            Edge.LEFT -> { mainPath.lineTo(0f, f.touch + span); mainPath.lineTo(0f, f.touch - span) }
-            Edge.RIGHT -> { mainPath.lineTo(f.width, f.touch + span); mainPath.lineTo(f.width, f.touch - span) }
-            Edge.BOTTOM -> { mainPath.lineTo(f.touch + span, f.height); mainPath.lineTo(f.touch - span, f.height) }
-        }
-        mainPath.close()
-
-        mainPaint.shader = gradient(
-            f, depth,
-            withAlpha(lighten(f.color, 0.55f), (245 * f.opacity).toInt()),
-            withAlpha(f.color, (180 * f.opacity).toInt())
+        // ── 1. LAYER: Supersonic Pressure Core Glow ──
+        val coreRadius = maxRadius * 0.45f
+        corePaint.shader = RadialGradient(
+            origin.first, origin.second, coreRadius,
+            intArrayOf(withAlpha(lighten(f.color, 0.9f), (240 * f.opacity).toInt()), withAlpha(f.color, (140 * f.opacity).toInt()), Color.TRANSPARENT),
+            floatArrayOf(0f, 0.5f, 1f),
+            Shader.TileMode.CLAMP
         )
-        f.canvas.drawPath(mainPath, mainPaint)
+        f.canvas.drawCircle(origin.first, origin.second, coreRadius, corePaint)
 
-        // ── 2. High-Velocity Shock Front Crest ──
-        shockPaint.strokeWidth = (4.0f + f.progress * 3.0f) * f.size
-        shockPaint.color = withAlpha(lighten(f.color, 0.90f), (250 * f.opacity).toInt())
-        f.canvas.drawPath(shockPath, shockPaint)
+        // ── 2. LAYER: Concentric High-Velocity Kinetic Shock Arcs ──
+        val arcCount = 4
+        for (i in 0 until arcCount) {
+            val arcProgress = ((growth + i * 0.22f) % 1.0f)
+            val r = maxRadius * arcProgress
+            val alpha = ((1f - arcProgress) * 240 * f.opacity).toInt().coerceIn(0, 255)
 
-        mainPaint.shader = null
+            arcPath.reset()
+            val startAngle = when (f.edge) {
+                Edge.LEFT -> -80f
+                Edge.RIGHT -> 100f
+                Edge.BOTTOM -> -170f
+            }
+            val sweepAngle = 160f
+
+            val rectLeft = origin.first - r
+            val rectTop = origin.second - r
+            val rectRight = origin.first + r
+            val rectBottom = origin.second + r
+
+            arcPath.addArc(rectLeft, rectTop, rectRight, rectBottom, startAngle, sweepAngle)
+
+            // 3D Drop Shadow for Shock Arc
+            Physics3DEngine.drawDropShadow(f.canvas, arcPath, dx = 6f, dy = 8f, opacity = f.opacity * 0.4f)
+
+            shockArcPaint.strokeWidth = (6.0f * (1f - arcProgress * 0.6f) + 2f) * f.size
+            shockArcPaint.color = withAlpha(lighten(f.color, 0.75f), alpha)
+            f.canvas.drawPath(arcPath, shockArcPaint)
+        }
+
+        // ── 3. LAYER: Radial High-Pressure Energy Rays ──
+        val rayCount = 14
+        rayPaint.strokeWidth = 2.5f * f.size
+        for (i in 0 until rayCount) {
+            val u = i / (rayCount - 1).toFloat()
+            val angleRad = when (f.edge) {
+                Edge.LEFT -> (-PI / 2.2 + u * PI / 1.1)
+                Edge.RIGHT -> (PI / 2.2 + u * PI / 1.1)
+                Edge.BOTTOM -> (-PI + u * PI)
+            }
+            val rayLen = maxRadius * (0.6f + sin(u * PI * 5.0 + timeSec * 6.0).toFloat() * 0.4f)
+            val dx = cos(angleRad).toFloat() * rayLen
+            val dy = sin(angleRad).toFloat() * rayLen
+
+            rayPaint.color = withAlpha(lighten(f.color, 0.6f), (180 * f.opacity).toInt())
+            f.canvas.drawLine(origin.first, origin.second, origin.first + dx, origin.second + dy, rayPaint)
+        }
+
+        // ── 4. LAYER: Kinetic Discharge Particles ──
+        val particleCount = 10
+        for (i in 0 until particleCount) {
+            val pSeed = i * 43.7f
+            val pLife = ((timeSec * 2.2 + pSeed) % 1.0).toFloat()
+            val pDist = maxRadius * pLife
+            val pAngle = (-PI / 2.2 + (i / particleCount.toFloat()) * PI / 1.1)
+            val px = origin.first + cos(pAngle).toFloat() * pDist
+            val py = origin.second + sin(pAngle).toFloat() * pDist
+            val pAlpha = ((1f - pLife) * 230 * f.opacity).toInt().coerceIn(0, 255)
+
+            particlePaint.color = withAlpha(Color.WHITE, pAlpha)
+            f.canvas.drawCircle(px, py, (3.5f * (1f - pLife * 0.5f)) * f.size, particlePaint)
+        }
+
+        corePaint.shader = null
     }
 
-    private fun gradient(f: AnimationFrame, depth: Float, c1: Int, c2: Int) = when (f.edge) {
-        Edge.LEFT -> LinearGradient(0f, f.touch, depth, f.touch, c1, c2, Shader.TileMode.CLAMP)
-        Edge.RIGHT -> LinearGradient(f.width, f.touch, f.width - depth, f.touch, c1, c2, Shader.TileMode.CLAMP)
-        Edge.BOTTOM -> LinearGradient(f.touch, f.height, f.touch, f.height - depth, c1, c2, Shader.TileMode.CLAMP)
+    private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
+        Edge.LEFT -> depth to along
+        Edge.RIGHT -> (f.width - depth) to along
+        Edge.BOTTOM -> along to (f.height - depth)
     }
 
     private fun withAlpha(c: Int, a: Int) = Color.argb(a.coerceIn(0, 255), Color.red(c), Color.green(c), Color.blue(c))

@@ -5,77 +5,94 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Shader
+import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 
+/** Crystalline Frosted Shards & Geometric Prism Refraction Facets. */
 class GlassRefractionModule : NaturalAnimationModule {
-    private val glassPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val rimPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val shardPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val prismEdgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
+    private val glintPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val mainPath = Path()
-    private val rimPath = Path()
+    private val shardPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val timeSec = f.time
-        val depth = (14f + f.stretch * 1.18f).coerceAtMost(380f * f.size)
-        val span = (40f + f.progress * 200f) * f.size
+        val growth = (f.progress / 1.15f).coerceIn(0f, 1.25f)
+        val depth = (20f + growth * 210f) * f.size
+        val span = (50f + growth * 190f) * f.size
+        val origin = point(f, f.touch, 0f)
 
-        // ── 1. Frosted Glass Body Path ──
-        mainPath.reset()
-        rimPath.reset()
-        val steps = 35
-        for (i in 0..steps) {
-            val u = i / steps.toFloat()
-            val env = sin(PI * u).toFloat()
-            val shard = (sin(u * PI * 6.0 + timeSec * 2.0) * 4.0).toFloat()
-            val d = (depth + shard) * env
+        // ── 7 Geometric Crystalline Glass Shard Facets ──
+        val shardCount = 7
+        for (i in 0 until shardCount) {
+            val u1 = i / shardCount.toFloat()
+            val u2 = (i + 1) / shardCount.toFloat()
 
-            val p = when (f.edge) {
-                Edge.LEFT -> d to (f.touch - span + u * span * 2f)
-                Edge.RIGHT -> (f.width - d) to (f.touch - span + u * span * 2f)
-                Edge.BOTTOM -> (f.touch - span + u * span * 2f) to (f.height - d)
+            val angle1 = when (f.edge) {
+                Edge.LEFT -> (-PI / 2.2 + u1 * PI / 1.1)
+                Edge.RIGHT -> (PI / 2.2 + u1 * PI / 1.1)
+                Edge.BOTTOM -> (-PI + u1 * PI)
+            }
+            val angle2 = when (f.edge) {
+                Edge.LEFT -> (-PI / 2.2 + u2 * PI / 1.1)
+                Edge.RIGHT -> (PI / 2.2 + u2 * PI / 1.1)
+                Edge.BOTTOM -> (-PI + u2 * PI)
             }
 
-            if (i == 0) {
-                mainPath.moveTo(p.first, p.second)
-                rimPath.moveTo(p.first, p.second)
-            } else {
-                mainPath.lineTo(p.first, p.second)
-                rimPath.lineTo(p.first, p.second)
-            }
+            // Polygon Shard Vertices with sharp crystalline geometry
+            val r1 = depth * (0.75f + sin(i * 1.8 + timeSec * 1.5).toFloat() * 0.25f)
+            val r2 = depth * (0.75f + cos(i * 2.3 - timeSec * 1.5).toFloat() * 0.25f)
+
+            val p1x = origin.first + cos(angle1).toFloat() * r1
+            val p1y = origin.second + sin(angle1).toFloat() * r1
+            val p2x = origin.first + cos(angle2).toFloat() * r2
+            val p2y = origin.second + sin(angle2).toFloat() * r2
+
+            shardPath.reset()
+            shardPath.moveTo(origin.first, origin.second)
+            shardPath.lineTo(p1x, p1y)
+            shardPath.lineTo(p2x, p2y)
+            shardPath.close()
+
+            // 1. 3D Drop Shadow for Shard
+            Physics3DEngine.drawDropShadow(f.canvas, shardPath, dx = 7f, dy = 10f, opacity = f.opacity * 0.45f)
+
+            // 2. Frosted Prism Shard Gradient Shading
+            val specular = Physics3DEngine.computeSpecularLight(cos(angle1).toFloat(), sin(angle1).toFloat(), 0.8f, shininess = 22f)
+            val brightColor = lighten(f.color, 0.65f + specular * 0.35f)
+
+            shardPaint.shader = LinearGradient(
+                origin.first, origin.second, p1x, p1y,
+                withAlpha(brightColor, (235 * f.opacity).toInt()),
+                withAlpha(f.color, (135 * f.opacity).toInt()),
+                Shader.TileMode.CLAMP
+            )
+            f.canvas.drawPath(shardPath, shardPaint)
+
+            // 3. Bright White Crystalline Prism Edges
+            prismEdgePaint.strokeWidth = (2.8f + (i % 2) * 1.5f) * f.size
+            prismEdgePaint.color = withAlpha(Color.WHITE, (245 * f.opacity).toInt())
+            f.canvas.drawPath(shardPath, prismEdgePaint)
+
+            // 4. Refraction Glint Spot on Shard Tip
+            glintPaint.color = withAlpha(Color.WHITE, (250 * f.opacity).toInt())
+            f.canvas.drawCircle(p1x, p1y, 3.5f * f.size, glintPaint)
         }
 
-        when (f.edge) {
-            Edge.LEFT -> { mainPath.lineTo(0f, f.touch + span); mainPath.lineTo(0f, f.touch - span) }
-            Edge.RIGHT -> { mainPath.lineTo(f.width, f.touch + span); mainPath.lineTo(f.width, f.touch - span) }
-            Edge.BOTTOM -> { mainPath.lineTo(f.touch + span, f.height); mainPath.lineTo(f.touch - span, f.height) }
-        }
-        mainPath.close()
-
-        // ── 2. Frosted Glass Shading ──
-        glassPaint.shader = glassGradient(
-            f, depth,
-            withAlpha(lighten(f.color, 0.70f), (230 * f.opacity).toInt()),
-            withAlpha(f.color, (140 * f.opacity).toInt())
-        )
-        f.canvas.drawPath(mainPath, glassPaint)
-
-        // ── 3. Dual Specular Prism Rim Highlights ──
-        rimPaint.strokeWidth = 3.5f * f.size
-        rimPaint.color = withAlpha(Color.WHITE, (245 * f.opacity).toInt())
-        f.canvas.drawPath(rimPath, rimPaint)
-
-        glassPaint.shader = null
+        shardPaint.shader = null
     }
 
-    private fun glassGradient(f: AnimationFrame, depth: Float, c1: Int, c2: Int) = when (f.edge) {
-        Edge.LEFT -> LinearGradient(0f, f.touch, depth, f.touch, c1, c2, Shader.TileMode.CLAMP)
-        Edge.RIGHT -> LinearGradient(f.width, f.touch, f.width - depth, f.touch, c1, c2, Shader.TileMode.CLAMP)
-        Edge.BOTTOM -> LinearGradient(f.touch, f.height, f.touch, f.height - depth, c1, c2, Shader.TileMode.CLAMP)
+    private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
+        Edge.LEFT -> depth to along
+        Edge.RIGHT -> (f.width - depth) to along
+        Edge.BOTTOM -> along to (f.height - depth)
     }
 
     private fun withAlpha(c: Int, a: Int) = Color.argb(a.coerceIn(0, 255), Color.red(c), Color.green(c), Color.blue(c))
