@@ -4,111 +4,108 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.RadialGradient
 import android.graphics.Shader
 import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
-import kotlin.math.PI
-import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.PI
 
-/** Unified Single-Path Water Surface Wave with Elastic Surface Tension Necking Droplet. */
+/** Single Continuous Vector Path Liquid Drop Hanging & Stretching from Base Edge (Sünme Fiziği). */
 class DropletModule : NaturalAnimationModule {
     private val mainPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val crestPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val rimHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
-    private val glintPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val unifiedPath = Path()
-    private val crestPath = Path()
+    private val dropPath = Path()
+    private val rimPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val growth = (f.progress / 1.15f).coerceIn(0f, 1.25f)
         val timeSec = f.time
 
-        // ── Unified Water Surface & Elastic Surface Tension Droplet Parameters ──
-        val baseSpan = (50f + growth * 160f) * f.size
-        val baseDepth = (f.stretch * 0.70f).coerceAtMost(200f * f.size)
+        // ── Dimensions matching vector reference artwork ──
+        val baseSpan = (55f + growth * 140f) * f.size
+        val baseDepth = (12f + growth * 18f) * f.size
+        val totalDepth = (baseDepth + f.stretch * 1.05f).coerceAtMost(300f * f.size)
 
-        // Refined droplet head radius (scaled down 1 notch for elegance: 9f to 26f)
-        val dropRadius = (9f + growth * (24f + f.surfaceTension * 10f)) * f.size
-        val dropDepth = (baseDepth + growth * (100f + f.surfaceTension * 30f)).coerceAtMost(340f * f.size)
+        // Refined droplet head radius (scaled down 1 notch for elegance: 8dp to 17dp)
+        val dropRadius = (8f + growth * 17f) * f.size
+        // Elastic Necking: Connection thins out smoothly as stretched ("bağları incelsin ama kopmasın")
+        val neckHalfWidth = (dropRadius * (1.20f - growth * 0.70f)).coerceAtLeast(4.0f * f.size)
+        val wobble = sin(timeSec * PI * 2.5).toFloat() * dropRadius * 0.05f
 
-        // Elastic Necking: Connection thins out dynamically as stretch increases, but NEVER breaks
-        val neckHalfWidth = (dropRadius * (1.15f - growth * 0.65f)).coerceAtLeast(3.5f * f.size)
-        val wobble = sin(timeSec * PI * 2.8).toFloat() * dropRadius * 0.05f
+        val centerTouch = f.touch
+        val headDepth = totalDepth - dropRadius
 
-        val proj = Physics3DEngine.project(dropDepth, 0f, 25f * growth)
-        val dropCenter = when (f.edge) {
-            Edge.LEFT -> proj.x to f.touch
-            Edge.RIGHT -> (f.width - proj.x) to f.touch
-            Edge.BOTTOM -> f.touch to (f.height - proj.x)
-        }
+        dropPath.reset()
+        rimPath.reset()
 
-        // ── 1. Construct ONE Single Unified Fluid Path ──
-        unifiedPath.reset()
-        crestPath.reset()
+        // Construct 1 Continuous Liquid Vector Path with Concave Neck Curves
+        when (f.edge) {
+            Edge.LEFT -> {
+                // 1. Base start
+                dropPath.moveTo(0f, centerTouch - baseSpan)
+                // 2. Curve along fluid base to neck start
+                dropPath.cubicTo(baseDepth * 0.5f, centerTouch - baseSpan, baseDepth, centerTouch - neckHalfWidth * 2.8f, baseDepth, centerTouch - neckHalfWidth * 1.8f)
+                // 3. Concave neck stretch curve to droplet head top
+                dropPath.cubicTo(headDepth * 0.5f, centerTouch - neckHalfWidth, headDepth - dropRadius * 0.5f, centerTouch - dropRadius + wobble, headDepth, centerTouch - dropRadius)
+                
+                // Track Rim Highlight along left/upper edge
+                rimPath.moveTo(baseDepth, centerTouch - neckHalfWidth * 1.8f)
+                rimPath.cubicTo(headDepth * 0.5f, centerTouch - neckHalfWidth, headDepth - dropRadius * 0.5f, centerTouch - dropRadius + wobble, headDepth, centerTouch - dropRadius)
 
-        val steps = 40
-        for (i in 0..steps) {
-            val u = i / steps.toFloat()
-            val env = sin(PI * u).toFloat().pow(1.8f)
+                // 4. Rounded droplet head bulb tip
+                dropPath.cubicTo(totalDepth + dropRadius * 0.3f, centerTouch - dropRadius, totalDepth + dropRadius * 0.3f, centerTouch + dropRadius, headDepth, centerTouch + dropRadius)
+                // 5. Concave neck return curve back to fluid base end
+                dropPath.cubicTo(headDepth - dropRadius * 0.5f, centerTouch + dropRadius - wobble, headDepth * 0.5f, centerTouch + neckHalfWidth, baseDepth, centerTouch + neckHalfWidth * 1.8f)
+                dropPath.cubicTo(baseDepth, centerTouch + neckHalfWidth * 2.8f, baseDepth * 0.5f, centerTouch + baseSpan, 0f, centerTouch + baseSpan)
+                dropPath.close()
+            }
+            Edge.RIGHT -> {
+                dropPath.moveTo(f.width, centerTouch - baseSpan)
+                dropPath.cubicTo(f.width - baseDepth * 0.5f, centerTouch - baseSpan, f.width - baseDepth, centerTouch - neckHalfWidth * 2.8f, f.width - baseDepth, centerTouch - neckHalfWidth * 1.8f)
+                dropPath.cubicTo(f.width - headDepth * 0.5f, centerTouch - neckHalfWidth, f.width - headDepth + dropRadius * 0.5f, centerTouch - dropRadius + wobble, f.width - headDepth, centerTouch - dropRadius)
 
-            // Dynamic bulge at wave center where elastic surface tension neck connects droplet head
-            val distFromCenter = Math.abs(u - 0.5f) * 2f // 0 at center, 1 at ends
-            val dropInfluence = (1f - distFromCenter.pow(4f)).coerceIn(0f, 1f)
+                rimPath.moveTo(f.width - baseDepth, centerTouch - neckHalfWidth * 1.8f)
+                rimPath.cubicTo(f.width - headDepth * 0.5f, centerTouch - neckHalfWidth, f.width - headDepth + dropRadius * 0.5f, centerTouch - dropRadius + wobble, f.width - headDepth, centerTouch - dropRadius)
 
-            val ripple = sin(u * PI * 4.0 + timeSec * 3.0) * (3.0 + growth * 6.0)
-            val d = (baseDepth + ripple.toFloat()) * env + (dropDepth - baseDepth) * dropInfluence
+                dropPath.cubicTo(f.width - totalDepth - dropRadius * 0.3f, centerTouch - dropRadius, f.width - totalDepth - dropRadius * 0.3f, centerTouch + dropRadius, f.width - headDepth, centerTouch + dropRadius)
+                dropPath.cubicTo(f.width - headDepth + dropRadius * 0.5f, centerTouch + dropRadius - wobble, f.width - headDepth * 0.5f, centerTouch + neckHalfWidth, f.width - baseDepth, centerTouch + neckHalfWidth * 1.8f)
+                dropPath.cubicTo(f.width - baseDepth, centerTouch + neckHalfWidth * 2.8f, f.width - baseDepth * 0.5f, centerTouch + baseSpan, f.width, centerTouch + baseSpan)
+                dropPath.close()
+            }
+            Edge.BOTTOM -> {
+                dropPath.moveTo(centerTouch - baseSpan, f.height)
+                dropPath.cubicTo(centerTouch - baseSpan, f.height - baseDepth * 0.5f, centerTouch - neckHalfWidth * 2.8f, f.height - baseDepth, centerTouch - neckHalfWidth * 1.8f, f.height - baseDepth)
+                dropPath.cubicTo(centerTouch - neckHalfWidth, f.height - headDepth * 0.5f, centerTouch - dropRadius + wobble, f.height - headDepth + dropRadius * 0.5f, centerTouch - dropRadius, f.height - headDepth)
 
-            val pt = point(f, f.touch - baseSpan + u * baseSpan * 2f, d)
-            if (i == 0) {
-                unifiedPath.moveTo(pt.first, pt.second)
-                crestPath.moveTo(pt.first, pt.second)
-            } else {
-                unifiedPath.lineTo(pt.first, pt.second)
-                crestPath.lineTo(pt.first, pt.second)
+                rimPath.moveTo(centerTouch - neckHalfWidth * 1.8f, f.height - baseDepth)
+                rimPath.cubicTo(centerTouch - neckHalfWidth, f.height - headDepth * 0.5f, centerTouch - dropRadius + wobble, f.height - headDepth + dropRadius * 0.5f, centerTouch - dropRadius, f.height - headDepth)
+
+                dropPath.cubicTo(centerTouch - dropRadius, f.height - totalDepth - dropRadius * 0.3f, centerTouch + dropRadius, f.height - totalDepth - dropRadius * 0.3f, centerTouch + dropRadius, f.height - headDepth)
+                dropPath.cubicTo(centerTouch + dropRadius - wobble, f.height - headDepth + dropRadius * 0.5f, centerTouch + neckHalfWidth, f.height - headDepth * 0.5f, centerTouch + neckHalfWidth * 1.8f, f.height - baseDepth)
+                dropPath.cubicTo(centerTouch + neckHalfWidth * 2.8f, f.height - baseDepth, centerTouch + baseSpan, f.height - baseDepth * 0.5f, centerTouch + baseSpan, f.height)
+                dropPath.close()
             }
         }
-        close(unifiedPath, f, baseSpan)
 
-        // ── 2. 3D Drop Shadow for Unified Fluid Body ──
-        Physics3DEngine.drawDropShadow(f.canvas, unifiedPath, dx = 6f, dy = 10f, opacity = f.opacity * 0.50f)
+        // ── 3D Soft Drop Shadow for Fluid Drop Body ──
+        Physics3DEngine.drawDropShadow(f.canvas, dropPath, dx = 6f, dy = 10f, opacity = f.opacity * 0.50f)
 
-        // ── 3. Fill Unified Fluid Body with Gradient Shading ──
-        val brightColor = lighten(f.color, 0.45f)
-        val deepColor = darken(f.color, 0.35f)
-        mainPaint.shader = gradient(f, dropDepth, withAlpha(brightColor, (245 * f.opacity).toInt()), withAlpha(deepColor, (185 * f.opacity).toInt()))
-        f.canvas.drawPath(unifiedPath, mainPaint)
+        // ── Fill Liquid Body with Gradient Shading matching reference ──
+        val brightColor = lighten(f.color, 0.48f)
+        val deepColor = darken(f.color, 0.32f)
+        mainPaint.shader = gradient(f, totalDepth, withAlpha(brightColor, (245 * f.opacity).toInt()), withAlpha(deepColor, (190 * f.opacity).toInt()))
+        f.canvas.drawPath(dropPath, mainPaint)
 
-        // ── 4. Surface Tension Specular Crest Highlight Line ──
-        crestPaint.strokeWidth = 3.0f * f.size
-        crestPaint.color = withAlpha(lighten(f.color, 0.85f), (240 * f.opacity).toInt())
-        f.canvas.drawPath(crestPath, crestPaint)
-
-        // ── 5. Refraction Glint Spot on Droplet Head ──
-        val specular = Physics3DEngine.computeSpecularLight(0.3f, -0.7f, 0.8f, shininess = 24f)
-        glintPaint.color = withAlpha(Color.WHITE, ((210 + specular * 45f) * f.opacity).toInt().coerceIn(0, 255))
-        f.canvas.drawCircle(dropCenter.first - dropRadius * 0.35f, dropCenter.second - dropRadius * 0.35f, (dropRadius * 0.30f).coerceAtLeast(2.5f), glintPaint)
+        // ── Specular White Curved Rim Line along the neck & drop ──
+        rimHighlightPaint.strokeWidth = 3.2f * f.size
+        rimHighlightPaint.color = withAlpha(Color.WHITE, (245 * f.opacity).toInt())
+        f.canvas.drawPath(rimPath, rimHighlightPaint)
 
         mainPaint.shader = null
-    }
-
-    private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
-        Edge.LEFT -> depth to along
-        Edge.RIGHT -> (f.width - depth) to along
-        Edge.BOTTOM -> along to (f.height - depth)
-    }
-
-    private fun close(p: Path, f: AnimationFrame, span: Float) {
-        when (f.edge) {
-            Edge.LEFT -> { p.lineTo(0f, f.touch + span); p.lineTo(0f, f.touch - span) }
-            Edge.RIGHT -> { p.lineTo(f.width, f.touch + span); p.lineTo(f.width, f.touch - span) }
-            Edge.BOTTOM -> { p.lineTo(f.touch + span, f.height); p.lineTo(f.touch - span, f.height) }
-        }
-        p.close()
     }
 
     private fun gradient(f: AnimationFrame, depth: Float, a: Int, b: Int) = when (f.edge) {
