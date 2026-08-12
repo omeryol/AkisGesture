@@ -33,21 +33,36 @@ class HardwareAndAppHandler(
     }
 
     suspend fun handleToggleFlashlight(): ActionResult = withContext(Dispatchers.IO) {
-        when (val grant = rootCommands.grantCameraPermission()) {
-            is RootResult.Failure -> return@withContext ActionResult.Failed(grant.reason)
-            RootResult.Success -> Unit
+        val hasPerm = androidx.core.content.ContextCompat.checkSelfPermission(
+            service,
+            android.Manifest.permission.CAMERA
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+        if (!hasPerm) {
+            val grant = rootCommands.grantCameraPermission()
+            if (grant is RootResult.Failure) {
+                return@withContext ActionResult.Failed("Kamera izni gerekiyor")
+            }
         }
         try {
             if (!torchCallbackRegistered) {
-                cameraManager.registerTorchCallback(torchCallback, null)
-                torchCallbackRegistered = true
+                try {
+                    cameraManager.registerTorchCallback(torchCallback, null)
+                    torchCallbackRegistered = true
+                } catch (_: Exception) {}
             }
             val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
                 val info = cameraManager.getCameraCharacteristics(id)
                 info.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true &&
                     info.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK
+            } ?: cameraManager.cameraIdList.firstOrNull { id ->
+                val info = cameraManager.getCameraCharacteristics(id)
+                info.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
             } ?: return@withContext ActionResult.Failed("Fener desteklenmiyor")
-            cameraManager.setTorchMode(cameraId, !torchEnabled)
+
+            val targetMode = !torchEnabled
+            cameraManager.setTorchMode(cameraId, targetMode)
+            torchEnabled = targetMode
             ActionResult.Success
         } catch (error: Exception) {
             ActionResult.Failed(error.message ?: "Fener değiştirilemedi")
