@@ -268,6 +268,16 @@
     <string name="icon_pack_bootstrap_desc">Compact, bold and practical symbols</string>
     <string name="icon_pack_eva">Eva Icons</string>
     <string name="icon_pack_eva_desc">Soft, friendly and distinctive line icons</string>
+    <string name="icon_pack_fluent">Fluent System</string>
+    <string name="icon_pack_fluent_desc">Modern, solid and filled mobile icons</string>
+    <string name="icon_pack_pixelart">Pixelarticons</string>
+    <string name="icon_pack_pixelart_desc">Nostalgic 8-bit / 16-bit retro pixel icons</string>
+    <string name="icon_pack_ionicons">Ionicons Bold</string>
+    <string name="icon_pack_ionicons_desc">Bold, solid and high contrast mobile symbols</string>
+    <string name="icon_pack_lucide">Lucide Icons</string>
+    <string name="icon_pack_lucide_desc">Smooth rounded modern line icons</string>
+    <string name="icon_pack_radix">Radix Icons</string>
+    <string name="icon_pack_radix_desc">Ultra-sharp 15x15 pixel micro symbols</string>
     <string name="icon_color_mode_title">Icon color mode</string>
     <string name="icon_color_mode_monochrome">Monochrome</string>
     <string name="icon_color_mode_theme">Theme</string>

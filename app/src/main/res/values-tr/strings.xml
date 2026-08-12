@@ -269,6 +269,16 @@
     <string name="icon_pack_bootstrap_desc">Kompakt, tok ve pratik semboller</string>
     <string name="icon_pack_eva">Eva Icons</string>
     <string name="icon_pack_eva_desc">Yumuşak, sıcak ve karakterli çizgi ikonları</string>
+    <string name="icon_pack_fluent">Fluent System</string>
+    <string name="icon_pack_fluent_desc">Modern, dolgulu ve hacimli mobil ikonlar</string>
+    <string name="icon_pack_pixelart">Pixelarticons</string>
+    <string name="icon_pack_pixelart_desc">Nostaljik 8-bit / 16-bit retro pikselli ikonlar</string>
+    <string name="icon_pack_ionicons">Ionicons Bold</string>
+    <string name="icon_pack_ionicons_desc">Kalın, tok ve yüksek kontrastlı mobil simgeler</string>
+    <string name="icon_pack_lucide">Lucide Icons</string>
+    <string name="icon_pack_lucide_desc">Yumuşak yuvarlatmalı çağdaş çizgi tasarımı</string>
+    <string name="icon_pack_radix">Radix Icons</string>
+    <string name="icon_pack_radix_desc">Ultra keskin 15x15 piksel mikrosimgeler</string>
     <string name="icon_color_mode_title">İkon renk modu</string>
     <string name="icon_color_mode_monochrome">Tek renk</string>
     <string name="icon_color_mode_theme">Tema</string>

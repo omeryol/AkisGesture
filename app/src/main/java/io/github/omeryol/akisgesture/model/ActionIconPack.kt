@@ -13,7 +13,12 @@ enum class ActionIconPack(
     ICONOIR("iconoir", R.string.icon_pack_iconoir, R.string.icon_pack_iconoir_desc, "iconoir"),
     HEROICONS("heroicons", R.string.icon_pack_heroicons, R.string.icon_pack_heroicons_desc, "heroicons"),
     BOOTSTRAP("bootstrap", R.string.icon_pack_bootstrap, R.string.icon_pack_bootstrap_desc, "bootstrap"),
-    EVA("eva", R.string.icon_pack_eva, R.string.icon_pack_eva_desc, "eva");
+    EVA("eva", R.string.icon_pack_eva, R.string.icon_pack_eva_desc, "eva"),
+    FLUENT("fluent", R.string.icon_pack_fluent, R.string.icon_pack_fluent_desc, "fluent"),
+    PIXELART("pixelart", R.string.icon_pack_pixelart, R.string.icon_pack_pixelart_desc, "pixelart"),
+    IONICONS("ionicons", R.string.icon_pack_ionicons, R.string.icon_pack_ionicons_desc, "ionicons"),
+    LUCIDE("lucide", R.string.icon_pack_lucide, R.string.icon_pack_lucide_desc, "lucide"),
+    RADIX("radix", R.string.icon_pack_radix, R.string.icon_pack_radix_desc, "radix");
 
     companion object {
         private val legacyAliases = mapOf(

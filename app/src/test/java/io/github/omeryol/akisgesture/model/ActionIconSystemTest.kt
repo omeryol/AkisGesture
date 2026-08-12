@@ -65,9 +65,15 @@ class ActionIconSystemTest {
         val allowed = setOf(
             sortedSetOf("action_bootstrap_volume_panel.xml", "action_bootstrap_volume_up.xml"),
             sortedSetOf("action_eva_volume_panel.xml", "action_eva_volume_up.xml"),
+            sortedSetOf("action_fluent_application.xml", "action_fluent_recents.xml"),
             sortedSetOf("action_heroicons_assistant.xml", "action_heroicons_voice_assistant.xml"),
             sortedSetOf("action_iconoir_volume_panel.xml", "action_iconoir_volume_up.xml"),
+            sortedSetOf("action_ionicons_application.xml", "action_ionicons_recents.xml"),
+            sortedSetOf("action_lucide_application.xml", "action_lucide_recents.xml"),
+            sortedSetOf("action_lucide_brightness_up.xml", "action_lucide_quick_settings.xml"),
             sortedSetOf("action_phosphor_volume_panel.xml", "action_phosphor_volume_up.xml"),
+            sortedSetOf("action_pixelart_application.xml", "action_pixelart_recents.xml"),
+            sortedSetOf("action_radix_application.xml", "action_radix_recents.xml"),
             sortedSetOf("action_tabler_assistant.xml", "action_tabler_voice_assistant.xml"),
         )
         assertEquals(allowed, duplicates)
