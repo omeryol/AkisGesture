@@ -4,108 +4,159 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.RadialGradient
 import android.graphics.Shader
 import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
-import kotlin.math.sin
 import kotlin.math.PI
+import kotlin.math.sin
 
-/** Single Continuous Vector Path Liquid Drop Hanging & Stretching from Base Edge (Sünme Fiziği). */
+/** Ultra-Rich Volumetric 3D Liquid Drop with Elastic Surface Tension Necking (Sünme Fiziği). */
 class DropletModule : NaturalAnimationModule {
     private val mainPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val innerGlowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val auraPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val rimHighlightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
+    private val glintSpotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val dropPath = Path()
+    private val outerDropPath = Path()
+    private val innerCorePath = Path()
     private val rimPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val growth = (f.progress / 1.15f).coerceIn(0f, 1.25f)
         val timeSec = f.time
 
-        // ── Dimensions matching vector reference artwork ──
-        val baseSpan = (55f + growth * 140f) * f.size
-        val baseDepth = (12f + growth * 18f) * f.size
-        val totalDepth = (baseDepth + f.stretch * 1.05f).coerceAtMost(300f * f.size)
+        // ── Elastic Jelly Spring Oscillations ──
+        val wobblePhase = sin(timeSec * PI * 3.8).toFloat()
+        val baseSpan = (58f + growth * 145f) * f.size
+        val baseDepth = (14f + growth * 20f) * f.size
+        val totalDepth = (baseDepth + f.stretch * 1.08f).coerceAtMost(310f * f.size)
 
-        // Refined droplet head radius (scaled down 1 notch for elegance: 8dp to 17dp)
-        val dropRadius = (8f + growth * 17f) * f.size
-        // Elastic Necking: Connection thins out smoothly as stretched ("bağları incelsin ama kopmasın")
-        val neckHalfWidth = (dropRadius * (1.20f - growth * 0.70f)).coerceAtLeast(4.0f * f.size)
-        val wobble = sin(timeSec * PI * 2.5).toFloat() * dropRadius * 0.05f
+        // Refined droplet bulb head radius
+        val dropRadius = (9f + growth * 17.5f) * f.size
+        val neckHalfWidth = (dropRadius * (1.22f - growth * 0.72f)).coerceAtLeast(4.0f * f.size)
+        val wobbleX = wobblePhase * dropRadius * 0.08f
 
         val centerTouch = f.touch
         val headDepth = totalDepth - dropRadius
 
-        dropPath.reset()
+        outerDropPath.reset()
+        innerCorePath.reset()
         rimPath.reset()
 
-        // Construct 1 Continuous Liquid Vector Path with Concave Neck Curves
+        // ── 1. Construct Main Outer Fluid Path ──
         when (f.edge) {
             Edge.LEFT -> {
-                // 1. Base start
-                dropPath.moveTo(0f, centerTouch - baseSpan)
-                // 2. Curve along fluid base to neck start
-                dropPath.cubicTo(baseDepth * 0.5f, centerTouch - baseSpan, baseDepth, centerTouch - neckHalfWidth * 2.8f, baseDepth, centerTouch - neckHalfWidth * 1.8f)
-                // 3. Concave neck stretch curve to droplet head top
-                dropPath.cubicTo(headDepth * 0.5f, centerTouch - neckHalfWidth, headDepth - dropRadius * 0.5f, centerTouch - dropRadius + wobble, headDepth, centerTouch - dropRadius)
+                outerDropPath.moveTo(0f, centerTouch - baseSpan)
+                outerDropPath.cubicTo(baseDepth * 0.5f, centerTouch - baseSpan, baseDepth, centerTouch - neckHalfWidth * 2.8f, baseDepth, centerTouch - neckHalfWidth * 1.8f)
+                outerDropPath.cubicTo(headDepth * 0.5f, centerTouch - neckHalfWidth, headDepth - dropRadius * 0.5f, centerTouch - dropRadius + wobbleX, headDepth, centerTouch - dropRadius)
                 
-                // Track Rim Highlight along left/upper edge
                 rimPath.moveTo(baseDepth, centerTouch - neckHalfWidth * 1.8f)
-                rimPath.cubicTo(headDepth * 0.5f, centerTouch - neckHalfWidth, headDepth - dropRadius * 0.5f, centerTouch - dropRadius + wobble, headDepth, centerTouch - dropRadius)
+                rimPath.cubicTo(headDepth * 0.5f, centerTouch - neckHalfWidth, headDepth - dropRadius * 0.5f, centerTouch - dropRadius + wobbleX, headDepth, centerTouch - dropRadius)
 
-                // 4. Rounded droplet head bulb tip
-                dropPath.cubicTo(totalDepth + dropRadius * 0.3f, centerTouch - dropRadius, totalDepth + dropRadius * 0.3f, centerTouch + dropRadius, headDepth, centerTouch + dropRadius)
-                // 5. Concave neck return curve back to fluid base end
-                dropPath.cubicTo(headDepth - dropRadius * 0.5f, centerTouch + dropRadius - wobble, headDepth * 0.5f, centerTouch + neckHalfWidth, baseDepth, centerTouch + neckHalfWidth * 1.8f)
-                dropPath.cubicTo(baseDepth, centerTouch + neckHalfWidth * 2.8f, baseDepth * 0.5f, centerTouch + baseSpan, 0f, centerTouch + baseSpan)
-                dropPath.close()
+                outerDropPath.cubicTo(totalDepth + dropRadius * 0.32f, centerTouch - dropRadius, totalDepth + dropRadius * 0.32f, centerTouch + dropRadius, headDepth, centerTouch + dropRadius)
+                outerDropPath.cubicTo(headDepth - dropRadius * 0.5f, centerTouch + dropRadius - wobbleX, headDepth * 0.5f, centerTouch + neckHalfWidth, baseDepth, centerTouch + neckHalfWidth * 1.8f)
+                outerDropPath.cubicTo(baseDepth, centerTouch + neckHalfWidth * 2.8f, baseDepth * 0.5f, centerTouch + baseSpan, 0f, centerTouch + baseSpan)
+                outerDropPath.close()
+
+                // Nested Inner Volumetric Refraction Core Path
+                val innerR = dropRadius * 0.65f
+                val innerNeck = neckHalfWidth * 0.55f
+                innerCorePath.moveTo(baseDepth * 0.8f, centerTouch - innerNeck * 1.5f)
+                innerCorePath.cubicTo(headDepth * 0.5f, centerTouch - innerNeck, headDepth - innerR, centerTouch - innerR, headDepth, centerTouch - innerR)
+                innerCorePath.cubicTo(totalDepth, centerTouch - innerR, totalDepth, centerTouch + innerR, headDepth, centerTouch + innerR)
+                innerCorePath.cubicTo(headDepth - innerR, centerTouch + innerR, headDepth * 0.5f, centerTouch + innerNeck, baseDepth * 0.8f, centerTouch + innerNeck * 1.5f)
+                innerCorePath.close()
             }
             Edge.RIGHT -> {
-                dropPath.moveTo(f.width, centerTouch - baseSpan)
-                dropPath.cubicTo(f.width - baseDepth * 0.5f, centerTouch - baseSpan, f.width - baseDepth, centerTouch - neckHalfWidth * 2.8f, f.width - baseDepth, centerTouch - neckHalfWidth * 1.8f)
-                dropPath.cubicTo(f.width - headDepth * 0.5f, centerTouch - neckHalfWidth, f.width - headDepth + dropRadius * 0.5f, centerTouch - dropRadius + wobble, f.width - headDepth, centerTouch - dropRadius)
+                outerDropPath.moveTo(f.width, centerTouch - baseSpan)
+                outerDropPath.cubicTo(f.width - baseDepth * 0.5f, centerTouch - baseSpan, f.width - baseDepth, centerTouch - neckHalfWidth * 2.8f, f.width - baseDepth, centerTouch - neckHalfWidth * 1.8f)
+                outerDropPath.cubicTo(f.width - headDepth * 0.5f, centerTouch - neckHalfWidth, f.width - headDepth + dropRadius * 0.5f, centerTouch - dropRadius + wobbleX, f.width - headDepth, centerTouch - dropRadius)
 
                 rimPath.moveTo(f.width - baseDepth, centerTouch - neckHalfWidth * 1.8f)
-                rimPath.cubicTo(f.width - headDepth * 0.5f, centerTouch - neckHalfWidth, f.width - headDepth + dropRadius * 0.5f, centerTouch - dropRadius + wobble, f.width - headDepth, centerTouch - dropRadius)
+                rimPath.cubicTo(f.width - headDepth * 0.5f, centerTouch - neckHalfWidth, f.width - headDepth + dropRadius * 0.5f, centerTouch - dropRadius + wobbleX, f.width - headDepth, centerTouch - dropRadius)
 
-                dropPath.cubicTo(f.width - totalDepth - dropRadius * 0.3f, centerTouch - dropRadius, f.width - totalDepth - dropRadius * 0.3f, centerTouch + dropRadius, f.width - headDepth, centerTouch + dropRadius)
-                dropPath.cubicTo(f.width - headDepth + dropRadius * 0.5f, centerTouch + dropRadius - wobble, f.width - headDepth * 0.5f, centerTouch + neckHalfWidth, f.width - baseDepth, centerTouch + neckHalfWidth * 1.8f)
-                dropPath.cubicTo(f.width - baseDepth, centerTouch + neckHalfWidth * 2.8f, f.width - baseDepth * 0.5f, centerTouch + baseSpan, f.width, centerTouch + baseSpan)
-                dropPath.close()
+                outerDropPath.cubicTo(f.width - totalDepth - dropRadius * 0.32f, centerTouch - dropRadius, f.width - totalDepth - dropRadius * 0.32f, centerTouch + dropRadius, f.width - headDepth, centerTouch + dropRadius)
+                outerDropPath.cubicTo(f.width - headDepth + dropRadius * 0.5f, centerTouch + dropRadius - wobbleX, f.width - headDepth * 0.5f, centerTouch + neckHalfWidth, f.width - baseDepth, centerTouch + neckHalfWidth * 1.8f)
+                outerDropPath.cubicTo(f.width - baseDepth, centerTouch - neckHalfWidth * 2.8f, f.width - baseDepth * 0.5f, centerTouch + baseSpan, f.width, centerTouch + baseSpan)
+                outerDropPath.close()
+
+                val innerR = dropRadius * 0.65f
+                val innerNeck = neckHalfWidth * 0.55f
+                innerCorePath.moveTo(f.width - baseDepth * 0.8f, centerTouch - innerNeck * 1.5f)
+                innerCorePath.cubicTo(f.width - headDepth * 0.5f, centerTouch - innerNeck, f.width - headDepth + innerR, centerTouch - innerR, f.width - headDepth, centerTouch - innerR)
+                innerCorePath.cubicTo(f.width - totalDepth, centerTouch - innerR, f.width - totalDepth, centerTouch + innerR, f.width - headDepth, centerTouch + innerR)
+                innerCorePath.cubicTo(f.width - headDepth + innerR, centerTouch + innerR, f.width - headDepth * 0.5f, centerTouch + innerNeck, f.width - baseDepth * 0.8f, centerTouch + innerNeck * 1.5f)
+                innerCorePath.close()
             }
             Edge.BOTTOM -> {
-                dropPath.moveTo(centerTouch - baseSpan, f.height)
-                dropPath.cubicTo(centerTouch - baseSpan, f.height - baseDepth * 0.5f, centerTouch - neckHalfWidth * 2.8f, f.height - baseDepth, centerTouch - neckHalfWidth * 1.8f, f.height - baseDepth)
-                dropPath.cubicTo(centerTouch - neckHalfWidth, f.height - headDepth * 0.5f, centerTouch - dropRadius + wobble, f.height - headDepth + dropRadius * 0.5f, centerTouch - dropRadius, f.height - headDepth)
+                outerDropPath.moveTo(centerTouch - baseSpan, f.height)
+                outerDropPath.cubicTo(centerTouch - baseSpan, f.height - baseDepth * 0.5f, centerTouch - neckHalfWidth * 2.8f, f.height - baseDepth, centerTouch - neckHalfWidth * 1.8f, f.height - baseDepth)
+                outerDropPath.cubicTo(centerTouch - neckHalfWidth, f.height - headDepth * 0.5f, centerTouch - dropRadius + wobbleX, f.height - headDepth + dropRadius * 0.5f, centerTouch - dropRadius, f.height - headDepth)
 
                 rimPath.moveTo(centerTouch - neckHalfWidth * 1.8f, f.height - baseDepth)
-                rimPath.cubicTo(centerTouch - neckHalfWidth, f.height - headDepth * 0.5f, centerTouch - dropRadius + wobble, f.height - headDepth + dropRadius * 0.5f, centerTouch - dropRadius, f.height - headDepth)
+                rimPath.cubicTo(centerTouch - neckHalfWidth, f.height - headDepth * 0.5f, centerTouch - dropRadius + wobbleX, f.height - headDepth + dropRadius * 0.5f, centerTouch - dropRadius, f.height - headDepth)
 
-                dropPath.cubicTo(centerTouch - dropRadius, f.height - totalDepth - dropRadius * 0.3f, centerTouch + dropRadius, f.height - totalDepth - dropRadius * 0.3f, centerTouch + dropRadius, f.height - headDepth)
-                dropPath.cubicTo(centerTouch + dropRadius - wobble, f.height - headDepth + dropRadius * 0.5f, centerTouch + neckHalfWidth, f.height - headDepth * 0.5f, centerTouch + neckHalfWidth * 1.8f, f.height - baseDepth)
-                dropPath.cubicTo(centerTouch + neckHalfWidth * 2.8f, f.height - baseDepth, centerTouch + baseSpan, f.height - baseDepth * 0.5f, centerTouch + baseSpan, f.height)
-                dropPath.close()
+                outerDropPath.cubicTo(centerTouch - dropRadius, f.height - totalDepth - dropRadius * 0.32f, centerTouch + dropRadius, f.height - totalDepth - dropRadius * 0.32f, centerTouch + dropRadius, f.height - headDepth)
+                outerDropPath.cubicTo(centerTouch + dropRadius - wobbleX, f.height - headDepth + dropRadius * 0.5f, centerTouch + neckHalfWidth, f.height - headDepth * 0.5f, centerTouch + neckHalfWidth * 1.8f, f.height - baseDepth)
+                outerDropPath.cubicTo(centerTouch + neckHalfWidth * 2.8f, f.height - baseDepth, centerTouch + baseSpan, f.height - baseDepth * 0.5f, centerTouch + baseSpan, f.height)
+                outerDropPath.close()
+
+                val innerR = dropRadius * 0.65f
+                val innerNeck = neckHalfWidth * 0.55f
+                innerCorePath.moveTo(centerTouch - innerNeck * 1.5f, f.height - baseDepth * 0.8f)
+                innerCorePath.cubicTo(centerTouch - innerNeck, f.height - headDepth * 0.5f, centerTouch - innerR, f.height - headDepth + innerR, centerTouch - innerR, f.height - headDepth)
+                innerCorePath.cubicTo(centerTouch - innerR, f.height - totalDepth, centerTouch + innerR, f.height - totalDepth, centerTouch + innerR, f.height - headDepth)
+                innerCorePath.cubicTo(centerTouch + innerR, f.height - headDepth + innerR, centerTouch + innerNeck, f.height - headDepth * 0.5f, centerTouch + innerNeck * 1.5f, f.height - baseDepth * 0.8f)
+                innerCorePath.close()
             }
         }
 
-        // ── 3D Soft Drop Shadow for Fluid Drop Body ──
-        Physics3DEngine.drawDropShadow(f.canvas, dropPath, dx = 6f, dy = 10f, opacity = f.opacity * 0.50f)
+        // ── 2. LAYER: Ambient Luminous Drop Aura ──
+        val centerPt = when (f.edge) {
+            Edge.LEFT -> headDepth to centerTouch
+            Edge.RIGHT -> (f.width - headDepth) to centerTouch
+            Edge.BOTTOM -> centerTouch to (f.height - headDepth)
+        }
+        auraPaint.shader = RadialGradient(
+            centerPt.first, centerPt.second, dropRadius * 2.6f,
+            intArrayOf(withAlpha(lighten(f.color, 0.45f), (135 * f.opacity).toInt()), Color.TRANSPARENT),
+            floatArrayOf(0f, 1f),
+            Shader.TileMode.CLAMP
+        )
+        f.canvas.drawCircle(centerPt.first, centerPt.second, dropRadius * 2.6f, auraPaint)
 
-        // ── Fill Liquid Body with Gradient Shading matching reference ──
-        val brightColor = lighten(f.color, 0.48f)
-        val deepColor = darken(f.color, 0.32f)
+        // ── 3. LAYER: 3D Soft Drop Shadow ──
+        Physics3DEngine.drawDropShadow(f.canvas, outerDropPath, dx = 6f, dy = 10f, opacity = f.opacity * 0.50f)
+
+        // ── 4. LAYER: Main Outer Fluid Body Gradient ──
+        val brightColor = lighten(f.color, 0.45f)
+        val deepColor = darken(f.color, 0.35f)
         mainPaint.shader = gradient(f, totalDepth, withAlpha(brightColor, (245 * f.opacity).toInt()), withAlpha(deepColor, (190 * f.opacity).toInt()))
-        f.canvas.drawPath(dropPath, mainPaint)
+        f.canvas.drawPath(outerDropPath, mainPaint)
 
-        // ── Specular White Curved Rim Line along the neck & drop ──
+        // ── 5. LAYER: Inner Volumetric Refraction Core ──
+        val innerBright = lighten(f.color, 0.75f)
+        innerGlowPaint.shader = gradient(f, totalDepth * 0.85f, withAlpha(innerBright, (180 * f.opacity).toInt()), withAlpha(brightColor, (80 * f.opacity).toInt()))
+        f.canvas.drawPath(innerCorePath, innerGlowPaint)
+
+        // ── 6. LAYER: Specular White Curved Rim Line ──
         rimHighlightPaint.strokeWidth = 3.2f * f.size
         rimHighlightPaint.color = withAlpha(Color.WHITE, (245 * f.opacity).toInt())
         f.canvas.drawPath(rimPath, rimHighlightPaint)
 
+        // ── 7. LAYER: Specular Glint Spot on Droplet Bulb ──
+        val specular = Physics3DEngine.computeSpecularLight(0.3f, -0.7f, 0.8f, shininess = 26f)
+        glintSpotPaint.color = withAlpha(Color.WHITE, ((215 + specular * 40f) * f.opacity).toInt().coerceIn(0, 255))
+        f.canvas.drawCircle(centerPt.first - dropRadius * 0.35f, centerPt.second - dropRadius * 0.35f, (dropRadius * 0.30f).coerceAtLeast(2.5f), glintSpotPaint)
+
         mainPaint.shader = null
+        innerGlowPaint.shader = null
+        auraPaint.shader = null
     }
 
     private fun gradient(f: AnimationFrame, depth: Float, a: Int, b: Int) = when (f.edge) {
