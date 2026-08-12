@@ -1,6 +1,7 @@
 package io.github.omeryol.akisgesture.feedback.animation
 
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
@@ -8,106 +9,143 @@ import android.graphics.Shader
 import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.PI
-import kotlin.math.sin
 import kotlin.math.pow
+import kotlin.math.sin
 
-/** Cohesive Surface Tension Liquid Membrane & Mercury Teardrop Pinching Physics. */
+/** Water Surface Wave with a Liquid Droplet Breaking Away via Surface Tension Physics. */
 class DropletModule : NaturalAnimationModule {
-    private val mainPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val highlightPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val auraPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val splashPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val dropPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val crestPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+    }
+    private val glintPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val path = Path()
+    private val wavePath = Path()
+    private val dropPath = Path()
+    private val crestPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val growth = (f.progress / 1.15f).coerceIn(0f, 1.25f)
-        val depth = (15f + f.stretch * (1.22f + f.surfaceTension * 0.28f)).coerceAtMost(400f * f.size)
-        val r = (16f + growth * (70f + f.surfaceTension * 25f)) * f.size
-        
-        // Elastic Surface Tension Necking Equation: Neck narrows dramatically as stretch increases
-        val neckWidth = (r * (1.35f - growth * (0.75f + f.surfaceTension * 0.15f))).coerceAtLeast(4f * f.size)
-        val wobble = sin(f.time * PI * (2.2 + f.damping * 1.5)).toFloat() * r * (0.05f + f.viscosity * 0.04f)
+        val timeSec = f.time
 
-        // 3D Perspective Projection for Center
-        val proj = Physics3DEngine.project(depth, 0f, 30f * growth)
-        val center = when (f.edge) {
+        // ── 1. Base Organic Water Surface Wave Geometry ──
+        val baseSpan = (50f + growth * 180f) * f.size
+        val baseDepth = (f.stretch * 0.75f).coerceAtMost(220f * f.size)
+
+        wavePath.reset()
+        crestPath.reset()
+        val steps = 36
+        for (i in 0..steps) {
+            val u = i / steps.toFloat()
+            val env = sin(PI * u).toFloat().pow(1.8f)
+            val ripple = sin(u * PI * 4.0 + timeSec * 3.0) * (4.0 + growth * 8.0)
+            val d = (baseDepth + ripple.toFloat()) * env
+
+            val pt = point(f, f.touch - baseSpan + u * baseSpan * 2f, d)
+            if (i == 0) {
+                wavePath.moveTo(pt.first, pt.second)
+                crestPath.moveTo(pt.first, pt.second)
+            } else {
+                wavePath.lineTo(pt.first, pt.second)
+                crestPath.lineTo(pt.first, pt.second)
+            }
+        }
+        close(wavePath, f, baseSpan)
+
+        // 3D Drop Shadow for Base Water Wave
+        Physics3DEngine.drawDropShadow(f.canvas, wavePath, dx = 6f, dy = 10f, opacity = f.opacity * 0.45f)
+
+        // Draw Base Water Surface Wave
+        val brightColor = lighten(f.color, 0.40f)
+        val deepColor = darken(f.color, 0.35f)
+        wavePaint.shader = gradient(f, baseDepth, withAlpha(brightColor, (240 * f.opacity).toInt()), withAlpha(deepColor, (185 * f.opacity).toInt()))
+        f.canvas.drawPath(wavePath, wavePaint)
+
+        crestPaint.strokeWidth = 3.0f * f.size
+        crestPaint.color = withAlpha(lighten(f.color, 0.85f), (235 * f.opacity).toInt())
+        f.canvas.drawPath(crestPath, crestPaint)
+
+        // ── 2. Liquid Droplet Breaking Away via Surface Tension ──
+        val dropDepth = (baseDepth + growth * (120f + f.surfaceTension * 35f)).coerceAtMost(380f * f.size)
+        val dropRadius = (12f + growth * (36f + f.surfaceTension * 15f)) * f.size
+        val neckWidth = (dropRadius * (1.25f - growth * 0.70f)).coerceAtLeast(3.5f * f.size)
+        val wobble = sin(timeSec * PI * 3.0).toFloat() * dropRadius * 0.06f
+
+        val proj = Physics3DEngine.project(dropDepth, 0f, 25f * growth)
+        val dropCenter = when (f.edge) {
             Edge.LEFT -> proj.x to f.touch
             Edge.RIGHT -> (f.width - proj.x) to f.touch
             Edge.BOTTOM -> f.touch to (f.height - proj.x)
         }
 
-        // ── 1. LAYER: Elastic Liquid Surface Tension Membrane Path ──
-        path.reset()
+        dropPath.reset()
         val detached = f.progress >= 1.05f
         when (f.edge) {
-            Edge.LEFT -> if (detached) path.addCircle(center.first, center.second, r, Path.Direction.CW) else {
-                path.moveTo(0f, f.touch - neckWidth)
-                path.cubicTo(proj.x * 0.35f, f.touch - neckWidth, center.first - r * 0.95f, center.second - r + wobble, center.first, center.second - r)
-                path.cubicTo(center.first + r, center.second - r, center.first + r, center.second + r, center.first, center.second + r)
-                path.cubicTo(center.first - r * 0.95f, center.second + r, proj.x * 0.35f, f.touch + neckWidth, 0f, f.touch + neckWidth)
+            Edge.LEFT -> if (detached) dropPath.addCircle(dropCenter.first, dropCenter.second, dropRadius, Path.Direction.CW) else {
+                dropPath.moveTo(baseDepth, f.touch - neckWidth)
+                dropPath.cubicTo(baseDepth + proj.x * 0.3f, f.touch - neckWidth, dropCenter.first - dropRadius * 0.9f, dropCenter.second - dropRadius + wobble, dropCenter.first, dropCenter.second - dropRadius)
+                dropPath.cubicTo(dropCenter.first + dropRadius, dropCenter.second - dropRadius, dropCenter.first + dropRadius, dropCenter.second + dropRadius, dropCenter.first, dropCenter.second + dropRadius)
+                dropPath.cubicTo(dropCenter.first - dropRadius * 0.9f, dropCenter.second + dropRadius, baseDepth + proj.x * 0.3f, f.touch + neckWidth, baseDepth, f.touch + neckWidth)
             }
-            Edge.RIGHT -> if (detached) path.addCircle(center.first, center.second, r, Path.Direction.CW) else {
-                path.moveTo(f.width, f.touch - neckWidth)
-                path.cubicTo(f.width - proj.x * 0.35f, f.touch - neckWidth, center.first + r * 0.95f, center.second - r + wobble, center.first, center.second - r)
-                path.cubicTo(center.first - r, center.second - r, center.first - r, center.second + r, center.first, center.second + r)
-                path.cubicTo(center.first + r * 0.95f, center.second + r, f.width - proj.x * 0.35f, f.touch + neckWidth, f.width, f.touch + neckWidth)
+            Edge.RIGHT -> if (detached) dropPath.addCircle(dropCenter.first, dropCenter.second, dropRadius, Path.Direction.CW) else {
+                dropPath.moveTo(f.width - baseDepth, f.touch - neckWidth)
+                dropPath.cubicTo(f.width - baseDepth - proj.x * 0.3f, f.touch - neckWidth, dropCenter.first + dropRadius * 0.9f, dropCenter.second - dropRadius + wobble, dropCenter.first, dropCenter.second - dropRadius)
+                dropPath.cubicTo(dropCenter.first - dropRadius, dropCenter.second - dropRadius, dropCenter.first - dropRadius, dropCenter.second + dropRadius, dropCenter.first, dropCenter.second + dropRadius)
+                dropPath.cubicTo(dropCenter.first + dropRadius * 0.9f, dropCenter.second + dropRadius, f.width - baseDepth - proj.x * 0.3f, f.touch + neckWidth, f.width - baseDepth, f.touch + neckWidth)
             }
-            Edge.BOTTOM -> if (detached) path.addCircle(center.first, center.second, r, Path.Direction.CW) else {
-                path.moveTo(f.touch - neckWidth, f.height)
-                path.cubicTo(f.touch - neckWidth, f.height - proj.x * 0.35f, center.first - r, center.second + r * 0.95f, center.first - r, center.second)
-                path.cubicTo(center.first - r, center.second - r, center.first + r, center.second - r, center.first + r, center.second)
-                path.cubicTo(center.first + r, center.second + r * 0.95f, f.touch + neckWidth, f.height - proj.x * 0.35f, f.touch + neckWidth, f.height)
+            Edge.BOTTOM -> if (detached) dropPath.addCircle(dropCenter.first, dropCenter.second, dropRadius, Path.Direction.CW) else {
+                dropPath.moveTo(f.touch - neckWidth, f.height - baseDepth)
+                dropPath.cubicTo(f.touch - neckWidth, f.height - baseDepth - proj.x * 0.3f, dropCenter.first - dropRadius, dropCenter.second + dropRadius * 0.9f, dropCenter.first - dropRadius, dropCenter.second)
+                dropPath.cubicTo(dropCenter.first - dropRadius, dropCenter.second - dropRadius, dropCenter.first + dropRadius, dropCenter.second - dropRadius, dropCenter.first + dropRadius, dropCenter.second)
+                dropPath.cubicTo(dropCenter.first + dropRadius, dropCenter.second + dropRadius * 0.9f, f.touch + neckWidth, f.height - baseDepth - proj.x * 0.3f, f.touch + neckWidth, f.height - baseDepth)
             }
         }
-        path.close()
+        dropPath.close()
 
-        // ── 2. LAYER: 3D Dynamic Drop Shadow ──
-        Physics3DEngine.drawDropShadow(f.canvas, path, dx = 8f, dy = 12f, opacity = f.opacity * 0.60f)
+        // 3D Drop Shadow for Liquid Droplet
+        Physics3DEngine.drawDropShadow(f.canvas, dropPath, dx = 7f, dy = 10f, opacity = f.opacity * 0.55f)
 
-        // ── 3. LAYER: Surface Tension Ambient Halo ──
-        auraPaint.shader = RadialGradient(
-            center.first, center.second, r * 2.4f,
-            intArrayOf(withAlpha(lighten(f.color, 0.45f), (125 * f.opacity).toInt()), Color.TRANSPARENT),
-            floatArrayOf(0f, 1f),
-            Shader.TileMode.CLAMP
-        )
-        f.canvas.drawCircle(center.first, center.second, r * 2.4f, auraPaint)
+        // Render Water Droplet Body
+        val specular = Physics3DEngine.computeSpecularLight(0.3f, -0.7f, 0.8f, shininess = 24f)
+        val dropBright = lighten(f.color, 0.55f + specular * 0.35f)
 
-        // ── 4. LAYER: Metallic Mercury Surface Body with Blinn-Phong Specular Lighting ──
-        val specular = Physics3DEngine.computeSpecularLight(0.35f, -0.75f, 0.85f, shininess = 28f)
-        val brightColor = lighten(f.color, 0.60f + specular * 0.40f)
-
-        mainPaint.shader = RadialGradient(
-            center.first - r * 0.35f, center.second - r * 0.38f, r * 2.5f,
-            intArrayOf(withAlpha(brightColor, (255 * f.opacity).toInt()), withAlpha(f.color, (235 * f.opacity).toInt()), withAlpha(darken(f.color, 0.55f), (170 * f.opacity).toInt())),
+        dropPaint.shader = RadialGradient(
+            dropCenter.first - dropRadius * 0.35f, dropCenter.second - dropRadius * 0.35f, dropRadius * 2.2f,
+            intArrayOf(withAlpha(dropBright, (250 * f.opacity).toInt()), withAlpha(f.color, (225 * f.opacity).toInt()), withAlpha(darken(f.color, 0.45f), (160 * f.opacity).toInt())),
             floatArrayOf(0f, 0.45f, 1f),
             Shader.TileMode.CLAMP
         )
-        f.canvas.drawPath(path, mainPaint)
+        f.canvas.drawPath(dropPath, dropPaint)
 
-        // ── 5. LAYER: Cohesive Surface Tension Specular Glint Spot ──
-        highlightPaint.color = withAlpha(Color.WHITE, (245 * f.opacity).toInt())
-        val glintX = center.first - r * 0.36f
-        val glintY = center.second - r * 0.38f
-        f.canvas.drawCircle(glintX, glintY, (r * 0.32f).coerceAtLeast(3.5f), highlightPaint)
+        // Specular Refraction Glint
+        glintPaint.color = withAlpha(Color.WHITE, (245 * f.opacity).toInt())
+        f.canvas.drawCircle(dropCenter.first - dropRadius * 0.35f, dropCenter.second - dropRadius * 0.35f, (dropRadius * 0.30f).coerceAtLeast(3f), glintPaint)
 
-        // ── 6. LAYER: Gravity-bound Pinch-off Satellite Droplets ──
-        if (growth > 0.45f) {
-            val sRadius = (r * 0.20f).coerceAtLeast(3.0f)
-            val gDrop = depth * 1.38f
-            val sPt = when (f.edge) {
-                Edge.LEFT -> gDrop to (center.second + r * 1.35f)
-                Edge.RIGHT -> (f.width - gDrop) to (center.second + r * 1.35f)
-                Edge.BOTTOM -> (center.first + r * 1.35f) to (f.height - gDrop)
-            }
-            splashPaint.color = withAlpha(lighten(f.color, 0.65f), (220 * f.opacity).toInt())
-            f.canvas.drawCircle(sPt.first + 2f, sPt.second + 4f, sRadius, splashPaint) // Shadow
-            f.canvas.drawCircle(sPt.first, sPt.second, sRadius, splashPaint)
+        wavePaint.shader = null
+        dropPaint.shader = null
+    }
+
+    private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
+        Edge.LEFT -> depth to along
+        Edge.RIGHT -> (f.width - depth) to along
+        Edge.BOTTOM -> along to (f.height - depth)
+    }
+
+    private fun close(p: Path, f: AnimationFrame, span: Float) {
+        when (f.edge) {
+            Edge.LEFT -> { p.lineTo(0f, f.touch + span); p.lineTo(0f, f.touch - span) }
+            Edge.RIGHT -> { p.lineTo(f.width, f.touch + span); p.lineTo(f.width, f.touch - span) }
+            Edge.BOTTOM -> { p.lineTo(f.touch + span, f.height); p.lineTo(f.touch - span, f.height) }
         }
+        p.close()
+    }
 
-        mainPaint.shader = null
-        auraPaint.shader = null
+    private fun gradient(f: AnimationFrame, depth: Float, a: Int, b: Int) = when (f.edge) {
+        Edge.LEFT -> LinearGradient(0f, f.touch, depth, f.touch, a, b, Shader.TileMode.CLAMP)
+        Edge.RIGHT -> LinearGradient(f.width, f.touch, f.width - depth, f.touch, a, b, Shader.TileMode.CLAMP)
+        Edge.BOTTOM -> LinearGradient(f.touch, f.height, f.touch, f.height - depth, a, b, Shader.TileMode.CLAMP)
     }
 
     private fun withAlpha(c: Int, a: Int) = Color.argb(a.coerceIn(0, 255), Color.red(c), Color.green(c), Color.blue(c))
