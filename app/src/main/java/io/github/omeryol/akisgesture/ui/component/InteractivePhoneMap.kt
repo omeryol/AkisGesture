@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +35,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -46,7 +49,7 @@ import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
-import io.github.omeryol.akisgesture.model.toSymbol
+import io.github.omeryol.akisgesture.feedback.ActionBitmapLoader
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.delay
@@ -90,7 +93,7 @@ fun InteractivePhoneMap(
     onSideRangePreview: (Edge, Float, Float) -> Unit,
     onEdgeClick: (Edge) -> Unit,
     modifier: Modifier = Modifier,
-    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
     config: GestureConfig? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -99,6 +102,20 @@ fun InteractivePhoneMap(
     val handleRadius = with(LocalDensity.current) { 14.dp.toPx() }
     val sensorTouchPadding = with(LocalDensity.current) { 12.dp.toPx() }
     val zones = buildPhoneZones(rules, scheme)
+    val ringPreviewBitmaps = remember(config, iconPack) {
+        EdgeUi.ordered
+            .flatMap { edge -> config?.ringActionsFor(edge).orEmpty() }
+            .distinctBy { it.id }
+            .associate { action ->
+                action.id to ActionBitmapLoader.load(
+                    context = context,
+                    action = action,
+                    pack = iconPack,
+                    sizePx = 96,
+                    tint = android.graphics.Color.WHITE,
+                )?.asImageBitmap()
+            }
+    }
     var dragPreview by remember { mutableStateOf<Map<Edge, Pair<Float, Float>>>(emptyMap()) }
     var rangeFeedback by remember { mutableStateOf<Pair<Edge, Pair<Float, Float>>?>(null) }
     var dragging by remember { mutableStateOf(false) }
@@ -238,7 +255,7 @@ fun InteractivePhoneMap(
                             style = Stroke(2f),
                         )
                     }
-                    drawRingPreviews(screen, config, iconPack, density, scheme)
+                    drawRingPreviews(screen, config, density, ringPreviewBitmaps)
                 }
 
                 // High-contrast endpoint arrows stay inside the coloured trigger range.
@@ -362,7 +379,9 @@ private fun EdgeActionPanelDirectional(
         if (entries.isEmpty()) {
             Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
-            if (lUp.isEmpty()) Spacer(Modifier.height(34.dp)) else lUp.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+            val upDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP
+            val downDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN
+            if (lUp.isEmpty()) Spacer(Modifier.height(34.dp)) else lUp.forEach { (_, action) -> ActionBadge("", action, iconPack, scheme, upDirection) }
             if (numbered.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -376,7 +395,7 @@ private fun EdgeActionPanelDirectional(
                     }
                 }
             }
-            if (lDown.isEmpty()) Spacer(Modifier.height(34.dp)) else lDown.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+            if (lDown.isEmpty()) Spacer(Modifier.height(34.dp)) else lDown.forEach { (_, action) -> ActionBadge("", action, iconPack, scheme, downDirection) }
         }
     }
 }
@@ -433,22 +452,36 @@ private fun BottomDirectionalActions(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            left?.let { (_, action) -> ActionBadge("L \u2190", action, iconPack, scheme) }
+            left?.let { (_, action) -> ActionBadge("", action, iconPack, scheme, GestureVisualDirection.BOTTOM_LEFT) }
         }
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             numbered.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
         }
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            right?.let { (_, action) -> ActionBadge("L \u2192", action, iconPack, scheme) }
+            right?.let { (_, action) -> ActionBadge("", action, iconPack, scheme, GestureVisualDirection.BOTTOM_RIGHT) }
         }
     }
 }
 
 @Composable
-private fun ActionBadge(kind: String, action: ActionNode, iconPack: ActionIconPack, scheme: androidx.compose.material3.ColorScheme) {
+private fun ActionBadge(
+    kind: String,
+    action: ActionNode,
+    iconPack: ActionIconPack,
+    scheme: androidx.compose.material3.ColorScheme,
+    gestureVisual: GestureVisualDirection? = null,
+) {
     Column(modifier = Modifier.padding(horizontal = 3.dp, vertical = 1.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(action.toSymbol(iconPack), style = MaterialTheme.typography.titleMedium)
-        Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary, maxLines = 1)
+        ActionIcon(action, null, Modifier.size(22.dp), iconPack = iconPack)
+        if (gestureVisual != null) {
+            GestureVisualIcon(
+                direction = gestureVisual,
+                color = scheme.primary,
+                modifier = Modifier.size(18.dp),
+            )
+        } else {
+            Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary, maxLines = 1)
+        }
     }
 }
 
@@ -468,7 +501,7 @@ private fun EdgeActionPanel(title: String, entries: List<Pair<String, ActionNode
                 entries.forEachIndexed { index, (kind, action) ->
                     if (index > 0) Text("─", color = scheme.outline, style = MaterialTheme.typography.labelSmall)
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(action.toSymbol(iconPack), style = MaterialTheme.typography.titleSmall)
+                        ActionIcon(action, null, Modifier.size(18.dp), iconPack = iconPack)
                         Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary)
                     }
                 }
@@ -508,9 +541,8 @@ private fun rangeComparisonLabel(
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
     screen: Rect,
     config: GestureConfig?,
-    iconPack: ActionIconPack,
     density: Float,
-    scheme: androidx.compose.material3.ColorScheme,
+    icons: Map<String, androidx.compose.ui.graphics.ImageBitmap?>,
 ) {
     if (config == null) return
 
@@ -560,13 +592,14 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
             drawCircle(color = color.copy(alpha = 0.88f), radius = ringRadius, center = center, style = Stroke(width = 2.2f))
             val action = actions[index]
             if (action !is ActionNode.NoAction) {
-                val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-                    this.color = android.graphics.Color.WHITE
-                    textSize = ringRadius * 0.95f
-                    textAlign = android.graphics.Paint.Align.CENTER
-                    isFakeBoldText = true
+                icons[action.id]?.let { bitmap ->
+                    val size = (ringRadius * 1.05f).toInt().coerceAtLeast(1)
+                    drawImage(
+                        image = bitmap,
+                        dstOffset = IntOffset((center.x - size / 2f).toInt(), (center.y - size / 2f).toInt()),
+                        dstSize = IntSize(size, size),
+                    )
                 }
-                drawContext.canvas.nativeCanvas.drawText(action.toSymbol(iconPack), center.x, center.y - (paint.ascent() + paint.descent()) / 2f, paint)
             }
         }
     }

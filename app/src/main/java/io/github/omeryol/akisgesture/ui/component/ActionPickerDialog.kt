@@ -64,7 +64,6 @@ import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.ui.util.actionCategories
-import io.github.omeryol.akisgesture.ui.util.actionEmoji
 import io.github.omeryol.akisgesture.ui.util.filterActions
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
@@ -81,7 +80,7 @@ fun ActionPickerScreen(
     onDismiss: () -> Unit,
     onSelect: (ActionNode) -> Unit,
     appSelectionOnly: Boolean = false,
-    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
 ) {
     val context = LocalContext.current
     val categories = actionCategories()
@@ -426,7 +425,7 @@ private fun ActionPickerItem(
     onSelect: (ActionNode) -> Unit,
     modifier: Modifier = Modifier,
     accentColor: Color? = null,
-    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
 ) {
     val context = LocalContext.current
     val available = RuleConfigViewModel.isActionAvailable(action)
@@ -463,6 +462,7 @@ private fun ActionPickerItem(
         ) {
             ActionIcon(
                 action = action,
+                iconPack = iconPack,
                 contentDescription = null,
                 modifier = Modifier.size(25.dp),
                 tint = if (available) accent else scheme.onSurfaceVariant,
@@ -470,7 +470,7 @@ private fun ActionPickerItem(
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                "${actionEmoji(action, iconPack)} ${action.localizedLabel(context)}",
+                action.localizedLabel(context),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
                 color = if (available) scheme.onSurface else scheme.onSurfaceVariant,

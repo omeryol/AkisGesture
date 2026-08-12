@@ -79,7 +79,6 @@ import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
-import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
 import io.github.omeryol.akisgesture.overlay.Edge
@@ -95,7 +94,6 @@ import io.github.omeryol.akisgesture.ui.util.appLabel
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
-import io.github.omeryol.akisgesture.ui.util.actionEmoji
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.PendingActionTarget
 import io.github.omeryol.akisgesture.rule.Presets
@@ -371,6 +369,7 @@ fun RuleListScreen(
                     } else {
                         ActionIcon(
                             action = ActionNode.LaunchApp(packageName, activeProfileLabel),
+                            iconPack = gestureConfig.actionIconPack,
                             contentDescription = null,
                             modifier = Modifier.size(24.dp),
                         )
@@ -517,6 +516,7 @@ fun RuleListScreen(
                         RuleTableRow(
                             group = group,
                             number = index + 1,
+                            iconPack = gestureConfig.actionIconPack,
                             onEditRule = { ruleId -> onRuleClick(ruleId) },
                             onDelete = { viewModel.removeRules(group.ids) },
                             onSelectAction = { gestureType, rule ->
@@ -702,6 +702,7 @@ fun RuleListScreen(
     if (showAddDialog) {
         io.github.omeryol.akisgesture.ui.component.AddRuleForEdgeDialog(
             edge = selectedEdge,
+            iconPack = gestureConfig.actionIconPack,
             onDismiss = { showAddDialog = false },
             onConfirm = { edge, section, quickAction, holdAction, lUpAction, lDownAction, triggerMode ->
                 viewModel.addGesturePair(
@@ -834,6 +835,7 @@ fun RuleListScreen(
                             openActionPicker()
                         },
                         onClear = { selectedGroup.quick?.let { viewModel.removeRule(it.id) } },
+                        iconPack = gestureConfig.actionIconPack,
                     )
                     GestureSlotButton(
                         title = stringResource(R.string.hold_with_icon),
@@ -854,6 +856,7 @@ fun RuleListScreen(
                             openActionPicker()
                         },
                         onClear = { selectedGroup.hold?.let { viewModel.removeRule(it.id) } },
+                        iconPack = gestureConfig.actionIconPack,
                     )
                     GestureSlotButton(
                         title = stringResource(R.string.l_up_with_icon),
@@ -874,6 +877,7 @@ fun RuleListScreen(
                             openActionPicker()
                         },
                         onClear = { selectedGroup.lUp?.let { viewModel.removeRule(it.id) } },
+                        iconPack = gestureConfig.actionIconPack,
                     )
                     GestureSlotButton(
                         title = stringResource(R.string.l_down_with_icon),
@@ -894,6 +898,7 @@ fun RuleListScreen(
                             openActionPicker()
                         },
                         onClear = { selectedGroup.lDown?.let { viewModel.removeRule(it.id) } },
+                        iconPack = gestureConfig.actionIconPack,
                     )
                 }
             },
@@ -996,6 +1001,7 @@ private fun RingEdgeCard(
                         if (action != null) {
                             ActionIcon(
                                 action = action,
+                                iconPack = config.actionIconPack,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
                             )
@@ -1153,7 +1159,7 @@ private fun GestureSlotButton(
     rule: GestureRule?,
     onClick: () -> Unit,
     onClear: () -> Unit,
-    iconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
 ) {
     val context = LocalContext.current
     OutlinedButton(
@@ -1165,12 +1171,11 @@ private fun GestureSlotButton(
         rule?.let {
             ActionIcon(
                 action = it.action,
+                iconPack = iconPack,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.width(12.dp))
-            Text(actionEmoji(it.action, iconPack), style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.width(8.dp))
         }
         Column(
             modifier = Modifier.weight(1f),
@@ -1201,6 +1206,7 @@ private fun GestureSlotButton(
 private fun RuleTableRow(
     group: RuleGroup,
     number: Int,
+    iconPack: ActionIconPack,
     onEditRule: (String) -> Unit,
     onDelete: () -> Unit,
     onSelectAction: (GestureType, GestureRule?) -> Unit,
@@ -1268,6 +1274,7 @@ private fun RuleTableRow(
                     onClick = { onSelectAction(GestureType.QUICK_SWIPE, group.quick) },
                     onEditRule = onEditRule,
                     onDeleteRule = onDeleteRule,
+                    iconPack = iconPack,
                 )
                 // 2. SWIPE & HOLD (⏱️ Çekip Beklet)
                 ActionCell(
@@ -1279,6 +1286,7 @@ private fun RuleTableRow(
                     onClick = { onSelectAction(GestureType.SWIPE_HOLD, group.hold) },
                     onEditRule = onEditRule,
                     onDeleteRule = onDeleteRule,
+                    iconPack = iconPack,
                 )
                 // 3. L-SWIPE UP (↗️ L-Yukarı)
                 ActionCell(
@@ -1290,6 +1298,7 @@ private fun RuleTableRow(
                     onClick = { onSelectAction(GestureType.SWIPE_UP_L, group.lUp) },
                     onEditRule = onEditRule,
                     onDeleteRule = onDeleteRule,
+                    iconPack = iconPack,
                 )
                 // 4. L-SWIPE DOWN (↘️ L-Aşağı)
                 ActionCell(
@@ -1301,6 +1310,7 @@ private fun RuleTableRow(
                     onClick = { onSelectAction(GestureType.SWIPE_DOWN_L, group.lDown) },
                     onEditRule = onEditRule,
                     onDeleteRule = onDeleteRule,
+                    iconPack = iconPack,
                 )
             }
         }
@@ -1317,6 +1327,7 @@ private fun ActionCell(
     onClick: () -> Unit,
     onEditRule: (String) -> Unit,
     onDeleteRule: (String) -> Unit,
+    iconPack: ActionIconPack,
 ) {
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
@@ -1348,6 +1359,7 @@ private fun ActionCell(
         if (rule != null) {
             ActionIcon(
                 action = rule.action,
+                iconPack = iconPack,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
             )

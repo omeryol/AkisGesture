@@ -45,6 +45,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.model.ActionNode
+import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.SectionRange
 import io.github.omeryol.akisgesture.model.TriggerMode
@@ -58,6 +59,7 @@ import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 @Composable
 fun AddRuleForEdgeDialog(
     edge: Edge,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
     onDismiss: () -> Unit,
     onConfirm: (Edge, SectionRange, ActionNode?, ActionNode?, ActionNode?, ActionNode?, TriggerMode) -> Unit,
 ) {
@@ -83,6 +85,7 @@ fun AddRuleForEdgeDialog(
                     .background(MaterialTheme.colorScheme.background),
             ) {
                 ActionPickerScreen(
+                    iconPack = iconPack,
                     onDismiss = { showInlineActionPicker = null },
                     onSelect = { action ->
                         when (showInlineActionPicker) {
@@ -148,6 +151,7 @@ fun AddRuleForEdgeDialog(
                     action = quickAction,
                     onSelect = { showInlineActionPicker = GestureType.QUICK_SWIPE },
                     onClear = { quickAction = null },
+                    iconPack = iconPack,
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
@@ -156,6 +160,7 @@ fun AddRuleForEdgeDialog(
                     action = holdAction,
                     onSelect = { showInlineActionPicker = GestureType.SWIPE_HOLD },
                     onClear = { holdAction = null },
+                    iconPack = iconPack,
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
@@ -164,6 +169,7 @@ fun AddRuleForEdgeDialog(
                     action = lUpAction,
                     onSelect = { showInlineActionPicker = GestureType.SWIPE_UP_L },
                     onClear = { lUpAction = null },
+                    iconPack = iconPack,
                 )
                 Spacer(Modifier.height(8.dp))
                 ActionChoiceButton(
@@ -172,6 +178,7 @@ fun AddRuleForEdgeDialog(
                     action = lDownAction,
                     onSelect = { showInlineActionPicker = GestureType.SWIPE_DOWN_L },
                     onClear = { lDownAction = null },
+                    iconPack = iconPack,
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -239,6 +246,7 @@ fun AddRuleForEdgeDialog(
 fun AddRuleDialog(
     onDismiss: () -> Unit,
     onConfirm: (Edge, SectionRange, ActionNode?, ActionNode?, ActionNode?, ActionNode?, TriggerMode) -> Unit,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
 ) {
     // Compact flow: edge and area -> both actions.
     var step by remember { mutableIntStateOf(0) }
@@ -264,6 +272,7 @@ fun AddRuleDialog(
                     .background(MaterialTheme.colorScheme.background),
             ) {
                 ActionPickerScreen(
+                    iconPack = iconPack,
                     onDismiss = { showInlineActionPicker = null },
                     onSelect = { action ->
                         when (showInlineActionPicker) {
@@ -345,6 +354,7 @@ fun AddRuleDialog(
                             action = quickAction,
                             onSelect = { showInlineActionPicker = GestureType.QUICK_SWIPE },
                             onClear = { quickAction = null },
+                            iconPack = iconPack,
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
@@ -353,6 +363,7 @@ fun AddRuleDialog(
                             action = holdAction,
                             onSelect = { showInlineActionPicker = GestureType.SWIPE_HOLD },
                             onClear = { holdAction = null },
+                            iconPack = iconPack,
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
@@ -361,6 +372,7 @@ fun AddRuleDialog(
                             action = lUpAction,
                             onSelect = { showInlineActionPicker = GestureType.SWIPE_UP_L },
                             onClear = { lUpAction = null },
+                            iconPack = iconPack,
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionChoiceButton(
@@ -369,6 +381,7 @@ fun AddRuleDialog(
                             action = lDownAction,
                             onSelect = { showInlineActionPicker = GestureType.SWIPE_DOWN_L },
                             onClear = { lDownAction = null },
+                            iconPack = iconPack,
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
@@ -457,6 +470,7 @@ private fun ActionChoiceButton(
     action: ActionNode?,
     onSelect: () -> Unit,
     onClear: () -> Unit,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     OutlinedButton(
@@ -474,6 +488,7 @@ private fun ActionChoiceButton(
         if (action != null) {
             ActionIcon(
                 action = action,
+                iconPack = iconPack,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
             )

@@ -1,6 +1,7 @@
 package io.github.omeryol.akisgesture.feedback
 
 import android.graphics.Canvas
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RadialGradient
@@ -14,7 +15,7 @@ class RingMenuRenderer {
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
     private val halo = Paint(Paint.ANTI_ALIAS_FLAG)
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
-    private val symbol = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
+    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private var appearanceStartedAtMs = 0L
 
     fun resetAnimation() {
@@ -33,13 +34,13 @@ class RingMenuRenderer {
         spreadPx: Float,
         color: Int,
         opacity: Float,
-        symbols: List<String>,
+        icons: List<Bitmap?>,
         selectedIndex: Int,
         iconScale: Float,
         ringSizeDp: Float,
         ringArc: Float,
     ) {
-        if (symbols.isEmpty()) return
+        if (icons.isEmpty()) return
         val now = SystemClock.uptimeMillis()
         if (appearanceStartedAtMs == 0L) appearanceStartedAtMs = now
         // Keep the bubbles attached to the finger's inward travel instead of
@@ -99,7 +100,7 @@ class RingMenuRenderer {
                 bottomX[2] to (anchor - sideLead),
             )
         }
-        symbols.take(3).forEachIndexed { index, value ->
+        icons.take(3).forEachIndexed { index, icon ->
             val (x, y) = positions[index]
             val selected = index == selectedIndex
             val pulse = if (selected) {
@@ -148,10 +149,11 @@ class RingMenuRenderer {
             stroke.strokeWidth = if (selected) 2.2f else 1.2f
             stroke.color = Color.argb((baseAlpha * .95f).toInt(), 255, 255, 255)
             canvas.drawCircle(x, y, visualRadius, stroke)
-            if (value.isNotEmpty()) {
-                symbol.textSize = visualRadius * 1.00f
-                symbol.color = Color.argb((opacity * reveal * 255).toInt(), 255, 255, 255)
-                canvas.drawText(value, x, y - (symbol.ascent() + symbol.descent()) / 2f, symbol)
+            if (icon != null) {
+                val half = visualRadius * .52f
+                iconPaint.alpha = (opacity * reveal * 255).toInt().coerceIn(0, 255)
+                canvas.drawBitmap(icon, null, android.graphics.RectF(x - half, y - half, x + half, y + half), iconPaint)
+                iconPaint.alpha = 255
             }
         }
     }

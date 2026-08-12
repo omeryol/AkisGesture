@@ -7,11 +7,11 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import io.github.omeryol.akisgesture.action.ActionDispatcher
 import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
-import io.github.omeryol.akisgesture.feedback.ActionSymbols
 import io.github.omeryol.akisgesture.feedback.FeedbackView
 import io.github.omeryol.akisgesture.feedback.HapticHelper
 import io.github.omeryol.akisgesture.gesture.model.GestureResult
 import io.github.omeryol.akisgesture.model.ActionNode
+import io.github.omeryol.akisgesture.model.toIconKey
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.TriggerMode
 import io.github.omeryol.akisgesture.overlay.Edge
@@ -355,15 +355,14 @@ class GestureEngine(
         view.iconSize = previewConfig.iconSize
         view.feedbackOpacity = previewConfig.feedbackOpacity
         view.primaryColor = previewConfig.feedbackColorArgb
-        view.ringSymbols = previewConfig.ringActionsFor(edge).map { action ->
-            ActionSymbols.symbolFor(action, previewConfig.actionIconPack)
-        }
+        val previewActions = previewConfig.ringActionsFor(edge)
+        view.setRingActions(previewActions, previewConfig.actionIconPack)
         view.peakThreshold = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             previewConfig.swipeThresholdDpFor(edge),
             overlayManager.context.resources.displayMetrics,
         )
-        view.showRingPreview(edge, view.ringSymbols)
+        view.showRingPreview(edge, previewActions, previewConfig.actionIconPack)
     }
 
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
@@ -597,13 +596,10 @@ class GestureEngine(
         view.ringGroupSpacingDp = currentConfig.ringGroupSpacingDp
         view.ringSizeDp = currentConfig.ringSizeDp
         view.ringArc = currentConfig.ringArc
-        view.ringSymbols = if (currentConfig.hasRingActionsFor(progress.edge)) {
-            currentConfig.ringActionsFor(progress.edge).map { action ->
-                ActionSymbols.symbolFor(action, currentConfig.actionIconPack)
-            }
-        } else {
-            emptyList()
-        }
+        view.setRingActions(
+            if (currentConfig.hasRingActionsFor(progress.edge)) currentConfig.ringActionsFor(progress.edge) else emptyList(),
+            currentConfig.actionIconPack,
+        )
         if (progress.ringActive && !lastRingActive) {
             RuntimeDiagnostics.ringAnimation(progress.edge.name, "reveal_start")
         }
@@ -648,18 +644,14 @@ class GestureEngine(
                 } else 0f
                 activeRuleSet.match(progress.edge, GestureType.SWIPE_HOLD, ratio)
             } else null
-            val previewSymbol = if (progress.lPreviewGesture != null && displayAction == null) {
-                ""
-            } else {
-                ActionSymbols.symbolFor(displayAction, currentConfig.actionIconPack)
-            }
-            view.actionSymbol = previewSymbol
+            val previewAction = if (progress.lPreviewGesture != null && displayAction == null) null else displayAction
+            view.setAction(previewAction, currentConfig.actionIconPack)
             val previewGesture = when {
                 progress.lPreviewGesture != null -> progress.lPreviewGesture.name
                 progress.holdArmed -> GestureType.SWIPE_HOLD.name
                 else -> GestureType.QUICK_SWIPE.name
             }
-            RuntimeDiagnostics.feedbackSymbol(progress.edge.name, previewGesture, previewSymbol)
+            RuntimeDiagnostics.feedbackSymbol(progress.edge.name, previewGesture, previewAction?.toIconKey()?.name.orEmpty())
         }
         view.updateGestureState(
             edge = progress.edge,
@@ -740,13 +732,12 @@ class GestureEngine(
                 gesture = "BOTTOM_HORIZONTAL_${result.direction.name}",
                 actionId = action.id,
             )
-            val finalSymbol = ActionSymbols.symbolFor(action, currentConfig.actionIconPack)
-            feedbackView?.showFinalActionSymbol(finalSymbol)
-            RuntimeDiagnostics.feedbackSymbol(Edge.BOTTOM.name, "FINAL_${result.direction.name}", finalSymbol)
+            feedbackView?.showFinalAction(action, currentConfig.actionIconPack)
+            RuntimeDiagnostics.feedbackSymbol(Edge.BOTTOM.name, "FINAL_${result.direction.name}", action.toIconKey().name)
             // ACTION_UP can enqueue the release animation immediately after
             // this callback. Pin once on the next frame as well, so a stale
             // preview symbol cannot win the race on any edge.
-            feedbackView?.post { feedbackView?.showFinalActionSymbol(finalSymbol) }
+            feedbackView?.post { feedbackView?.showFinalAction(action, currentConfig.actionIconPack) }
             performResultHapticIfNeeded()
             scope.launch {
                 actionDispatcher.dispatch(action)
@@ -765,12 +756,11 @@ class GestureEngine(
         // The progress preview can still be showing the previous gesture's
         // symbol when the final section match arrives. Pin the release cue to
         // the action that is actually about to run.
-        val finalSymbol = ActionSymbols.symbolFor(actionNode, currentConfig.actionIconPack)
-        feedbackView?.showFinalActionSymbol(finalSymbol)
-        RuntimeDiagnostics.feedbackSymbol(result.edgeName(), "FINAL_${result.gestureName()}", finalSymbol)
+        feedbackView?.showFinalAction(actionNode, currentConfig.actionIconPack)
+        RuntimeDiagnostics.feedbackSymbol(result.edgeName(), "FINAL_${result.gestureName()}", actionNode.toIconKey().name)
         // Keep the final action icon authoritative after the detector closes
         // its progress state and starts the release animation.
-        feedbackView?.post { feedbackView?.showFinalActionSymbol(finalSymbol) }
+        feedbackView?.post { feedbackView?.showFinalAction(actionNode, currentConfig.actionIconPack) }
 
         // Record real runtime gesture usage stats
         val (edge, gestureType, _) = when (result) {

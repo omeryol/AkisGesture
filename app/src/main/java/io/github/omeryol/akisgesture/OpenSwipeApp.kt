@@ -13,6 +13,7 @@ import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionIconColorMode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.rule.CompiledRuleSet
 import io.github.omeryol.akisgesture.rule.AppRuleProfilesSerializer
@@ -141,6 +142,7 @@ class AkisGestureApp : Application() {
                     showSummaryChart = prefs[GestureConfig.KEY_SHOW_SUMMARY_CHART] ?: true,
                     showPresetsCard = prefs[GestureConfig.KEY_SHOW_PRESETS_CARD] ?: true,
                     actionIconPack = ActionIconPack.fromId(prefs[GestureConfig.KEY_ACTION_ICON_PACK]),
+                    actionIconColorMode = ActionIconColorMode.fromId(prefs[GestureConfig.KEY_ACTION_ICON_COLOR_MODE]),
                     rootWatchdogEnabled = prefs[GestureConfig.KEY_ROOT_WATCHDOG_ENABLED] ?: false,
                     rootWatchdogIntervalMinutes = prefs[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] ?: 15,
                 )
@@ -168,6 +170,13 @@ class AkisGestureApp : Application() {
 
         // Load rules from DataStore on startup
         appScope.launch(Dispatchers.IO) {
+            settingsDataStore.edit { prefs ->
+                val storedPackId = prefs[GestureConfig.KEY_ACTION_ICON_PACK]
+                val migratedPack = storedPackId?.let(ActionIconPack::migrationTarget)
+                if (migratedPack != null) {
+                    prefs[GestureConfig.KEY_ACTION_ICON_PACK] = migratedPack.id
+                }
+            }
             settingsDataStore.edit { prefs ->
                 val stored = prefs[GestureConfig.KEY_FEEDBACK_ANIMATION] ?: return@edit
                 val canonical = FeedbackAnimation.fromStoredName(stored) ?: return@edit
@@ -380,6 +389,12 @@ class AkisGestureApp : Application() {
 
     suspend fun updatePauseOnPhoneCall(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_PAUSE_ON_PHONE_CALL] = enabled }
+    }
+
+    suspend fun updateActionIconColorMode(mode: ActionIconColorMode) {
+        settingsDataStore.edit { prefs ->
+            prefs[GestureConfig.KEY_ACTION_ICON_COLOR_MODE] = mode.id
+        }
     }
 
     suspend fun updateRingMenuEnabled(enabled: Boolean) {

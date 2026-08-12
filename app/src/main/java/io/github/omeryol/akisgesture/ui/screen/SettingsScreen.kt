@@ -56,6 +56,8 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Swipe
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionIconColorMode
+import io.github.omeryol.akisgesture.model.ActionNode
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
@@ -97,6 +99,7 @@ import io.github.omeryol.akisgesture.util.PermissionHelper
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSlider
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSwitch
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
+import io.github.omeryol.akisgesture.ui.component.ActionIcon
 import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
 import io.github.omeryol.akisgesture.ui.component.AkisSliderRow
 import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
@@ -104,7 +107,6 @@ import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RootAccessState
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
-import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -143,6 +145,7 @@ fun SettingsScreen(
     var updateDownloading by remember { mutableStateOf(false) }
     var updateDownloadError by remember { mutableStateOf<String?>(null) }
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
+    var showLicensesDialog by remember { mutableStateOf(false) }
     var showCustomColorPickers by remember { mutableStateOf(false) }
 
 
@@ -837,7 +840,16 @@ fun SettingsScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // Action Icon Pack Selector integrated cleanly
+            val iconPreviewActions = remember {
+                listOf(
+                    ActionNode.Home,
+                    ActionNode.QuickSettings,
+                    ActionNode.InputMethodPicker,
+                    ActionNode.VolumeUp,
+                    ActionNode.MediaPlayPause,
+                    ActionNode.Screenshot,
+                )
+            }
             Text(
                 text = stringResource(R.string.icon_pack_section),
                 style = MaterialTheme.typography.bodyMedium,
@@ -870,10 +882,22 @@ fun SettingsScreen(
                             color = if (selected) Color(0xFF7C4DFF) else scheme.onSurface
                         )
                         Text(
-                            text = pack.samplePreview,
+                            text = stringResource(pack.descriptionResId),
                             style = MaterialTheme.typography.labelSmall,
                             color = scheme.onSurfaceVariant
                         )
+                        Spacer(Modifier.height(7.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            iconPreviewActions.forEach { action ->
+                                ActionIcon(
+                                    action = action,
+                                    iconPack = pack,
+                                    colorMode = config.actionIconColorMode,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
                     }
                     if (selected) {
                         Icon(
@@ -885,6 +909,33 @@ fun SettingsScreen(
                     }
                 }
                 Spacer(Modifier.height(4.dp))
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.icon_color_mode_title),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(6.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(ActionIconColorMode.entries) { mode ->
+                    val selected = config.actionIconColorMode == mode
+                    val label = when (mode) {
+                        ActionIconColorMode.MONOCHROME -> R.string.icon_color_mode_monochrome
+                        ActionIconColorMode.THEME -> R.string.icon_color_mode_theme
+                        ActionIconColorMode.FUNCTIONAL -> R.string.icon_color_mode_functional
+                    }
+                    Text(
+                        text = stringResource(label),
+                        color = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(if (selected) scheme.primaryContainer else scheme.surfaceVariant)
+                            .clickable { viewModel.setActionIconColorMode(mode) }
+                            .padding(horizontal = 13.dp, vertical = 8.dp),
+                    )
+                }
             }
         }
 
@@ -1910,6 +1961,32 @@ fun SettingsScreen(
             }
 
             Spacer(Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(scheme.primaryContainer.copy(alpha = 0.42f))
+                    .border(1.dp, scheme.primary.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                    .clickable { showLicensesDialog = true }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.open_source_licenses), fontWeight = FontWeight.SemiBold)
+                        Text(
+                            stringResource(R.string.open_source_licenses_desc),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant,
+                        )
+                    }
+                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = scheme.primary)
+                }
+            }
+            Spacer(Modifier.height(8.dp))
             TelegramLinkCard(
                 title = stringResource(R.string.telegram_group_title),
                 subtitle = stringResource(R.string.telegram_group_subtitle),
@@ -2091,6 +2168,37 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(onClick = { showAppPicker = false }) { Text(stringResource(R.string.done), fontWeight = FontWeight.Bold) }
             }
+        )
+    }
+    val openSourceLicenses = remember(context) {
+        listOf(
+            "Phosphor Icons" to "phosphor_LICENSE.txt",
+            "Tabler Icons" to "tabler_LICENSE.txt",
+            "Iconoir" to "iconoir_LICENSE.txt",
+            "Heroicons" to "heroicons_LICENSE.txt",
+            "Bootstrap Icons" to "bootstrap_LICENSE.txt",
+            "Eva Icons" to "eva_LICENSE.txt",
+        ).joinToString("\n\n") { (name, file) ->
+            val license = context.assets.open("licenses/$file").bufferedReader().use { it.readText() }
+            "$name\n${"-".repeat(name.length)}\n$license"
+        }
+    }
+    if (showLicensesDialog) {
+        AlertDialog(
+            onDismissRequest = { showLicensesDialog = false },
+            title = { Text(stringResource(R.string.open_source_licenses)) },
+            text = {
+                Text(
+                    text = openSourceLicenses,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showLicensesDialog = false }) {
+                    Text(stringResource(R.string.close_licenses))
+                }
+            },
         )
     }
 }

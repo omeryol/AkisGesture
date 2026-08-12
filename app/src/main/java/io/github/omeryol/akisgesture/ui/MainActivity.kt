@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
@@ -47,6 +48,7 @@ import io.github.omeryol.akisgesture.ui.screen.RuleDetailScreen
 import io.github.omeryol.akisgesture.ui.screen.RuleListScreen
 import io.github.omeryol.akisgesture.ui.screen.SettingsScreen
 import io.github.omeryol.akisgesture.ui.component.ActionPickerScreen
+import io.github.omeryol.akisgesture.ui.component.LocalActionIconColorMode
 import io.github.omeryol.akisgesture.ui.theme.AkisGestureTheme
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
 import io.github.omeryol.akisgesture.ui.viewmodel.RuleConfigViewModel
@@ -110,6 +112,7 @@ private fun AkisGestureApp() {
         }
     }
 
+    CompositionLocalProvider(LocalActionIconColorMode provides config.actionIconColorMode) {
     Scaffold(
         containerColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -216,6 +219,7 @@ private fun AkisGestureApp() {
                 )
             }
         }
+    }
     }
 }
 

@@ -1,13 +1,13 @@
 package io.github.omeryol.akisgesture.feedback
 
 import android.graphics.BlurMaskFilter
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.Shader
-import android.graphics.Typeface
 import io.github.omeryol.akisgesture.feedback.animation.AnimationFrame
 import io.github.omeryol.akisgesture.feedback.animation.AuroraModule
 import io.github.omeryol.akisgesture.feedback.animation.BubbleModule
@@ -47,10 +47,7 @@ class BezierStretchRenderer {
     private val rain = RainModule()
     private val bubbles = BubbleModule()
     private val aurora = AuroraModule()
-    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        textAlign = Paint.Align.CENTER
-        typeface = Typeface.DEFAULT_BOLD
-    }
+    private val iconPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
     private val iconFill = Paint(Paint.ANTI_ALIAS_FLAG)
     private val iconPath = Path()
 
@@ -75,31 +72,31 @@ class BezierStretchRenderer {
     var iconSize = 1f
     var showIndicatorBar = false
 
-    private var previousSymbol = ""
-    private var displayedSymbol = ""
-    private var pinnedActionSymbol: String? = null
+    private var previousActionIcon: Bitmap? = null
+    private var displayedActionIcon: Bitmap? = null
+    private var pinnedActionIcon: Bitmap? = null
     private var symbolChangedAt = 0L
-    var actionSymbol: String = ""
+    var actionIcon: Bitmap? = null
         set(value) {
-            if (value != field) {
-                previousSymbol = field
-                displayedSymbol = value
+            if (value !== field) {
+                previousActionIcon = field
+                displayedActionIcon = value
                 symbolChangedAt = System.nanoTime()
                 field = value
             }
         }
 
     /** Pins the release frame to the action that was actually dispatched. */
-    fun showFinalActionSymbol(symbol: String) {
-        pinnedActionSymbol = symbol.ifEmpty { null }
-        previousSymbol = ""
-        displayedSymbol = symbol
+    fun showFinalActionIcon(icon: Bitmap?) {
+        pinnedActionIcon = icon
+        previousActionIcon = null
+        displayedActionIcon = icon
         symbolChangedAt = System.nanoTime()
-        actionSymbol = symbol
+        actionIcon = icon
     }
 
-    fun clearPinnedActionSymbol() {
-        pinnedActionSymbol = null
+    fun clearPinnedActionIcon() {
+        pinnedActionIcon = null
     }
 
     private val particleBurst = io.github.omeryol.akisgesture.feedback.animation.ParticleBurstModule()
@@ -247,14 +244,19 @@ class BezierStretchRenderer {
 
         val elapsed=((System.nanoTime()-symbolChangedAt)/1_000_000_000f).coerceAtLeast(0f)
         val transition=smoothStep(0f,.20f,elapsed)
-        val symbol=pinnedActionSymbol ?: displayedSymbol.ifEmpty{actionSymbol}
+        val icon=pinnedActionIcon ?: displayedActionIcon ?: actionIcon
         val iconRadius = radius * iconSize
-        if(previousSymbol.isNotEmpty()&&transition<1f) drawSymbol(canvas,previousSymbol,c,iconRadius,(1f-transition)*alphaValue)
-        if(symbol.isNotEmpty()) drawSymbol(canvas,symbol,c,iconRadius,transition*alphaValue)
+        previousActionIcon?.takeIf { transition < 1f }?.let { drawActionIcon(canvas,it,c,iconRadius,(1f-transition)*alphaValue) }
+        if(icon != null) drawActionIcon(canvas,icon,c,iconRadius,transition*alphaValue)
         else drawFilledChevron(canvas,c,edge,iconRadius,alphaValue)
     }
 
-    private fun drawSymbol(canvas:Canvas,symbol:String,c:Pair<Float,Float>,radius:Float,alphaValue:Float){iconPaint.color=withAlpha(Color.WHITE,(235*opacity*alphaValue).toInt());iconPaint.textSize=radius*1.05f;canvas.drawText(symbol,c.first,c.second-(iconPaint.ascent()+iconPaint.descent())/2f,iconPaint)}
+    private fun drawActionIcon(canvas: Canvas, icon: Bitmap, c: Pair<Float, Float>, radius: Float, alphaValue: Float) {
+        val half = radius * .62f
+        iconPaint.alpha = (235 * opacity * alphaValue).toInt().coerceIn(0, 255)
+        canvas.drawBitmap(icon, null, android.graphics.RectF(c.first - half, c.second - half, c.first + half, c.second + half), iconPaint)
+        iconPaint.alpha = 255
+    }
     private fun drawFilledChevron(canvas:Canvas,c:Pair<Float,Float>,edge:Edge,r:Float,a:Float){iconFill.color=withAlpha(Color.WHITE,(225*opacity*a).toInt());iconPath.reset();when(edge){Edge.LEFT->{iconPath.moveTo(c.first-r*.35f,c.second-r*.55f);iconPath.lineTo(c.first+r*.45f,c.second);iconPath.lineTo(c.first-r*.35f,c.second+r*.55f);iconPath.lineTo(c.first-r*.02f,c.second)};Edge.RIGHT->{iconPath.moveTo(c.first+r*.35f,c.second-r*.55f);iconPath.lineTo(c.first-r*.45f,c.second);iconPath.lineTo(c.first+r*.35f,c.second+r*.55f);iconPath.lineTo(c.first+r*.02f,c.second)};Edge.BOTTOM->{iconPath.moveTo(c.first-r*.55f,c.second+r*.35f);iconPath.lineTo(c.first,c.second-r*.45f);iconPath.lineTo(c.first+r*.55f,c.second+r*.35f);iconPath.lineTo(c.first,c.second+r*.02f)}};iconPath.close();canvas.drawPath(iconPath,iconFill)}
     private fun drawIndicator(canvas: Canvas, edge: Edge, touch: Float, width: Float, height: Float) {
         val barAlpha = (220 * opacity).toInt().coerceAtLeast(160)

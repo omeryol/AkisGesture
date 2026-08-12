@@ -51,6 +51,7 @@ object SettingsBackupManager {
             snapshot(GestureConfig.KEY_L_SWIPE_COLOR, config.lSwipeColorArgb),
             snapshot(GestureConfig.KEY_USE_APP_ADAPTIVE_COLOR, config.useAppAdaptiveColor),
             snapshot(GestureConfig.KEY_ACTION_ICON_PACK, config.actionIconPack.id),
+            snapshot(GestureConfig.KEY_ACTION_ICON_COLOR_MODE, config.actionIconColorMode.id),
             snapshot(GestureConfig.KEY_FEEDBACK_OPACITY, config.feedbackOpacity),
             snapshot(GestureConfig.KEY_FEEDBACK_ANIMATION, config.feedbackAnimation.name),
             snapshot(GestureConfig.KEY_QUICK_FEEDBACK_ICON, config.quickFeedbackIcon.name),

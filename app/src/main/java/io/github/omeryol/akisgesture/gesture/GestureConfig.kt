@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
 import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionIconColorMode
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.overlay.Edge
 
@@ -18,7 +19,8 @@ enum class HoldFireMode(val label: String) {
 
 data class GestureConfig(
     val masterEnabled: Boolean = true,
-    val actionIconPack: ActionIconPack = ActionIconPack.EMOJI_MODERN,
+    val actionIconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
+    val actionIconColorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
     // Per-edge trigger width/height in dp
     val leftTriggerWidthDp: Float = 20f,
     val rightTriggerWidthDp: Float = 20f,
@@ -239,6 +241,7 @@ data class GestureConfig(
         val KEY_SHOW_SUMMARY_CHART = booleanPreferencesKey("show_summary_chart")
         val KEY_SHOW_PRESETS_CARD = booleanPreferencesKey("show_presets_card")
         val KEY_ACTION_ICON_PACK = stringPreferencesKey("action_icon_pack")
+        val KEY_ACTION_ICON_COLOR_MODE = stringPreferencesKey("action_icon_color_mode")
         val KEY_ROOT_WATCHDOG_ENABLED = booleanPreferencesKey("root_watchdog_enabled")
         val KEY_ROOT_WATCHDOG_INTERVAL_MINUTES = intPreferencesKey("root_watchdog_interval_minutes")
     }

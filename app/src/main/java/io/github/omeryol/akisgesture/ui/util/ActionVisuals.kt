@@ -30,17 +30,13 @@ import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.VerticalSplit
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
-import io.github.omeryol.akisgesture.model.toSymbol
 import io.github.omeryol.akisgesture.ui.theme.ActionHardwareColor
 import io.github.omeryol.akisgesture.ui.theme.ActionMediaColor
 import io.github.omeryol.akisgesture.ui.theme.ActionNavColor
 import io.github.omeryol.akisgesture.ui.theme.ActionPanelColor
 import io.github.omeryol.akisgesture.ui.theme.ActionRootColor
 import io.github.omeryol.akisgesture.ui.theme.ActionSystemColor
-
-fun actionEmoji(action: ActionNode, pack: ActionIconPack = ActionIconPack.EMOJI_MODERN): String = action.toSymbol(pack)
 
 fun actionImageVector(action: ActionNode): ImageVector = when (action) {
     is ActionNode.Back -> Icons.AutoMirrored.Filled.ArrowBack

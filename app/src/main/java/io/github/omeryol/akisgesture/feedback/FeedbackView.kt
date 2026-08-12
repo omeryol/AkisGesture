@@ -3,11 +3,15 @@ package io.github.omeryol.akisgesture.feedback
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.gesture.model.SwipeDirection
 import io.github.omeryol.akisgesture.model.GestureType
+import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionNode
 
 /**
  * Dokunmayı engellemeyen erişilebilirlik katmanında akıcı hareket geri bildirimi.
@@ -73,16 +77,15 @@ class FeedbackView(context: Context) : View(context) {
             renderer.animation = value
             invalidate()
         }
-    /** Eyleme özel simge (Unicode) — boşsa geri dönüş simgesi kullanılır. */
-    var actionSymbol: String = ""
-        set(value) {
-            renderer.actionSymbol = value
-            field = value
-            invalidate()
-        }
+    private val actionIconCache = android.util.LruCache<String, Bitmap>(96)
 
-    fun showFinalActionSymbol(symbol: String) {
-        renderer.showFinalActionSymbol(symbol)
+    fun setAction(action: ActionNode?, pack: ActionIconPack) {
+        renderer.actionIcon = action?.let { loadActionIcon(it, pack) }
+        invalidate()
+    }
+
+    fun showFinalAction(action: ActionNode, pack: ActionIconPack) {
+        renderer.showFinalActionIcon(loadActionIcon(action, pack))
         invalidate()
     }
     /** Animasyon hız ve boyut çarpanları */
@@ -110,10 +113,10 @@ class FeedbackView(context: Context) : View(context) {
             renderer.showIndicatorBar = value
             invalidate()
         }
-    @Deprecated("actionSymbol ile değiştirildi")
+    @Deprecated("setAction ile değiştirildi")
     var quickIcon: FeedbackIcon = FeedbackIcon.CHEVRON
         set(value) { renderer.quickIcon = value; invalidate() }
-    @Deprecated("actionSymbol ile değiştirildi")
+    @Deprecated("setAction ile değiştirildi")
     var holdIcon: FeedbackIcon = FeedbackIcon.STAR
         set(value) { renderer.holdIcon = value; invalidate() }
     var isActive: Boolean = false
@@ -142,7 +145,7 @@ class FeedbackView(context: Context) : View(context) {
             invalidate()
         }
 
-    var ringSymbols: List<String> = emptyList()
+    var ringIcons: List<Bitmap?> = emptyList()
     var ringSelectedIndex: Int = -1
     var ringGroupInsetDp: Float = 100f
     var ringGroupSpacingDp: Float = 60f
@@ -205,7 +208,7 @@ class FeedbackView(context: Context) : View(context) {
                 spreadPx = ringGroupSpacingDp * resources.displayMetrics.density,
                 color = feedbackColor,
                 opacity = feedbackOpacity,
-                symbols = ringSymbols,
+                icons = ringIcons,
                 selectedIndex = ringSelectedIndex,
                 iconScale = iconSize,
                 ringSizeDp = ringSizeDp,
@@ -244,7 +247,7 @@ class FeedbackView(context: Context) : View(context) {
         this.isHoldArmed = holdArmed
         this.appSwitchDirection = appSwitchDirection
         if (active && !isActive) {
-            renderer.clearPinnedActionSymbol()
+            renderer.clearPinnedActionIcon()
         }
         renderer.isLUp = isLUp
         renderer.isLDown = isLDown
@@ -262,13 +265,18 @@ class FeedbackView(context: Context) : View(context) {
     }
 
     /** Shows the real overlay rings while the user adjusts ring settings. */
-    fun showRingPreview(edge: Edge, symbols: List<String>) {
+    fun setRingActions(actions: List<ActionNode>, pack: ActionIconPack) {
+        ringIcons = actions.map { loadActionIcon(it, pack) }
+        invalidate()
+    }
+
+    fun showRingPreview(edge: Edge, actions: List<ActionNode>, pack: ActionIconPack) {
         ringPreviewToken += 1
         val token = ringPreviewToken
         this.edge = edge
-        this.ringSymbols = symbols
+        setRingActions(actions, pack)
         this.ringSelectedIndex = -1
-        this.ringActive = symbols.isNotEmpty()
+        this.ringActive = actions.isNotEmpty()
         this.appSwitchDirection = null
         this.isActive = true
         this.stretchDistance = peakThreshold + 220f
@@ -291,7 +299,7 @@ class FeedbackView(context: Context) : View(context) {
         if (stretchDistance < 0.5f) {
             isActive = false
             appSwitchDirection = null
-            actionSymbol = ""
+            renderer.actionIcon = null
             return
         }
         releaseAnimator = ValueAnimator.ofFloat(stretchDistance, 0f).apply {
@@ -302,10 +310,17 @@ class FeedbackView(context: Context) : View(context) {
                 if (stretchDistance < 0.5f) {
                     isActive = false
                     appSwitchDirection = null
-                    actionSymbol = ""
+                    renderer.actionIcon = null
                 }
             }
             start()
         }
+    }
+
+    private fun loadActionIcon(action: ActionNode, pack: ActionIconPack): Bitmap? {
+        val key = "${pack.id}:${action.id}"
+        actionIconCache.get(key)?.let { return it }
+        return ActionBitmapLoader.load(this.context, action, pack, sizePx = 128, tint = Color.WHITE)
+            ?.also { actionIconCache.put(key, it) }
     }
 }

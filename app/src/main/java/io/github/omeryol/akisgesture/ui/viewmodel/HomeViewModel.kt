@@ -13,6 +13,7 @@ import io.github.omeryol.akisgesture.feedback.FeedbackIcon
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.model.ActionIconPack
+import io.github.omeryol.akisgesture.model.ActionIconColorMode
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.overlay.Edge
@@ -272,6 +273,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setActionIconPack(pack: ActionIconPack) {
         viewModelScope.launch { app.updateActionIconPack(pack) }
+    }
+
+    fun setActionIconColorMode(mode: ActionIconColorMode) {
+        viewModelScope.launch { app.updateActionIconColorMode(mode) }
     }
 
     fun setAnimationSpeed(speed: Float) {

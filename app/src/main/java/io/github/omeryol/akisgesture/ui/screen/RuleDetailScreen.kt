@@ -87,6 +87,7 @@ fun RuleDetailScreen(
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
     val rules by viewModel.rules.collectAsState()
+    val gestureConfig by viewModel.gestureConfig.collectAsState()
     val rule = rules.find { it.id == ruleId }
 
     var actionPickerToken by remember { mutableStateOf<String?>(null) }
@@ -367,6 +368,7 @@ fun RuleDetailScreen(
                 ) {
                     ActionIcon(
                         action = rule.action,
+                        iconPack = gestureConfig.actionIconPack,
                         contentDescription = null,
                         modifier = Modifier.size(28.dp),
                     )
