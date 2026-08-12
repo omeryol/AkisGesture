@@ -12,19 +12,20 @@ import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.cos
-import kotlin.random.Random
 
-/** High-realism, multi-layer natural flame simulation with flickering lobes and rising embers. */
+/** High-realism, multi-layer natural flame simulation with curved ember base and flickering lobes. */
 class FireModule : NaturalAnimationModule {
     private val auraPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val outerFlamePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val innerFlamePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val coreFlamePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val coalPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val sparkPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val outerPath = Path()
     private val innerPath = Path()
     private val corePath = Path()
+    private val basePath = Path()
 
     // 16 persistent ember sparks
     private val embers = Array(16) { SparkParticle(it) }
@@ -32,8 +33,8 @@ class FireModule : NaturalAnimationModule {
     override fun draw(f: AnimationFrame) {
         val timeSec = f.time
         val growth = (f.progress / 1.15f).coerceIn(0f, 1f).pow(1.5f)
-        val flameLength = (16f + growth * (240f + f.surfaceTension * 60f)) * f.size
-        val flameWidth = (20f + growth * (120f + f.surfaceTension * 30f)) * f.size
+        val flameLength = (20f + growth * (250f + f.surfaceTension * 60f)) * f.size
+        val flameWidth = (24f + growth * (130f + f.surfaceTension * 30f)) * f.size
 
         val origin = when (f.edge) {
             Edge.LEFT -> flameLength to f.touch
@@ -42,16 +43,16 @@ class FireModule : NaturalAnimationModule {
         }
 
         // ── 1. LAYER: Ambient Fire Aura Glow ──
-        val auraRadius = flameWidth * 1.5f
+        val auraRadius = flameWidth * 1.6f
         auraPaint.shader = RadialGradient(
             origin.first, origin.second, auraRadius,
-            intArrayOf(withAlpha(0xFFFF3D00.toInt(), (140 * f.opacity).toInt()), withAlpha(0xFFDD2C00.toInt(), (60 * f.opacity).toInt()), Color.TRANSPARENT),
+            intArrayOf(withAlpha(0xFFFF3D00.toInt(), (150 * f.opacity).toInt()), withAlpha(0xFFDD2C00.toInt(), (65 * f.opacity).toInt()), Color.TRANSPARENT),
             floatArrayOf(0f, 0.55f, 1f),
             Shader.TileMode.CLAMP
         )
         f.canvas.drawCircle(origin.first, origin.second, auraRadius, auraPaint)
 
-        // ── 2. LAYER: Outer Fiery Lobe (Crimson / Deep Orange) ──
+        // ── 2. LAYER: Outer Fiery Lobe (Crimson / Deep Orange with Organic Curved Base) ──
         buildFlamePath(outerPath, f, flameLength, flameWidth, timeSec, 1.0f, 1.0f)
         outerFlamePaint.shader = flameGradient(
             f, flameLength,
@@ -61,25 +62,28 @@ class FireModule : NaturalAnimationModule {
         f.canvas.drawPath(outerPath, outerFlamePaint)
 
         // ── 3. LAYER: Mid Flame Lobe (Golden Yellow & Bright Orange) ──
-        buildFlamePath(innerPath, f, flameLength * 0.75f, flameWidth * 0.65f, timeSec + 0.35, 1.2f, 0.85f)
+        buildFlamePath(innerPath, f, flameLength * 0.78f, flameWidth * 0.68f, timeSec + 0.35, 1.2f, 0.85f)
         innerFlamePaint.shader = flameGradient(
-            f, flameLength * 0.75f,
-            withAlpha(0xFFFFD600.toInt(), (245 * f.opacity).toInt()),
-            withAlpha(0xFFFFAB00.toInt(), (210 * f.opacity).toInt())
+            f, flameLength * 0.78f,
+            withAlpha(0xFFFFD600.toInt(), (248 * f.opacity).toInt()),
+            withAlpha(0xFFFFAB00.toInt(), (215 * f.opacity).toInt())
         )
         f.canvas.drawPath(innerPath, innerFlamePaint)
 
         // ── 4. LAYER: Inner Incandescent Core (White / Light Yellow) ──
-        buildFlamePath(corePath, f, flameLength * 0.45f, flameWidth * 0.35f, timeSec + 0.7, 1.5f, 0.70f)
+        buildFlamePath(corePath, f, flameLength * 0.48f, flameWidth * 0.38f, timeSec + 0.7, 1.5f, 0.70f)
         coreFlamePaint.shader = flameGradient(
-            f, flameLength * 0.45f,
+            f, flameLength * 0.48f,
             withAlpha(0xFFFFFFFF.toInt(), (255 * f.opacity).toInt()),
-            withAlpha(0xFFFFEA00.toInt(), (230 * f.opacity).toInt())
+            withAlpha(0xFFFFEA00.toInt(), (235 * f.opacity).toInt())
         )
         f.canvas.drawPath(corePath, coreFlamePaint)
 
-        // ── 5. LAYER: Rising Embers & Sparks Physics ──
-        if (growth > 0.08f) {
+        // ── 5. LAYER: Burning Coal Bed (Köz Yatağı at Flame Root) ──
+        drawGlowingCoalBed(f, flameWidth, timeSec)
+
+        // ── 6. LAYER: Rising Embers & Sparks Physics ──
+        if (growth > 0.06f) {
             embers.forEach { spark ->
                 spark.updateAndDraw(f, origin, flameLength, flameWidth, timeSec)
             }
@@ -89,6 +93,7 @@ class FireModule : NaturalAnimationModule {
         outerFlamePaint.shader = null
         innerFlamePaint.shader = null
         coreFlamePaint.shader = null
+        coalPaint.shader = null
     }
 
     private fun buildFlamePath(
@@ -101,16 +106,17 @@ class FireModule : NaturalAnimationModule {
         widthMult: Float
     ) {
         path.reset()
-        val steps = 30
+        val steps = 32
         val baseTouch = f.touch
 
+        // Draw curved flame tip and side lobes
         for (i in 0..steps) {
             val u = i / steps.toFloat()
             val env = sin(PI * u).toFloat()
             
             // Dynamic flickering turbulence equation
-            val flicker1 = sin(u * PI * 3.5 + timeSec * 6.5 * speedMult) * (6.0 + length * 0.08)
-            val flicker2 = cos(u * PI * 7.0 - timeSec * 9.0 * speedMult) * (3.0 + length * 0.04)
+            val flicker1 = sin(u * PI * 3.5 + timeSec * 6.5 * speedMult) * (7.0 + length * 0.09)
+            val flicker2 = cos(u * PI * 7.0 - timeSec * 9.0 * speedMult) * (3.5 + length * 0.05)
             val sway = (flicker1 + flicker2).toFloat() * u * widthMult
 
             val depth = length * u
@@ -120,7 +126,28 @@ class FireModule : NaturalAnimationModule {
             if (i == 0) path.moveTo(pt.first, pt.second) else path.lineTo(pt.first, pt.second)
         }
 
-        closeBase(path, f, width)
+        // Close base with organic curved arc along screen edge instead of flat straight line
+        closeOrganicBase(path, f, width, timeSec)
+    }
+
+    private fun drawGlowingCoalBed(f: AnimationFrame, width: Float, timeSec: Double) {
+        val count = 7
+        val baseTouch = f.touch
+        for (i in 0 until count) {
+            val u = i / (count - 1).toFloat()
+            val along = baseTouch - width * 0.75f + u * width * 1.5f
+            val pulse = (sin(timeSec * 4.0 + i * 1.3) * 0.25 + 0.75).toFloat()
+            val coalRadius = (8f + pulse * 6f) * f.size
+            val pt = point(f, along, coalRadius * 0.6f)
+
+            coalPaint.shader = RadialGradient(
+                pt.first, pt.second, coalRadius * 1.8f,
+                intArrayOf(withAlpha(0xFFFFFFFF.toInt(), (240 * f.opacity).toInt()), withAlpha(0xFFFFAB00.toInt(), (200 * f.opacity).toInt()), withAlpha(0xFFDD2C00.toInt(), (100 * f.opacity).toInt()), Color.TRANSPARENT),
+                floatArrayOf(0f, 0.35f, 0.75f, 1f),
+                Shader.TileMode.CLAMP
+            )
+            f.canvas.drawCircle(pt.first, pt.second, coalRadius * 1.8f, coalPaint)
+        }
     }
 
     private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
@@ -129,19 +156,23 @@ class FireModule : NaturalAnimationModule {
         Edge.BOTTOM -> along to (f.height - depth)
     }
 
-    private fun closeBase(path: Path, f: AnimationFrame, width: Float) {
+    private fun closeOrganicBase(path: Path, f: AnimationFrame, width: Float, timeSec: Double) {
+        val baseBulge = (sin(timeSec * 3.5) * 8.0 + 12.0).toFloat()
         when (f.edge) {
             Edge.LEFT -> {
-                path.lineTo(0f, f.touch + width)
+                path.quadTo(baseBulge, f.touch + width * 0.5f, 0f, f.touch + width)
                 path.lineTo(0f, f.touch - width)
+                path.quadTo(baseBulge, f.touch - width * 0.5f, point(f, f.touch, 0f).first, point(f, f.touch, 0f).second)
             }
             Edge.RIGHT -> {
-                path.lineTo(f.width, f.touch + width)
+                path.quadTo(f.width - baseBulge, f.touch + width * 0.5f, f.width, f.touch + width)
                 path.lineTo(f.width, f.touch - width)
+                path.quadTo(f.width - baseBulge, f.touch - width * 0.5f, point(f, f.touch, 0f).first, point(f, f.touch, 0f).second)
             }
             Edge.BOTTOM -> {
-                path.lineTo(f.touch + width, f.height)
+                path.quadTo(f.touch + width * 0.5f, f.height - baseBulge, f.touch + width, f.height)
                 path.lineTo(f.touch - width, f.height)
+                path.quadTo(f.touch - width * 0.5f, f.height - baseBulge, point(f, f.touch, 0f).first, point(f, f.touch, 0f).second)
             }
         }
         path.close()
@@ -171,8 +202,8 @@ class FireModule : NaturalAnimationModule {
                 Edge.BOTTOM -> (origin.first + driftAlong) to (f.height - driftDepth)
             }
 
-            val radius = (3.5f * (1f - phase * 0.7f) * f.size).coerceAtLeast(0.8f)
-            val alpha = ((1f - phase) * 235 * f.opacity).toInt().coerceIn(0, 255)
+            val radius = (4.0f * (1f - phase * 0.7f) * f.size).coerceAtLeast(0.9f)
+            val alpha = ((1f - phase) * 240 * f.opacity).toInt().coerceIn(0, 255)
 
             val sparkColor = if (index % 2 == 0) 0xFFFFFF00.toInt() else 0xFFFF5500.toInt()
             sparkPaint.color = withAlpha(sparkColor, alpha)
