@@ -69,8 +69,13 @@ object RuntimeDiagnostics {
         name = signal,
         details = mapOf("edge" to edge),
     )
-    fun feedbackSymbol(edge: String, gesture: String, symbol: String) = record(
-        "feedback", "symbol", mapOf("edge" to edge, "gesture" to gesture, "symbol" to symbol),
+    fun feedbackSymbol(edge: String, gesture: String, symbol: String, colorMode: String? = null) = record(
+        "feedback", "symbol", buildMap {
+            put("edge", edge)
+            put("gesture", gesture)
+            put("symbol", symbol)
+            colorMode?.let { put("color_mode", it) }
+        },
     )
 
     fun ringOpened(edge: String) = record("ring", "opened", mapOf("edge" to edge))

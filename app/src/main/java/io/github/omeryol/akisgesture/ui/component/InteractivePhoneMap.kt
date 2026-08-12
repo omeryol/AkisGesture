@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.omeryol.akisgesture.gesture.GestureConfig
+import io.github.omeryol.akisgesture.model.ActionIconColorMode
 import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
@@ -102,17 +103,18 @@ fun InteractivePhoneMap(
     val handleRadius = with(LocalDensity.current) { 14.dp.toPx() }
     val sensorTouchPadding = with(LocalDensity.current) { 12.dp.toPx() }
     val zones = buildPhoneZones(rules, scheme)
-    val ringPreviewBitmaps = remember(config, iconPack) {
+    val ringPreviewBitmaps = remember(config, iconPack, config?.actionIconColorMode) {
         EdgeUi.ordered
             .flatMap { edge -> config?.ringActionsFor(edge).orEmpty() }
             .distinctBy { it.id }
             .associate { action ->
+                val colorMode = config?.actionIconColorMode ?: ActionIconColorMode.FUNCTIONAL
                 action.id to ActionBitmapLoader.load(
                     context = context,
                     action = action,
                     pack = iconPack,
                     sizePx = 96,
-                    tint = android.graphics.Color.WHITE,
+                    tint = colorMode.resolveColorInt(action),
                 )?.asImageBitmap()
             }
     }

@@ -362,7 +362,7 @@ class GestureEngine(
             previewConfig.swipeThresholdDpFor(edge),
             overlayManager.context.resources.displayMetrics,
         )
-        view.showRingPreview(edge, previewActions, previewConfig.actionIconPack)
+        view.showRingPreview(edge, previewActions, previewConfig.actionIconPack, previewConfig.actionIconColorMode)
     }
 
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
@@ -645,13 +645,13 @@ class GestureEngine(
                 activeRuleSet.match(progress.edge, GestureType.SWIPE_HOLD, ratio)
             } else null
             val previewAction = if (progress.lPreviewGesture != null && displayAction == null) null else displayAction
-            view.setAction(previewAction, currentConfig.actionIconPack)
+            view.setAction(previewAction, currentConfig.actionIconPack, currentConfig.actionIconColorMode)
             val previewGesture = when {
                 progress.lPreviewGesture != null -> progress.lPreviewGesture.name
                 progress.holdArmed -> GestureType.SWIPE_HOLD.name
                 else -> GestureType.QUICK_SWIPE.name
             }
-            RuntimeDiagnostics.feedbackSymbol(progress.edge.name, previewGesture, previewAction?.toIconKey()?.name.orEmpty())
+            RuntimeDiagnostics.feedbackSymbol(progress.edge.name, previewGesture, previewAction?.toIconKey()?.name.orEmpty(), currentConfig.actionIconColorMode.name)
         }
         view.updateGestureState(
             edge = progress.edge,
@@ -732,12 +732,12 @@ class GestureEngine(
                 gesture = "BOTTOM_HORIZONTAL_${result.direction.name}",
                 actionId = action.id,
             )
-            feedbackView?.showFinalAction(action, currentConfig.actionIconPack)
-            RuntimeDiagnostics.feedbackSymbol(Edge.BOTTOM.name, "FINAL_${result.direction.name}", action.toIconKey().name)
+            feedbackView?.showFinalAction(action, currentConfig.actionIconPack, currentConfig.actionIconColorMode)
+            RuntimeDiagnostics.feedbackSymbol(Edge.BOTTOM.name, "FINAL_${result.direction.name}", action.toIconKey().name, currentConfig.actionIconColorMode.name)
             // ACTION_UP can enqueue the release animation immediately after
             // this callback. Pin once on the next frame as well, so a stale
             // preview symbol cannot win the race on any edge.
-            feedbackView?.post { feedbackView?.showFinalAction(action, currentConfig.actionIconPack) }
+            feedbackView?.post { feedbackView?.showFinalAction(action, currentConfig.actionIconPack, currentConfig.actionIconColorMode) }
             performResultHapticIfNeeded()
             scope.launch {
                 actionDispatcher.dispatch(action)
@@ -756,11 +756,11 @@ class GestureEngine(
         // The progress preview can still be showing the previous gesture's
         // symbol when the final section match arrives. Pin the release cue to
         // the action that is actually about to run.
-        feedbackView?.showFinalAction(actionNode, currentConfig.actionIconPack)
-        RuntimeDiagnostics.feedbackSymbol(result.edgeName(), "FINAL_${result.gestureName()}", actionNode.toIconKey().name)
+        feedbackView?.showFinalAction(actionNode, currentConfig.actionIconPack, currentConfig.actionIconColorMode)
+        RuntimeDiagnostics.feedbackSymbol(result.edgeName(), "FINAL_${result.gestureName()}", actionNode.toIconKey().name, currentConfig.actionIconColorMode.name)
         // Keep the final action icon authoritative after the detector closes
         // its progress state and starts the release animation.
-        feedbackView?.post { feedbackView?.showFinalAction(actionNode, currentConfig.actionIconPack) }
+        feedbackView?.post { feedbackView?.showFinalAction(actionNode, currentConfig.actionIconPack, currentConfig.actionIconColorMode) }
 
         // Record real runtime gesture usage stats
         val (edge, gestureType, _) = when (result) {

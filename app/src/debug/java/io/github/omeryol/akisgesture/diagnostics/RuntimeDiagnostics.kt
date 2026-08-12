@@ -10,7 +10,7 @@ object RuntimeDiagnostics {
     fun serviceDisconnected(reason: String) = Unit
     fun gestureMatched(edge: String, gesture: String, actionId: String?) = Unit
     fun gestureSignal(edge: String, signal: String) = Unit
-    fun feedbackSymbol(edge: String, gesture: String, symbol: String) = Unit
+    fun feedbackSymbol(edge: String, gesture: String, symbol: String, colorMode: String? = null) = Unit
     fun ringOpened(edge: String) = Unit
     fun ringTiming(edge: String, phase: String, elapsedMs: Long) = Unit
     fun ringAnimation(edge: String, phase: String, slot: Int? = null) = Unit

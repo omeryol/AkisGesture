@@ -10,6 +10,7 @@ import android.view.animation.DecelerateInterpolator
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.gesture.model.SwipeDirection
 import io.github.omeryol.akisgesture.model.GestureType
+import io.github.omeryol.akisgesture.model.ActionIconColorMode
 import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 
@@ -79,13 +80,21 @@ class FeedbackView(context: Context) : View(context) {
         }
     private val actionIconCache = android.util.LruCache<String, Bitmap>(96)
 
-    fun setAction(action: ActionNode?, pack: ActionIconPack) {
-        renderer.actionIcon = action?.let { loadActionIcon(it, pack) }
+    fun setAction(
+        action: ActionNode?,
+        pack: ActionIconPack,
+        colorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
+    ) {
+        renderer.actionIcon = action?.let { loadActionIcon(it, pack, colorMode) }
         invalidate()
     }
 
-    fun showFinalAction(action: ActionNode, pack: ActionIconPack) {
-        renderer.showFinalActionIcon(loadActionIcon(action, pack))
+    fun showFinalAction(
+        action: ActionNode,
+        pack: ActionIconPack,
+        colorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
+    ) {
+        renderer.showFinalActionIcon(loadActionIcon(action, pack, colorMode))
         invalidate()
     }
     /** Animasyon hız ve boyut çarpanları */
@@ -265,16 +274,25 @@ class FeedbackView(context: Context) : View(context) {
     }
 
     /** Shows the real overlay rings while the user adjusts ring settings. */
-    fun setRingActions(actions: List<ActionNode>, pack: ActionIconPack) {
-        ringIcons = actions.map { loadActionIcon(it, pack) }
+    fun setRingActions(
+        actions: List<ActionNode>,
+        pack: ActionIconPack,
+        colorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
+    ) {
+        ringIcons = actions.map { loadActionIcon(it, pack, colorMode) }
         invalidate()
     }
 
-    fun showRingPreview(edge: Edge, actions: List<ActionNode>, pack: ActionIconPack) {
+    fun showRingPreview(
+        edge: Edge,
+        actions: List<ActionNode>,
+        pack: ActionIconPack,
+        colorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
+    ) {
         ringPreviewToken += 1
         val token = ringPreviewToken
         this.edge = edge
-        setRingActions(actions, pack)
+        setRingActions(actions, pack, colorMode)
         this.ringSelectedIndex = -1
         this.ringActive = actions.isNotEmpty()
         this.appSwitchDirection = null
@@ -317,10 +335,15 @@ class FeedbackView(context: Context) : View(context) {
         }
     }
 
-    private fun loadActionIcon(action: ActionNode, pack: ActionIconPack): Bitmap? {
-        val key = "${pack.id}:${action.id}"
+    private fun loadActionIcon(
+        action: ActionNode,
+        pack: ActionIconPack,
+        colorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
+    ): Bitmap? {
+        val key = "${pack.id}:${colorMode.id}:${action.id}"
         actionIconCache.get(key)?.let { return it }
-        return ActionBitmapLoader.load(this.context, action, pack, sizePx = 128, tint = Color.WHITE)
+        val tintColor = colorMode.resolveColorInt(action)
+        return ActionBitmapLoader.load(this.context, action, pack, sizePx = 128, tint = tintColor)
             ?.also { actionIconCache.put(key, it) }
     }
 }
