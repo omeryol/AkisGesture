@@ -5,76 +5,108 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.PI
-import kotlin.math.sin
 import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
 
+/** Realistic 3D Water Whirlpool Vortex with spinning fluid currents and inward particle suction. */
 class VortexModule : NaturalAnimationModule {
     private val abyssPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val spiralPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val spiralBandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
+    private val corePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val particlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val spiralPath = Path()
+    private val bandPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val timeSec = f.time
-        val depth = (18f + f.stretch * 1.20f).coerceAtMost(380f * f.size)
-        val maxRadius = (35f + f.progress * 130f) * f.size
+        val growth = (f.progress / 1.15f).coerceIn(0f, 1.3f)
+        val depth = (25f + f.stretch * 1.25f).coerceAtMost(420f * f.size)
+        val outerRadius = (50f + growth * 220f) * f.size
+        val innerRadius = (12f + growth * 45f) * f.size
 
-        val center = when (f.edge) {
-            Edge.LEFT -> depth to f.touch
-            Edge.RIGHT -> (f.width - depth) to f.touch
-            Edge.BOTTOM -> f.touch to (f.height - depth)
-        }
+        val center = point(f, f.touch, depth)
 
-        // ── 1. Vortex Central Abyss Core ──
+        // ── 1. LAYER: Deep Water Abyss Funnel Glow ──
         abyssPaint.shader = RadialGradient(
-            center.first, center.second, maxRadius,
-            intArrayOf(withAlpha(darken(f.color, 0.7f), (240 * f.opacity).toInt()), withAlpha(f.color, (160 * f.opacity).toInt()), Color.TRANSPARENT),
-            floatArrayOf(0f, 0.55f, 1f),
+            center.first, center.second, outerRadius * 1.4f,
+            intArrayOf(withAlpha(darken(f.color, 0.85f), (245 * f.opacity).toInt()), withAlpha(f.color, (170 * f.opacity).toInt()), Color.TRANSPARENT),
+            floatArrayOf(0f, 0.60f, 1f),
             Shader.TileMode.CLAMP
         )
-        f.canvas.drawCircle(center.first, center.second, maxRadius, abyssPaint)
+        f.canvas.drawCircle(center.first, center.second, outerRadius * 1.4f, abyssPaint)
 
-        // ── 2. Logarithmic Spiral Arms (3 Arms) ──
-        spiralPath.reset()
-        for (arm in 0..2) {
-            val armOffset = (arm * 2 * PI / 3.0)
-            val steps = 30
+        // ── 2. LAYER: Dynamic Spinning Fluid Vortex Bands (6 Swirling Spiral Arms) ──
+        val armCount = 6
+        val rotSpeed = timeSec * 6.5
+        for (arm in 0 until armCount) {
+            val armOffset = arm * (2 * PI / armCount)
+            bandPath.reset()
+            val steps = 40
             for (i in 0..steps) {
                 val t = i / steps.toFloat()
-                val r = t * maxRadius
-                val angle = t * PI * 3.5 + timeSec * 3.5 + armOffset
+                val r = innerRadius + (outerRadius - innerRadius) * t
+                val angle = t * PI * 4.5 + rotSpeed + armOffset
 
-                val x = center.first + (r * cos(angle)).toFloat()
-                val y = center.second + (r * sin(angle)).toFloat()
+                // 3D Perspective Projection for Spiral Depth
+                val zDepth = (1f - t) * 50f
+                val proj = Physics3DEngine.project(r, 0f, zDepth)
 
-                if (i == 0) spiralPath.moveTo(x, y) else spiralPath.lineTo(x, y)
+                val x = center.first + (proj.x * cos(angle)).toFloat()
+                val y = center.second + (proj.x * sin(angle)).toFloat()
+
+                if (i == 0) bandPath.moveTo(x, y) else bandPath.lineTo(x, y)
             }
-        }
-        spiralPaint.strokeWidth = 3.0f * f.size
-        spiralPaint.color = withAlpha(lighten(f.color, 0.65f), (220 * f.opacity).toInt())
-        f.canvas.drawPath(spiralPath, spiralPaint)
 
-        // ── 3. Rotating Suction Particles (12 Particles) ──
-        for (i in 0..11) {
-            val phase = ((timeSec * 0.9 + i * 0.083) % 1.0).toFloat()
-            val r = (1f - phase) * maxRadius
-            val angle = phase * PI * 4.0 + i
+            // 3D Drop Shadow for Spiral Arm
+            Physics3DEngine.drawDropShadow(f.canvas, bandPath, dx = 5f, dy = 7f, opacity = f.opacity * 0.45f)
+
+            spiralBandPaint.strokeWidth = ((1f - arm % 2 * 0.4f) * (4.5f * f.size)).coerceAtLeast(1.5f)
+            val bandColor = if (arm % 2 == 0) lighten(f.color, 0.7f) else f.color
+            spiralBandPaint.color = withAlpha(bandColor, (225 * f.opacity).toInt())
+            f.canvas.drawPath(bandPath, spiralBandPaint)
+        }
+
+        // ── 3. LAYER: Central Dark Vortex Eye (Sink Hole) ──
+        corePaint.color = withAlpha(Color.BLACK, (250 * f.opacity).toInt())
+        f.canvas.drawCircle(center.first, center.second, innerRadius, corePaint)
+        corePaint.style = Paint.Style.STROKE
+        corePaint.strokeWidth = 2.5f * f.size
+        corePaint.color = withAlpha(lighten(f.color, 0.9f), (240 * f.opacity).toInt())
+        f.canvas.drawCircle(center.first, center.second, innerRadius, corePaint)
+        corePaint.style = Paint.Style.FILL
+
+        // ── 4. LAYER: Inward Accelerating Suction Particles (20 Water Particles) ──
+        val particleCount = 20
+        for (i in 0 until particleCount) {
+            val pSeed = i * 29.3f
+            val pLife = ((timeSec * 1.6 + pSeed) % 1.0).toFloat()
+            // Inward spiral motion equation: r decreases as life increases, speed increases
+            val r = outerRadius * (1f - pLife.toDouble().pow(1.5).toFloat())
+            val angle = pLife * PI * 6.0 + i
 
             val px = center.first + (r * cos(angle)).toFloat()
             val py = center.second + (r * sin(angle)).toFloat()
-            val pAlpha = ((phase * 230) * f.opacity).toInt().coerceIn(0, 255)
+            val pAlpha = ((pLife * 240) * f.opacity).toInt().coerceIn(0, 255)
+            val pRadius = (1.5f + (1f - pLife) * 3.5f) * f.size
 
-            particlePaint.color = withAlpha(lighten(f.color, 0.8f), pAlpha)
-            f.canvas.drawCircle(px, py, (2.5f + phase * 2f) * f.size, particlePaint)
+            particlePaint.color = withAlpha(Color.WHITE, pAlpha)
+            f.canvas.drawCircle(px, py, pRadius, particlePaint)
         }
 
         abyssPaint.shader = null
+    }
+
+    private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
+        Edge.LEFT -> depth to along
+        Edge.RIGHT -> (f.width - depth) to along
+        Edge.BOTTOM -> along to (f.height - depth)
     }
 
     private fun withAlpha(c: Int, a: Int) = Color.argb(a.coerceIn(0, 255), Color.red(c), Color.green(c), Color.blue(c))
