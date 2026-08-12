@@ -147,6 +147,9 @@ fun SettingsScreen(
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
     var showLicensesDialog by remember { mutableStateOf(false) }
     var showCustomColorPickers by remember { mutableStateOf(false) }
+    var expandedAppearance1 by remember(selectedSection) { mutableStateOf(true) }
+    var expandedAppearance2 by remember(selectedSection) { mutableStateOf(false) }
+    var expandedAppearance3 by remember(selectedSection) { mutableStateOf(false) }
 
 
     val context = LocalContext.current
@@ -584,393 +587,403 @@ fun SettingsScreen(
             )
         }
 
-        // ── 2A. ANİMASYON STİLİ VE BOYUT AYARLARI (Vibrant Cyan) ──
+        // ── 2. GÖRÜNÜM SEKMESİ — Tek kart, 3 açılır bölüm ──
         if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
-            AkisSectionHeader(
-                title = stringResource(R.string.feedback_section),
-                subtitle = stringResource(R.string.feedback_section_subtitle),
-                icon = Icons.Filled.Palette
-            )
-            Spacer(Modifier.height(10.dp))
 
-            Text(
-                text = stringResource(R.string.animation_style),
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold,
-                color = scheme.onSurface
-            )
-            Spacer(Modifier.height(4.dp))
-            val anims = listOf(
-                FeedbackAnimation.NONE,
-                FeedbackAnimation.OCEAN_WAVE,
-                FeedbackAnimation.HYDRO_WIPE,
-                FeedbackAnimation.MERCURY_TEARDROP,
-                FeedbackAnimation.VORTEX,
-                FeedbackAnimation.INK_FLOW,
-                FeedbackAnimation.ATMOSPHERIC_MIST,
-                FeedbackAnimation.GLASS_RIPPLE,
-                FeedbackAnimation.COMET_TAIL,
-                FeedbackAnimation.STARFIELD,
-                FeedbackAnimation.PLASMA_FIRE,
-                FeedbackAnimation.SOLAR_CORONA,
-                FeedbackAnimation.BLACK_HOLE_PULL,
-                FeedbackAnimation.PRISM_FLOW,
-                FeedbackAnimation.QUANTUM_RING,
-                FeedbackAnimation.AURORA_RIBBON,
-            )
-            val chunkedAnims = anims.chunked(2)
-            chunkedAnims.forEach { rowAnims ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    rowAnims.forEach { anim ->
-                        val selected = config.feedbackAnimation == anim
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (selected) Color(0xFF00E5FF).copy(alpha = 0.20f) else scheme.surfaceVariant.copy(alpha = 0.35f))
-                                .border(
-                                    width = if (selected) 1.5.dp else 0.dp,
-                                    color = if (selected) Color(0xFF00E5FF) else Color.Transparent,
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                                .clickable { viewModel.setFeedbackAnimation(anim) }
-                                .padding(vertical = 10.dp, horizontal = 8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = anim.localizedLabel(context),
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                                color = if (selected) Color(0xFF00E5FF) else scheme.onSurfaceVariant,
-                                maxLines = 1
-                            )
-                        }
-                    }
-                    if (rowAnims.size == 1) {
-                        Spacer(Modifier.weight(1f))
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            AkisSliderRow(
-                title = stringResource(R.string.opacity),
-                valueText = "%${(config.feedbackOpacity * 100).roundToInt()}",
-                value = config.feedbackOpacity,
-                valueRange = 0.1f..1.0f,
-                onValueChange = viewModel::setFeedbackOpacity
-            )
-
-            AkisSliderRow(
-                title = stringResource(R.string.animation_speed),
-                valueText = "%.1fx".format(config.animationSpeed),
-                value = config.animationSpeed,
-                valueRange = 0.5f..2.0f,
-                onValueChange = viewModel::setAnimationSpeed
-            )
-
-            AkisSliderRow(
-                title = stringResource(R.string.animation_size),
-                valueText = "%.1fx".format(config.animationSize),
-                value = config.animationSize,
-                valueRange = 0.5f..2.0f,
-                onValueChange = viewModel::setAnimationSize
-            )
-
-            AkisSliderRow(
-                title = stringResource(R.string.icon_size),
-                valueText = "%.1fx".format(config.iconSize),
-                value = config.iconSize,
-                valueRange = 0.5f..2.0f,
-                onValueChange = viewModel::setIconSize
-            )
-
-            AkisSwitchRow(
-                title = stringResource(R.string.gesture_indicator_bar),
-                subtitle = stringResource(R.string.gesture_indicator_bar_subtitle),
-                checked = config.showGestureIndicatorBar,
-                onCheckedChange = viewModel::setShowGestureIndicatorBar,
-            )
-        }
-
-        // ── 2B. RENK PALETİ VE TEMA (Deep Indigo Violet) ──
-        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF7C4DFF)) {
-            AkisSectionHeader(
-                title = stringResource(R.string.palette_icon_card_title),
-                subtitle = stringResource(R.string.palette_icon_card_subtitle),
-                icon = Icons.Filled.Palette
-            )
-            Spacer(Modifier.height(10.dp))
-
-            // ── Hazır 3'lü Uyumlu Renk Şablonları ──
-            Text(
-                text = stringResource(R.string.color_palettes),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = stringResource(R.string.color_palettes_subtitle),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(8.dp))
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                items(ColorPalettePreset.presets, key = { it.id }) { palette ->
-                    val isSelected = config.feedbackColorArgb == palette.quickColor &&
-                        config.secondaryColorArgb == palette.holdColor &&
-                        config.lSwipeColorArgb == palette.lSwipeColor
-
-                    val cardBorderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
-                            .border(
-                                width = 1.5.dp,
-                                color = cardBorderColor,
-                                shape = RoundedCornerShape(12.dp),
-                            )
-                            .clickable {
-                                viewModel.applyColorPalette(palette.quickColor, palette.holdColor, palette.lSwipeColor)
-                            }
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(palette.quickColor))
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(palette.holdColor))
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(palette.lSwipeColor))
-                                )
-                            }
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                text = stringResource(palette.nameResId),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            // Collapsible Custom Color Pickers Accordion
+            // ─── Bölüm 1: Animasyon Stili ve Boyut ───
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(scheme.surfaceVariant.copy(alpha = 0.35f))
-                    .clickable { showCustomColorPickers = !showCustomColorPickers }
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .background(
+                        if (expandedAppearance1) Color(0xFF00E5FF).copy(alpha = 0.12f)
+                        else scheme.surfaceVariant.copy(alpha = 0.25f)
+                    )
+                    .clickable { expandedAppearance1 = !expandedAppearance1 }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(R.string.manual_color_edit),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface
-                )
-                Icon(
-                    imageVector = if (showCustomColorPickers) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = null,
-                    tint = scheme.onSurfaceVariant
-                )
-            }
-
-            AnimatedVisibility(visible = showCustomColorPickers) {
-                Column(modifier = Modifier.padding(top = 8.dp)) {
-                    AkisInfiniteColorPicker(
-                        title = stringResource(R.string.quick_color),
-                        currentColorArgb = config.feedbackColorArgb,
-                        onColorChanged = viewModel::setFeedbackColor
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Palette,
+                        contentDescription = null,
+                        tint = Color(0xFF00E5FF),
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(Modifier.height(6.dp))
-                    AkisInfiniteColorPicker(
-                        title = stringResource(R.string.hold_color),
-                        currentColorArgb = config.secondaryColorArgb,
-                        onColorChanged = viewModel::setSecondaryColor
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    AkisInfiniteColorPicker(
-                        title = stringResource(R.string.l_color),
-                        currentColorArgb = config.lSwipeColorArgb,
-                        onColorChanged = viewModel::setLSwipeColor
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            AkisSwitchRow(
-                title = stringResource(R.string.adaptive_color),
-                subtitle = stringResource(R.string.adaptive_color_subtitle),
-                checked = config.useAppAdaptiveColor,
-                onCheckedChange = viewModel::setUseAppAdaptiveColor
-            )
-
-            Spacer(Modifier.height(12.dp))
-
-            val iconPreviewActions = remember {
-                listOf(
-                    ActionNode.Home,
-                    ActionNode.QuickSettings,
-                    ActionNode.InputMethodPicker,
-                    ActionNode.VolumeUp,
-                    ActionNode.MediaPlayPause,
-                    ActionNode.Screenshot,
-                )
-            }
-            Text(
-                text = stringResource(R.string.icon_pack_section),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = scheme.onSurface
-            )
-            Spacer(Modifier.height(6.dp))
-            ActionIconPack.entries.forEach { pack ->
-                val selected = config.actionIconPack == pack
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(if (selected) Color(0xFF7C4DFF).copy(alpha = 0.18f) else scheme.surfaceVariant.copy(alpha = 0.35f))
-                        .border(
-                            width = if (selected) 1.5.dp else 0.dp,
-                            color = if (selected) Color(0xFF7C4DFF) else Color.Transparent,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .clickable { viewModel.setActionIconPack(pack) }
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(Modifier.weight(1f)) {
+                    Column {
                         Text(
-                            text = stringResource(pack.titleResId),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
-                            color = if (selected) Color(0xFF7C4DFF) else scheme.onSurface
+                            text = stringResource(R.string.feedback_section),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface
                         )
                         Text(
-                            text = stringResource(pack.descriptionResId),
+                            text = stringResource(R.string.feedback_section_subtitle),
                             style = MaterialTheme.typography.labelSmall,
                             color = scheme.onSurfaceVariant
                         )
-                        Spacer(Modifier.height(7.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            iconPreviewActions.forEach { action ->
-                                ActionIcon(
-                                    action = action,
-                                    iconPack = pack,
-                                    colorMode = config.actionIconColorMode,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-                        }
-                    }
-                    if (selected) {
-                        Icon(
-                            imageVector = Icons.Filled.CheckCircle,
-                            contentDescription = null,
-                            tint = Color(0xFF7C4DFF),
-                            modifier = Modifier.size(18.dp)
-                        )
                     }
                 }
-                Spacer(Modifier.height(4.dp))
+                Icon(
+                    imageVector = if (expandedAppearance1) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    tint = Color(0xFF00E5FF)
+                )
             }
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = stringResource(R.string.icon_color_mode_title),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Spacer(Modifier.height(6.dp))
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(ActionIconColorMode.entries) { mode ->
-                    val selected = config.actionIconColorMode == mode
-                    val label = when (mode) {
-                        ActionIconColorMode.MONOCHROME -> R.string.icon_color_mode_monochrome
-                        ActionIconColorMode.THEME -> R.string.icon_color_mode_theme
-                        ActionIconColorMode.FUNCTIONAL -> R.string.icon_color_mode_functional
-                        ActionIconColorMode.NEON -> R.string.icon_color_mode_neon
-                        ActionIconColorMode.ACCENT -> R.string.icon_color_mode_accent
-                    }
+
+            AnimatedVisibility(visible = expandedAppearance1) {
+                Column(modifier = Modifier.padding(top = 10.dp)) {
                     Text(
-                        text = stringResource(label),
-                        color = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(if (selected) scheme.primaryContainer else scheme.surfaceVariant)
-                            .clickable { viewModel.setActionIconColorMode(mode) }
-                            .padding(horizontal = 13.dp, vertical = 8.dp),
+                        text = stringResource(R.string.animation_style),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = scheme.onSurface
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    val anims = listOf(
+                        FeedbackAnimation.NONE,
+                        FeedbackAnimation.OCEAN_WAVE,
+                        FeedbackAnimation.HYDRO_WIPE,
+                        FeedbackAnimation.MERCURY_TEARDROP,
+                        FeedbackAnimation.VORTEX,
+                        FeedbackAnimation.INK_FLOW,
+                        FeedbackAnimation.ATMOSPHERIC_MIST,
+                        FeedbackAnimation.GLASS_RIPPLE,
+                        FeedbackAnimation.COMET_TAIL,
+                        FeedbackAnimation.STARFIELD,
+                        FeedbackAnimation.PLASMA_FIRE,
+                        FeedbackAnimation.SOLAR_CORONA,
+                        FeedbackAnimation.BLACK_HOLE_PULL,
+                        FeedbackAnimation.PRISM_FLOW,
+                        FeedbackAnimation.QUANTUM_RING,
+                        FeedbackAnimation.AURORA_RIBBON,
+                    )
+                    val chunkedAnims = anims.chunked(2)
+                    chunkedAnims.forEach { rowAnims ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            rowAnims.forEach { anim ->
+                                val selected = config.feedbackAnimation == anim
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(if (selected) Color(0xFF00E5FF).copy(alpha = 0.20f) else scheme.surfaceVariant.copy(alpha = 0.35f))
+                                        .border(
+                                            width = if (selected) 1.5.dp else 0.dp,
+                                            color = if (selected) Color(0xFF00E5FF) else Color.Transparent,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .clickable { viewModel.setFeedbackAnimation(anim) }
+                                        .padding(vertical = 10.dp, horizontal = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = anim.localizedLabel(context),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold,
+                                        color = if (selected) Color(0xFF00E5FF) else scheme.onSurfaceVariant,
+                                        maxLines = 1
+                                    )
+                                }
+                            }
+                            if (rowAnims.size == 1) { Spacer(Modifier.weight(1f)) }
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    AkisSliderRow(
+                        title = stringResource(R.string.opacity),
+                        valueText = "%${(config.feedbackOpacity * 100).roundToInt()}",
+                        value = config.feedbackOpacity,
+                        valueRange = 0.1f..1.0f,
+                        onValueChange = viewModel::setFeedbackOpacity
+                    )
+                    AkisSliderRow(
+                        title = stringResource(R.string.animation_speed),
+                        valueText = "%.1fx".format(config.animationSpeed),
+                        value = config.animationSpeed,
+                        valueRange = 0.5f..2.0f,
+                        onValueChange = viewModel::setAnimationSpeed
+                    )
+                    AkisSliderRow(
+                        title = stringResource(R.string.animation_size),
+                        valueText = "%.1fx".format(config.animationSize),
+                        value = config.animationSize,
+                        valueRange = 0.5f..2.0f,
+                        onValueChange = viewModel::setAnimationSize
+                    )
+                    AkisSliderRow(
+                        title = stringResource(R.string.icon_size),
+                        valueText = "%.1fx".format(config.iconSize),
+                        value = config.iconSize,
+                        valueRange = 0.5f..2.0f,
+                        onValueChange = viewModel::setIconSize
+                    )
+                    AkisSwitchRow(
+                        title = stringResource(R.string.gesture_indicator_bar),
+                        subtitle = stringResource(R.string.gesture_indicator_bar_subtitle),
+                        checked = config.showGestureIndicatorBar,
+                        onCheckedChange = viewModel::setShowGestureIndicatorBar,
                     )
                 }
             }
-        }
 
-        // ── 2C. ANA SAYFA KART DÜZENİ VE SADELİK (Neon Teal Blue) ──
-        if (selectedSection == 1) AkisGlassCard(accentTint = Color(0xFF00B0FF)) {
-            AkisSectionHeader(
-                title = stringResource(R.string.home_cards_title),
-                subtitle = stringResource(R.string.home_cards_subtitle),
-                icon = Icons.Filled.Apps
-            )
-            Spacer(Modifier.height(10.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
 
-            AkisSwitchRow(
-                title = stringResource(R.string.show_phone_map),
-                subtitle = stringResource(R.string.show_phone_map_subtitle),
-                checked = config.showPhoneMap,
-                onCheckedChange = viewModel::setShowPhoneMap
-            )
+            // ─── Bölüm 2: Renk Paleti ve Tema ───
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(
+                        if (expandedAppearance2) Color(0xFF7C4DFF).copy(alpha = 0.12f)
+                        else scheme.surfaceVariant.copy(alpha = 0.25f)
+                    )
+                    .clickable { expandedAppearance2 = !expandedAppearance2 }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Palette,
+                        contentDescription = null,
+                        tint = Color(0xFF7C4DFF),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Column {
+                        Text(
+                            text = stringResource(R.string.palette_icon_card_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.palette_icon_card_subtitle),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Icon(
+                    imageVector = if (expandedAppearance2) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    tint = Color(0xFF7C4DFF)
+                )
+            }
 
-            AkisSwitchRow(
-                title = stringResource(R.string.show_summary_chart),
-                subtitle = stringResource(R.string.show_summary_chart_subtitle),
-                checked = config.showSummaryChart,
-                onCheckedChange = viewModel::setShowSummaryChart
-            )
+            AnimatedVisibility(visible = expandedAppearance2) {
+                Column(modifier = Modifier.padding(top = 10.dp)) {
+                    Text(
+                        text = stringResource(R.string.color_palettes),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.color_palettes_subtitle),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        items(ColorPalettePreset.presets, key = { it.id }) { palette ->
+                            val isSelected = config.feedbackColorArgb == palette.quickColor &&
+                                config.secondaryColorArgb == palette.holdColor &&
+                                config.lSwipeColorArgb == palette.lSwipeColor
+                            val cardBorderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+                                    .border(width = 1.5.dp, color = cardBorderColor, shape = RoundedCornerShape(12.dp))
+                                    .clickable { viewModel.applyColorPalette(palette.quickColor, palette.holdColor, palette.lSwipeColor) }
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Box(modifier = Modifier.size(16.dp).clip(CircleShape).background(Color(palette.quickColor)))
+                                        Box(modifier = Modifier.size(16.dp).clip(CircleShape).background(Color(palette.holdColor)))
+                                        Box(modifier = Modifier.size(16.dp).clip(CircleShape).background(Color(palette.lSwipeColor)))
+                                    }
+                                    Spacer(Modifier.height(6.dp))
+                                    Text(
+                                        text = stringResource(palette.nameResId),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(scheme.surfaceVariant.copy(alpha = 0.35f))
+                            .clickable { showCustomColorPickers = !showCustomColorPickers }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = stringResource(R.string.manual_color_edit), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = scheme.onSurface)
+                        Icon(imageVector = if (showCustomColorPickers) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = scheme.onSurfaceVariant)
+                    }
+                    AnimatedVisibility(visible = showCustomColorPickers) {
+                        Column(modifier = Modifier.padding(top = 8.dp)) {
+                            AkisInfiniteColorPicker(title = stringResource(R.string.quick_color), currentColorArgb = config.feedbackColorArgb, onColorChanged = viewModel::setFeedbackColor)
+                            Spacer(Modifier.height(6.dp))
+                            AkisInfiniteColorPicker(title = stringResource(R.string.hold_color), currentColorArgb = config.secondaryColorArgb, onColorChanged = viewModel::setSecondaryColor)
+                            Spacer(Modifier.height(6.dp))
+                            AkisInfiniteColorPicker(title = stringResource(R.string.l_color), currentColorArgb = config.lSwipeColorArgb, onColorChanged = viewModel::setLSwipeColor)
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    AkisSwitchRow(
+                        title = stringResource(R.string.adaptive_color),
+                        subtitle = stringResource(R.string.adaptive_color_subtitle),
+                        checked = config.useAppAdaptiveColor,
+                        onCheckedChange = viewModel::setUseAppAdaptiveColor
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    val iconPreviewActions = remember {
+                        listOf(
+                            ActionNode.Home, ActionNode.QuickSettings, ActionNode.InputMethodPicker,
+                            ActionNode.VolumeUp, ActionNode.MediaPlayPause, ActionNode.Screenshot,
+                        )
+                    }
+                    Text(text = stringResource(R.string.icon_pack_section), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = scheme.onSurface)
+                    Spacer(Modifier.height(6.dp))
+                    ActionIconPack.entries.forEach { pack ->
+                        val selected = config.actionIconPack == pack
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (selected) Color(0xFF7C4DFF).copy(alpha = 0.18f) else scheme.surfaceVariant.copy(alpha = 0.35f))
+                                .border(width = if (selected) 1.5.dp else 0.dp, color = if (selected) Color(0xFF7C4DFF) else Color.Transparent, shape = RoundedCornerShape(10.dp))
+                                .clickable { viewModel.setActionIconPack(pack) }
+                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(text = stringResource(pack.titleResId), style = MaterialTheme.typography.labelMedium, fontWeight = if (selected) FontWeight.Bold else FontWeight.SemiBold, color = if (selected) Color(0xFF7C4DFF) else scheme.onSurface)
+                                Text(text = stringResource(pack.descriptionResId), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+                                Spacer(Modifier.height(7.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    iconPreviewActions.forEach { action ->
+                                        ActionIcon(action = action, iconPack = pack, colorMode = config.actionIconColorMode, contentDescription = null, modifier = Modifier.size(20.dp))
+                                    }
+                                }
+                            }
+                            if (selected) Icon(imageVector = Icons.Filled.CheckCircle, contentDescription = null, tint = Color(0xFF7C4DFF), modifier = Modifier.size(18.dp))
+                        }
+                        Spacer(Modifier.height(4.dp))
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Text(text = stringResource(R.string.icon_color_mode_title), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(6.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(ActionIconColorMode.entries) { mode ->
+                            val selected = config.actionIconColorMode == mode
+                            val label = when (mode) {
+                                ActionIconColorMode.MONOCHROME -> R.string.icon_color_mode_monochrome
+                                ActionIconColorMode.THEME -> R.string.icon_color_mode_theme
+                                ActionIconColorMode.FUNCTIONAL -> R.string.icon_color_mode_functional
+                                ActionIconColorMode.NEON -> R.string.icon_color_mode_neon
+                                ActionIconColorMode.ACCENT -> R.string.icon_color_mode_accent
+                            }
+                            Text(
+                                text = stringResource(label),
+                                color = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(if (selected) scheme.primaryContainer else scheme.surfaceVariant)
+                                    .clickable { viewModel.setActionIconColorMode(mode) }
+                                    .padding(horizontal = 13.dp, vertical = 8.dp),
+                            )
+                        }
+                    }
+                }
+            }
 
-            AkisSwitchRow(
-                title = stringResource(R.string.show_presets_card),
-                subtitle = stringResource(R.string.show_presets_card_subtitle),
-                checked = config.showPresetsCard,
-                onCheckedChange = viewModel::setShowPresetsCard
-            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = scheme.outlineVariant.copy(alpha = 0.3f))
+
+            // ─── Bölüm 3: Ana Sayfa Kart Düzeni ───
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(
+                        if (expandedAppearance3) Color(0xFF00B0FF).copy(alpha = 0.12f)
+                        else scheme.surfaceVariant.copy(alpha = 0.25f)
+                    )
+                    .clickable { expandedAppearance3 = !expandedAppearance3 }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Apps,
+                        contentDescription = null,
+                        tint = Color(0xFF00B0FF),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Column {
+                        Text(
+                            text = stringResource(R.string.home_cards_title),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface
+                        )
+                        Text(
+                            text = stringResource(R.string.home_cards_subtitle),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Icon(
+                    imageVector = if (expandedAppearance3) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    tint = Color(0xFF00B0FF)
+                )
+            }
+
+            AnimatedVisibility(visible = expandedAppearance3) {
+                Column(modifier = Modifier.padding(top = 6.dp)) {
+                    AkisSwitchRow(
+                        title = stringResource(R.string.show_phone_map),
+                        subtitle = stringResource(R.string.show_phone_map_subtitle),
+                        checked = config.showPhoneMap,
+                        onCheckedChange = viewModel::setShowPhoneMap
+                    )
+                    AkisSwitchRow(
+                        title = stringResource(R.string.show_summary_chart),
+                        subtitle = stringResource(R.string.show_summary_chart_subtitle),
+                        checked = config.showSummaryChart,
+                        onCheckedChange = viewModel::setShowSummaryChart
+                    )
+                    AkisSwitchRow(
+                        title = stringResource(R.string.show_presets_card),
+                        subtitle = stringResource(R.string.show_presets_card_subtitle),
+                        checked = config.showPresetsCard,
+                        onCheckedChange = viewModel::setShowPresetsCard
+                    )
+                }
+            }
         }
 
         // ── 3A. OTOMATİK DURAKLATMA KOŞULLARI (Crimson Red) ──
