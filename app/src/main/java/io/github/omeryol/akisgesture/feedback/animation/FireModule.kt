@@ -7,13 +7,14 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.Shader
+import io.github.omeryol.akisgesture.feedback.Physics3DEngine
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.PI
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.cos
 
-/** High-realism, multi-layer natural flame simulation with curved ember base and flickering lobes. */
+/** 3D Natural Flame Simulation with thermal buoyancy acceleration, 3D shadows, and glowing coal bed. */
 class FireModule : NaturalAnimationModule {
     private val auraPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val outerFlamePaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -25,7 +26,6 @@ class FireModule : NaturalAnimationModule {
     private val outerPath = Path()
     private val innerPath = Path()
     private val corePath = Path()
-    private val basePath = Path()
 
     // 16 persistent ember sparks
     private val embers = Array(16) { SparkParticle(it) }
@@ -42,7 +42,15 @@ class FireModule : NaturalAnimationModule {
             Edge.BOTTOM -> f.touch to (f.height - flameLength)
         }
 
-        // ── 1. LAYER: Ambient Fire Aura Glow ──
+        // ── 1. LAYER: Outer Fiery Lobe Path Construction ──
+        buildFlamePath(outerPath, f, flameLength, flameWidth, timeSec, 1.0f, 1.0f)
+        buildFlamePath(innerPath, f, flameLength * 0.78f, flameWidth * 0.68f, timeSec + 0.35, 1.2f, 0.85f)
+        buildFlamePath(corePath, f, flameLength * 0.48f, flameWidth * 0.38f, timeSec + 0.7, 1.5f, 0.70f)
+
+        // ── 2. LAYER: 3D Drop Shadow Cast by Flame Body ──
+        Physics3DEngine.drawDropShadow(f.canvas, outerPath, dx = 10f, dy = 14f, opacity = f.opacity * 0.55f)
+
+        // ── 3. LAYER: Ambient Fire Aura Glow ──
         val auraRadius = flameWidth * 1.6f
         auraPaint.shader = RadialGradient(
             origin.first, origin.second, auraRadius,
@@ -52,8 +60,7 @@ class FireModule : NaturalAnimationModule {
         )
         f.canvas.drawCircle(origin.first, origin.second, auraRadius, auraPaint)
 
-        // ── 2. LAYER: Outer Fiery Lobe (Crimson / Deep Orange with Organic Curved Base) ──
-        buildFlamePath(outerPath, f, flameLength, flameWidth, timeSec, 1.0f, 1.0f)
+        // ── 4. LAYER: Outer Fiery Lobe (Crimson / Deep Orange) ──
         outerFlamePaint.shader = flameGradient(
             f, flameLength,
             withAlpha(0xFFFF6D00.toInt(), (240 * f.opacity).toInt()),
@@ -61,8 +68,7 @@ class FireModule : NaturalAnimationModule {
         )
         f.canvas.drawPath(outerPath, outerFlamePaint)
 
-        // ── 3. LAYER: Mid Flame Lobe (Golden Yellow & Bright Orange) ──
-        buildFlamePath(innerPath, f, flameLength * 0.78f, flameWidth * 0.68f, timeSec + 0.35, 1.2f, 0.85f)
+        // ── 5. LAYER: Mid Flame Lobe (Golden Yellow & Bright Orange) ──
         innerFlamePaint.shader = flameGradient(
             f, flameLength * 0.78f,
             withAlpha(0xFFFFD600.toInt(), (248 * f.opacity).toInt()),
@@ -70,8 +76,7 @@ class FireModule : NaturalAnimationModule {
         )
         f.canvas.drawPath(innerPath, innerFlamePaint)
 
-        // ── 4. LAYER: Inner Incandescent Core (White / Light Yellow) ──
-        buildFlamePath(corePath, f, flameLength * 0.48f, flameWidth * 0.38f, timeSec + 0.7, 1.5f, 0.70f)
+        // ── 6. LAYER: Inner Incandescent Core (White / Light Yellow) ──
         coreFlamePaint.shader = flameGradient(
             f, flameLength * 0.48f,
             withAlpha(0xFFFFFFFF.toInt(), (255 * f.opacity).toInt()),
@@ -79,10 +84,10 @@ class FireModule : NaturalAnimationModule {
         )
         f.canvas.drawPath(corePath, coreFlamePaint)
 
-        // ── 5. LAYER: Burning Coal Bed (Köz Yatağı at Flame Root) ──
+        // ── 7. LAYER: Burning Coal Bed (Köz Yatağı at Flame Root) ──
         drawGlowingCoalBed(f, flameWidth, timeSec)
 
-        // ── 6. LAYER: Rising Embers & Sparks Physics ──
+        // ── 8. LAYER: Thermal Buoyancy Rising Embers Physics ──
         if (growth > 0.06f) {
             embers.forEach { spark ->
                 spark.updateAndDraw(f, origin, flameLength, flameWidth, timeSec)
@@ -109,24 +114,24 @@ class FireModule : NaturalAnimationModule {
         val steps = 32
         val baseTouch = f.touch
 
-        // Draw curved flame tip and side lobes
         for (i in 0..steps) {
             val u = i / steps.toFloat()
             val env = sin(PI * u).toFloat()
             
-            // Dynamic flickering turbulence equation
             val flicker1 = sin(u * PI * 3.5 + timeSec * 6.5 * speedMult) * (7.0 + length * 0.09)
             val flicker2 = cos(u * PI * 7.0 - timeSec * 9.0 * speedMult) * (3.5 + length * 0.05)
             val sway = (flicker1 + flicker2).toFloat() * u * widthMult
 
-            val depth = length * u
-            val along = baseTouch - width * env + sway
+            // 3D Perspective Projection for Z-depth
+            val zDepth = u * 40f
+            val proj = Physics3DEngine.project(length * u, 0f, zDepth)
 
-            val pt = point(f, along, depth)
+            val along = baseTouch - width * env + sway
+            val pt = point(f, along, proj.x)
+
             if (i == 0) path.moveTo(pt.first, pt.second) else path.lineTo(pt.first, pt.second)
         }
 
-        // Close base with organic curved arc along screen edge instead of flat straight line
         closeOrganicBase(path, f, width, timeSec)
     }
 
@@ -193,17 +198,27 @@ class FireModule : NaturalAnimationModule {
             val life = ((timeSec * 1.4 + seed) % cycleLength) / cycleLength
             val phase = life.toFloat()
 
-            val driftAlong = sin(phase * PI * 2.5 + seed).toFloat() * (flameWidth * 0.45f)
-            val driftDepth = flameLength * (0.2f + phase * 0.95f)
+            // Thermal buoyancy physics acceleration (rising faster as phase increases: phase^1.3)
+            val buoyancyPhase = phase.pow(1.3f)
+            val driftAlong = sin(buoyancyPhase * PI * 2.5 + seed).toFloat() * (flameWidth * 0.45f)
+            val driftDepth = flameLength * (0.2f + buoyancyPhase * 0.95f)
+
+            // 3D Perspective Projection for Particle
+            val zDepth = buoyancyPhase * 60f
+            val proj = Physics3DEngine.project(driftDepth, driftAlong, zDepth)
 
             val pt = when (f.edge) {
-                Edge.LEFT -> driftDepth to (origin.second + driftAlong)
-                Edge.RIGHT -> (f.width - driftDepth) to (origin.second + driftAlong)
-                Edge.BOTTOM -> (origin.first + driftAlong) to (f.height - driftDepth)
+                Edge.LEFT -> proj.x to (origin.second + proj.y)
+                Edge.RIGHT -> (f.width - proj.x) to (origin.second + proj.y)
+                Edge.BOTTOM -> (origin.first + proj.y) to (f.height - proj.x)
             }
 
-            val radius = (4.0f * (1f - phase * 0.7f) * f.size).coerceAtLeast(0.9f)
+            val radius = (4.0f * proj.scale * (1f - phase * 0.7f) * f.size).coerceAtLeast(0.9f)
             val alpha = ((1f - phase) * 240 * f.opacity).toInt().coerceIn(0, 255)
+
+            // Draw particle shadow
+            sparkPaint.color = Color.argb((alpha * 0.3f).toInt(), 0, 0, 0)
+            f.canvas.drawCircle(pt.first + 3f, pt.second + 5f, radius, sparkPaint)
 
             val sparkColor = if (index % 2 == 0) 0xFFFFFF00.toInt() else 0xFFFF5500.toInt()
             sparkPaint.color = withAlpha(sparkColor, alpha)
