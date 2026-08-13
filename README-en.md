@@ -11,6 +11,13 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.7.0 highlights
+
+- 🎨 **5 New Icon Families & Color Modes:** Fluent, Pixelart, Ionicons, Lucide, Radix families with Cyber Neon and Accent color modes.
+- 🌊 **3D Physics & Fluid Animations:** Blinn-Phong lighting overhaul for surface tension, water bubbles, dynamic vortex, and natural flame.
+- 📱 **Unified Interface:** Appearance tab reorganized into 3 expandable sections with anchored edge map geometry.
+- ⚙️ **Feedback Flexibility:** Added option to disable animations (`FeedbackAnimation.NONE`) and stabilized L-gestures.
+
 ## v1.6.1 highlights
 
 - General user-experience and interface refinements.

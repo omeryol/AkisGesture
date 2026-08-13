@@ -66,48 +66,49 @@ fun AkisFlowGlyphIcon(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
 ) {
-    val density = LocalDensity.current.density
     Canvas(modifier = modifier) {
-        val stroke = Stroke(width = 2.4f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val scaleX = size.width / 32f
+        val scaleY = size.height / 32f
+        val stroke = Stroke(width = 2.2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         val path = Path()
-        scale(density, pivot = androidx.compose.ui.geometry.Offset.Zero) {
-        when (glyph) {
-            AkisFlowGlyph.EDGE_MAP -> {
-                drawRoundRect(color, topLeft = androidx.compose.ui.geometry.Offset(8f, 2f), size = androidx.compose.ui.geometry.Size(16f, 28f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f), style = stroke)
-                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 10f), androidx.compose.ui.geometry.Offset(8f, 10f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawLine(color, androidx.compose.ui.geometry.Offset(24f, 20f), androidx.compose.ui.geometry.Offset(28f, 20f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawCircle(color, radius = 1.8f, center = androidx.compose.ui.geometry.Offset(16f, 16f))
+        scale(scaleX, scaleY, pivot = androidx.compose.ui.geometry.Offset.Zero) {
+            when (glyph) {
+                AkisFlowGlyph.EDGE_MAP -> {
+                    drawRoundRect(color, topLeft = androidx.compose.ui.geometry.Offset(8f, 2f), size = androidx.compose.ui.geometry.Size(16f, 28f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f), style = stroke)
+                    drawLine(color, androidx.compose.ui.geometry.Offset(4f, 10f), androidx.compose.ui.geometry.Offset(8f, 10f), strokeWidth = 2.2f, cap = StrokeCap.Round)
+                    drawLine(color, androidx.compose.ui.geometry.Offset(24f, 20f), androidx.compose.ui.geometry.Offset(28f, 20f), strokeWidth = 2.2f, cap = StrokeCap.Round)
+                    drawCircle(color, radius = 1.8f, center = androidx.compose.ui.geometry.Offset(16f, 16f))
+                }
+                AkisFlowGlyph.MOTION -> {
+                    path.moveTo(4f, 12f); path.cubicTo(10f, 12f, 10f, 4f, 16f, 4f); path.cubicTo(22f, 4f, 22f, 12f, 28f, 12f)
+                    drawPath(path, color, style = stroke)
+                    path.reset(); path.moveTo(4f, 20f); path.cubicTo(10f, 20f, 10f, 28f, 16f, 28f); path.cubicTo(22f, 28f, 22f, 20f, 28f, 20f)
+                    drawPath(path, color, style = stroke)
+                    drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 12f))
+                    drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 20f))
+                }
+                AkisFlowGlyph.PRESETS -> {
+                    path.moveTo(5f, 20f); path.cubicTo(10f, 20f, 10f, 8f, 16f, 8f); path.cubicTo(22f, 8f, 22f, 20f, 27f, 20f)
+                    drawPath(path, color, style = stroke)
+                    drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(5f, 20f))
+                    drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(27f, 20f))
+                    drawCircle(color, radius = 2.2f, center = androidx.compose.ui.geometry.Offset(16f, 8f))
+                }
+                AkisFlowGlyph.SUMMARY -> {
+                    path.moveTo(4f, 24f); path.cubicTo(9f, 24f, 10f, 10f, 16f, 10f); path.cubicTo(22f, 10f, 22f, 18f, 28f, 5f)
+                    drawPath(path, color, style = stroke)
+                    drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 24f))
+                    drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 5f))
+                }
+                AkisFlowGlyph.SETTINGS -> {
+                    drawLine(color, androidx.compose.ui.geometry.Offset(4f, 8f), androidx.compose.ui.geometry.Offset(28f, 8f), strokeWidth = 2.2f, cap = StrokeCap.Round)
+                    drawLine(color, androidx.compose.ui.geometry.Offset(4f, 16f), androidx.compose.ui.geometry.Offset(28f, 16f), strokeWidth = 2.2f, cap = StrokeCap.Round)
+                    drawLine(color, androidx.compose.ui.geometry.Offset(4f, 24f), androidx.compose.ui.geometry.Offset(28f, 24f), strokeWidth = 2.2f, cap = StrokeCap.Round)
+                    drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(11f, 8f), style = stroke)
+                    drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(21f, 16f), style = stroke)
+                    drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(13f, 24f), style = stroke)
+                }
             }
-            AkisFlowGlyph.MOTION -> {
-                path.moveTo(4f, 12f); path.cubicTo(10f, 12f, 10f, 4f, 16f, 4f); path.cubicTo(22f, 4f, 22f, 12f, 28f, 12f)
-                drawPath(path, color, style = stroke)
-                path.reset(); path.moveTo(4f, 20f); path.cubicTo(10f, 20f, 10f, 28f, 16f, 28f); path.cubicTo(22f, 28f, 22f, 20f, 28f, 20f)
-                drawPath(path, color, style = stroke)
-                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 12f))
-                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 20f))
-            }
-            AkisFlowGlyph.PRESETS -> {
-                path.moveTo(5f, 20f); path.cubicTo(10f, 20f, 10f, 8f, 16f, 8f); path.cubicTo(22f, 8f, 22f, 20f, 27f, 20f)
-                drawPath(path, color, style = stroke)
-                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(5f, 20f))
-                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(27f, 20f))
-                drawCircle(color, radius = 2.2f, center = androidx.compose.ui.geometry.Offset(16f, 8f))
-            }
-            AkisFlowGlyph.SUMMARY -> {
-                path.moveTo(4f, 24f); path.cubicTo(9f, 24f, 10f, 10f, 16f, 10f); path.cubicTo(22f, 10f, 22f, 18f, 28f, 5f)
-                drawPath(path, color, style = stroke)
-                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 24f))
-                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 5f))
-            }
-            AkisFlowGlyph.SETTINGS -> {
-                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 8f), androidx.compose.ui.geometry.Offset(28f, 8f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 16f), androidx.compose.ui.geometry.Offset(28f, 16f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 24f), androidx.compose.ui.geometry.Offset(28f, 24f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(11f, 8f), style = stroke)
-                drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(21f, 16f), style = stroke)
-                drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(13f, 24f), style = stroke)
-            }
-        }
         }
     }
 }

@@ -11,9 +11,26 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.7.0",
+            date = "2026-08-13",
+            isCurrent = true,
+            changesTr = listOf(
+                "🎨 İkon ve Renk Çeşitliliği: 5 yeni ikon ailesi (Fluent, Pixelart, Ionicons, Lucide, Radix) ile Cyber Neon ve Accent renk modları.",
+                "🌊 3D Fizik ve Sıvı Animasyonları: Blinn-Phong ışıklandırmalı yüzey gerilimi, su kabarcığı ve kor yataklı ateş efektleri.",
+                "📱 Sadeleştirilmiş Görünüm: Görünüm sekmesinde 3 genişletilebilir bölüm içeren birleşik kart tasarımı.",
+                "⚙️ Gelişmiş Deneyim: Animasyon kapatma seçeneği (NONE) ve stabilize edilmiş L-jest göstergeleri.",
+            ),
+            changesEn = listOf(
+                "🎨 Icon & Color Variety: 5 new icon families (Fluent, Pixelart, Ionicons, Lucide, Radix) with Cyber Neon and Accent color modes.",
+                "🌊 3D Physics & Fluid Animations: Overhauled surface tension, water bubbles, dynamic vortex, and glowing flame animations.",
+                "📱 Unified Appearance: Görünüm tab reorganized into 3 expandable sections with anchored edge map geometry.",
+                "⚙️ Enhanced Usability: Added option to disable feedback animations (NONE) and stabilized L-gesture indicators.",
+            )
+        ),
+        VersionHistoryItem(
             version = "1.6.1",
             date = "2026-08-11",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "Halka Menüsü: Her kenar için üç eylemli, simgeli ve ayarlanabilir halka grubu.",
                 "Canlı Ayarlama: Boyut, aralık, uzaklık ve yarım halka eğriliği gerçek overlay üzerinde görülebilir.",

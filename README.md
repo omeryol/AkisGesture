@@ -11,6 +11,13 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.7.0 öne çıkanlar
+
+- 🎨 **5 Yeni İkon Paket ve Renk Modları:** Fluent, Pixelart, Ionicons, Lucide, Radix paketleri ile Cyber Neon ve Accent renk seçenekleri.
+- 🌊 **3D Fizik ve Sıvı Animasyonları:** Blinn-Phong ışıklandırmalı surface tension, su kabarcığı ve kor yataklı ateş fiziği overhaul'u.
+- 📱 **Sadeleştirilmiş Arayüz:** Görünüm sekmesinde 3 genişletilebilir bölüm içeren tek kart ve cihaz geometrisine tam oturan kenar haritası.
+- ⚙️ **Geri Bildirim Esnekliği:** Animasyon kapatma seçeneği (`FeedbackAnimation.NONE`) ve gelişmiş L-jest göstergeleri.
+
 ## v1.6.1 öne çıkanlar
 
 - Genel kullanıcı deneyimi ve arayüz iyileştirmeleri.

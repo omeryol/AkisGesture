@@ -460,6 +460,7 @@ private fun EdgeActionColumn(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val context = LocalContext.current
     Column(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -479,7 +480,12 @@ private fun EdgeActionColumn(
                         modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text("Bölüm ${index + 1}", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = scheme.onSurface)
+                        Text(
+                            text = context.getString(io.github.omeryol.akisgesture.R.string.map_section_title, index + 1),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface,
+                        )
                         Spacer(Modifier.height(8.dp))
                         BottomDirectionalActions(entries, iconPack, scheme)
                     }

@@ -1,5 +1,27 @@
 # Değişiklik Günlüğü
 
+## [1.7.0] - 2026-08-13
+
+### 🎨 İkon Paketleri ve Renk Modları
+- 5 Yeni İkon Ailesi eklendi: Fluent, Pixelart, Ionicons, Lucide ve Radix (170+ vektör ikon).
+- Lucide ikon grubunda 24x24 yerel grid ölçekleme düzeltmesi yapıldı.
+- Yeni renk modları: Cyber Neon ve İkincil Vurgu (Secondary Accent) entegre edildi.
+
+### 🌊 3D Fizik ve Animasyon Yenilikleri
+- Gerçekçi Blinn-Phong ışıklandırma, 3D hacimsel derinlik ve gölgelendirme fiziği eklendi.
+- Yüzey Gerilimi (Droplet), Su Yüzeyi, Effervescent Kabarcıklar ve Doğal Alev animasyonları baştan tasarlandı.
+- Animasyon geri bildirimini kapatmak isteyenler için `FeedbackAnimation.NONE` (Kapalı) seçeneği eklendi.
+
+### 📱 Arayüz ve Jest Deneyimi
+- Görünüm sekmesi 3 genişletilebilir (expandable) bölümlü tek bir kart altında birleştirildi.
+- L-jestleri, halka aksiyon seçimi ve kenar haritası cihaz geometrisiyle tam uyumlu hale getirildi.
+
+### Teknik
+- Sürüm `1.7.0`, version code `59`.
+- İmzalı APK: `AkisGesture-v1.7.0.apk`.
+
+---
+
 ## [1.6.1] - 2026-08-11
 
 ### Kullanıcı deneyimi ve arayüz iyileştirmeleri

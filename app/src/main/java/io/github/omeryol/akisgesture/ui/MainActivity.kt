@@ -18,6 +18,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Gesture
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Gesture
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -234,46 +249,89 @@ private fun AkisGestureApp() {
     }
 }
 
+private data class NavigationItem(
+    val route: String,
+    val label: String,
+    val selectedIcon: ImageVector,
+    val unselectedIcon: ImageVector,
+)
+
 @Composable
 private fun AkisGestureBottomBar(
     navController: NavHostController,
     currentRoute: String,
 ) {
     val navigationItems = listOf(
-        Triple("home", stringResource(R.string.nav_home), AkisFlowGlyph.EDGE_MAP),
-        Triple("rules", stringResource(R.string.nav_gestures), AkisFlowGlyph.MOTION),
-        Triple("settings", stringResource(R.string.nav_settings), AkisFlowGlyph.SETTINGS),
+        NavigationItem(
+            route = "home",
+            label = stringResource(R.string.nav_home),
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home,
+        ),
+        NavigationItem(
+            route = "rules",
+            label = stringResource(R.string.nav_gestures),
+            selectedIcon = Icons.Filled.Gesture,
+            unselectedIcon = Icons.Outlined.Gesture,
+        ),
+        NavigationItem(
+            route = "settings",
+            label = stringResource(R.string.nav_settings),
+            selectedIcon = Icons.Filled.Settings,
+            unselectedIcon = Icons.Outlined.Settings,
+        ),
     )
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(14.dp),
-        color = androidx.compose.material3.MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.dp,
-        shadowElevation = 10.dp,
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = androidx.compose.material3.MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        shadowElevation = 8.dp,
         border = BorderStroke(
             1.dp,
-            androidx.compose.material3.MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
+            androidx.compose.material3.MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f),
         ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 6.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            navigationItems.forEach { (route, label, glyph) ->
-                val selected = when (route) {
+            navigationItems.forEach { item ->
+                val selected = when (item.route) {
                     "rules" -> currentRoute.startsWith("rules")
-                    else -> currentRoute.startsWith(route)
+                    else -> currentRoute.startsWith(item.route)
                 }
+
+                val activeBackgroundColor by animateColorAsState(
+                    targetValue = if (selected) {
+                        androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.70f)
+                    } else {
+                        Color.Transparent
+                    },
+                    animationSpec = tween(durationMillis = 200),
+                    label = "navBgColor",
+                )
+
+                val activeContentColor by animateColorAsState(
+                    targetValue = if (selected) {
+                        androidx.compose.material3.MaterialTheme.colorScheme.primary
+                    } else {
+                        androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                    },
+                    animationSpec = tween(durationMillis = 200),
+                    label = "navContentColor",
+                )
+
                 Surface(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val destination = if (route == "rules") "rules?edge=LEFT" else if (route == "settings") "settings?section=0" else route
-                        if (currentRoute != route && !(route == "rules" && currentRoute.startsWith("rules"))) {
+                        val destination = if (item.route == "rules") "rules?edge=LEFT" else if (item.route == "settings") "settings?section=0" else item.route
+                        if (currentRoute != item.route && !(item.route == "rules" && currentRoute.startsWith("rules"))) {
                             navController.navigate(destination) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
@@ -284,30 +342,30 @@ private fun AkisGestureBottomBar(
                         }
                     },
                     shape = RoundedCornerShape(14.dp),
-                    color = androidx.compose.ui.graphics.Color.Transparent,
+                    color = activeBackgroundColor,
                 ) {
                     androidx.compose.foundation.layout.Column(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
-                        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                     ) {
-                        AkisFlowGlyphIcon(
-                            glyph = glyph,
-                            color = if (selected) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(21.dp),
+                        Icon(
+                            imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                            contentDescription = item.label,
+                            tint = activeContentColor,
+                            modifier = Modifier.size(22.dp),
                         )
+                        Spacer(Modifier.height(4.dp))
                         Text(
-                            label,
+                            text = item.label,
                             maxLines = 1,
-                            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
-                            color = if (selected) androidx.compose.material3.MaterialTheme.colorScheme.onSurface else androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        androidx.compose.foundation.layout.Box(
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .width(if (selected) 26.dp else 5.dp)
-                                .height(3.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(if (selected) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
+                            overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
+                            style = androidx.compose.material3.MaterialTheme.typography.labelMedium.copy(
+                                fontSize = 11.sp,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                            ),
+                            color = activeContentColor,
                         )
                     }
                 }
