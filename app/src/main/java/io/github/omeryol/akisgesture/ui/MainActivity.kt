@@ -293,7 +293,7 @@ private fun AkisGestureBottomBar(
                         AkisFlowGlyphIcon(
                             glyph = glyph,
                             color = if (selected) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(28.dp),
+                            modifier = Modifier.size(21.dp),
                         )
                         Text(
                             label,
