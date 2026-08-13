@@ -3,9 +3,12 @@ package io.github.omeryol.akisgesture.ui
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Row
@@ -15,8 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -42,13 +43,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material.icons.filled.TouchApp
 import io.github.omeryol.akisgesture.ui.screen.HomeScreen
 import io.github.omeryol.akisgesture.ui.screen.PermissionGuideScreen
 import io.github.omeryol.akisgesture.ui.screen.RuleDetailScreen
 import io.github.omeryol.akisgesture.ui.screen.RuleListScreen
 import io.github.omeryol.akisgesture.ui.screen.SettingsScreen
 import io.github.omeryol.akisgesture.ui.component.ActionPickerScreen
+import io.github.omeryol.akisgesture.ui.component.AkisFlowGlyph
+import io.github.omeryol.akisgesture.ui.component.AkisFlowGlyphIcon
 import io.github.omeryol.akisgesture.ui.component.LocalActionIconColorMode
 import io.github.omeryol.akisgesture.ui.theme.AkisGestureTheme
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
@@ -238,9 +240,9 @@ private fun AkisGestureBottomBar(
     currentRoute: String,
 ) {
     val navigationItems = listOf(
-        Triple("home", stringResource(R.string.nav_home), Icons.Filled.Home),
-        Triple("rules", stringResource(R.string.nav_gestures), Icons.Filled.TouchApp),
-        Triple("settings", stringResource(R.string.nav_settings), Icons.Filled.Settings),
+        Triple("home", stringResource(R.string.nav_home), AkisFlowGlyph.EDGE_MAP),
+        Triple("rules", stringResource(R.string.nav_gestures), AkisFlowGlyph.MOTION),
+        Triple("settings", stringResource(R.string.nav_settings), AkisFlowGlyph.SETTINGS),
     )
 
     Surface(
@@ -262,7 +264,7 @@ private fun AkisGestureBottomBar(
                 .padding(horizontal = 6.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            navigationItems.forEach { (route, label, icon) ->
+            navigationItems.forEach { (route, label, glyph) ->
                 val selected = when (route) {
                     "rules" -> currentRoute.startsWith("rules")
                     else -> currentRoute.startsWith(route)
@@ -282,35 +284,30 @@ private fun AkisGestureBottomBar(
                         }
                     },
                     shape = RoundedCornerShape(14.dp),
-                    color = if (selected) {
-                        androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer
-                    } else {
-                        androidx.compose.ui.graphics.Color.Transparent
-                    },
+                    color = androidx.compose.ui.graphics.Color.Transparent,
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    androidx.compose.foundation.layout.Column(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 7.dp),
+                        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
                     ) {
-                        Icon(
-                            icon,
-                            contentDescription = label,
-                            modifier = Modifier.size(20.dp),
-                            tint = if (selected)
-                                androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
-                            else
-                                androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                        AkisFlowGlyphIcon(
+                            glyph = glyph,
+                            color = if (selected) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(32.dp),
                         )
-                        Spacer(Modifier.width(6.dp))
                         Text(
                             label,
                             maxLines = 1,
                             style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
-                            color = if (selected)
-                                androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer
-                            else
-                                androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (selected) androidx.compose.material3.MaterialTheme.colorScheme.onSurface else androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .width(if (selected) 26.dp else 5.dp)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(if (selected) androidx.compose.material3.MaterialTheme.colorScheme.primary else androidx.compose.material3.MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)),
                         )
                     }
                 }

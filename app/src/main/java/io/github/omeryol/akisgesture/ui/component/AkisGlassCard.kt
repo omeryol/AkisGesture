@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,7 @@ enum class AkisFlowGlyph {
     MOTION,
     PRESETS,
     SUMMARY,
+    SETTINGS,
 }
 
 @Composable
@@ -64,9 +66,11 @@ fun AkisFlowGlyphIcon(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
 ) {
+    val density = LocalDensity.current.density
     Canvas(modifier = modifier) {
         val stroke = Stroke(width = 2.4f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         val path = Path()
+        scale(density, pivot = androidx.compose.ui.geometry.Offset.Zero) {
         when (glyph) {
             AkisFlowGlyph.EDGE_MAP -> {
                 drawRoundRect(color, topLeft = androidx.compose.ui.geometry.Offset(8f, 2f), size = androidx.compose.ui.geometry.Size(16f, 28f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f), style = stroke)
@@ -95,6 +99,14 @@ fun AkisFlowGlyphIcon(
                 drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 24f))
                 drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 5f))
             }
+            AkisFlowGlyph.SETTINGS -> {
+                drawCircle(color, radius = 3f, center = androidx.compose.ui.geometry.Offset(8f, 8f), style = stroke)
+                drawCircle(color, radius = 3f, center = androidx.compose.ui.geometry.Offset(24f, 16f), style = stroke)
+                drawCircle(color, radius = 3f, center = androidx.compose.ui.geometry.Offset(8f, 24f), style = stroke)
+                drawLine(color, androidx.compose.ui.geometry.Offset(10.5f, 9.5f), androidx.compose.ui.geometry.Offset(21.5f, 14.5f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawLine(color, androidx.compose.ui.geometry.Offset(21.5f, 17.5f), androidx.compose.ui.geometry.Offset(10.5f, 22.5f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+            }
+        }
         }
     }
 }
@@ -175,14 +187,12 @@ fun AkisSectionHeader(
         if (flowGlyph != null) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    .clip(RoundedCornerShape(11.dp))
-                    .background(scheme.primaryContainer.copy(alpha = 0.9f)),
+                    .size(40.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                AkisFlowGlyphIcon(flowGlyph, modifier = Modifier.size(28.dp), color = scheme.primary)
+                AkisFlowGlyphIcon(flowGlyph, modifier = Modifier.size(36.dp), color = scheme.primary)
             }
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(8.dp))
         } else if (icon != null) {
             Box(
                 modifier = Modifier
