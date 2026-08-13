@@ -13,6 +13,7 @@ import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.model.TriggerMode
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.abs
+import kotlin.math.hypot
 
 /**
  * Clean State Machine for Edge Touch Gesture Detection.
@@ -50,6 +51,9 @@ class EdgeGestureDetector(
     private var ringHitIndex = -1
     private var ringOpenedStretch = 0f
     private var ringAnchorTouch = 0f
+    private var ringOpenedX = 0f
+    private var ringOpenedY = 0f
+    private var ringSelectionArmed = false
     private var lastLPreviewGesture: GestureType? = null
     private var bottomLSectionLocked = false
 
@@ -112,6 +116,9 @@ class EdgeGestureDetector(
             ringHitIndex = -1
             ringOpenedStretch = lastStretch
             ringAnchorTouch = lastTouchAlongEdge
+            ringOpenedX = touchState.prevX
+            ringOpenedY = touchState.prevY
+            ringSelectionArmed = false
             RuntimeDiagnostics.ringOpened(edge.name)
             RuntimeDiagnostics.ringTiming(
                 edge.name,
@@ -288,11 +295,11 @@ class EdgeGestureDetector(
             holdScheduled = true
             handler.postDelayed(holdRunnable, config.holdTimeMs)
             if (hasRingActions()) {
-                RuntimeDiagnostics.ringTiming(edge.name, "reveal_scheduled", RING_REVEAL_DELAY_MS)
+                RuntimeDiagnostics.ringTiming(edge.name, "reveal_scheduled", ringRevealDelayMs())
             }
             if (hasRingActions() && !ringRevealScheduled) {
                 ringRevealScheduled = true
-                handler.postDelayed(ringRevealRunnable, RING_REVEAL_DELAY_MS)
+                handler.postDelayed(ringRevealRunnable, ringRevealDelayMs())
             }
         }
 
@@ -306,11 +313,28 @@ class EdgeGestureDetector(
                 publishProgress(active = false)
                 return
             }
-            ringSelectedIndex = ringHoverTest(event.rawX, event.rawY, ringAnchorTouch)
-            val hit = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
-            // A ring is selected only while the finger is currently inside it.
-            // Do not keep the last hit after the finger has moved away.
-            ringHitIndex = hit
+            val movedSinceReveal = hypot(
+                event.rawX - ringOpenedX,
+                event.rawY - ringOpenedY,
+            )
+            if (!ringSelectionArmed && movedSinceReveal >= ringSelectionArmDistancePx()) {
+                ringSelectionArmed = true
+                RuntimeDiagnostics.ringTiming(
+                    edge.name,
+                    "selection_armed",
+                    System.currentTimeMillis() - touchState.downTime,
+                )
+            }
+            if (ringSelectionArmed) {
+                ringSelectedIndex = ringHoverTest(event.rawX, event.rawY, ringAnchorTouch)
+                val hit = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+                // A ring is selected only while the finger is currently inside it.
+                // Do not keep the last hit after the finger has moved away.
+                ringHitIndex = hit
+            } else {
+                ringSelectedIndex = -1
+                ringHitIndex = -1
+            }
         }
 
         publishProgress(active = visuallyActive)
@@ -345,7 +369,18 @@ class EdgeGestureDetector(
 
         if (ringActive) {
             lastTouchAlongEdge = touchCoord(event)
-            val hitAtRelease = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            val movedSinceReveal = hypot(
+                event.rawX - ringOpenedX,
+                event.rawY - ringOpenedY,
+            )
+            if (!ringSelectionArmed && movedSinceReveal >= ringSelectionArmDistancePx()) {
+                ringSelectionArmed = true
+            }
+            val hitAtRelease = if (ringSelectionArmed) {
+                ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            } else {
+                -1
+            }
             if (hitAtRelease >= 0) {
                 RuntimeDiagnostics.ringSelected(edge.name, hitAtRelease)
                 onRingActionSelected(hitAtRelease)
@@ -541,6 +576,9 @@ class EdgeGestureDetector(
         ringHitIndex = -1
         ringOpenedStretch = 0f
         ringAnchorTouch = 0f
+        ringOpenedX = 0f
+        ringOpenedY = 0f
+        ringSelectionArmed = false
         lastLPreviewGesture = null
         bottomLSectionLocked = false
         lastStretch = 0f
@@ -553,12 +591,21 @@ class EdgeGestureDetector(
         touchState.reset()
     }
 
-    /** Keep bottom-edge action lookup in the section where an L gesture began. */
-    private fun actionTouchCoord(): Float = if (bottomLSectionLocked) {
+    /** Keep an L gesture in the section where its first leg began. */
+    private fun actionTouchCoord(): Float = if (
+        bottomLSectionLocked ||
+        lSwipeDetector.inwardArmed ||
+        lSwipeDetector.detectedLGesture != null
+    ) {
         initialTouchCoord()
     } else {
         lastTouchAlongEdge
     }
+
+    private fun ringSelectionArmDistancePx(): Float = maxOf(scaledTouchSlop * 2f, 16f)
+
+    /** Keep the ring reveal behind the configured hold threshold. */
+    private fun ringRevealDelayMs(): Long = maxOf(RING_REVEAL_DELAY_MS, config.holdTimeMs)
 
     companion object {
         private const val LOG_TAG = "AkisGesture"

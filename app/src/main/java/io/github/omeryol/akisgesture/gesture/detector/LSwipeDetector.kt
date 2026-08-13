@@ -106,7 +106,6 @@ class LSwipeDetector {
                     GestureType.SWIPE_DOWN_L
                 }
             }
-            val directionAllowed = completedDirection == null || completedDirection == candidateDirection
             // Bottom-edge L gestures are intentionally asymmetric: the first
             // leg may be much longer than the horizontal turn. Do not make
             // the second-leg threshold grow with the inward distance, and do
@@ -116,16 +115,12 @@ class LSwipeDetector {
             } else {
                 maxOf(turnThreshold, maxInwardPx)
             }
-            previewDirection = if (directionAllowed && turnDistance >= minimumTurnDistance) {
+            previewDirection = if (turnDistance >= minimumTurnDistance) {
                 candidateDirection
             } else {
                 null
             }
-            turnProgress = if (directionAllowed) {
-                (turnDistance / minimumTurnDistance).coerceIn(0f, 1f)
-            } else {
-                0f
-            }
+            turnProgress = (turnDistance / minimumTurnDistance).coerceIn(0f, 1f)
 
             if (turnDistance >= turnThreshold * 0.5f) {
                 RuntimeDiagnostics.lTrace(edge.name, "turn", mapOf(
@@ -138,14 +133,17 @@ class LSwipeDetector {
 
             val turnShapeValid = edge == Edge.BOTTOM ||
                 turnDistance >= perpendicularDistance * 1.0f
-            if (directionAllowed &&
-                turnDistance >= minimumTurnDistance &&
-                turnShapeValid
-            ) {
+            if (turnDistance >= minimumTurnDistance && turnShapeValid) {
+                if (completedDirection != null && completedDirection != candidateDirection) {
+                    RuntimeDiagnostics.lTrace(edge.name, "direction_changed", mapOf(
+                        "from" to completedDirection!!.name,
+                        "to" to candidateDirection.name,
+                    ))
+                }
                 completedDirection = candidateDirection
                 detectedLGesture = candidateDirection
                 RuntimeDiagnostics.lTrace(edge.name, "detected", mapOf("direction" to candidateDirection.name))
-            } else if (!directionAllowed || turnDistance < turnThreshold * 0.78f) {
+            } else if (turnDistance < turnThreshold * 0.78f) {
                 detectedLGesture = null
             }
         }

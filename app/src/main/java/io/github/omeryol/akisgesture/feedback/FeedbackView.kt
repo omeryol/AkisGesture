@@ -247,8 +247,12 @@ class FeedbackView(context: Context) : View(context) {
         // During the vertical leg of an L gesture, keep the visual anchored at
         // the bend. Finger travel controls color/progress without dragging the
         // whole animation up or down the edge.
+        // Once the inward leg of a side-edge L gesture is armed, keep every
+        // feedback layer anchored at the bend. When the user reverses the
+        // second leg, lColorProgress may temporarily return to zero; using
+        // touchPos in that moment makes the whole visual stack jump with the
+        // finger instead of staying at the original turn point.
         this.touchPosition = if (
-            lColorProgress > 0f &&
             (edge == Edge.LEFT || edge == Edge.RIGHT) &&
             bendStartY > 0f
         ) bendStartY else touchPos
