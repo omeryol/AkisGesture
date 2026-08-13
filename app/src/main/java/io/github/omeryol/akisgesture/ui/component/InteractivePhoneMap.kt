@@ -20,8 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -556,16 +554,21 @@ private fun SideLActionBadge(
             direction = direction,
             color = scheme.tertiary,
             modifier = Modifier
-                .size(32.dp)
+                .size(28.dp)
                 .align(Alignment.Center),
         )
         ActionIcon(
             action,
             null,
             Modifier
-                .size(22.dp)
-                .align(Alignment.CenterEnd)
-                .offset(x = (-10).dp),
+                .size(18.dp)
+                .align(Alignment.Center)
+                .offset(
+                    x = if (direction == GestureVisualDirection.LEFT_EDGE_UP ||
+                        direction == GestureVisualDirection.LEFT_EDGE_DOWN) 18.dp else (-18).dp,
+                    y = if (direction == GestureVisualDirection.LEFT_EDGE_UP ||
+                        direction == GestureVisualDirection.RIGHT_EDGE_UP) (-14).dp else 14.dp,
+                ),
             iconPack = iconPack,
         )
     }
