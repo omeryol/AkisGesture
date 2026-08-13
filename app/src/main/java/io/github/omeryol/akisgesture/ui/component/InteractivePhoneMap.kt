@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -392,7 +393,18 @@ private fun EdgeActionPanelDirectional(
                 ) {
                     val ordered = if (edge == Edge.RIGHT) numbered.asReversed() else numbered
                     ordered.forEachIndexed { index, (kind, action) ->
-                        if (index > 0) Text("\u2190", color = scheme.outline, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        if (index > 0) {
+                            Text(
+                                text = if (edge == Edge.LEFT) "\u2192" else "\u2190",
+                                color = scheme.tertiary,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier
+                                    .width(26.dp)
+                                    .offset(y = (-7).dp),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                         ActionBadge(kind, action, iconPack, scheme)
                     }
                 }
