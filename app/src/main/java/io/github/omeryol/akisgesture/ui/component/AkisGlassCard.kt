@@ -100,11 +100,12 @@ fun AkisFlowGlyphIcon(
                 drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 5f))
             }
             AkisFlowGlyph.SETTINGS -> {
-                drawCircle(color, radius = 3f, center = androidx.compose.ui.geometry.Offset(8f, 8f), style = stroke)
-                drawCircle(color, radius = 3f, center = androidx.compose.ui.geometry.Offset(24f, 16f), style = stroke)
-                drawCircle(color, radius = 3f, center = androidx.compose.ui.geometry.Offset(8f, 24f), style = stroke)
-                drawLine(color, androidx.compose.ui.geometry.Offset(10.5f, 9.5f), androidx.compose.ui.geometry.Offset(21.5f, 14.5f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawLine(color, androidx.compose.ui.geometry.Offset(21.5f, 17.5f), androidx.compose.ui.geometry.Offset(10.5f, 22.5f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 8f), androidx.compose.ui.geometry.Offset(28f, 8f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 16f), androidx.compose.ui.geometry.Offset(28f, 16f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 24f), androidx.compose.ui.geometry.Offset(28f, 24f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(11f, 8f), style = stroke)
+                drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(21f, 16f), style = stroke)
+                drawCircle(color, radius = 3.2f, center = androidx.compose.ui.geometry.Offset(13f, 24f), style = stroke)
             }
         }
         }
@@ -190,7 +191,7 @@ fun AkisSectionHeader(
                     .size(40.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                AkisFlowGlyphIcon(flowGlyph, modifier = Modifier.size(36.dp), color = scheme.primary)
+                AkisFlowGlyphIcon(flowGlyph, modifier = Modifier.size(32.dp), color = scheme.primary)
             }
             Spacer(Modifier.width(8.dp))
         } else if (icon != null) {
