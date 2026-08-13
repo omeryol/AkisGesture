@@ -133,14 +133,14 @@ fun InteractivePhoneMap(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(560.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                .height(590.dp),
         ) {
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(430.dp)
+                    .height(460.dp)
                     .align(Alignment.TopCenter)
                     .pointerInput(config, zones) {
                         var selectedEdge: Edge? = null
@@ -306,7 +306,7 @@ fun InteractivePhoneMap(
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth().height(430.dp).align(Alignment.TopCenter),
+                modifier = Modifier.fillMaxWidth().height(460.dp).align(Alignment.TopCenter),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 EdgeActionPanelDirectional(
@@ -486,12 +486,12 @@ private fun ActionBadge(
     gestureVisual: GestureVisualDirection? = null,
 ) {
     Column(modifier = Modifier.padding(horizontal = 3.dp, vertical = 1.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        ActionIcon(action, null, Modifier.size(22.dp), iconPack = iconPack)
+        ActionIcon(action, null, Modifier.size(26.dp), iconPack = iconPack)
         if (gestureVisual != null) {
             GestureVisualIcon(
                 direction = gestureVisual,
-                color = scheme.primary,
-                modifier = Modifier.size(18.dp),
+                color = scheme.tertiary,
+                modifier = Modifier.size(20.dp),
             )
         } else {
             Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary, maxLines = 1)
