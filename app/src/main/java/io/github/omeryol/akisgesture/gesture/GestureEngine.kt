@@ -627,6 +627,11 @@ class GestureEngine(
             }
             activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
             } else null
+            val selectedRingAction = if (progress.ringActive && progress.ringSelectedIndex >= 0) {
+                currentConfig.ringActionsFor(progress.edge).getOrNull(progress.ringSelectedIndex)
+            } else {
+                null
+            }
 
         // Keep the selected action visible through the release animation. Clearing
         // it on ACTION_UP makes the renderer fall back to intermediate icons.
@@ -644,9 +649,17 @@ class GestureEngine(
                 } else 0f
                 activeRuleSet.match(progress.edge, GestureType.SWIPE_HOLD, ratio)
             } else null
-            val previewAction = if (progress.lPreviewGesture != null && displayAction == null) null else displayAction
+            // Once a ring item is hovered, mirror that same action in the
+            // trigger icon behind the finger. This prevents the previous hold
+            // or second action icon from contradicting the selected ring item.
+            val previewAction = selectedRingAction ?: if (progress.lPreviewGesture != null && displayAction == null) {
+                null
+            } else {
+                displayAction
+            }
             view.setAction(previewAction, currentConfig.actionIconPack, currentConfig.actionIconColorMode)
             val previewGesture = when {
+                selectedRingAction != null -> "RING_${selectedRingAction.id}"
                 progress.lPreviewGesture != null -> progress.lPreviewGesture.name
                 progress.holdArmed -> GestureType.SWIPE_HOLD.name
                 else -> GestureType.QUICK_SWIPE.name
