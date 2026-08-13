@@ -388,7 +388,13 @@ private fun EdgeActionPanelDirectional(
         } else {
             val upDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP
             val downDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN
-            if (lUp.isEmpty()) Spacer(Modifier.height(34.dp)) else lUp.forEach { (_, action) -> ActionBadge("", action, iconPack, scheme, upDirection) }
+            if (lUp.isEmpty()) {
+                Spacer(Modifier.height(34.dp))
+            } else {
+                lUp.forEach { (_, action) ->
+                    SideLActionBadge(action, iconPack, scheme, upDirection)
+                }
+            }
             if (numbered.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -419,7 +425,13 @@ private fun EdgeActionPanelDirectional(
                     }
                 }
             }
-            if (lDown.isEmpty()) Spacer(Modifier.height(34.dp)) else lDown.forEach { (_, action) -> ActionBadge("", action, iconPack, scheme, downDirection) }
+            if (lDown.isEmpty()) {
+                Spacer(Modifier.height(34.dp))
+            } else {
+                lDown.forEach { (_, action) ->
+                    SideLActionBadge(action, iconPack, scheme, downDirection)
+                }
+            }
         }
     }
 }
@@ -524,6 +536,30 @@ private fun ActionBadge(
         } else {
             Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary, maxLines = 1)
         }
+    }
+}
+
+@Composable
+private fun SideLActionBadge(
+    action: ActionNode,
+    iconPack: ActionIconPack,
+    scheme: androidx.compose.material3.ColorScheme,
+    direction: GestureVisualDirection,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(34.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ActionIcon(action, null, Modifier.size(26.dp), iconPack = iconPack)
+        Spacer(Modifier.width(6.dp))
+        GestureVisualIcon(
+            direction = direction,
+            color = scheme.tertiary,
+            modifier = Modifier.size(27.dp),
+        )
     }
 }
 
