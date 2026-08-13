@@ -47,15 +47,17 @@ object GithubReleaseChecker {
                 ?: throw ReleaseValidationException("Expected APK asset is missing")
             val downloadUrl = asset.optString("browser_download_url").takeIf(String::isNotBlank)
                 ?: throw ReleaseValidationException("APK download URL is missing")
+            val notesBody = release.optString("body").trim()
             val sha256 = asset.optString("digest")
                 .takeIf { it.startsWith("sha256:", ignoreCase = true) }
                 ?.substringAfter(':')
+                ?: extractSha256FromText(notesBody)
                 ?: throw ReleaseValidationException("APK SHA-256 digest is missing")
             if (asset.optLong("size") <= 0L) throw ReleaseValidationException("APK asset is empty")
             GithubRelease(
                 version = version,
                 url = release.getString("html_url"),
-                notes = release.optString("body").trim(),
+                notes = notesBody,
                 downloadUrl = downloadUrl,
                 publishedAt = release.optString("published_at").takeIf(String::isNotBlank),
                 assetName = asset.optString("name"),
@@ -86,6 +88,12 @@ object GithubReleaseChecker {
     }
 
     fun isNewerVersion(current: String, latest: String): Boolean = compareVersions(current, latest) > 0
+
+    fun extractSha256FromText(text: String): String? {
+        if (text.isBlank()) return null
+        val regex = Regex("""SHA-256[:`*\s]+([a-fA-F0-9]{64})""", RegexOption.IGNORE_CASE)
+        return regex.find(text)?.groupValues?.get(1)?.uppercase()
+    }
 
     /**
      * Extracts concise release highlights and removes full README content (badges, installation, license headers).
