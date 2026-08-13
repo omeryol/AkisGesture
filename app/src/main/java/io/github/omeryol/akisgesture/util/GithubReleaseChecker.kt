@@ -42,7 +42,12 @@ object GithubReleaseChecker {
                 ?.let { assets ->
                     (0 until assets.length())
                         .map { assets.getJSONObject(it) }
-                        .firstOrNull { it.optString("name") == expectedAssetName }
+                        .firstOrNull { item ->
+                            val name = item.optString("name")
+                            val label = item.optString("label")
+                            name == expectedAssetName || label == expectedAssetName ||
+                            name.endsWith(".apk", ignoreCase = true) || label.endsWith(".apk", ignoreCase = true)
+                        }
                 }
                 ?: throw ReleaseValidationException("Expected APK asset is missing")
             val downloadUrl = asset.optString("browser_download_url").takeIf(String::isNotBlank)
