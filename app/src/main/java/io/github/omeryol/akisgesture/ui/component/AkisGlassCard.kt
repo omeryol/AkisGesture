@@ -3,6 +3,7 @@ package io.github.omeryol.akisgesture.ui.component
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -41,10 +42,62 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+
+enum class AkisFlowGlyph {
+    EDGE_MAP,
+    MOTION,
+    PRESETS,
+    SUMMARY,
+}
+
+@Composable
+fun AkisFlowGlyphIcon(
+    glyph: AkisFlowGlyph,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+) {
+    Canvas(modifier = modifier) {
+        val stroke = Stroke(width = 2.4f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        val path = Path()
+        when (glyph) {
+            AkisFlowGlyph.EDGE_MAP -> {
+                drawRoundRect(color, topLeft = androidx.compose.ui.geometry.Offset(8f, 2f), size = androidx.compose.ui.geometry.Size(16f, 28f), cornerRadius = androidx.compose.ui.geometry.CornerRadius(4f), style = stroke)
+                drawLine(color, androidx.compose.ui.geometry.Offset(4f, 10f), androidx.compose.ui.geometry.Offset(8f, 10f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawLine(color, androidx.compose.ui.geometry.Offset(24f, 20f), androidx.compose.ui.geometry.Offset(28f, 20f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawCircle(color, radius = 1.8f, center = androidx.compose.ui.geometry.Offset(16f, 16f))
+            }
+            AkisFlowGlyph.MOTION -> {
+                path.moveTo(4f, 12f); path.cubicTo(10f, 12f, 10f, 4f, 16f, 4f); path.cubicTo(22f, 4f, 22f, 12f, 28f, 12f)
+                drawPath(path, color, style = stroke)
+                path.reset(); path.moveTo(4f, 20f); path.cubicTo(10f, 20f, 10f, 28f, 16f, 28f); path.cubicTo(22f, 28f, 22f, 20f, 28f, 20f)
+                drawPath(path, color, style = stroke)
+                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 12f))
+                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 20f))
+            }
+            AkisFlowGlyph.PRESETS -> {
+                path.moveTo(5f, 20f); path.cubicTo(10f, 20f, 10f, 8f, 16f, 8f); path.cubicTo(22f, 8f, 22f, 20f, 27f, 20f)
+                drawPath(path, color, style = stroke)
+                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(5f, 20f))
+                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(27f, 20f))
+                drawCircle(color, radius = 2.2f, center = androidx.compose.ui.geometry.Offset(16f, 8f))
+            }
+            AkisFlowGlyph.SUMMARY -> {
+                path.moveTo(4f, 24f); path.cubicTo(9f, 24f, 10f, 10f, 16f, 10f); path.cubicTo(22f, 10f, 22f, 18f, 28f, 5f)
+                drawPath(path, color, style = stroke)
+                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(4f, 24f))
+                drawCircle(color, radius = 2f, center = androidx.compose.ui.geometry.Offset(28f, 5f))
+            }
+        }
+    }
+}
 
 @Composable
 fun AkisGlassCard(
@@ -111,6 +164,7 @@ fun AkisSectionHeader(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     icon: ImageVector? = null,
+    flowGlyph: AkisFlowGlyph? = null,
     action: (@Composable () -> Unit)? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -118,7 +172,18 @@ fun AkisSectionHeader(
         modifier = modifier.fillMaxWidth().padding(vertical = 2.dp, horizontal = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (icon != null) {
+        if (flowGlyph != null) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(11.dp))
+                    .background(scheme.primaryContainer.copy(alpha = 0.9f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                AkisFlowGlyphIcon(flowGlyph, modifier = Modifier.size(28.dp), color = scheme.primary)
+            }
+            Spacer(Modifier.width(10.dp))
+        } else if (icon != null) {
             Box(
                 modifier = Modifier
                     .size(24.dp)
@@ -419,4 +484,3 @@ fun AkisRangeSliderRow(
         )
     }
 }
-

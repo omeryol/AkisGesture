@@ -67,6 +67,7 @@ import io.github.omeryol.akisgesture.rule.Presets
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 import io.github.omeryol.akisgesture.ui.component.AkisFluidSwitch
+import io.github.omeryol.akisgesture.ui.component.AkisFlowGlyph
 import io.github.omeryol.akisgesture.ui.component.AkisSectionHeader
 import io.github.omeryol.akisgesture.ui.component.InteractivePhoneMap
 import io.github.omeryol.akisgesture.ui.viewmodel.HomeViewModel
@@ -299,7 +300,7 @@ fun HomeScreen(
                         ) {
                             AkisSectionHeader(
                                 title = stringResource(R.string.edge_map),
-                                icon = Icons.Filled.Smartphone,
+                                flowGlyph = AkisFlowGlyph.EDGE_MAP,
                                 modifier = Modifier.weight(1f),
                             )
                         }
@@ -333,7 +334,7 @@ fun HomeScreen(
                     AkisSectionHeader(
                         title = "✨ Hazır Jest Şablonları",
                         subtitle = "Tek tıkla zengin jest düzeni yükleyin",
-                        icon = Icons.Filled.AutoAwesome,
+                        flowGlyph = AkisFlowGlyph.PRESETS,
                     )
                     Spacer(Modifier.height(10.dp))
 
@@ -498,7 +499,7 @@ private fun AkisSummaryChartCard(
         AkisSectionHeader(
             title = stringResource(R.string.live_chart_title),
             subtitle = if (totalCount > 0) stringResource(R.string.live_chart_subtitle, totalCount) else stringResource(R.string.live_chart_empty),
-            icon = Icons.Filled.BarChart,
+            flowGlyph = AkisFlowGlyph.SUMMARY,
         )
         Spacer(Modifier.height(12.dp))
 

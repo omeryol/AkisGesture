@@ -1,0 +1,5 @@
+Space Grotesk Font Software
+Copyright 2020 The Space Grotesk Project Authors
+
+Licensed under the SIL Open Font License, Version 1.1.
+The full license text is available at https://openfontlicense.org/OFL-1.1/

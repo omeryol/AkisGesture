@@ -1,0 +1,5 @@
+Manrope Font Software
+Copyright 2018 The Manrope Project Authors
+
+Licensed under the SIL Open Font License, Version 1.1.
+The full license text is available at https://openfontlicense.org/OFL-1.1/
