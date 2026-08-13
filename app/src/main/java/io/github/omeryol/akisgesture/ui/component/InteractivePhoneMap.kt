@@ -20,8 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -514,18 +514,18 @@ private fun ActionBadge(
     ) {
         when (action) {
             ActionNode.SwitchLastApp -> Icon(
-                imageVector = Icons.Filled.SwapHoriz,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = null,
                 tint = scheme.primary,
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.size(28.dp),
             )
             ActionNode.SwitchNextApp -> Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = null,
                 tint = scheme.primary,
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.size(28.dp),
             )
-            else -> ActionIcon(action, null, Modifier.size(32.dp), iconPack = iconPack)
+            else -> ActionIcon(action, null, Modifier.size(28.dp), iconPack = iconPack)
         }
         if (gestureVisual != null) {
             GestureVisualIcon(
