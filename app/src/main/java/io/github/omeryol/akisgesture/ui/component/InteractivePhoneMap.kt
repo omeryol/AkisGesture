@@ -17,7 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -405,7 +409,13 @@ private fun EdgeActionPanelDirectional(
                                 textAlign = TextAlign.Center,
                             )
                         }
-                        ActionBadge(kind, action, iconPack, scheme)
+                        ActionBadge(
+                            kind = kind,
+                            action = action,
+                            iconPack = iconPack,
+                            scheme = scheme,
+                            modifier = Modifier.weight(1f),
+                        )
                     }
                 }
             }
@@ -484,9 +494,27 @@ private fun ActionBadge(
     iconPack: ActionIconPack,
     scheme: androidx.compose.material3.ColorScheme,
     gestureVisual: GestureVisualDirection? = null,
+    modifier: Modifier = Modifier,
 ) {
-    Column(modifier = Modifier.padding(horizontal = 3.dp, vertical = 1.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        ActionIcon(action, null, Modifier.size(26.dp), iconPack = iconPack)
+    Column(
+        modifier = modifier.padding(horizontal = 2.dp, vertical = 1.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        when (action) {
+            ActionNode.SwitchLastApp -> Icon(
+                imageVector = Icons.Filled.SwapHoriz,
+                contentDescription = null,
+                tint = scheme.primary,
+                modifier = Modifier.size(30.dp),
+            )
+            ActionNode.SwitchNextApp -> Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = scheme.primary,
+                modifier = Modifier.size(30.dp),
+            )
+            else -> ActionIcon(action, null, Modifier.size(32.dp), iconPack = iconPack)
+        }
         if (gestureVisual != null) {
             GestureVisualIcon(
                 direction = gestureVisual,
