@@ -7,6 +7,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -126,7 +127,15 @@ private fun AkisGestureApp() {
             startDestination = "home",
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .then(
+                    if (isRulesRoute) {
+                        Modifier
+                            .padding(innerPadding)
+                            .offset(y = (-24).dp)
+                    } else {
+                        Modifier.padding(innerPadding)
+                    },
+                ),
         ) {
             composable("home") {
                 val homeViewModel: HomeViewModel = viewModel()

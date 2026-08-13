@@ -51,6 +51,7 @@ class EdgeGestureDetector(
     private var ringOpenedStretch = 0f
     private var ringAnchorTouch = 0f
     private var lastLPreviewGesture: GestureType? = null
+    private var bottomLSectionLocked = false
 
     private var lastStretch = 0f
     private var lastTouchAlongEdge = 0f
@@ -64,7 +65,7 @@ class EdgeGestureDetector(
         holdScheduled = false
         if (state == GestureState.DETECTED &&
             lastStretch >= swipeThresholdPx &&
-            (hasHoldActionAt(lastTouchAlongEdge) || hasRingActions())
+            (hasHoldActionAt(actionTouchCoord()) || hasRingActions())
         ) {
             holdArmed = true
             RuntimeDiagnostics.gestureSignal(edge.name, "hold_armed")
@@ -147,13 +148,22 @@ class EdgeGestureDetector(
 
         lSwipeDetector.onDown()
         lastTouchAlongEdge = touchCoord(event)
+        bottomLSectionLocked = edge == Edge.BOTTOM && hasLActionAt(initialTouchCoord())
+        if (edge == Edge.BOTTOM) {
+            RuntimeDiagnostics.lActionLookup(
+                edge = edge.name,
+                touchPx = initialTouchCoord(),
+                ratio = (initialTouchCoord() / config.sensorLength).coerceIn(0f, 1f),
+                matched = bottomLSectionLocked,
+            )
+        }
         lastStretch = 0f
 
         onProgress(
             GestureProgress(
                 edge = edge,
                 stretch = 0f,
-                touchAlongEdgePx = if (ringActive) ringAnchorTouch else lastTouchAlongEdge,
+                touchAlongEdgePx = if (ringActive) ringAnchorTouch else actionTouchCoord(),
                 active = true,
                 armed = false,
                 holdArmed = false,
@@ -439,7 +449,7 @@ class EdgeGestureDetector(
             GestureProgress(
                 edge = edge,
                 stretch = lastStretch,
-                touchAlongEdgePx = if (ringActive) ringAnchorTouch else lastTouchAlongEdge,
+                touchAlongEdgePx = if (ringActive) ringAnchorTouch else actionTouchCoord(),
                 active = active,
                 armed = armedNow,
                 holdArmed = holdArmed,
@@ -532,6 +542,7 @@ class EdgeGestureDetector(
         ringOpenedStretch = 0f
         ringAnchorTouch = 0f
         lastLPreviewGesture = null
+        bottomLSectionLocked = false
         lastStretch = 0f
         lastTouchAlongEdge = 0f
         lastSwitchDirection = null
@@ -540,6 +551,13 @@ class EdgeGestureDetector(
         lSwipeDetector.reset()
         state = GestureState.IDLE
         touchState.reset()
+    }
+
+    /** Keep bottom-edge action lookup in the section where an L gesture began. */
+    private fun actionTouchCoord(): Float = if (bottomLSectionLocked) {
+        initialTouchCoord()
+    } else {
+        lastTouchAlongEdge
     }
 
     companion object {

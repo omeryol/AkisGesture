@@ -90,6 +90,7 @@ fun ActionPickerScreen(
             ActionNode.Home,
             ActionNode.Recents,
             ActionNode.SwitchLastApp,
+            ActionNode.SwitchNextApp,
             ActionNode.ForceStopForeground,
         )
     }
@@ -122,7 +123,6 @@ fun ActionPickerScreen(
     var installedApps by remember { mutableStateOf<List<ActionNode.LaunchApp>>(emptyList()) }
     var appsLoaded by remember { mutableStateOf(false) }
     var browsingApps by remember(appSelectionOnly) { mutableStateOf(appSelectionOnly) }
-    var selectedCategory by remember { mutableStateOf(pickerCategories.firstOrNull()?.first) }
     var query by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val allSearchableActions = remember(fixedActions, installedApps) {
@@ -293,7 +293,7 @@ fun ActionPickerScreen(
                         }
                     } else {
                         items(searchResults, key = { "search_${it.id}" }) { action ->
-                            ActionPickerItem(action = action, onSelect = onSelect)
+                            ActionPickerRow(action = action, onSelect = onSelect)
                         }
                     }
                 } else {
@@ -321,71 +321,109 @@ fun ActionPickerScreen(
                         )
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
                     }
-                    item(key = "category_tabs") {
-                        FlowRow(
-                            maxItemsInEachRow = 4,
-                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
-                            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.padding(vertical = 8.dp),
-                        ) {
-                            pickerCategories.forEachIndexed { index, (category, actions) ->
-                                val accent = pickerCategoryColor(index)
-                                FilterChip(
-                                    selected = selectedCategory == category,
-                                    onClick = { selectedCategory = category },
-                                    label = {
-                                        Text(
-                                            pickerCategoryLabel(category),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            maxLines = 1,
-                                        )
-                                    },
-                                    trailingIcon = { Text("${actions.size}", style = MaterialTheme.typography.labelSmall) },
-                                    colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = accent.copy(alpha = 0.24f),
-                                        selectedLabelColor = accent,
-                                        selectedTrailingIconColor = accent,
-                                        containerColor = accent.copy(alpha = 0.08f),
-                                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        1.dp,
-                                        accent.copy(alpha = if (selectedCategory == category) 0.85f else 0.28f),
-                                    ),
-                                )
-                            }
-                        }
+                    item(key = "frequent_header") {
+                        ActionSectionHeader(stringResource(R.string.category_frequent))
                     }
-                    val selectedActions = pickerCategories
-                        .firstOrNull { it.first == selectedCategory }
-                        ?.second
-                        .orEmpty()
-                    item(key = "category_actions") {
-                        Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
-                            selectedActions.chunked(3).forEach { rowActions ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
-                                ) {
-                                    rowActions.forEach { action ->
-                                        ActionPickerItem(
-                                            action = action,
-                                            onSelect = onSelect,
-                                            modifier = Modifier.weight(1f),
-                                            accentColor = pickerCategoryColor(
-                                                pickerCategories.indexOfFirst { it.first == selectedCategory },
-                                            ),
-                                            iconPack = iconPack,
-                                        )
-                                    }
-                                    if (rowActions.size == 1) Spacer(Modifier.weight(1f))
-                                }
+                    items(frequentActions, key = { "frequent_${it.id}" }) { action ->
+                        ActionPickerRow(action = action, onSelect = onSelect, iconPack = iconPack)
+                    }
+                    pickerCategories.drop(1).forEachIndexed { groupIndex, (category, actions) ->
+                        val uniqueActions = actions.filter { action ->
+                            frequentActions.none { it.id == action.id }
+                        }
+                        if (uniqueActions.isNotEmpty()) {
+                            item(key = "header_$category") {
+                                ActionSectionHeader(pickerCategoryLabel(category))
+                            }
+                            items(uniqueActions, key = { "${category}_${it.id}" }) { action ->
+                                ActionPickerRow(
+                                    action = action,
+                                    onSelect = onSelect,
+                                    iconPack = iconPack,
+                                    accentColor = pickerCategoryColor(groupIndex + 1),
+                                )
                             }
                         }
                     }
                 }
     }
 }
+}
+
+@Composable
+private fun ActionSectionHeader(title: String) {
+    Text(
+        text = title,
+        modifier = Modifier.padding(top = 14.dp, bottom = 4.dp),
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+    )
+}
+
+@Composable
+private fun ActionPickerRow(
+    action: ActionNode,
+    onSelect: (ActionNode) -> Unit,
+    modifier: Modifier = Modifier,
+    accentColor: Color? = null,
+    iconPack: ActionIconPack = ActionIconPack.PHOSPHOR,
+) {
+    val context = LocalContext.current
+    val available = RuleConfigViewModel.isActionAvailable(action)
+    val scheme = MaterialTheme.colorScheme
+    val accent = accentColor ?: scheme.primary
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(enabled = available) { onSelect(action) }
+            .padding(vertical = 5.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(34.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(if (available) accent.copy(alpha = 0.16f) else scheme.outline.copy(alpha = 0.10f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            ActionIcon(
+                action = action,
+                iconPack = iconPack,
+                contentDescription = null,
+                modifier = Modifier.size(19.dp),
+                tint = if (available) accent else scheme.outline,
+            )
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp),
+        ) {
+            Text(
+                action.localizedLabel(context),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (available) scheme.onSurface else scheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+            Text(
+                when {
+                    !available -> stringResource(R.string.unavailable_android)
+                    action is ActionNode.LaunchApp -> stringResource(R.string.launch_app)
+                    else -> stringResource(R.string.gesture_action)
+                },
+                style = MaterialTheme.typography.labelSmall,
+                color = if (available) scheme.onSurfaceVariant else scheme.outline,
+                maxLines = 1,
+            )
+        }
+        Text(
+            if (available) stringResource(R.string.select) else stringResource(R.string.disabled),
+            style = MaterialTheme.typography.labelSmall,
+            color = if (available) accent else scheme.outline,
+        )
+    }
+    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.35f))
 }
 
 @Composable

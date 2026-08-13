@@ -69,6 +69,20 @@ object RuntimeDiagnostics {
         name = signal,
         details = mapOf("edge" to edge),
     )
+    fun lActionLookup(edge: String, touchPx: Float, ratio: Float, matched: Boolean) = record(
+        "l_lookup",
+        "initial",
+        mapOf(
+            "edge" to edge,
+            "touch_px" to "%.1f".format(java.util.Locale.US, touchPx),
+            "ratio" to "%.4f".format(java.util.Locale.US, ratio),
+            "matched" to matched.toString(),
+        ),
+    )
+    fun lTrace(edge: String, phase: String, details: Map<String, String>) = record("l_trace", phase, buildMap {
+        put("edge", edge)
+        putAll(details)
+    })
     fun feedbackSymbol(edge: String, gesture: String, symbol: String, colorMode: String? = null) = record(
         "feedback", "symbol", buildMap {
             put("edge", edge)
