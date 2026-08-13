@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -514,13 +515,13 @@ private fun ActionBadge(
     ) {
         when (action) {
             ActionNode.SwitchLastApp -> Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                imageVector = Icons.Filled.SwapHoriz,
                 contentDescription = null,
                 tint = scheme.primary,
                 modifier = Modifier.size(28.dp),
             )
             ActionNode.SwitchNextApp -> Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                imageVector = Icons.Filled.SwapHoriz,
                 contentDescription = null,
                 tint = scheme.primary,
                 modifier = Modifier.size(28.dp),
@@ -546,19 +547,26 @@ private fun SideLActionBadge(
     scheme: androidx.compose.material3.ColorScheme,
     direction: GestureVisualDirection,
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(34.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        ActionIcon(action, null, Modifier.size(26.dp), iconPack = iconPack)
-        Spacer(Modifier.width(6.dp))
         GestureVisualIcon(
             direction = direction,
             color = scheme.tertiary,
-            modifier = Modifier.size(27.dp),
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.Center),
+        )
+        ActionIcon(
+            action,
+            null,
+            Modifier
+                .size(22.dp)
+                .align(Alignment.CenterEnd)
+                .offset(x = (-10).dp),
+            iconPack = iconPack,
         )
     }
 }
