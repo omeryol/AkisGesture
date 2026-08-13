@@ -401,6 +401,7 @@ private fun EdgeActionPanelDirectional(
         if (entries.isEmpty()) {
             Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
+            Spacer(Modifier.height(8.dp))
             val upDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP
             val downDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN
             if (lUp.isEmpty()) {
