@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -308,24 +309,39 @@ fun InteractivePhoneMap(
                         .clip(RoundedCornerShape(12.dp)).background(scheme.primaryContainer).padding(horizontal = 10.dp, vertical = 6.dp),
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth().height(460.dp).align(Alignment.TopCenter),
-                verticalAlignment = Alignment.CenterVertically,
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(460.dp)
+                    .align(Alignment.TopCenter),
             ) {
+                val density = LocalDensity.current
+                val screen = with(density) { phoneScreenRect(maxWidth.toPx(), 460.dp.toPx()) }
+                val screenLeft = with(density) { screen.left.toDp() }
+                val screenRight = with(density) { screen.right.toDp() }
+                val panelGap = 12.dp
+                val panelWidth = with(density) {
+                    (screen.left.toDp() - panelGap).coerceIn(76.dp, 104.dp)
+                }
                 EdgeActionPanelDirectional(
                     title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_left)} →",
                     edge = Edge.LEFT,
                     entries = zones.filter { it.edge == Edge.LEFT }.flatMap { it.actionEntries() },
                     iconPack = iconPack,
-                    modifier = Modifier.weight(0.25f).padding(start = 8.dp, end = 14.dp),
+                    modifier = Modifier
+                        .width(panelWidth)
+                        .align(Alignment.CenterStart)
+                        .offset(x = screenLeft - panelWidth - panelGap),
                 )
-                Spacer(Modifier.weight(0.50f))
                 EdgeActionPanelDirectional(
                     title = "← ${context.getString(io.github.omeryol.akisgesture.R.string.edge_right)}",
                     edge = Edge.RIGHT,
                     entries = zones.filter { it.edge == Edge.RIGHT }.flatMap { it.actionEntries() },
                     iconPack = iconPack,
-                    modifier = Modifier.weight(0.25f).padding(start = 14.dp, end = 8.dp),
+                    modifier = Modifier
+                        .width(panelWidth)
+                        .align(Alignment.CenterStart)
+                        .offset(x = screenRight + panelGap),
                 )
             }
             EdgeActionColumn(
