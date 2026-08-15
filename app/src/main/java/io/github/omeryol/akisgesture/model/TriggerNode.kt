@@ -33,15 +33,14 @@ data class SectionRange(
         fun nths(index: Int, n: Int) = SectionRange(index.toFloat() / n, (index + 1).toFloat() / n)
 
         /** Common presets used by UI pickers. */
-        fun presets(edge: Edge): List<Pair<String, SectionRange>> {
-            val isVertical = edge == Edge.LEFT || edge == Edge.RIGHT
+        fun presets(edge: Edge): List<SectionRange> {
             return listOf(
-                "Tüm alan" to ALL,
-                (if (isVertical) "Üst bölüm" else "Sol bölüm") to thirds(0),
-                "Orta bölüm" to thirds(1),
-                (if (isVertical) "Alt bölüm" else "Sağ bölüm") to thirds(2),
-                (if (isVertical) "Üst yarısı" else "Sol yarısı") to halves(0),
-                (if (isVertical) "Alt yarısı" else "Sağ yarısı") to halves(1),
+                ALL,
+                thirds(0),
+                thirds(1),
+                thirds(2),
+                halves(0),
+                halves(1),
             )
         }
     }

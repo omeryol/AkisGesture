@@ -44,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -76,6 +78,7 @@ import io.github.omeryol.akisgesture.ui.theme.StatusConnected
 import io.github.omeryol.akisgesture.ui.theme.StatusDisconnected
 import io.github.omeryol.akisgesture.util.PermissionHelper
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 
@@ -99,6 +102,14 @@ fun HomeScreen(
         accessibilityGranted = PermissionHelper.isAccessibilityServiceEnabled(context)
         writeSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
         batteryExemptionGranted = PermissionHelper.isBatteryOptimizationIgnored(context)
+    }
+    LaunchedEffect(Unit) {
+        while (true) {
+            accessibilityGranted = PermissionHelper.isAccessibilityServiceEnabled(context)
+            writeSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
+            batteryExemptionGranted = PermissionHelper.isBatteryOptimizationIgnored(context)
+            delay(500)
+        }
     }
     val gestureConfig by viewModel.configState.collectAsState()
     val ringActionCount = Edge.entries.sumOf { gestureConfig.ringActionsFor(it).size }
@@ -273,7 +284,7 @@ fun HomeScreen(
                         Button(
                             onClick = onNavigateToPermissions,
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(14.dp),
                         ) {
                             Text(stringResource(R.string.open_permission_steps))
                         }
@@ -291,19 +302,10 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 0.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            AkisSectionHeader(
-                                title = stringResource(R.string.edge_map),
-                                flowGlyph = AkisFlowGlyph.EDGE_MAP,
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
+                        AkisSectionHeader(
+                            title = stringResource(R.string.edge_map),
+                            flowGlyph = AkisFlowGlyph.EDGE_MAP,
+                        )
                         InteractivePhoneMap(
                             rules = rules,
                             onSideRangeChange = viewModel::setEdgeVerticalRange,
@@ -311,8 +313,7 @@ fun HomeScreen(
                                 GestureAccessibilityService.instance?.previewEdgeVerticalRange(edge, start, end)
                             },
                             onEdgeClick = onNavigateToRules,
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             iconPack = gestureConfig.actionIconPack,
                             config = gestureConfig,
                         )
@@ -327,13 +328,15 @@ fun HomeScreen(
 
             // ── 4. Hazır Şablonlar Carousel (Preset Templates) ──
             if (gestureConfig.showPresetsCard) {
+                val presetNames = stringArrayResource(R.array.preset_names)
+                val presetDescriptions = stringArrayResource(R.array.preset_descriptions)
                 AkisGlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     accentTint = scheme.secondary,
                 ) {
                     AkisSectionHeader(
-                        title = "✨ Hazır Jest Şablonları",
-                        subtitle = "Tek tıkla zengin jest düzeni yükleyin",
+                        title = stringResource(R.string.show_presets_card),
+                        subtitle = stringResource(R.string.show_presets_card_subtitle),
                         flowGlyph = AkisFlowGlyph.PRESETS,
                     )
                     Spacer(Modifier.height(10.dp))
@@ -344,13 +347,9 @@ fun HomeScreen(
                             .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        val presetList = listOf(
-                            Triple("✨ Genel · Dengeli", "Dengeli günlük kullanım", Presets.DEFAULT),
-                            Triple("📱 Tek Elle Kullanım", "Sağ kenarda Geri ve Bildirimler", Presets.ONE_HAND_RIGHT),
-                            Triple("📐 Klasik Android", "Alt kenarda Geri, Ana Sayfa, Son", Presets.ANDROID_CLASSIC),
-                            Triple("⚡ Gelişmiş · Çift Kenar", "Her iki kenarda hızlı jestler", Presets.DUAL_EDGE_ADVANCED),
-                            Triple("🎵 Medya Kontrolü", "Ses ve parça değiştirme kısayolları", Presets.MEDIA_CONTROL),
-                        )
+                        val presetList = Presets.ALL.mapIndexed { index, (_, graph) ->
+                            Triple(presetNames[index], presetDescriptions[index], graph)
+                        }
 
                         presetList.forEach { (title, desc, graph) ->
                             Box(
@@ -388,11 +387,11 @@ fun HomeScreen(
                                                 snackbarHostState.showSnackbar("'$title' şablonu yüklendi!")
                                             }
                                         },
-                                        shape = RoundedCornerShape(10.dp),
+                                        shape = RoundedCornerShape(14.dp),
                                         modifier = Modifier.fillMaxWidth(),
                                         contentPadding = PaddingValues(vertical = 4.dp),
                                     ) {
-                                        Text("Uygula", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                                        Text(stringResource(R.string.apply), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }

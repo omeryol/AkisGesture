@@ -496,7 +496,7 @@ fun RuleListScreen(
                     state = ruleListState,
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     item(key = "header") {
                         Row(
@@ -1008,7 +1008,7 @@ private fun RingEdgeCard(
                             Spacer(Modifier.width(8.dp))
                         }
                         Text(
-                            text = action?.label ?: stringResource(R.string.ring_unassigned),
+                            text = action?.localizedLabel(context) ?: stringResource(R.string.ring_unassigned),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.SemiBold,
                             color = if (action == null) slotTint else scheme.onSurface,
@@ -1065,6 +1065,7 @@ private fun RingMenuPreview(
     sizeDp: Float,
     spacingDp: Float,
 ) {
+    val context = LocalContext.current
     val sideOffset = insetDp.coerceIn(0f, 320f).dp
     val groupModifier = when (edge) {
         Edge.LEFT -> Modifier.offset(x = sideOffset)
@@ -1079,7 +1080,7 @@ private fun RingMenuPreview(
     ) {
         val content: @Composable () -> Unit = {
             repeat(3) { index ->
-                val label = actions.getOrNull(index)?.label?.take(4) ?: "—"
+                val label = actions.getOrNull(index)?.localizedLabel(context)?.take(4) ?: "—"
                 Box(
                     modifier = Modifier.size(sizeDp.coerceIn(40f, 72f).dp)
                         .clip(CircleShape)

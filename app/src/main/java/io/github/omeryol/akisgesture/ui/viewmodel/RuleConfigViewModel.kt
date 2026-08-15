@@ -14,14 +14,17 @@ import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.rule.GestureRuleGraph
 import io.github.omeryol.akisgesture.rule.Presets
 import io.github.omeryol.akisgesture.rule.RuleValidator
+import io.github.omeryol.akisgesture.rule.RuleSerializer.toGestureRuleGraph
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import io.github.omeryol.akisgesture.AkisGestureApp
+import io.github.omeryol.akisgesture.settingsDataStore
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.gestureLabel
@@ -138,6 +141,23 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 loadPreset("Genel · Dengeli", Presets.DEFAULT)
                 applyRules()
             }
+        }
+        // Ana sayfa ve Hareketler sayfası aynı kayıtlı grafik üzerinden canlı senkronize olur.
+        viewModelScope.launch {
+            app.settingsDataStore.data
+                .map { prefs ->
+                    prefs[androidx.datastore.preferences.core.stringPreferencesKey("gesture_rules_json")]
+                        ?.let { runCatching { it.toGestureRuleGraph() }.getOrNull() }
+                }
+                .collect { graph ->
+                    graph ?: return@collect
+                    _rules.value = graph.rules
+                    _appliedRules.value = graph.rules
+                    _activePresetName.value = Presets.ALL
+                        .firstOrNull { it.second.rules == graph.rules }
+                        ?.first
+                    revalidate()
+                }
         }
     }
 

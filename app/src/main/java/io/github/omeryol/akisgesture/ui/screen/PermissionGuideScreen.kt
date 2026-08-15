@@ -66,7 +66,7 @@ fun PermissionGuideScreen(
             .fillMaxSize()
             .statusBarsPadding()
             .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Text(
             text = stringResource(R.string.permissions_title),

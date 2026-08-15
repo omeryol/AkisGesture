@@ -60,6 +60,8 @@ import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.delay
 
+private val MAP_HEIGHT = 400.dp
+
 data class PhoneZone(
     val edge: Edge,
     val start: Float,
@@ -137,14 +139,14 @@ fun InteractivePhoneMap(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                .height(590.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(MAP_HEIGHT),
         ) {
             Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(460.dp)
+                    .height(MAP_HEIGHT)
                     .align(Alignment.TopCenter)
                     .pointerInput(config, zones) {
                         var selectedEdge: Edge? = null
@@ -312,11 +314,11 @@ fun InteractivePhoneMap(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(460.dp)
+                    .height(MAP_HEIGHT)
                     .align(Alignment.TopCenter),
             ) {
                 val density = LocalDensity.current
-                val screen = with(density) { phoneScreenRect(maxWidth.toPx(), 460.dp.toPx()) }
+                val screen = with(density) { phoneScreenRect(maxWidth.toPx(), MAP_HEIGHT.toPx()) }
                 val screenLeft = with(density) { screen.left.toDp() }
                 val screenRight = with(density) { screen.right.toDp() }
                 val panelGap = 12.dp
@@ -326,7 +328,7 @@ fun InteractivePhoneMap(
                 EdgeActionPanelDirectional(
                     title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_left)} →",
                     edge = Edge.LEFT,
-                    entries = zones.filter { it.edge == Edge.LEFT }.flatMap { it.actionEntries() },
+                    groups = sideActionGroups(zones, Edge.LEFT),
                     iconPack = iconPack,
                     modifier = Modifier
                         .width(panelWidth)
@@ -336,7 +338,7 @@ fun InteractivePhoneMap(
                 EdgeActionPanelDirectional(
                     title = "← ${context.getString(io.github.omeryol.akisgesture.R.string.edge_right)}",
                     edge = Edge.RIGHT,
-                    entries = zones.filter { it.edge == Edge.RIGHT }.flatMap { it.actionEntries() },
+                    groups = sideActionGroups(zones, Edge.RIGHT),
                     iconPack = iconPack,
                     modifier = Modifier
                         .width(panelWidth)
@@ -344,13 +346,17 @@ fun InteractivePhoneMap(
                         .offset(x = screenRight + panelGap),
                 )
             }
-            EdgeActionColumn(
-                title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_bottom)} ↑",
-                groups = zones.filter { it.edge == Edge.BOTTOM }.map { it.actionEntries() },
-                iconPack = iconPack,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
-            )
         }
+
+        EdgeActionColumn(
+            title = "${context.getString(io.github.omeryol.akisgesture.R.string.edge_bottom)} ↑",
+            edge = Edge.BOTTOM,
+            groups = zones.filter { it.edge == Edge.BOTTOM }.map { it.actionEntries() },
+            iconPack = iconPack,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+        )
 
         Spacer(Modifier.height(8.dp))
 
@@ -374,7 +380,7 @@ fun InteractivePhoneMap(
                         .padding(horizontal = 8.dp, vertical = 8.dp),
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(title, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                        Text(title, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = EdgeUi.color(edge), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -388,29 +394,34 @@ private fun PhoneZone.actions(): List<ActionNode> = listOfNotNull(quickAction, h
 private fun EdgeActionPanelDirectional(
     title: String,
     edge: Edge,
-    entries: List<Pair<String, ActionNode>>,
+    groups: List<List<Pair<String, ActionNode>>>,
     iconPack: ActionIconPack,
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val entries = groups.flatten()
     val numbered = entries.filter { it.first == "1" || it.first == "2" }
     val lUp = entries.filter { it.first == "L\u2191" }
     val lDown = entries.filter { it.first == "L\u2193" }
     Column(modifier = modifier.height(184.dp).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(title, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Text(
+            title,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            color = EdgeUi.color(edge),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(y = (-8).dp),
+        )
         if (entries.isEmpty()) {
             Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
             Spacer(Modifier.height(8.dp))
             val upDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP
             val downDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN
-            if (lUp.isEmpty()) {
-                Spacer(Modifier.height(34.dp))
-            } else {
-                lUp.forEach { (_, action) ->
-                    SideLActionBadge(action, iconPack, scheme, upDirection)
-                }
-            }
+            if (lUp.isEmpty()) Spacer(Modifier.height(34.dp))
+            else lUp.forEach { (_, action) -> SideLActionBadge(action, iconPack, scheme, upDirection) }
             if (numbered.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -425,36 +436,46 @@ private fun EdgeActionPanelDirectional(
                                 color = scheme.tertiary,
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier
-                                    .width(26.dp)
-                                    .offset(y = (-7).dp),
+                                modifier = Modifier.width(26.dp).offset(y = (-7).dp),
                                 textAlign = TextAlign.Center,
                             )
                         }
-                        ActionBadge(
-                            kind = kind,
-                            action = action,
-                            iconPack = iconPack,
-                            scheme = scheme,
-                            modifier = Modifier.weight(1f),
-                        )
+                        ActionBadge(kind, action, iconPack, scheme, modifier = Modifier.weight(1f))
                     }
                 }
             }
-            if (lDown.isEmpty()) {
-                Spacer(Modifier.height(34.dp))
-            } else {
-                lDown.forEach { (_, action) ->
-                    SideLActionBadge(action, iconPack, scheme, downDirection)
-                }
-            }
+            if (lDown.isEmpty()) Spacer(Modifier.height(34.dp))
+            else lDown.forEach { (_, action) -> SideLActionBadge(action, iconPack, scheme, downDirection) }
         }
+    }
+}
+
+@Composable
+private fun SideDirectionalActions(
+    entries: List<Pair<String, ActionNode>>,
+    edge: Edge,
+    iconPack: ActionIconPack,
+    scheme: androidx.compose.material3.ColorScheme,
+) {
+    val numbered = entries.filter { it.first == "1" || it.first == "2" }
+        .let { values -> if (edge == Edge.RIGHT) values.asReversed() else values }
+    val lUp = entries.firstOrNull { it.first == "L↑" }
+    val lDown = entries.firstOrNull { it.first == "L↓" }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        lUp?.let { (_, action) -> ActionBadge("", action, iconPack, scheme, if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP) }
+        numbered.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+        lDown?.let { (_, action) -> ActionBadge("", action, iconPack, scheme, if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN) }
     }
 }
 
 @Composable
 private fun EdgeActionColumn(
     title: String,
+    edge: Edge,
     groups: List<List<Pair<String, ActionNode>>>,
     iconPack: ActionIconPack,
     modifier: Modifier = Modifier,
@@ -465,7 +486,7 @@ private fun EdgeActionColumn(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = EdgeUi.color(edge))
         Spacer(Modifier.height(10.dp))
         if (groups.isEmpty()) {
             Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
@@ -484,7 +505,7 @@ private fun EdgeActionColumn(
                             text = context.getString(io.github.omeryol.akisgesture.R.string.map_section_title, index + 1),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
-                            color = scheme.onSurface,
+                            color = EdgeUi.color(edge),
                         )
                         Spacer(Modifier.height(8.dp))
                         BottomDirectionalActions(entries, iconPack, scheme)
@@ -628,6 +649,20 @@ private fun PhoneZone.actionEntries(): List<Pair<String, ActionNode>> = listOfNo
     lUpAction?.takeUnless { it is ActionNode.NoAction }?.let { "L↑" to it },
     lDownAction?.takeUnless { it is ActionNode.NoAction }?.let { "L↓" to it },
 )
+
+private fun sideActionGroups(
+    zones: List<PhoneZone>,
+    edge: Edge,
+): List<List<Pair<String, ActionNode>>> {
+    val groups = zones
+        .filter { it.edge == edge }
+        .sortedBy { it.start }
+        .map { it.actionEntries() }
+        .take(3)
+        .toMutableList()
+    while (groups.size < 3) groups.add(emptyList())
+    return groups
+}
 
 private fun edgeLabel(context: android.content.Context, edge: Edge): String = context.getString(
     when (edge) {

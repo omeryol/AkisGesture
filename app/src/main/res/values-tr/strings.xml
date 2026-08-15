@@ -38,6 +38,17 @@
     <string name="language_system">Sistem varsayılanı</string>
     <string name="language_turkish">Türkçe</string>
     <string name="language_english">English</string>
+    <string name="language_arabic">Arapça</string>
+    <string name="language_hindi">Hintçe</string>
+    <string name="language_chinese">Basitleştirilmiş Çince</string>
+    <string name="language_indonesian">Endonezce</string>
+    <string name="left_edge">Sol kenar</string>
+    <string name="right_edge">Sağ kenar</string>
+    <string name="home">Ana ekran</string>
+    <string name="settings">Ayarlar</string>
+    <string name="appearance">Görünüm</string>
+    <string name="pause">Duraklat</string>
+    <string name="protection">Koruma</string>
     <string name="about_title">Akış Gesture</string>
     <string name="about_subtitle">Bağımsız, açık kaynaklı kenar hareketleri uygulaması</string>
     <string name="version">Sürüm</string>
@@ -67,22 +78,18 @@
     <string name="about_root_not_required_desc">Akış Gesture’ın tüm temel navigasyon hareketleri (Geri, Ana Ekran, Son Uygulamalar, Uygulama Açma, Medya Kontrolleri, Ekran Görüntüsü vb.) standart Android Erişilebilirlik Servisi ile %100 rootsuz çalışır.</string>
     <string name="about_root_features_title">⚡ Bu Uygulamada Root Ne İşe Yarar? (Opsiyonel)</string>
     <string name="about_root_features_desc">Root yalnızca isteğe bağlı öndeki uygulamayı zorla kapatma eylemi ve sistem erişilebilirlik kaydını beklenmedik düşüşten sonra yeniden bağlama için kullanılır. Temel hareketler için gerekli değildir; ne yaptığını bilen kullanıcıların kendi sorumluluğundadır.</string>
-<string name="about_root_privacy_desc" formatted="false">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
-
+    <string name="about_root_privacy_desc" formatted="false">🛡️ Güvenlik ve Şeffaflık: Root erişimi izin verilse dahi Akış Gesture kesinlikle internete veri aktarmaz. Tüm ayarlarınız ve kurallarınız %100 cihazınızda saklanır.</string>
     <string name="about_upstream">Akış Gesture, MIT lisanslı OpenSwipe kaynak kodu temel alınarak geliştirilmiştir. OpenSwipe telif ve lisans bildirimi korunur; Akış Gesture bağımsız bir projedir.</string>
     <string name="open_project_repo">Akış Gesture GitHub deposu</string>
     <string name="open_upstream">OpenSwipe kaynak projesi</string>
     <string name="version_history_button">Sürüm Geçmişi</string>
     <string name="version_history_title">Sürüm Geçmişi ve Değişiklik Günlüğü</string>
-
     <string name="recents_lock_title">🔒 Son Kullanılanlarda Kapanmayı Önleme</string>
     <string name="recents_lock_subtitle">Tümünü Kapat butonunun Akış Gesture’ı kapatmasını engelleme</string>
     <string name="hide_from_recents">Son Kullanılanlar listesinden gizle</string>
     <string name="hide_from_recents_subtitle">Açıkken uygulama Son Kullanılanlar (Recents) ekranında görünmez, kazara sonlandırılamaz</string>
     <string name="recents_lock_guide_title">💡 Alternatif: Recents Kilit (🔒) Yöntemi</string>
     <string name="recents_lock_guide_text">Uygulamayı gizlemek istemiyorsanız: Son Kullanılanlar (Görev Yöneticisi) ekranında Akış Gesture kartına uzun basıp Kilit (🔒) simgesine dokunun. Bu kilit sayesinde Hepsini Kapat butonuna basılsa dahi uygulama kapanmaz.</string>
-
-
     <string name="action_back">Geri</string>
     <string name="action_home">Ana ekran</string>
     <string name="action_recents">Son uygulamalar</string>
@@ -116,17 +123,77 @@
     <string name="action_brightness_up">Parlaklığı artır</string>
     <string name="action_brightness_down">Parlaklığı azalt</string>
     <string name="action_none">İşlem yok</string>
-    <string name="edge_left">Sol kenar</string><string name="edge_right">Sağ kenar</string><string name="edge_bottom">Alt kenar</string>
-    <string name="gesture_quick">Hızlı çekme</string><string name="gesture_hold">Çekip bekletme</string><string name="gesture_l_up">L-Çekme (yukarı)</string><string name="gesture_l_down">L-Çekme (aşağı)</string><string name="gesture_l_right">L-Çekme (sağa)</string><string name="gesture_l_left">L-Çekme (sola)</string>
-    <string name="section_all">Tüm alan</string><string name="section_top">Üst bölüm</string><string name="section_bottom">Alt bölüm</string><string name="section_left">Sol bölüm</string><string name="section_right">Sağ bölüm</string><string name="section_middle">Orta bölüm</string><string name="section_top_half">Üst yarısı</string><string name="section_bottom_half">Alt yarısı</string><string name="section_left_half">Sol yarısı</string><string name="section_right_half">Sağ yarısı</string><string name="section_custom">Özel alan · %1$d–%2$d</string>
-    <string name="hold_on_release">Parmak kalkınca</string><string name="hold_on_threshold">Eşik geçilince</string>
-    <string name="animation_ocean">Su yüzeyi</string><string name="animation_droplet">Yüzey gerilimli damla</string><string name="animation_fire">Doğal alev</string><string name="animation_mist">Yavaş sis</string><string name="animation_electric">Elektrik arkı</string><string name="animation_sun">Isı koronası</string><string name="animation_aurora">Aurora akışı</string><string name="animation_glass">Buzlu cam dalgası</string><string name="animation_neon">Sönümlü ışık halkası</string><string name="animation_stars">Yıldız akışı</string><string name="animation_ice">Buz gerilim çatlağı</string><string name="animation_vortex">Su girdabı</string><string name="animation_rain">Yağmur</string><string name="animation_ember">Yükselen kor</string><string name="animation_wind">Rüzgâr akışı</string><string name="animation_bubbles">Su baloncukları</string><string name="animation_ink">Suda mürekkep</string><string name="animation_heat">Isıl akış</string><string name="animation_elastic">Elastik yüzey ayrımı</string><string name="animation_night">Gece ışığı</string><string name="animation_particles">Tanecik çözünmesi</string><string name="animation_pressure">Basınç dalgası</string><string name="animation_dew">Cam üzerinde çiy</string><string name="animation_prism">Prizmatik gerilim</string><string name="animation_icon_only">Sade cam simge</string><string name="animation_off">Kapalı</string>
+    <string name="edge_left">Sol kenar</string>
+    <string name="edge_right">Sağ kenar</string>
+    <string name="edge_bottom">Alt kenar</string>
+    <string name="gesture_quick">Hızlı çekme</string>
+    <string name="gesture_hold">Çekip bekletme</string>
+    <string name="gesture_l_up">L-Çekme (yukarı)</string>
+    <string name="gesture_l_down">L-Çekme (aşağı)</string>
+    <string name="gesture_l_right">L-Çekme (sağa)</string>
+    <string name="gesture_l_left">L-Çekme (sola)</string>
+    <string name="section_all">Tüm alan</string>
+    <string name="section_top">Üst bölüm</string>
+    <string name="section_bottom">Alt bölüm</string>
+    <string name="section_left">Sol bölüm</string>
+    <string name="section_right">Sağ bölüm</string>
+    <string name="section_middle">Orta bölüm</string>
+    <string name="section_top_half">Üst yarısı</string>
+    <string name="section_bottom_half">Alt yarısı</string>
+    <string name="section_left_half">Sol yarısı</string>
+    <string name="section_right_half">Sağ yarısı</string>
+    <string name="section_custom">Özel alan · %1$d–%2$d</string>
+    <string name="hold_on_release">Parmak kalkınca</string>
+    <string name="hold_on_threshold">Eşik geçilince</string>
+    <string name="animation_ocean">Su yüzeyi</string>
+    <string name="animation_droplet">Yüzey gerilimli damla</string>
+    <string name="animation_fire">Doğal alev</string>
+    <string name="animation_mist">Yavaş sis</string>
+    <string name="animation_electric">Elektrik arkı</string>
+    <string name="animation_sun">Isı koronası</string>
+    <string name="animation_aurora">Aurora akışı</string>
+    <string name="animation_glass">Buzlu cam dalgası</string>
+    <string name="animation_neon">Sönümlü ışık halkası</string>
+    <string name="animation_stars">Yıldız akışı</string>
+    <string name="animation_ice">Buz gerilim çatlağı</string>
+    <string name="animation_vortex">Su girdabı</string>
+    <string name="animation_rain">Yağmur</string>
+    <string name="animation_ember">Yükselen kor</string>
+    <string name="animation_wind">Rüzgâr akışı</string>
+    <string name="animation_bubbles">Su baloncukları</string>
+    <string name="animation_ink">Suda mürekkep</string>
+    <string name="animation_heat">Isıl akış</string>
+    <string name="animation_elastic">Elastik yüzey ayrımı</string>
+    <string name="animation_night">Gece ışığı</string>
+    <string name="animation_particles">Tanecik çözünmesi</string>
+    <string name="animation_pressure">Basınç dalgası</string>
+    <string name="animation_dew">Cam üzerinde çiy</string>
+    <string name="animation_prism">Prizmatik gerilim</string>
+    <string name="animation_icon_only">Sade cam simge</string>
+    <string name="animation_off">Kapalı</string>
     <string name="service_channel_description">Hareket hizmetini arka planda kullanılabilir tutar</string>
-    <string name="service_running">Akış Gesture hareket hizmeti çalışıyor</string><string name="service_ready_tap">Kenar hareketleri hazır. Ayarları açmak için dokunun.</string>
-<string name="tile_label">Akış</string><string name="tile_on">Hareketler açık</string><string name="tile_off">Hareketler kapalı</string><string name="tile_service_label">Akış hareketleri</string><string name="command_start_label">Akış · Hareketleri başlat</string><string name="command_stop_label">Akış · Hareketleri durdur</string><string name="command_toggle_label">Akış · Hareket durumunu değiştir</string>
-    <string name="macro_start">Hareketleri başlat</string><string name="macro_stop">Hareketleri durdur</string><string name="macro_toggle">Durumu değiştir</string><string name="macro_title">Akış Gesture işlemi</string><string name="macro_blurb">Akış Gesture · %1$s</string>
-    <string name="home_active">Akış aktif</string><string name="home_service_off">Servis kapalı</string><string name="home_summary">%1$d hareket · %2$d aktif kenar · v%3$s</string><string name="home_enable_accessibility">Erişilebilirlik iznini etkinleştirin</string>
-    <string name="edge_map">📱 Kenar haritası</string><string name="edit_arrow">Düzenle →</string><string name="left_right_edges">📐 Sol ve sağ</string><string name="bottom_edge">🔽 Alt kenar</string>
+    <string name="service_running">Akış Gesture hareket hizmeti çalışıyor</string>
+    <string name="service_ready_tap">Kenar hareketleri hazır. Ayarları açmak için dokunun.</string>
+    <string name="tile_label">Akış</string>
+    <string name="tile_on">Hareketler açık</string>
+    <string name="tile_off">Hareketler kapalı</string>
+    <string name="tile_service_label">Akış hareketleri</string>
+    <string name="command_start_label">Akış · Hareketleri başlat</string>
+    <string name="command_stop_label">Akış · Hareketleri durdur</string>
+    <string name="command_toggle_label">Akış · Hareket durumunu değiştir</string>
+    <string name="macro_start">Hareketleri başlat</string>
+    <string name="macro_stop">Hareketleri durdur</string>
+    <string name="macro_toggle">Durumu değiştir</string>
+    <string name="macro_title">Akış Gesture işlemi</string>
+    <string name="macro_blurb">Akış Gesture · %1$s</string>
+    <string name="home_active">Akış aktif</string>
+    <string name="home_service_off">Servis kapalı</string>
+    <string name="home_summary">%1$d hareket · %2$d aktif kenar · v%3$s</string>
+    <string name="home_enable_accessibility">Erişilebilirlik iznini etkinleştirin</string>
+    <string name="edge_map">📱 Kenar haritası</string>
+    <string name="edit_arrow">Düzenle →</string>
+    <string name="left_right_edges">📐 Sol ve sağ</string>
+    <string name="bottom_edge">🔽 Alt kenar</string>
     <string name="home_map_resize_hint">Boyut için geniş tutamaçları, konum için renkli kenar şeridini sürükleyin.</string>
     <string name="edge_range_live">Konum %1$d%% · Boyut %2$d%%</string>
     <string name="edge_vertical_length_title">📏 Panel Dikey Boyu</string>
@@ -150,18 +217,59 @@
     <string name="gesture_action">Hareket eylemi</string>
     <string name="gestures_title">Hareketler</string>
     <string name="gesture_count">%1$d hareket</string>
+    <plurals name="gesture_count">
+        <item quantity="one">%d hareket</item>
+        <item quantity="other">%d hareket</item>
+    </plurals>
     <string name="add_action">+ Eylem Ekle</string>
     <string name="pause_on_launcher">Ana ekranda duraklat</string>
     <string name="pause_on_launcher_subtitle">Varsayılan launcher öndeyken hareket sensörlerini kapatır.</string>
     <string name="no_assigned_actions">Atanmış eylem yok</string>
-    <string name="disable_battery_restriction">Pil kısıtlamasını kaldır</string><string name="battery_restriction_description">Arka planda kesintisiz çalışması için pil optimizasyonunu kapatın</string>
-    <plurals name="gesture_count"><item quantity="one">%d hareket</item><item quantity="other">%d hareket</item></plurals>
-    <string name="permissions_title">İzinler</string><string name="permissions_intro">Akış Gesture düzgün çalışmak için aşağıdaki izinlere ihtiyaç duyar.</string><string name="accessibility_service">Erişilebilirlik hizmeti</string><string name="accessibility_description">Kenar hareketlerini algılar ve seçilen işlemleri uygular.\nAyarlar içinde Akış Gesture hizmetini etkinleştirin.</string><string name="battery_permission_title">Pil kısıtlamasını kaldır</string><string name="battery_permission_description">HyperOS sisteminin hareket hizmetini arka planda durdurmasını önler.</string><string name="start_using">Kullanmaya başla</string><string name="enable_accessibility_first">Önce erişilebilirlik hizmetini açın</string><string name="step_title">Adım %1$d: %2$s</string><string name="required">Gerekli</string><string name="open_settings">Ayarları aç</string>
-    <string name="nav_home">Ana ekran</string><string name="nav_gestures">Hareketler</string><string name="nav_settings">Ayarlar</string><string name="map_section_title">Bölüm %1$d</string>
-    <string name="service_ready">Hareket hizmeti hazır</string><string name="service_disconnected">Hareket hizmeti bağlı değil</string><string name="service_enabled_user">Kenar hareketleri bu kullanıcı için etkin.</string><string name="service_permission_prompt">Kenar hareketlerini etkinleştirmek için izin verin.</string><string name="grant_permission">İzin ver</string>
-    <string name="tab_motion">Hareket</string><string name="tab_appearance">Görünüm</string><string name="tab_pause">Duraklat</string><string name="tab_backup">Koruma</string><string name="tab_about">Hakkında</string>
-    <string name="motion_section">Kenar ve hareket fiziği</string><string name="motion_section_subtitle">Tetik alanları, hassasiyet ve bekleme ayarları</string><string name="trigger_thickness">Tetik kalınlığı</string><string name="trigger_help">Tetik: Kenardaki dokunma alanının kaplama kalınlığı.</string><string name="sensitivity_damping">Hassasiyet (sönümleme)</string><string name="sensitivity_help">Hassasiyet: Sürükleme direnci. Düşük sönümleme daha hızlı tepki verir; yüksek sönümleme daha fazla sürükleme gerektirir.</string><string name="threshold_distance">Eşik mesafesi</string><string name="threshold_help">Eşik: Hızlı çekmenin tetiklenmesi için gereken en kısa kaydırma mesafesi.</string><string name="l_threshold">L-Çekme bükülme eşiği</string><string name="l_threshold_help">L eşiği: L hareketinin algılanması için gereken dikey bükülme mesafesi. Dikey kaydırma yatay kaydırma kadar uzun olmalıdır.</string><string name="hold_duration">Çekip bekletme süresi</string><string name="hold_mode">Bekletme çalışma modu</string>
-    <string name="feedback_section">Görsel ve dokunsal geri bildirim</string><string name="feedback_section_subtitle">Animasyon stili, renkler, saydamlık ve dokunsal titreşim</string><string name="animation_style">Animasyon stili</string><string name="quick_color">Hızlı çekme rengi</string><string name="hold_color">Bekletme rengi</string><string name="l_color">L hareketi rengi</string>
+    <string name="disable_battery_restriction">Pil kısıtlamasını kaldır</string>
+    <string name="battery_restriction_description">Arka planda kesintisiz çalışması için pil optimizasyonunu kapatın</string>
+    <string name="permissions_title">İzinler</string>
+    <string name="permissions_intro">Akış Gesture düzgün çalışmak için aşağıdaki izinlere ihtiyaç duyar.</string>
+    <string name="accessibility_service">Erişilebilirlik hizmeti</string>
+    <string name="accessibility_description">Kenar hareketlerini algılar ve seçilen işlemleri uygular.\nAyarlar içinde Akış Gesture hizmetini etkinleştirin.</string>
+    <string name="battery_permission_title">Pil kısıtlamasını kaldır</string>
+    <string name="battery_permission_description">HyperOS sisteminin hareket hizmetini arka planda durdurmasını önler.</string>
+    <string name="start_using">Kullanmaya başla</string>
+    <string name="enable_accessibility_first">Önce erişilebilirlik hizmetini açın</string>
+    <string name="step_title">Adım %1$d: %2$s</string>
+    <string name="required">Gerekli</string>
+    <string name="open_settings">Ayarları aç</string>
+    <string name="nav_home">Ana ekran</string>
+    <string name="nav_gestures">Hareketler</string>
+    <string name="nav_settings">Ayarlar</string>
+    <string name="map_section_title">Bölüm %1$d</string>
+    <string name="service_ready">Hareket hizmeti hazır</string>
+    <string name="service_disconnected">Hareket hizmeti bağlı değil</string>
+    <string name="service_enabled_user">Kenar hareketleri bu kullanıcı için etkin.</string>
+    <string name="service_permission_prompt">Kenar hareketlerini etkinleştirmek için izin verin.</string>
+    <string name="grant_permission">İzin ver</string>
+    <string name="tab_motion">Hareket</string>
+    <string name="tab_appearance">Görünüm</string>
+    <string name="tab_pause">Duraklat</string>
+    <string name="tab_backup">Koruma</string>
+    <string name="tab_about">Hakkında</string>
+    <string name="motion_section">Kenar ve hareket fiziği</string>
+    <string name="motion_section_subtitle">Tetik alanları, hassasiyet ve bekleme ayarları</string>
+    <string name="trigger_thickness">Tetik kalınlığı</string>
+    <string name="trigger_help">Tetik: Kenardaki dokunma alanının kaplama kalınlığı.</string>
+    <string name="sensitivity_damping">Hassasiyet (sönümleme)</string>
+    <string name="sensitivity_help">Hassasiyet: Sürükleme direnci. Düşük sönümleme daha hızlı tepki verir; yüksek sönümleme daha fazla sürükleme gerektirir.</string>
+    <string name="threshold_distance">Eşik mesafesi</string>
+    <string name="threshold_help">Eşik: Hızlı çekmenin tetiklenmesi için gereken en kısa kaydırma mesafesi.</string>
+    <string name="l_threshold">L-Çekme bükülme eşiği</string>
+    <string name="l_threshold_help">L eşiği: L hareketinin algılanması için gereken dikey bükülme mesafesi. Dikey kaydırma yatay kaydırma kadar uzun olmalıdır.</string>
+    <string name="hold_duration">Çekip bekletme süresi</string>
+    <string name="hold_mode">Bekletme çalışma modu</string>
+    <string name="feedback_section">Görsel ve dokunsal geri bildirim</string>
+    <string name="feedback_section_subtitle">Animasyon stili, renkler, saydamlık ve dokunsal titreşim</string>
+    <string name="animation_style">Animasyon stili</string>
+    <string name="quick_color">Hızlı çekme rengi</string>
+    <string name="hold_color">Bekletme rengi</string>
+    <string name="l_color">L hareketi rengi</string>
     <string name="color_palettes">Hazır Uyumlu Renk Şablonları</string>
     <string name="color_palettes_subtitle">Hızlı, Bekletme ve L jestleri için 3\'lü uyumlu renk kombinasyonu seçin</string>
     <string name="palette_deep_ocean">🌊 Okyanus Derinliği</string>
@@ -171,17 +279,47 @@
     <string name="palette_midnight_galaxy">🌌 Gece Samanyolu</string>
     <string name="palette_lavender_sunset">🍊 Lavanta Batımı</string>
     <string name="palette_monochrome_slate">⚡ Monokrom Çelik</string>
-    <string name="adaptive_color">Uygulamaya duyarlı otomatik renk</string><string name="adaptive_color_subtitle">Uygulama rengini seçilen hızlı çekme rengiyle harmanlar</string><string name="opacity">Görünürlük (saydamlık)</string>    <string name="animation_speed">Animasyon hızı</string>
+    <string name="adaptive_color">Uygulamaya duyarlı otomatik renk</string>
+    <string name="adaptive_color_subtitle">Uygulama rengini seçilen hızlı çekme rengiyle harmanlar</string>
+    <string name="opacity">Görünürlük (saydamlık)</string>
+    <string name="animation_speed">Animasyon hızı</string>
     <string name="animation_size">Animasyon boyutu</string>
-    <string name="icon_size">İkon boyutu</string><string name="haptic_feedback">Dokunsal geri bildirim</string><string name="haptic_feedback_subtitle">Hareket başlangıcı ve eylem eşiklerinde kısa titreşim</string><string name="vibration_intensity">Titreşim şiddeti</string><string name="click_sound">Tıklama sesi</string><string name="click_sound_subtitle">Hareket tetiklendiğinde kısa bir ton çal</string>
-    <string name="pause_section">Çalışmayacağı yerler</string><string name="pause_section_subtitle">Özel durum ve uygulamalarda hareketleri otomatik kapat</string><string name="lock_screen">Kilit ekranı</string><string name="lock_screen_subtitle">Cihaz kilitliyken hareketleri duraklat</string><string name="keyboard_open">Klavye açıkken</string><string name="keyboard_open_subtitle">Metin girerken kenar dokunuşlarını yok say</string><string name="landscape_screen">Yatay ekran</string><string name="landscape_screen_subtitle">Ekran yatay konumdayken hareketleri duraklat</string><string name="immersive_fullscreen">Tam ekran modu</string><string name="immersive_fullscreen_subtitle">Video ve tam ekran uygulamalarda hareketleri kapat</string>
-    <string name="permission_screens">İzin ve güvenlik ekranları</string><string name="permission_screens_subtitle">APK yükleme ve izin pencerelerinde hareketleri kapat</string>
-    <string name="camera_active">Kamera ve çekim esnasında</string><string name="camera_active_subtitle">Kamera vizörü açıkken veya video kaydı esnasında hareketleri kapat</string>
-    <string name="phone_call_active">Gelen arama ve görüşmelerde</string><string name="phone_call_active_subtitle">Telefon çaldığında veya sesli görüşme esnasında hareketleri kapat</string>
+    <string name="icon_size">İkon boyutu</string>
+    <string name="haptic_feedback">Dokunsal geri bildirim</string>
+    <string name="haptic_feedback_subtitle">Hareket başlangıcı ve eylem eşiklerinde kısa titreşim</string>
+    <string name="vibration_intensity">Titreşim şiddeti</string>
+    <string name="click_sound">Tıklama sesi</string>
+    <string name="click_sound_subtitle">Hareket tetiklendiğinde kısa bir ton çal</string>
+    <string name="pause_section">Çalışmayacağı yerler</string>
+    <string name="pause_section_subtitle">Özel durum ve uygulamalarda hareketleri otomatik kapat</string>
+    <string name="lock_screen">Kilit ekranı</string>
+    <string name="lock_screen_subtitle">Cihaz kilitliyken hareketleri duraklat</string>
+    <string name="keyboard_open">Klavye açıkken</string>
+    <string name="keyboard_open_subtitle">Metin girerken kenar dokunuşlarını yok say</string>
+    <string name="landscape_screen">Yatay ekran</string>
+    <string name="landscape_screen_subtitle">Ekran yatay konumdayken hareketleri duraklat</string>
+    <string name="immersive_fullscreen">Tam ekran modu</string>
+    <string name="immersive_fullscreen_subtitle">Video ve tam ekran uygulamalarda hareketleri kapat</string>
+    <string name="permission_screens">İzin ve güvenlik ekranları</string>
+    <string name="permission_screens_subtitle">APK yükleme ve izin pencerelerinde hareketleri kapat</string>
+    <string name="camera_active">Kamera ve çekim esnasında</string>
+    <string name="camera_active_subtitle">Kamera vizörü açıkken veya video kaydı esnasında hareketleri kapat</string>
+    <string name="phone_call_active">Gelen arama ve görüşmelerde</string>
+    <string name="phone_call_active_subtitle">Telefon çaldığında veya sesli görüşme esnasında hareketleri kapat</string>
     <string name="app_pause_mode_title">İstisna Çalışma Mantığı</string>
     <string name="app_pause_mode_blacklist">Kara Liste (Seçilenlerde Duraklat)</string>
     <string name="app_pause_mode_whitelist">Beyaz Liste (Yalnızca Seçilenlerde Çalış)</string>
-    <string name="app_exclusions">Uygulama istisnaları</string><string name="no_paused_apps">Hiçbir uygulamada duraklatılmıyor</string><string name="paused_apps_count">%d uygulama listelendi</string>
+    <string name="app_exclusions">Uygulama istisnaları</string>
+    <string name="no_paused_apps">Hiçbir uygulamada duraklatılmıyor</string>
+    <string name="paused_apps_count">%d uygulama listelendi</string>
+    <string name="backup_section">Yedekleme ve geri yükleme</string>
+    <string name="backup_section_subtitle">Kurallar, uygulama profilleri ve ayarlar JSON yedeklemesi</string>
+    <string name="backup_action">Yedekle</string>
+    <string name="restore_action">Yükle</string>
+    <string name="root_status">Root durumu</string>
+    <string name="root_checking">Kontrol ediliyor…</string>
+    <string name="root_available">Root var (aktif)</string>
+    <string name="root_unavailable">Root yok</string>
     <string name="protection_section">Sistem Sağlığı ve Koruma</string>
     <string name="protection_section_subtitle">Hizmet canlılığı, arka plan koruması, pil optimizasyonu ve yedekleme</string>
     <string name="health_card_title">⚡ Erişilebilirlik Hizmet Sağlığı</string>
@@ -196,28 +334,152 @@
     <string name="battery_open_settings">Pil Muafiyeti İste / Ayarları Aç</string>
     <string name="privileged_card_title">🛡️ Ayrıcalıklı Otomatik İyileştirme (Root / Shizuku)</string>
     <string name="privileged_card_subtitle">Yalnızca beklenmedik erişilebilirlik kopmasında yeniden bağlama; kullanıcı durdurursa çalışmaz</string>
-    <string name="backup_section">Yedekleme ve geri yükleme</string><string name="backup_section_subtitle">Kurallar, uygulama profilleri ve ayarlar JSON yedeklemesi</string><string name="backup_action">Yedekle</string><string name="restore_action">Yükle</string><string name="root_status">Root durumu</string><string name="root_checking">Kontrol ediliyor…</string><string name="root_available">Root var (aktif)</string><string name="root_unavailable">Root yok</string>
-    <string name="backup_saved">Yedek kaydedildi</string><string name="backup_save_failed">Yedek kaydedilemedi</string><string name="backup_loaded">Yedek yüklendi</string><string name="backup_load_failed">Yedek yüklenemedi</string><string name="file_open_failed">Dosya açılamadı</string><string name="generic_error">Hata</string>
-    <string name="restore_confirm_title">Yedeği yüklemek istiyor musunuz?</string><string name="restore_confirm_text">Mevcut tüm hareket kuralları ve ayarlar seçtiğiniz yedekle değiştirilecek.</string><string name="cancel">Vazgeç</string><string name="done">Tamam</string><string name="paused_apps_title">Hareketlerin duraklatılacağı uygulamalar</string>
-    <string name="preset_colors">Hazır renkler</string><string name="color_picker">Renk seçici barı</string><string name="hex_hue">HEX: %1$s | Ton: %2$d°</string><string name="hue_value">Renk tonu: %d°</string><string name="saturation_value">Doygunluk: %d%%</string><string name="brightness_value">Parlaklık: %d%%</string>
-    <!-- Kurallar ve eylem yapılandırması -->
+    <string name="backup_saved">Yedek kaydedildi</string>
+    <string name="backup_save_failed">Yedek kaydedilemedi</string>
+    <string name="backup_loaded">Yedek yüklendi</string>
+    <string name="backup_load_failed">Yedek yüklenemedi</string>
+    <string name="file_open_failed">Dosya açılamadı</string>
+    <string name="generic_error">Hata</string>
+    <string name="restore_confirm_title">Yedeği yüklemek istiyor musunuz?</string>
+    <string name="restore_confirm_text">Mevcut tüm hareket kuralları ve ayarlar seçtiğiniz yedekle değiştirilecek.</string>
+    <string name="cancel">Vazgeç</string>
+    <string name="done">Tamam</string>
+    <string name="paused_apps_title">Hareketlerin duraklatılacağı uygulamalar</string>
+    <string name="preset_colors">Hazır renkler</string>
+    <string name="color_picker">Renk seçici barı</string>
+    <string name="hex_hue">HEX: %1$s | Ton: %2$d°</string>
+    <string name="hue_value">Renk tonu: %d°</string>
+    <string name="saturation_value">Doygunluk: %d%%</string>
+    <string name="brightness_value">Parlaklık: %d%%</string>
     <string name="edit_rule_title">Kural Düzenle</string>
     <string name="edit_rule_subtitle">Tetikleme alanı, çalışma modu ve eylem düzenleme</string>
-    <string name="rule_detail">Kural ayrıntısı</string><string name="rule_not_found">Kural bulunamadı</string><string name="enable_rule">Kuralı etkinleştir</string><string name="enabled">Etkin</string><string name="disabled">Kapalı</string>
-    <string name="gesture_condition">Hareket koşulu</string><string name="horizontal_bounds">Sol ve sağ sınır</string><string name="vertical_bounds">Üst ve alt sınır</string><string name="gesture_type">Hareket türü</string><string name="trigger_mode">Tetikleme biçimi</string>
-    <string name="swipe">Kaydırma</string><string name="swipe_description">Yalnızca kaydırınca çalışır; normal dokunuş uygulamaya geçer.</string><string name="touch">Dokunma</string><string name="touch_description">Kenara dokunulduğu anda algılar.</string>
-    <string name="assigned_action">Yapılacak işlem</string><string name="change">Değiştir</string><string name="delete_rule">Kuralı sil</string><string name="delete_rule_confirm">Bu kural silinsin mi? Bu işlem geri alınamaz.</string>
-    <string name="choose_area_intro">Bir alan seçin, sonra hareket eylemlerini atayın.</string><string name="assign_area_intro">Alanı seçin ve hareketleri atayın.</string><string name="quick_with_icon">Hızlı çekme ⚡</string><string name="quick_description">Parmağınızı çekip hemen bıraktığınızda</string><string name="hold_with_icon">Çekip bekletme ⏱️</string><string name="hold_description">Eşik dolduktan sonra bıraktığınızda</string><string name="l_up_with_icon">L-Çekme (yukarı) ↗️</string><string name="l_up_description">İçeri çekip parmağınızı yukarı kaydırdığınızda</string><string name="l_down_with_icon">L-Çekme (aşağı) ↘️</string><string name="l_down_description">İçeri çekip parmağınızı aşağı kaydırdığınızda</string><string name="swipe_recommended">Kaydırma (önerilen)</string>
-    <string name="choose_area">Alanı seç</string><string name="assign_gestures">Hareketleri ata</string><string name="step_progress">Adım %1$d / %2$d</string><string name="assign_area_gestures">Bu alan için hareketleri (Hızlı, Bekletme, L-Çekme) atayın.</string><string name="choose_gestures">Hareketleri seç</string><string name="remove_action">%1$s eylemini kaldır</string>
-    <string name="edge_left_arrow">← Sol kenar</string><string name="edge_right_arrow">→ Sağ kenar</string><string name="edge_bottom_arrow">↓ Alt kenar</string><string name="edge_left_hint">Sol kenardan içeri kaydırın</string><string name="edge_right_hint">Sağ kenardan içeri kaydırın</string><string name="edge_bottom_hint">Alt kenardan yukarı kaydırın</string><string name="area_bounds">Alan sınırları</string><string name="drag_horizontal_bounds">Başlangıç ve bitiş noktasını sürükleyin.</string><string name="drag_vertical_bounds">Üst ve alt sınırı sürükleyin.</string><string name="selected_area_percent">Seçili alan: %1$d%% – %2$d%%</string>
-    <string name="general_layout">Genel düzen (tüm uygulamalar)</string><string name="templates">Şablonlar</string><string name="all_apps_gestures">Tüm uygulamalarda kullanılan hareketler</string><string name="profile_only">Yalnızca %1$s öndeyken kullanılır</string><string name="change_profile">Profili değiştir</string><string name="conflict_count">%d çakışma var</string><string name="no_rules">Henüz kural yok. Hazır bir düzen seçin veya kural ekleyin.</string><string name="edge_areas">%1$s bölgeleri</string><string name="map_frame">Harita çerçevesi</string><string name="templates_subtitle">Hazır hareket düzenlerinden birini seçin</string><string name="general_layout_subtitle">Ayrı bir uygulama profili seçilmediğinde tüm uygulamalarda kullanılan varsayılan hareket kuralları.</string><string name="gesture_map">Hareket haritası</string><string name="edit_area_gestures">Bu alan için hareketleri düzenleyin (Hızlı, Bekletme, L-Çekme)</string><string name="fine_tuning">İnce ayarlar</string><string name="add_symbol">+</string><string name="quick_badge">⚡ Hızlı</string><string name="hold_badge">⏱️ Bekletme</string><string name="l_up_badge">↗️ L-Yukarı</string><string name="l_down_badge">↘️ L-Aşağı</string><string name="options">Seçenekler</string><string name="disable">Devre dışı bırak</string><string name="enable">Etkinleştir</string>
-    <string name="choose_app">Uygulama seç</string><string name="choose_action">Eylem seç</string><string name="choose_app_hint">Hareketle açmak istediğiniz uygulamayı seçin.</string><string name="choose_action_hint">Arayın veya bir kategori seçin.</string><string name="back_to_actions">Tüm eylemlere dön</string><string name="clear_search">Aramayı temizle</string><string name="no_matching_app">Eşleşen uygulama bulunamadı</string><string name="no_matching_action">Eşleşen eylem veya uygulama bulunamadı</string><string name="launch_app">Uygulama aç</string><string name="choose_from_apps">%d uygulamadan seç</string><string name="apps_loading">Uygulamalar hazırlanıyor</string><string name="unavailable_android">Bu Android sürümünde kullanılamıyor</string><string name="select">Seç</string>
-    <string name="gesture_areas">Hareket alanları</string><string name="map_expanded_hint">Dokunarak düzenleyin veya canlı deneyin</string><string name="active_area_count">%d etkin alan</string><string name="collapse">Daralt</string><string name="open_map">Haritayı aç</string><string name="map_edit_hint">Dokunarak düzenleyin · sürükleyerek taşıyın veya boyutlandırın</string><string name="edit">Düzenle</string><string name="quick_legend">Hızlı</string><string name="both_legend">İkisi</string><string name="rehearsal_start">Bir alanı kenardan içeri çekin</string><string name="rehearsal_pull">İçeri doğru çekin</string><string name="rehearsal_hold_ready">Bekletme hazır · bırakınca önizleme biter</string><string name="rehearsal_quick_ready">Hızlı çekme hazır · bekletirseniz ikinci hareket</string><string name="rehearsal_more">Biraz daha çekin</string><string name="rehearsal_hold_detected">Bekletmeli hareket algılandı</string><string name="rehearsal_quick_detected">Hızlı çekme algılandı</string><string name="rehearsal_not_reached">Hareket eşiğe ulaşmadı</string>
-    <string name="rule_conflict">%1$s %2$s alanı çakışıyor</string><string name="back">Geri</string><string name="save">Kaydet</string><string name="edge">Kenar</string><string name="area">Alan</string><string name="confirm">Onayla</string><string name="delete">Sil</string><string name="close">Kapat</string><string name="finish">Bitti</string><string name="assign_action">Eylem ata</string><string name="gesture_profile">Hareket profili</string><string name="try_action">Dene</string><string name="hold_legend">Beklet</string><string name="search_apps">Uygulama ara</string><string name="search_actions">Eylem ve uygulama ara</string>
-    <string name="category_frequent">Sık</string><string name="category_navigation">Gezinme</string><string name="category_system">Sistem</string><string name="category_media_tools">Medya ve araçlar</string><string name="key_back">Geri tuşu</string><string name="key_home">Ana ekran tuşu</string><string name="key_recents">Son uygulamalar tuşu</string><string name="key_volume_up">Ses artırma tuşu</string><string name="key_volume_down">Ses azaltma tuşu</string><string name="key_media_toggle">Medya oynat / duraklat</string>
+    <string name="rule_detail">Kural ayrıntısı</string>
+    <string name="rule_not_found">Kural bulunamadı</string>
+    <string name="enable_rule">Kuralı etkinleştir</string>
+    <string name="enabled">Etkin</string>
+    <string name="disabled">Kapalı</string>
+    <string name="gesture_condition">Hareket koşulu</string>
+    <string name="horizontal_bounds">Sol ve sağ sınır</string>
+    <string name="vertical_bounds">Üst ve alt sınır</string>
+    <string name="gesture_type">Hareket türü</string>
+    <string name="trigger_mode">Tetikleme biçimi</string>
+    <string name="swipe">Kaydırma</string>
+    <string name="swipe_description">Yalnızca kaydırınca çalışır; normal dokunuş uygulamaya geçer.</string>
+    <string name="touch">Dokunma</string>
+    <string name="touch_description">Kenara dokunulduğu anda algılar.</string>
+    <string name="assigned_action">Yapılacak işlem</string>
+    <string name="change">Değiştir</string>
+    <string name="delete_rule">Kuralı sil</string>
+    <string name="delete_rule_confirm">Bu kural silinsin mi? Bu işlem geri alınamaz.</string>
+    <string name="choose_area_intro">Bir alan seçin, sonra hareket eylemlerini atayın.</string>
+    <string name="assign_area_intro">Alanı seçin ve hareketleri atayın.</string>
+    <string name="quick_with_icon">Hızlı çekme ⚡</string>
+    <string name="quick_description">Parmağınızı çekip hemen bıraktığınızda</string>
+    <string name="hold_with_icon">Çekip bekletme ⏱️</string>
+    <string name="hold_description">Eşik dolduktan sonra bıraktığınızda</string>
+    <string name="l_up_with_icon">L-Çekme (yukarı) ↗️</string>
+    <string name="l_up_description">İçeri çekip parmağınızı yukarı kaydırdığınızda</string>
+    <string name="l_down_with_icon">L-Çekme (aşağı) ↘️</string>
+    <string name="l_down_description">İçeri çekip parmağınızı aşağı kaydırdığınızda</string>
+    <string name="swipe_recommended">Kaydırma (önerilen)</string>
+    <string name="choose_area">Alanı seç</string>
+    <string name="assign_gestures">Hareketleri ata</string>
+    <string name="step_progress">Adım %1$d / %2$d</string>
+    <string name="assign_area_gestures">Bu alan için hareketleri (Hızlı, Bekletme, L-Çekme) atayın.</string>
+    <string name="choose_gestures">Hareketleri seç</string>
+    <string name="remove_action">%1$s eylemini kaldır</string>
+    <string name="edge_left_arrow">← Sol kenar</string>
+    <string name="edge_right_arrow">→ Sağ kenar</string>
+    <string name="edge_bottom_arrow">↓ Alt kenar</string>
+    <string name="edge_left_hint">Sol kenardan içeri kaydırın</string>
+    <string name="edge_right_hint">Sağ kenardan içeri kaydırın</string>
+    <string name="edge_bottom_hint">Alt kenardan yukarı kaydırın</string>
+    <string name="area_bounds">Alan sınırları</string>
+    <string name="drag_horizontal_bounds">Başlangıç ve bitiş noktasını sürükleyin.</string>
+    <string name="drag_vertical_bounds">Üst ve alt sınırı sürükleyin.</string>
+    <string name="selected_area_percent">Seçili alan: %1$d%% – %2$d%%</string>
+    <string name="general_layout">Genel düzen (tüm uygulamalar)</string>
+    <string name="templates">Şablonlar</string>
+    <string name="all_apps_gestures">Tüm uygulamalarda kullanılan hareketler</string>
+    <string name="profile_only">Yalnızca %1$s öndeyken kullanılır</string>
+    <string name="change_profile">Profili değiştir</string>
+    <string name="conflict_count">%d çakışma var</string>
+    <string name="no_rules">Henüz kural yok. Hazır bir düzen seçin veya kural ekleyin.</string>
+    <string name="edge_areas">%1$s bölgeleri</string>
+    <string name="map_frame">Harita çerçevesi</string>
+    <string name="templates_subtitle">Hazır hareket düzenlerinden birini seçin</string>
+    <string name="general_layout_subtitle">Ayrı bir uygulama profili seçilmediğinde tüm uygulamalarda kullanılan varsayılan hareket kuralları.</string>
+    <string name="gesture_map">Hareket haritası</string>
+    <string name="edit_area_gestures">Bu alan için hareketleri düzenleyin (Hızlı, Bekletme, L-Çekme)</string>
+    <string name="fine_tuning">İnce ayarlar</string>
+    <string name="add_symbol">+</string>
+    <string name="quick_badge">⚡ Hızlı</string>
+    <string name="hold_badge">⏱️ Bekletme</string>
+    <string name="l_up_badge">↗️ L-Yukarı</string>
+    <string name="l_down_badge">↘️ L-Aşağı</string>
+    <string name="options">Seçenekler</string>
+    <string name="disable">Devre dışı bırak</string>
+    <string name="enable">Etkinleştir</string>
+    <string name="choose_app">Uygulama seç</string>
+    <string name="choose_action">Eylem seç</string>
+    <string name="choose_app_hint">Hareketle açmak istediğiniz uygulamayı seçin.</string>
+    <string name="choose_action_hint">Arayın veya bir kategori seçin.</string>
+    <string name="back_to_actions">Tüm eylemlere dön</string>
+    <string name="clear_search">Aramayı temizle</string>
+    <string name="no_matching_app">Eşleşen uygulama bulunamadı</string>
+    <string name="no_matching_action">Eşleşen eylem veya uygulama bulunamadı</string>
+    <string name="launch_app">Uygulama aç</string>
+    <string name="choose_from_apps">%d uygulamadan seç</string>
+    <string name="apps_loading">Uygulamalar hazırlanıyor</string>
+    <string name="unavailable_android">Bu Android sürümünde kullanılamıyor</string>
+    <string name="select">Seç</string>
+    <string name="gesture_areas">Hareket alanları</string>
+    <string name="map_expanded_hint">Dokunarak düzenleyin veya canlı deneyin</string>
+    <string name="active_area_count">%d etkin alan</string>
+    <string name="collapse">Daralt</string>
+    <string name="open_map">Haritayı aç</string>
+    <string name="map_edit_hint">Dokunarak düzenleyin · sürükleyerek taşıyın veya boyutlandırın</string>
+    <string name="edit">Düzenle</string>
+    <string name="quick_legend">Hızlı</string>
+    <string name="both_legend">İkisi</string>
+    <string name="rehearsal_start">Bir alanı kenardan içeri çekin</string>
+    <string name="rehearsal_pull">İçeri doğru çekin</string>
+    <string name="rehearsal_hold_ready">Bekletme hazır · bırakınca önizleme biter</string>
+    <string name="rehearsal_quick_ready">Hızlı çekme hazır · bekletirseniz ikinci hareket</string>
+    <string name="rehearsal_more">Biraz daha çekin</string>
+    <string name="rehearsal_hold_detected">Bekletmeli hareket algılandı</string>
+    <string name="rehearsal_quick_detected">Hızlı çekme algılandı</string>
+    <string name="rehearsal_not_reached">Hareket eşiğe ulaşmadı</string>
+    <string name="rule_conflict">%1$s %2$s alanı çakışıyor</string>
+    <string name="back">Geri</string>
+    <string name="save">Kaydet</string>
+    <string name="edge">Kenar</string>
+    <string name="area">Alan</string>
+    <string name="confirm">Onayla</string>
+    <string name="delete">Sil</string>
+    <string name="close">Kapat</string>
+    <string name="finish">Bitti</string>
+    <string name="assign_action">Eylem ata</string>
+    <string name="gesture_profile">Hareket profili</string>
+    <string name="try_action">Dene</string>
+    <string name="hold_legend">Beklet</string>
+    <string name="search_apps">Uygulama ara</string>
+    <string name="search_actions">Eylem ve uygulama ara</string>
+    <string name="category_frequent">Sık</string>
+    <string name="category_navigation">Gezinme</string>
+    <string name="category_system">Sistem</string>
+    <string name="category_media_tools">Medya ve araçlar</string>
+    <string name="key_back">Geri tuşu</string>
+    <string name="key_home">Ana ekran tuşu</string>
+    <string name="key_recents">Son uygulamalar tuşu</string>
+    <string name="key_volume_up">Ses artırma tuşu</string>
+    <string name="key_volume_down">Ses azaltma tuşu</string>
+    <string name="key_media_toggle">Medya oynat / duraklat</string>
     <string-array name="preset_names"><item>Başlangıç · Sade</item><item>Başlangıç · Android klasik</item><item>Genel · Dengeli</item><item>Tek el · Sağ kenar</item><item>Tek el · Sol kenar</item><item>İleri · Çift kenar</item><item>İleri · Üretkenlik</item><item>Özel · Medya kontrolü</item><item>Root · Güçlü kullanım</item><item>Gece · Sessiz kullanım</item><item>Okuma · Göz konforu</item><item>Seyahat · Hızlı erişim</item><item>İletişim · Bildirim odaklı</item><item>Üretici · Yakala ve yönet</item><item>Minimal · İki hareket</item><item>Tarama · Uygulama geçişi</item><item>Oyun · Ekranı bölme</item><item>Ders · Odaklı ekran</item><item>Pil · Sessiz güç</item><item>Medya · Kenar kumandası</item></string-array>
     <string-array name="preset_descriptions"><item>Yalnızca alt kenardan ana ekrana geçiş. En az müdahale.</item><item>Alt kenarın üç bölgesinde geri, ana ekran ve son uygulamalar.</item><item>Sol ve sağdan geri, alttan ana ekran. Günlük kullanım için dengeli.</item><item>Sağ üst/alt bölgede geri ve ana ekran; bekletmede bildirim ve son uygulamalar.</item><item>Sol üst/alt bölgede geri ve ana ekran; bekletmede bildirim ve son uygulamalar.</item><item>İki kenarda geri/önceki uygulama, altta ana ekran/asistan kombinasyonu.</item><item>Alt üçlüde geri, ana ekran, son uygulamalar; bekletmede paneller ve asistan.</item><item>Alt kenarın üç bölgesinde parça, oynatma ve ses kontrolleri.</item><item>Bekletme hareketleriyle öndeki uygulamayı kapatma. Root gerekir.</item><item>Geri, ana ekran ve bekletmeyle sessize alma. Gece için düşük dikkat dağıtma.</item><item>Geri, bekletmeyle parlaklık azaltma ve ana ekran.</item><item>Geri, hızlı ayarlar ve son uygulamalar tek elle erişilebilir.</item><item>Geri, sesli asistan ve bildirim paneli.</item><item>Ekran görüntüsü, ana ekran ve son uygulamalarla içerik üretimi.</item><item>Sadece geri ve ana ekran. Temiz ve sade deneyim.</item><item>Geri ve önceki uygulama; bekletmeyle son uygulamalar.</item><item>Ana ekran, hızlı ayarlar ve alt kenardan geri/son uygulamalar.</item><item>Geri, bekletmeyle parlaklık artırma ve asistan.</item><item>Geri, sessize alma ve bekletmeyle ekran kilidi.</item><item>Sol/sağ parça değişimi; altta oynat ve bekletmeyle ses.</item></string-array>
-    <string name="invalid_backup">Bu dosya Akış Gesture yedeği değil</string><string name="unsupported_backup_version">Yedek sürümü desteklenmiyor</string><string name="unknown_backup_field">Bilinmeyen yedek alanı</string>
+    <string name="invalid_backup">Bu dosya Akış Gesture yedeği değil</string>
+    <string name="unsupported_backup_version">Yedek sürümü desteklenmiyor</string>
+    <string name="unknown_backup_field">Bilinmeyen yedek alanı</string>
     <string name="saved">Kaydedildi</string>
     <string name="tab_all">Tümü</string>
     <string name="stream_paused">Akış Durduruldu ⏸️</string>
@@ -241,10 +503,10 @@
     <string name="show_summary_chart_subtitle">Canlı jest sayacı ve dağılım grafiğini göster</string>
     <string name="show_presets_card">⚡ Hızlı Düzen Şablonları</string>
     <string name="show_presets_card_subtitle">Tek tıkla hazır jest düzen kartlarını göster</string>
+    <string name="apply">Uygula</string>
     <string name="edge_distribution">Kenar Dağılımı</string>
     <string name="icon_pack_section">🎨 Eylem İkon Paketi</string>
     <string name="icon_pack_section_subtitle">Uygulama genelindeki hareket ve bildirim simgelerinin görsel stilini seçin</string>
-    <!-- Root Watchdog & Scope Notice -->
     <string name="root_watchdog_title">Root Bekçi İncelemesi (Auto-Repair)</string>
     <string name="root_watchdog_subtitle">Root (SU) yetkisiyle servisin canlılığını zamanlanmış aralıklarla kontrol eder</string>
     <string name="root_watchdog_interval">Kontrol periyodu</string>
@@ -325,3 +587,4 @@
     <string name="quick_start_battery_missing">Hizmet arka planda durdurulabilir.</string>
     <string name="open_permission_steps">İzin adımlarını aç</string>
 </resources>
+

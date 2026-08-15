@@ -231,7 +231,7 @@ fun RuleDetailScreen(
                     Box {
                         OutlinedButton(
                             onClick = { showSectionMenu = true },
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(14.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
                         ) {
                             Text(
@@ -244,9 +244,9 @@ fun RuleDetailScreen(
                             onDismissRequest = { showSectionMenu = false },
                             modifier = Modifier.background(scheme.surface),
                         ) {
-                            SectionRange.presets(rule.trigger.edge).forEach { (label, section) ->
+                            SectionRange.presets(rule.trigger.edge).forEach { section ->
                                 DropdownMenuItem(
-                                    text = { Text(label) },
+                                    text = { Text(sectionLabel(context, section, rule.trigger.edge)) },
                                     onClick = {
                                         viewModel.updateRuleTrigger(
                                             ruleId,
@@ -389,7 +389,7 @@ fun RuleDetailScreen(
                                 InternalNavigationBus.ActionPickerRequest(token),
                             )
                         },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(14.dp),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
                     ) {
                         Text(stringResource(R.string.change), style = MaterialTheme.typography.labelMedium)

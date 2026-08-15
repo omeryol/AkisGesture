@@ -73,6 +73,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -138,13 +139,19 @@ fun SettingsScreen(
     var showAppPicker by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
-    var selectedSection by remember(initialSection) { mutableStateOf(initialSection.coerceIn(0, 4)) }
+    var selectedSection by remember(initialSection) { mutableStateOf(initialSection.coerceIn(0, 5)) }
+    LaunchedEffect(rootAccess) {
+        if (rootAccess != RootAccessState.AVAILABLE && selectedSection == 5) {
+            selectedSection = 4
+        }
+    }
     var updateCheckState by remember { mutableStateOf<UpdateCheckState>(UpdateCheckState.IDLE) }
     var showReleaseDialog by remember { mutableStateOf(false) }
     var updateDownloading by remember { mutableStateOf(false) }
     var updateDownloadError by remember { mutableStateOf<String?>(null) }
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
     var showLicensesDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     var showCustomColorPickers by remember { mutableStateOf(false) }
     var expandedAppearance1 by remember(selectedSection) { mutableStateOf(true) }
     var expandedAppearance2 by remember(selectedSection) { mutableStateOf(false) }
@@ -284,20 +291,29 @@ fun SettingsScreen(
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            val tabs = listOf(
-                stringResource(R.string.tab_motion),
-                stringResource(R.string.tab_appearance),
-                stringResource(R.string.tab_pause),
-                stringResource(R.string.tab_backup),
-                stringResource(R.string.tab_about),
-            )
+            val tabs = buildList {
+                add(stringResource(R.string.tab_motion))
+                add(stringResource(R.string.tab_appearance))
+                add(stringResource(R.string.tab_pause))
+                add(stringResource(R.string.tab_backup))
+                add(stringResource(R.string.tab_about))
+                if (rootAccess == RootAccessState.AVAILABLE) {
+                    add("Root")
+                }
+            }
             tabs.forEachIndexed { index, label ->
                 val selected = selectedSection == index
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(if (selected) scheme.primary else Color.Transparent)
+                        .background(
+                            when {
+                                selected && index == 5 -> Color(0xFFB3261E)
+                                selected -> scheme.primary
+                                else -> Color.Transparent
+                            }
+                        )
                         .clickable { selectedSection = index }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center,
@@ -306,7 +322,7 @@ fun SettingsScreen(
                         text = label,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (selected) scheme.onPrimary else scheme.onSurfaceVariant,
+                        color = if (selected) Color.White else scheme.onSurfaceVariant,
                         maxLines = 1,
                     )
                 }
@@ -315,10 +331,45 @@ fun SettingsScreen(
 
         // ── 1A. KENAR HASSASİYETİ VE TETİKLEME (Electric Blue) ──
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
+            val currentLocales = AppCompatDelegate.getApplicationLocales()
+            val resolvedLanguage = (currentLocales[0]
+                ?: context.resources.configuration.locales[0]).language
+            val currentLanguageTag = when (resolvedLanguage) {
+                "tr" -> "tr"
+                "en" -> "en"
+                "ar" -> "ar"
+                "hi" -> "hi"
+                "zh" -> "zh-CN"
+                "id", "in" -> "id"
+                else -> "en"
+            }
+            val currentLanguageFlag = when (currentLanguageTag) {
+                "tr" -> "🇹🇷"
+                "ar" -> "🇸🇦"
+                "hi" -> "🇮🇳"
+                "zh-CN" -> "🇨🇳"
+                "id" -> "🇮🇩"
+                else -> "🇬🇧"
+            }
             AkisSectionHeader(
                 title = stringResource(R.string.motion_section),
                 subtitle = stringResource(R.string.motion_section_subtitle),
-                icon = Icons.Filled.Swipe
+                icon = Icons.Filled.Swipe,
+                action = {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(scheme.primaryContainer.copy(alpha = 0.72f))
+                            .clickable { showLanguageDialog = true },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = currentLanguageFlag,
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
+                }
             )
             Spacer(Modifier.height(10.dp))
 
@@ -1237,84 +1288,44 @@ fun SettingsScreen(
 
 
         // ── 4A. KORUMA VE SİSTEM SAĞLIĞI (Emerald Green & Cyan Glass Cards) ──
-        if (selectedSection == 3) {
-            // 1. Erişilebilirlik Hizmet Sağlığı Kartı
+        if (selectedSection == 3 || selectedSection == 5) {
+            if (selectedSection == 3) {
+            // 1. Gerekli izinler: durum ve doğrudan erişim tek kartta
             val isServiceConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
-            AkisGlassCard(accentTint = if (isServiceConnected) Color(0xFF00E676) else Color(0xFFFF1744)) {
+            val isWriteSettingsGranted = remember { PermissionHelper.canWriteSystemSettings(context) }
+            val isBatteryIgnored = remember { PermissionHelper.isBatteryOptimizationIgnored(context) }
+            val allPermissionsReady = isServiceConnected && isWriteSettingsGranted && isBatteryIgnored
+            AkisGlassCard(accentTint = if (allPermissionsReady) Color(0xFF00E676) else Color(0xFFFF9100)) {
                 AkisSectionHeader(
-                    title = stringResource(R.string.health_card_title),
-                    subtitle = stringResource(R.string.health_card_subtitle),
+                    title = stringResource(R.string.permissions_title),
+                    subtitle = stringResource(R.string.permissions_intro),
                     icon = Icons.Filled.Security
                 )
                 Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(10.dp)
-                                .clip(CircleShape)
-                                .background(if (isServiceConnected) Color(0xFF00E676) else Color(0xFFFF1744))
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = if (isServiceConnected) stringResource(R.string.health_status_connected) else stringResource(R.string.health_status_disconnected),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isServiceConnected) Color(0xFF00E676) else Color(0xFFFF1744)
-                        )
-                    }
-                    OutlinedButton(
-                        onClick = { PermissionHelper.openAccessibilitySettings(context) },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Filled.Refresh, null, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.health_status_rebind), style = MaterialTheme.typography.labelMedium)
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(10.dp))
-            DiagnosticsSettingsEntry()
-
-            Spacer(Modifier.height(10.dp))
-
-            // 2. Arka Plan & Pil Koruması Kartı
-            val isBatteryIgnored = remember(context) { PermissionHelper.isBatteryOptimizationIgnored(context) }
-            AkisGlassCard(accentTint = if (isBatteryIgnored) Color(0xFF00B0FF) else Color(0xFFFF9100)) {
-                AkisSectionHeader(
-                    title = stringResource(R.string.battery_card_title),
-                    subtitle = stringResource(R.string.battery_card_subtitle),
-                    icon = Icons.Filled.Speed
+                PermissionStatusRow(
+                    title = stringResource(R.string.accessibility_service),
+                    description = stringResource(R.string.accessibility_description),
+                    ready = isServiceConnected,
+                    status = if (isServiceConnected) stringResource(R.string.permission_ready) else stringResource(R.string.health_status_disconnected),
+                    onClick = { PermissionHelper.openAccessibilitySettings(context) },
                 )
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (isBatteryIgnored) stringResource(R.string.battery_unrestricted) else stringResource(R.string.battery_restricted),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (isBatteryIgnored) Color(0xFF00E676) else Color(0xFFFF9100)
-                    )
-                    if (!isBatteryIgnored) {
-                        OutlinedButton(
-                            onClick = { PermissionHelper.requestIgnoreBatteryOptimization(context) },
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(stringResource(R.string.battery_open_settings), style = MaterialTheme.typography.labelMedium)
-                        }
-                    }
-                }
+                PermissionStatusRow(
+                    title = stringResource(R.string.write_settings_permission_title),
+                    description = stringResource(R.string.write_settings_permission_description),
+                    ready = isWriteSettingsGranted,
+                    status = if (isWriteSettingsGranted) stringResource(R.string.permission_ready) else stringResource(R.string.required),
+                    onClick = { PermissionHelper.openWriteSettings(context) },
+                )
+                PermissionStatusRow(
+                    title = stringResource(R.string.battery_permission_title),
+                    description = stringResource(R.string.battery_permission_description),
+                    ready = isBatteryIgnored,
+                    status = if (isBatteryIgnored) stringResource(R.string.permission_ready) else stringResource(R.string.battery_restricted),
+                    onClick = { PermissionHelper.requestIgnoreBatteryOptimization(context) },
+                )
             }
 
-            Spacer(Modifier.height(10.dp))
+            DiagnosticsSettingsEntry()
 
             // 3. Son Kullanılanlardan Gizle ve Kapanmayı Önleme Kartı
             AkisGlassCard(accentTint = Color(0xFF00E5FF)) {
@@ -1332,7 +1343,7 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setHideFromRecents
                 )
 
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(6.dp))
                 AkisSwitchRow(
                     title = stringResource(R.string.automation_apps_title),
                     subtitle = stringResource(R.string.automation_apps_subtitle),
@@ -1364,9 +1375,10 @@ fun SettingsScreen(
                 }
             }
 
-            // 3. Ayrıcalıklı Otomatik İyileştirme Kartı (Yalnızca Root yetkisi VARSA görünür!)
-            if (rootAccess == RootAccessState.AVAILABLE) {
-                Spacer(Modifier.height(10.dp))
+            }
+
+            // Root sekmesindeki ayrıcalıklı otomatik iyileştirme kartı
+            if (selectedSection == 5 && rootAccess == RootAccessState.AVAILABLE) {
                 AkisGlassCard(accentTint = Color(0xFFAA00FF)) {
                     AkisSectionHeader(
                         title = stringResource(R.string.privileged_card_title),
@@ -1497,8 +1509,72 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(Modifier.height(10.dp))
+            if (selectedSection == 5 && rootAccess == RootAccessState.AVAILABLE) {
+                AkisGlassCard(accentTint = Color(0xFFFF6D00)) {
+                    AkisSectionHeader(
+                        title = stringResource(R.string.about_root_title),
+                        subtitle = stringResource(R.string.root_scope_title),
+                        icon = Icons.Filled.Security,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFD50000).copy(alpha = 0.12f))
+                                .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                .padding(10.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.root_warning_title),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFF5252),
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.root_warning_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = scheme.onSurface,
+                            )
+                        }
+                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+                        Text(
+                            text = stringResource(R.string.about_root_not_required_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF00E676),
+                        )
+                        Text(
+                            text = stringResource(R.string.about_root_not_required_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurface,
+                        )
+                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+                        Text(
+                            text = stringResource(R.string.about_root_features_title),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onSurface,
+                        )
+                        Text(
+                            text = stringResource(R.string.about_root_features_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurfaceVariant,
+                        )
+                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+                        Text(
+                            text = stringResource(R.string.about_root_privacy_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = scheme.onSurface,
+                        )
+                    }
+                }
+            }
 
+            if (selectedSection == 3) {
             // 4. Yedekleme ve Geri Yükleme Kartı
             AkisGlassCard(accentTint = Color(0xFFFFAB00)) {
                 AkisSectionHeader(
@@ -1532,6 +1608,7 @@ fun SettingsScreen(
                     }
                 }
             }
+        }
         }
 
         // ── 5A. HAKKINDA VE DİL SEÇİMİ (Golden Amber) ──
@@ -1621,7 +1698,7 @@ fun SettingsScreen(
                         }
                     },
                     enabled = updateCheckState != UpdateCheckState.CHECKING,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(14.dp),
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF00B0FF),
                         contentColor = Color.White
@@ -1817,61 +1894,6 @@ fun SettingsScreen(
                 )
             }
 
-            Spacer(Modifier.height(14.dp))
-            Text(
-                text = stringResource(R.string.language),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = stringResource(R.string.language_subtitle),
-                style = MaterialTheme.typography.bodySmall,
-                color = scheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                listOf(
-                    "" to "🌐 " + stringResource(R.string.language_system),
-                    "tr" to "🇹🇷 " + stringResource(R.string.language_turkish),
-                    "en" to "🇬🇧 " + stringResource(R.string.language_english),
-                ).forEach { (tag, label) ->
-                    val currentLocales = AppCompatDelegate.getApplicationLocales()
-                    val isSelected = if (tag.isEmpty()) currentLocales.isEmpty else currentLocales.toLanguageTags().contains(tag)
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(if (isSelected) Color(0xFF00E676).copy(alpha = 0.25f) else scheme.surfaceVariant.copy(alpha = 0.35f))
-                            .border(
-                                width = if (isSelected) 1.5.dp else 0.dp,
-                                color = if (isSelected) Color(0xFF00E676) else Color.Transparent,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .clickable {
-                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
-                            }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = label,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            color = if (isSelected) Color(0xFF00E676) else scheme.onSurface,
-                            maxLines = 1
-                        )
-                    }
-                }
-            }
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                color = scheme.outlineVariant.copy(alpha = 0.45f),
-            )
-
             Text(
                 text = stringResource(R.string.about_support),
                 style = MaterialTheme.typography.bodySmall,
@@ -2006,107 +2028,79 @@ fun SettingsScreen(
             HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
             Spacer(Modifier.height(12.dp))
 
-            // ── ROOT REHBER KARTI (Yalnızca Root Yetkisi Olan Cihazlarda Görünür) ──
-            if (rootAccess == RootAccessState.AVAILABLE) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFFF6D00).copy(alpha = 0.08f))
-                        .border(1.dp, Color(0xFFFF6D00).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.about_root_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF6D00)
-                        )
-                        Box(
+        }
+
+    }
+
+    if (showLanguageDialog) {
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.language)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(R.string.language_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                    )
+                    listOf(
+                        "" to "🌐 Sistem varsayılanı",
+                        "tr" to "🇹🇷 Türkçe",
+                        "en" to "🇬🇧 English",
+                        "ar" to "🇸🇦 العربية",
+                        "hi" to "🇮🇳 हिन्दी",
+                        "zh-CN" to "🇨🇳 简体中文",
+                        "id" to "🇮🇩 Bahasa Indonesia",
+                    ).forEach { (tag, label) ->
+                        val isSelected = if (tag.isEmpty()) {
+                            currentLocales.isEmpty
+                        } else {
+                            val selectedTag = currentLocales[0]?.let {
+                                when (it.language) {
+                                    "zh" -> "zh-CN"
+                                    "in" -> "id"
+                                    else -> it.language
+                                }
+                            }
+                            selectedTag == tag
+                        }
+                        Row(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(Color(0xFF00C853).copy(alpha = 0.2f))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(
+                                    if (isSelected) Color(0xFF00E676).copy(alpha = 0.18f)
+                                    else scheme.surfaceVariant.copy(alpha = 0.28f)
+                                )
+                                .clickable {
+                                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+                                    showLanguageDialog = false
+                                }
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = stringResource(R.string.root_available),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF00E676),
-                                fontWeight = FontWeight.Bold
+                                text = if (isSelected) "✓" else "  ",
+                                color = if (isSelected) Color(0xFF00E676) else Color.Transparent,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             )
                         }
                     }
-
-                    // UYARI: Root tavsiye edilmez
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFD50000).copy(alpha = 0.12f))
-                            .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.root_warning_title),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF5252)
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(R.string.root_warning_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = scheme.onSurface
-                        )
-                    }
-
-                    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                    Text(
-                        text = stringResource(R.string.about_root_not_required_title),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF00E676)
-                    )
-                    Text(
-                        text = stringResource(R.string.about_root_not_required_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurface
-                    )
-
-                    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                    Text(
-                        text = stringResource(R.string.about_root_features_title),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = scheme.onSurface
-                    )
-                    Text(
-                        text = stringResource(R.string.about_root_features_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = scheme.onSurfaceVariant
-                    )
-
-                    HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-
-                    Text(
-                        text = stringResource(R.string.about_root_privacy_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Medium,
-                        color = scheme.onSurface
-                    )
                 }
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
     }
 
     // Backup Confirmation Dialog
@@ -2201,6 +2195,57 @@ fun SettingsScreen(
                     Text(stringResource(R.string.close_licenses))
                 }
             },
+        )
+    }
+}
+
+@Composable
+private fun PermissionStatusRow(
+    title: String,
+    description: String,
+    ready: Boolean,
+    status: String,
+    onClick: () -> Unit,
+) {
+    val statusColor = if (ready) Color(0xFF00E676) else Color(0xFFFF9100)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(statusColor),
+                )
+                Spacer(Modifier.width(8.dp))
+                Column {
+                    Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    Text(status, style = MaterialTheme.typography.labelSmall, color = statusColor)
+                }
+            }
+            OutlinedButton(
+                onClick = onClick,
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Text(stringResource(R.string.open_settings), style = MaterialTheme.typography.labelMedium)
+            }
+            }
+        Text(
+            description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 18.dp, top = 2.dp, end = 4.dp),
         )
     }
 }

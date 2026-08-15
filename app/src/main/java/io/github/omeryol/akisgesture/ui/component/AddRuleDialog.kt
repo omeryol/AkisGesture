@@ -53,6 +53,7 @@ import io.github.omeryol.akisgesture.model.TriggerNode
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.util.edgeLabel
 import io.github.omeryol.akisgesture.ui.util.localizedLabel
+import io.github.omeryol.akisgesture.ui.util.sectionLabel
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -583,11 +584,11 @@ private fun SectionSelector(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        options.forEach { (label, section) ->
+        options.forEach { section ->
             FilterChip(
                 selected = selected == section,
                 onClick = { onSelect(section) },
-                label = { Text(label) },
+                label = { Text(sectionLabel(androidx.compose.ui.platform.LocalContext.current, section, edge)) },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                 ),
