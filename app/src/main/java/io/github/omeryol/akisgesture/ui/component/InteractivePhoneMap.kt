@@ -1,5 +1,6 @@
 package io.github.omeryol.akisgesture.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -49,6 +51,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.BuildConfig
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.model.ActionIconColorMode
 import io.github.omeryol.akisgesture.model.ActionIconPack
@@ -399,11 +402,12 @@ private fun EdgeActionPanelDirectional(
     modifier: Modifier = Modifier,
 ) {
     val scheme = MaterialTheme.colorScheme
-    val entries = groups.flatten()
-    val numbered = entries.filter { it.first == "1" || it.first == "2" }
-    val lUp = entries.filter { it.first == "L\u2191" }
-    val lDown = entries.filter { it.first == "L\u2193" }
-    Column(modifier = modifier.height(184.dp).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    val visibleGroups = groups.filter { it.isNotEmpty() }
+    val groupColors = listOf(
+        Color(0xFF3D5AFE), Color(0xFF00E676), Color(0xFFFF9100),
+        Color(0xFFFF1744), Color(0xFFD500F9), Color(0xFF00E5FF),
+    )
+    Column(modifier = modifier.height(MAP_HEIGHT).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             title,
             style = MaterialTheme.typography.labelMedium,
@@ -414,38 +418,36 @@ private fun EdgeActionPanelDirectional(
                 .fillMaxWidth()
                 .offset(y = (-8).dp),
         )
-        if (entries.isEmpty()) {
+        if (visibleGroups.isEmpty()) {
             Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
-            Spacer(Modifier.height(8.dp))
-            val upDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP
-            val downDirection = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN
-            if (lUp.isEmpty()) Spacer(Modifier.height(34.dp))
-            else lUp.forEach { (_, action) -> SideLActionBadge(action, iconPack, scheme, upDirection) }
-            if (numbered.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    val ordered = if (edge == Edge.RIGHT) numbered.asReversed() else numbered
-                    ordered.forEachIndexed { index, (kind, action) ->
-                        if (index > 0) {
-                            Text(
-                                text = if (edge == Edge.LEFT) "\u2192" else "\u2190",
-                                color = scheme.tertiary,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                modifier = Modifier.width(26.dp).offset(y = (-7).dp),
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                        ActionBadge(kind, action, iconPack, scheme, modifier = Modifier.weight(1f))
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                visibleGroups.forEachIndexed { index, entries ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(groupColors[index % groupColors.size].copy(alpha = 0.12f))
+                            .padding(horizontal = 2.dp, vertical = 2.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                    if (visibleGroups.size > 1) {
+                        Text(
+                            text = "Bölüm ${index + 1}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = EdgeUi.color(edge),
+                        )
+                    }
+                    SideDirectionalActions(entries, edge, iconPack, scheme)
                     }
                 }
             }
-            if (lDown.isEmpty()) Spacer(Modifier.height(34.dp))
-            else lDown.forEach { (_, action) -> SideLActionBadge(action, iconPack, scheme, downDirection) }
         }
     }
 }
@@ -461,14 +463,50 @@ private fun SideDirectionalActions(
         .let { values -> if (edge == Edge.RIGHT) values.asReversed() else values }
     val lUp = entries.firstOrNull { it.first == "L↑" }
     val lDown = entries.firstOrNull { it.first == "L↓" }
-    Row(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        lUp?.let { (_, action) -> ActionBadge("", action, iconPack, scheme, if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP) }
-        numbered.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
-        lDown?.let { (_, action) -> ActionBadge("", action, iconPack, scheme, if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN) }
+        lUp?.let { (_, action) ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ActionIcon(action, null, Modifier.size(16.dp), iconPack = iconPack)
+                GestureVisualIcon(
+                    direction = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_UP else GestureVisualDirection.RIGHT_EDGE_UP,
+                    color = scheme.tertiary,
+                    modifier = Modifier.size(14.dp),
+                )
+            }
+        }
+        if (numbered.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (numbered.size == 2) {
+                    ActionBadge(numbered[0].first, numbered[0].second, iconPack, scheme)
+                    Text(
+                        text = if (edge == Edge.LEFT) "→" else "←",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = scheme.tertiary,
+                    )
+                    ActionBadge(numbered[1].first, numbered[1].second, iconPack, scheme)
+                } else {
+                    numbered.forEach { (kind, action) -> ActionBadge(kind, action, iconPack, scheme) }
+                }
+            }
+        }
+        lDown?.let { (_, action) ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                GestureVisualIcon(
+                    direction = if (edge == Edge.LEFT) GestureVisualDirection.LEFT_EDGE_DOWN else GestureVisualDirection.RIGHT_EDGE_DOWN,
+                    color = scheme.tertiary,
+                    modifier = Modifier.size(14.dp),
+                )
+                ActionIcon(action, null, Modifier.size(16.dp), iconPack = iconPack)
+            }
+        }
     }
 }
 
@@ -488,7 +526,8 @@ private fun EdgeActionColumn(
     ) {
         Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = EdgeUi.color(edge))
         Spacer(Modifier.height(10.dp))
-        if (groups.isEmpty()) {
+        val visibleGroups = groups.filter { it.isNotEmpty() }
+        if (visibleGroups.isEmpty()) {
             Text("-", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         } else {
             Row(
@@ -496,18 +535,20 @@ private fun EdgeActionColumn(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                groups.take(3).forEachIndexed { index, entries ->
+                visibleGroups.forEachIndexed { index, entries ->
                     Column(
                         modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(
-                            text = context.getString(io.github.omeryol.akisgesture.R.string.map_section_title, index + 1),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = EdgeUi.color(edge),
-                        )
-                        Spacer(Modifier.height(8.dp))
+                        if (visibleGroups.size > 1) {
+                            Text(
+                                text = context.getString(io.github.omeryol.akisgesture.R.string.map_section_title, index + 1),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = EdgeUi.color(edge),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
                         BottomDirectionalActions(entries, iconPack, scheme)
                     }
                 }
@@ -560,23 +601,24 @@ private fun ActionBadge(
                 imageVector = Icons.Filled.SwapHoriz,
                 contentDescription = null,
                 tint = scheme.primary,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(16.dp),
             )
             ActionNode.SwitchNextApp -> Icon(
                 imageVector = Icons.Filled.SwapHoriz,
                 contentDescription = null,
                 tint = scheme.primary,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(16.dp),
             )
-            else -> ActionIcon(action, null, Modifier.size(28.dp), iconPack = iconPack)
+            else -> ActionIcon(action, null, Modifier.size(16.dp), iconPack = iconPack)
         }
         if (gestureVisual != null) {
             GestureVisualIcon(
                 direction = gestureVisual,
                 color = scheme.tertiary,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(14.dp),
             )
-        } else {
+        }
+        if (kind.isNotEmpty()) {
             Text(kind, style = MaterialTheme.typography.labelSmall, color = scheme.primary, maxLines = 1)
         }
     }
@@ -598,20 +640,18 @@ private fun SideLActionBadge(
             direction = direction,
             color = scheme.tertiary,
             modifier = Modifier
-                .size(28.dp)
+                .size(16.dp)
                 .align(Alignment.Center),
         )
         ActionIcon(
             action,
             null,
             Modifier
-                .size(18.dp)
-                .align(Alignment.Center)
-                .offset(
-                    x = if (direction == GestureVisualDirection.LEFT_EDGE_UP ||
-                        direction == GestureVisualDirection.LEFT_EDGE_DOWN) 18.dp else (-18).dp,
-                    y = if (direction == GestureVisualDirection.LEFT_EDGE_UP ||
-                        direction == GestureVisualDirection.RIGHT_EDGE_UP) (-14).dp else 14.dp,
+                .size(16.dp)
+                .align(
+                    if (direction == GestureVisualDirection.LEFT_EDGE_UP ||
+                        direction == GestureVisualDirection.LEFT_EDGE_DOWN) Alignment.CenterStart
+                    else Alignment.CenterEnd,
                 ),
             iconPack = iconPack,
         )
@@ -797,7 +837,15 @@ private fun phoneZoneRect(
         Edge.BOTTOM -> (config?.bottomTriggerHeightDp ?: 24f) / 60f * (screen.height * 0.18f)
     }
     return when (zone.edge) {
-        Edge.LEFT, Edge.RIGHT -> sideSensorRect(zone.edge, screen, config, preview)
+        Edge.LEFT, Edge.RIGHT -> {
+            val sensor = sideSensorRect(zone.edge, screen, config, preview)
+            Rect(
+                left = sensor.left,
+                top = sensor.top + zone.start.coerceIn(0f, 1f) * sensor.height,
+                right = sensor.right,
+                bottom = sensor.top + zone.end.coerceIn(0f, 1f) * sensor.height,
+            )
+        }
         Edge.BOTTOM -> {
             val height = thickness.coerceIn(8f, screen.height * 0.25f)
             Rect(screen.left + zone.start * screen.width + 4f, screen.bottom - height - 2f, screen.left + zone.end * screen.width - 4f, screen.bottom - 2f)
@@ -830,7 +878,7 @@ private fun expanded(rect: Rect, amount: Float): Rect = Rect(
 
 private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.material3.ColorScheme): List<PhoneZone> {
     val colors = listOf(Color(0xFF3D5AFE), Color(0xFF00E676), Color(0xFFFF9100), Color(0xFFFF1744), Color(0xFFD500F9), Color(0xFF00E5FF))
-    return rules.filter { it.enabled }
+    val zones = rules.filter { it.enabled }
         .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
         .values
         .mapIndexed { index, group ->
@@ -847,4 +895,11 @@ private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.m
                 ruleIds = group.map { it.id }.toSet(),
             )
         }
+    if (BuildConfig.BUILD_TYPE == "diagnostic") {
+        Log.d(
+            "AkisMapDiag",
+            "rules=${rules.size} enabled=${rules.count { it.enabled }} zones=${zones.joinToString { "${it.edge}:${it.start}-${it.end}:${it.ruleIds.size}" }}",
+        )
+    }
+    return zones
 }

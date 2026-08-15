@@ -44,6 +44,8 @@ class AkisGestureApp : Application() {
 
     private val _compiledRuleSet = MutableStateFlow(CompiledRuleSet.EMPTY)
     val compiledRuleSet: StateFlow<CompiledRuleSet> = _compiledRuleSet.asStateFlow()
+    private val _activeRuleGraph = MutableStateFlow(Presets.DEFAULT)
+    val activeRuleGraph: StateFlow<GestureRuleGraph> = _activeRuleGraph.asStateFlow()
 
     lateinit var pausedPackagesFlow: StateFlow<Set<String>>
         private set
@@ -192,6 +194,7 @@ class AkisGestureApp : Application() {
                 Presets.DEFAULT
             }
             _compiledRuleSet.value = graph.compile()
+            _activeRuleGraph.value = graph
         }
     }
 
@@ -200,6 +203,7 @@ class AkisGestureApp : Application() {
         settingsDataStore.edit { prefs ->
             prefs[KEY_RULES_JSON] = json
         }
+        _activeRuleGraph.value = graph
         _compiledRuleSet.value = graph.compile()
     }
 

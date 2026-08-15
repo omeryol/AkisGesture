@@ -11,6 +11,14 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.7.2 highlights
+
+- 🧭 **Dynamic Edge Sections:** Multiple gestures on one edge are automatically divided without overlap.
+- 📱 **Clearer Edge Map:** Section labels, trigger areas, and assigned actions stay synchronized.
+- 🛡️ **Root and Protection:** Root information has its own tab with direct permission actions.
+- 🌍 **New Languages:** Amharic, Bengali, Spanish, Japanese, Korean, Portuguese, Quechua, and Swahili.
+- 🎨 **UI Refinements:** Cards, buttons, icons, and the gesture editing flow were simplified.
+
 ## v1.7.0 highlights
 
 - 🎨 **5 New Icon Families & Color Modes:** Fluent, Pixelart, Ionicons, Lucide, Radix families with Cyber Neon and Accent color modes.

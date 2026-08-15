@@ -1,0 +1,13 @@
+<resources>
+    <string name="diagnostic_app_name">Akış 诊断</string>
+    <string name="diagnostic_title">诊断会话</string>
+    <string name="diagnostic_subtitle">只有在你明确开始会话后才会记录。最近 300 个事件保存在内存中，仅在导出报告时写入。</string>
+    <string name="diagnostic_recording">正在记录 • %1$d 个事件</string>
+    <string name="diagnostic_idle">未记录 • 已保留 %1$d 个事件</string>
+    <string name="diagnostic_start">开始</string>
+    <string name="diagnostic_stop">停止</string>
+    <string name="diagnostic_clear">清除</string>
+    <string name="diagnostic_export">导出报告</string>
+    <string name="diagnostic_exported">诊断报告已导出</string>
+    <string name="diagnostic_export_failed">无法导出诊断报告</string>
+</resources>

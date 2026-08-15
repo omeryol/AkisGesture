@@ -1,5 +1,6 @@
 package io.github.omeryol.akisgesture.ui.screen
 
+import android.util.Log
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.animation.core.tween
@@ -90,8 +91,9 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
 ) {
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
-    val ruleSet by AkisGestureApp.getInstance().compiledRuleSet.collectAsState()
-    val rules by viewModel.rules.collectAsState()
+    val app = AkisGestureApp.getInstance()
+    val ruleSet by app.compiledRuleSet.collectAsState()
+    val rules by app.activeRuleGraph.collectAsState()
     val context = LocalContext.current
     val isConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
     val batteryOptimized = !PermissionHelper.isBatteryOptimizationIgnored(context)
@@ -307,7 +309,7 @@ fun HomeScreen(
                             flowGlyph = AkisFlowGlyph.EDGE_MAP,
                         )
                         InteractivePhoneMap(
-                            rules = rules,
+                            rules = rules.rules,
                             onSideRangeChange = viewModel::setEdgeVerticalRange,
                             onSideRangePreview = { edge, start, end ->
                                 GestureAccessibilityService.instance?.previewEdgeVerticalRange(edge, start, end)
@@ -379,12 +381,13 @@ fun HomeScreen(
                                         maxLines = 2,
                                         modifier = Modifier.height(32.dp),
                                     )
-                                    Spacer(Modifier.height(8.dp))
-                                    OutlinedButton(
+                                     Spacer(Modifier.height(8.dp))
+                                     val appliedMessage = stringResource(R.string.template_applied, title)
+                                     OutlinedButton(
                                         onClick = {
                                             viewModel.applyPresetGraph(graph)
                                             scope.launch {
-                                                snackbarHostState.showSnackbar("'$title' şablonu yüklendi!")
+                                                 snackbarHostState.showSnackbar(appliedMessage)
                                             }
                                         },
                                         shape = RoundedCornerShape(14.dp),
@@ -605,7 +608,7 @@ private fun GestureTypeBarRow(title: String, count: Int, total: Int, color: Colo
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(title, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, color = scheme.onSurface)
-            Text("$count jest", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = color)
+            Text(stringResource(R.string.gesture_count_label, count), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = color)
         }
         Spacer(Modifier.height(3.dp))
         Box(

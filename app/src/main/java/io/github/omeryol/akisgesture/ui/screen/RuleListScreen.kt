@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Style
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -79,11 +80,11 @@ import io.github.omeryol.akisgesture.model.ActionIconPack
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
+import io.github.omeryol.akisgesture.model.SectionRange
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.service.GestureAccessibilityService
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.component.ActionIcon
-import io.github.omeryol.akisgesture.ui.component.AddRuleDialog
 import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 import io.github.omeryol.akisgesture.ui.component.AkisSliderRow
 import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
@@ -135,7 +136,6 @@ fun RuleListScreen(
     } else {
         0f..screenConfig.screenWidthDp.toFloat()
     }
-    var showAddDialog by remember { mutableStateOf(false) }
     var showMap by remember { mutableStateOf(false) }
     var selectedGroupKey by remember { mutableStateOf<String?>(null) }
     var editingActionRuleId by remember { mutableStateOf<String?>(null) }
@@ -148,6 +148,8 @@ fun RuleListScreen(
     var showProfileAppPicker by remember { mutableStateOf(false) }
     var deleteProfilePackage by remember { mutableStateOf<String?>(null) }
     var showPauseDetails by remember { mutableStateOf(false) }
+    var pendingDeleteGroup by remember { mutableStateOf<Set<String>?>(null) }
+    var showMaxGroupsWarning by remember { mutableStateOf(false) }
 
     fun openActionPicker() {
         val token = UUID.randomUUID().toString()
@@ -280,6 +282,8 @@ fun RuleListScreen(
                         lDownAction = if (gestureType == GestureType.SWIPE_DOWN_L) result.action else null,
                         triggerMode = triggerMode,
                     )
+                    // Keep the edge selected after returning from the action picker.
+                    selectedEdge = edge
                 }
                 editingActionRuleId = null
                 addingGestureType = null
@@ -331,12 +335,23 @@ fun RuleListScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddDialog = true },
+                onClick = {
+                    val currentCount = ruleGroups.count { it.representative.trigger.edge == selectedEdge }
+                    if (currentCount >= 3) {
+                        showMaxGroupsWarning = true
+                    } else {
+                        val nextCount = currentCount + 1
+                        viewModel.addEmptyGroup(
+                            edge = selectedEdge,
+                            section = SectionRange.nths(nextCount - 1, nextCount),
+                        )
+                    }
+                },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
                 shape = RoundedCornerShape(16.dp),
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Kural ekle", tint = Color.White)
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_rule), tint = Color.White)
             }
         },
     ) { innerPadding ->
@@ -518,7 +533,7 @@ fun RuleListScreen(
                             number = index + 1,
                             iconPack = gestureConfig.actionIconPack,
                             onEditRule = { ruleId -> onRuleClick(ruleId) },
-                            onDelete = { viewModel.removeRules(group.ids) },
+                            onDelete = { pendingDeleteGroup = group.ids },
                             onSelectAction = { gestureType, rule ->
                                 if (rule != null) {
                                     viewModel.pendingTarget = PendingActionTarget.EditRule(rule.id)
@@ -699,25 +714,68 @@ fun RuleListScreen(
 
     // ── Modals & Dialogs ──
 
-    if (showAddDialog) {
-        io.github.omeryol.akisgesture.ui.component.AddRuleForEdgeDialog(
-            edge = selectedEdge,
-            iconPack = gestureConfig.actionIconPack,
-            onDismiss = { showAddDialog = false },
-            onConfirm = { edge, section, quickAction, holdAction, lUpAction, lDownAction, triggerMode ->
-                viewModel.addGesturePair(
-                    edge = edge,
-                    section = section,
-                    quickAction = quickAction,
-                    holdAction = holdAction,
-                    lUpAction = lUpAction,
-                    lDownAction = lDownAction,
-                    triggerMode = triggerMode,
+    if (showMaxGroupsWarning) {
+        AlertDialog(
+            onDismissRequest = { showMaxGroupsWarning = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(14.dp),
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFFD50000).copy(alpha = 0.12f))
+                        .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.Filled.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            },
+            title = {
+                Text(
+                    stringResource(R.string.max_three_sections_title),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
-                showAddDialog = false
+            },
+            text = {
+                Text(
+                    stringResource(R.string.max_three_sections_message),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showMaxGroupsWarning = false },
+                    shape = RoundedCornerShape(14.dp),
+                ) { Text(stringResource(R.string.close)) }
             },
         )
     }
+
+    pendingDeleteGroup?.let { ids ->
+        AlertDialog(
+            onDismissRequest = { pendingDeleteGroup = null },
+            title = { Text(stringResource(R.string.delete)) },
+            text = { Text(stringResource(R.string.delete_section_confirm)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.removeRules(ids)
+                    pendingDeleteGroup = null
+                }) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDeleteGroup = null }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
+    }
+
 
     if (showProfileMenu) {
         AlertDialog(
@@ -1184,13 +1242,14 @@ private fun GestureSlotButton(
         ) {
             Text(title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             Text(
-                text = rule?.action?.localizedLabel(context) ?: stringResource(R.string.assign_action),
+                text = rule?.action?.takeUnless { it is ActionNode.NoAction }?.localizedLabel(context)
+                    ?: stringResource(R.string.assign_action),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
-                color = if (rule == null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                color = if (rule == null || rule.action is ActionNode.NoAction) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             )
         }
-        if (rule == null) {
+        if (rule == null || rule.action is ActionNode.NoAction) {
             Text(stringResource(R.string.add_symbol), color = MaterialTheme.colorScheme.primary)
         } else {
             IconButton(onClick = onClear, modifier = Modifier.size(36.dp)) {
@@ -1265,6 +1324,29 @@ private fun RuleTableRow(
             }
             Spacer(Modifier.width(6.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "Bölüm $number",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = accent,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(32.dp),
+                    ) {
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = stringResource(R.string.delete_section),
+                            tint = scheme.error,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
                 // 1. QUICK SWIPE (⚡ Hızlı Çekme)
                 ActionCell(
                     badge = stringResource(R.string.quick_badge),

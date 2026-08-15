@@ -43,8 +43,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import io.github.omeryol.akisgesture.R
@@ -100,7 +104,31 @@ private fun AkisGestureApp() {
     val isRulesRoute = currentRoute.startsWith("rules")
     val isRuleDetailRoute = currentRoute.startsWith("rule_detail")
     val isActionPickerRoute = currentRoute.startsWith("action_picker")
-    val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || currentRoute.startsWith("settings")
+    // Keep the primary navigation available while editing a rule. Otherwise a
+    // user can only leave the detail screen with Back, which breaks the normal
+    // Home/Gestures/Settings flow after adding or editing an action.
+    val isMainNavigationRoute = currentRoute == "home" || isRulesRoute || isRuleDetailRoute || currentRoute.startsWith("settings")
+    val languageKey = LocalConfiguration.current.locales.toLanguageTags()
+    var lastLanguageKey by remember { mutableStateOf(languageKey) }
+    LaunchedEffect(languageKey) {
+        if (lastLanguageKey != languageKey && currentRoute.startsWith("action_picker")) {
+            navController.navigate("home") {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = false }
+                launchSingleTop = true
+                restoreState = false
+            }
+        }
+        lastLanguageKey = languageKey
+    }
+    LaunchedEffect(Unit) {
+        if (currentRoute.startsWith("action_picker")) {
+            navController.navigate("home") {
+                popUpTo(navController.graph.findStartDestination().id) { saveState = false }
+                launchSingleTop = true
+                restoreState = false
+            }
+        }
+    }
     val activity = LocalContext.current as? Activity
     val context = LocalContext.current
     val homeViewModel: HomeViewModel = viewModel()
@@ -148,7 +176,6 @@ private fun AkisGestureApp() {
                     if (isRulesRoute) {
                         Modifier
                             .padding(innerPadding)
-                            .offset(y = (-24).dp)
                     } else {
                         Modifier.padding(innerPadding)
                     },
@@ -303,7 +330,7 @@ private fun AkisGestureBottomBar(
         ) {
             navigationItems.forEach { item ->
                 val selected = when (item.route) {
-                    "rules" -> currentRoute.startsWith("rules")
+                    "rules" -> currentRoute.startsWith("rules") || currentRoute.startsWith("rule_detail")
                     else -> currentRoute.startsWith(item.route)
                 }
 
@@ -330,15 +357,29 @@ private fun AkisGestureBottomBar(
                 Surface(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        val destination = if (item.route == "rules") "rules?edge=LEFT" else if (item.route == "settings") "settings?section=0" else item.route
-                        if (currentRoute != item.route && !(item.route == "rules" && currentRoute.startsWith("rules"))) {
-                            navController.navigate(destination) {
+                        if (item.route == "home") {
+                            navController.navigate("home") {
                                 popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                                    saveState = false
                                 }
                                 launchSingleTop = true
-                                restoreState = true
+                                restoreState = false
                             }
+                            return@Surface
+                        }
+                        val isSelected = when (item.route) {
+                            "rules" -> currentRoute.startsWith("rules") || currentRoute.startsWith("rule_detail")
+                            "settings" -> currentRoute.startsWith("settings")
+                            else -> currentRoute == item.route
+                        }
+                        if (isSelected) return@Surface
+                        val destination = if (item.route == "rules") "rules?edge=LEFT" else if (item.route == "settings") "settings?section=0" else item.route
+                        navController.navigate(destination) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
                     },
                     shape = RoundedCornerShape(14.dp),

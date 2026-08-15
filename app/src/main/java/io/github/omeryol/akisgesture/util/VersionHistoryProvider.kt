@@ -11,9 +11,28 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.7.0",
-            date = "2026-08-13",
+            version = "1.7.2",
+            date = "2026-08-15",
             isCurrent = true,
+            changesTr = listOf(
+                "🧭 Dinamik Kenar Bölümleri: Aynı kenardaki hareketler otomatik olarak çakışmadan bölümlere ayrılır.",
+                "📱 Daha Anlaşılır Harita: Atanan hareketler, bölüm başlıkları ve tetik alanları senkronize gösterilir.",
+                "🛡️ Root ve Koruma: Root bilgileri ayrı sekmede, izin durumları daha anlaşılır biçimde sunulur.",
+                "🌍 Yeni Diller: Amharca, Bengalce, İspanyolca, Japonca, Korece, Portekizce, Quechua ve Svahili eklendi.",
+                "🎨 Arayüz ve Korece Desteği: Kart yerleşimleri iyileştirildi; Korece yazı tipi ve lisans bildirimi eklendi.",
+            ),
+            changesEn = listOf(
+                "🧭 Dynamic Edge Sections: Multiple gestures on one edge are divided into non-overlapping sections.",
+                "📱 Clearer Edge Map: Assigned gestures, section labels, and trigger areas stay synchronized.",
+                "🛡️ Root and Protection: Root information has its own tab and permission status is clearer.",
+                "🌍 New Languages: Added Amharic, Bengali, Spanish, Japanese, Korean, Portuguese, Quechua, and Swahili.",
+                "🎨 UI and Korean Support: Refined layouts and added Korean font and license notice.",
+            )
+        ),
+        VersionHistoryItem(
+            version = "1.7.1",
+            date = "2026-08-15",
+            isCurrent = false,
             changesTr = listOf(
                 "🎨 İkon ve Renk Çeşitliliği: 5 yeni ikon ailesi (Fluent, Pixelart, Ionicons, Lucide, Radix) ile Cyber Neon ve Accent renk modları.",
                 "🌊 3D Fizik ve Sıvı Animasyonları: Blinn-Phong ışıklandırmalı yüzey gerilimi, su kabarcığı ve kor yataklı ateş efektleri.",
@@ -100,7 +119,7 @@ object VersionHistoryProvider {
                 "⚡ Inline ActionPicker: Eylem seçici artık navigation olmadan tam ekran dialog olarak açılıyor; seçilen eylemler ve tüm diyalog durumu korunuyor.",
             ),
             changesEn = listOf(
-                "🐛 Rule Creation Fix: Fixed critical bug where ActionPicker navigation caused AddRuleDialog state reset, preventing any rule from being added.",
+                "🐛 Rule Creation Fix: Fixed a critical state-reset bug in the action picker that could prevent adding a rule.",
                 "⚡ Inline ActionPicker: Action picker now opens as a full-screen inline dialog without navigation, preserving all dialog state correctly.",
             )
         ),

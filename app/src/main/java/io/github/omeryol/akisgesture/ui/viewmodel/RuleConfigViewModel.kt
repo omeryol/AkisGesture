@@ -1,5 +1,6 @@
 package io.github.omeryol.akisgesture.ui.viewmodel
 
+import android.util.Log
 import android.app.Application
 import android.os.Build
 import androidx.lifecycle.AndroidViewModel
@@ -26,8 +27,8 @@ import kotlinx.coroutines.flow.stateIn
 import io.github.omeryol.akisgesture.AkisGestureApp
 import io.github.omeryol.akisgesture.settingsDataStore
 import io.github.omeryol.akisgesture.R
-import io.github.omeryol.akisgesture.ui.util.edgeLabel
-import io.github.omeryol.akisgesture.ui.util.gestureLabel
+import io.github.omeryol.akisgesture.ui.util.edgeLabel as localizedEdgeLabel
+import io.github.omeryol.akisgesture.ui.util.gestureLabel as localizedGestureLabel
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -133,9 +134,11 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             val savedGraph = app.loadSavedRules()
             if (savedGraph != null && savedGraph.rules.isNotEmpty()) {
-                _rules.value = savedGraph.rules
-                _appliedRules.value = savedGraph.rules
+                val normalized = normalizeSections(savedGraph.rules)
+                _rules.value = normalized
+                _appliedRules.value = normalized
                 _activePresetName.value = null
+                if (normalized != savedGraph.rules) app.applyRules(GestureRuleGraph(normalized))
                 revalidate()
             } else {
                 loadPreset("Genel · Dengeli", Presets.DEFAULT)
@@ -181,7 +184,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 )
             )
         }
-        _rules.value = current
+        _rules.value = normalizeSections(current)
         _activePresetName.value = null
         revalidate()
         applyRules()
@@ -222,21 +225,36 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         setAction(GestureType.SWIPE_UP_L, lUpAction)
         setAction(GestureType.SWIPE_DOWN_L, lDownAction)
 
-        _rules.value = current
+        _rules.value = normalizeSections(current)
+        _activePresetName.value = null
+        revalidate()
+        applyRules()
+    }
+
+    fun addEmptyGroup(edge: Edge, section: SectionRange, triggerMode: TriggerMode = TriggerMode.SWIPE) {
+        val current = _rules.value.toMutableList()
+        current += GestureRule(
+            id = UUID.randomUUID().toString(),
+            trigger = TriggerNode(edge, section, GestureType.QUICK_SWIPE),
+            action = ActionNode.NoAction,
+            enabled = true,
+            triggerMode = triggerMode,
+        )
+        _rules.value = normalizeSections(current)
         _activePresetName.value = null
         revalidate()
         applyRules()
     }
 
     fun removeRule(ruleId: String) {
-        _rules.value = _rules.value.filter { it.id != ruleId }
+        _rules.value = normalizeSections(_rules.value.filter { it.id != ruleId })
         _activePresetName.value = null
         revalidate()
         applyRules()
     }
 
     fun removeRules(ruleIds: Set<String>) {
-        _rules.value = _rules.value.filterNot { it.id in ruleIds }
+        _rules.value = normalizeSections(_rules.value.filterNot { it.id in ruleIds })
         _activePresetName.value = null
         revalidate()
         applyRules()
@@ -307,6 +325,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     fun applyRules() {
         val graph = GestureRuleGraph(rules = _rules.value)
+        logRuleLayout(graph.rules, "apply")
         _appliedRules.value = _rules.value.toList()
         val profilePackage = _activeProfilePackage.value
         viewModelScope.launch {
@@ -316,6 +335,19 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 app.applyProfileRules(profilePackage, graph)
             }
         }
+    }
+
+    private fun logRuleLayout(rules: List<GestureRule>, event: String) {
+        val layout = rules
+            .filter { it.enabled || it.action !is ActionNode.NoAction }
+            .groupBy { it.trigger.edge to it.triggerMode }
+            .entries
+            .sortedBy { it.key.first.name }
+            .joinToString(" | ") { (key, edgeRules) ->
+                val sections = edgeRules.map { it.trigger.section }.distinct().sortedBy { it.start }
+                "${key.first}/${key.second}:count=${sections.size},ranges=${sections.joinToString { "${it.start}-${it.end}" }}"
+            }
+        Log.d("AkisRuleDiag", "$event rules=${rules.size} layout=$layout")
     }
 
     fun selectProfile(packageName: String?) {
@@ -360,10 +392,32 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun loadGraph(graph: GestureRuleGraph) {
-        _rules.value = graph.rules
-        _appliedRules.value = graph.rules
+        val normalized = normalizeSections(graph.rules)
+        _rules.value = normalized
+        _appliedRules.value = normalized
         _activePresetName.value = null
         revalidate()
+    }
+
+    /**
+     * Keeps physical sections independent for each edge and trigger mode.
+     * Existing overlapping ranges are redistributed into equal non-overlapping
+     * partitions; L actions remain attached to the section they belong to.
+     */
+    private fun normalizeSections(rules: List<GestureRule>): List<GestureRule> {
+        return rules
+            .groupBy { it.trigger.edge to it.triggerMode }
+            .values
+            .flatMap { group ->
+                val sections = group.map { it.trigger.section }.distinct().sortedBy { it.start }
+                val replacements = sections.mapIndexed { index, section ->
+                    section to SectionRange.nths(index, sections.size)
+                }.toMap()
+                group.map { rule ->
+                    rule.copy(trigger = rule.trigger.copy(section = replacements.getValue(rule.trigger.section)))
+                }
+            }
+            .sortedBy { it.id }
     }
 
     // ── Validation ──
@@ -376,8 +430,8 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 ruleB = c.ruleB,
                 message = app.getString(
                     R.string.rule_conflict,
-                    edgeLabel(app, c.ruleA.trigger.edge),
-                    gestureLabel(app, c.ruleA.trigger.gestureType),
+                    localizedEdgeLabel(app, c.ruleA.trigger.edge),
+                    localizedGestureLabel(app, c.ruleA.trigger.gestureType),
                 ),
             )
         }

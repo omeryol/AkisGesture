@@ -3,7 +3,7 @@ package io.github.omeryol.akisgesture.ui.util
 import io.github.omeryol.akisgesture.model.ActionNode
 
 /**
- * Shared action category definitions used by ActionPickerDialog and AddRuleDialog.
+ * Shared action category definitions used by the action picker.
  */
 fun actionCategories(actions: List<ActionNode> = ActionNode.allFixed()): List<Pair<String, List<ActionNode>>> = listOf(
     "Gezinme" to actions.filter {

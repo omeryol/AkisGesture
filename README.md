@@ -11,6 +11,14 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.7.2 öne çıkanlar
+
+- 🧭 **Dinamik Kenar Bölümleri:** Aynı kenardaki hareketler otomatik olarak çakışmadan bölümlere ayrılır.
+- 📱 **Daha Anlaşılır Harita:** Bölüm etiketleri, tetik alanları ve atanan eylemler senkronize gösterilir.
+- 🛡️ **Root ve Koruma:** Root bilgileri ayrı sekmede, izin durumları doğrudan işlem seçenekleriyle sunulur.
+- 🌍 **Yeni Diller:** Amharca, Bengalce, İspanyolca, Japonca, Korece, Portekizce, Quechua ve Svahili.
+- 🎨 **Arayüz İyileştirmeleri:** Kart, buton, ikon ve hareket ekleme yerleşimleri sadeleştirildi.
+
 ## v1.7.0 öne çıkanlar
 
 - 🎨 **5 Yeni İkon Paket ve Renk Modları:** Fluent, Pixelart, Ionicons, Lucide, Radix paketleri ile Cyber Neon ve Accent renk seçenekleri.

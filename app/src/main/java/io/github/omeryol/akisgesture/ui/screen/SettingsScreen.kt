@@ -84,6 +84,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -122,6 +123,7 @@ import androidx.core.content.FileProvider
 import io.github.omeryol.akisgesture.util.VerifiedApkDownloader
 import java.text.DateFormat
 import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -298,7 +300,7 @@ fun SettingsScreen(
                 add(stringResource(R.string.tab_backup))
                 add(stringResource(R.string.tab_about))
                 if (rootAccess == RootAccessState.AVAILABLE) {
-                    add("Root")
+                    add(stringResource(R.string.tab_root))
                 }
             }
             tabs.forEachIndexed { index, label ->
@@ -332,8 +334,9 @@ fun SettingsScreen(
         // ── 1A. KENAR HASSASİYETİ VE TETİKLEME (Electric Blue) ──
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             val currentLocales = AppCompatDelegate.getApplicationLocales()
+            val configuration = LocalConfiguration.current
             val resolvedLanguage = (currentLocales[0]
-                ?: context.resources.configuration.locales[0]).language
+                ?: configuration.locales[0]).language.lowercase(Locale.ROOT)
             val currentLanguageTag = when (resolvedLanguage) {
                 "tr" -> "tr"
                 "en" -> "en"
@@ -341,6 +344,13 @@ fun SettingsScreen(
                 "hi" -> "hi"
                 "zh" -> "zh-CN"
                 "id", "in" -> "id"
+                "es" -> "es"
+                "pt" -> "pt-BR"
+                "ja" -> "ja"
+                "sw" -> "sw"
+                "bn" -> "bn"
+                "ko" -> "ko"
+                "am" -> "am"
                 else -> "en"
             }
             val currentLanguageFlag = when (currentLanguageTag) {
@@ -349,6 +359,13 @@ fun SettingsScreen(
                 "hi" -> "🇮🇳"
                 "zh-CN" -> "🇨🇳"
                 "id" -> "🇮🇩"
+                "es" -> "🇪🇸"
+                "pt-BR" -> "🇧🇷"
+                "ja" -> "🇯🇵"
+                "sw" -> "🇰🇪"
+                "bn" -> "🇧🇩"
+                "ko" -> "🇰🇷"
+                "am" -> "🇪🇹"
                 else -> "🇬🇧"
             }
             AkisSectionHeader(
@@ -2045,21 +2062,30 @@ fun SettingsScreen(
                         color = scheme.onSurfaceVariant,
                     )
                     listOf(
-                        "" to "🌐 Sistem varsayılanı",
+                        "" to "🌐 System default",
                         "tr" to "🇹🇷 Türkçe",
                         "en" to "🇬🇧 English",
                         "ar" to "🇸🇦 العربية",
                         "hi" to "🇮🇳 हिन्दी",
                         "zh-CN" to "🇨🇳 简体中文",
                         "id" to "🇮🇩 Bahasa Indonesia",
+                        "es" to "🇪🇸 Español",
+                        "pt-BR" to "🇧🇷 Português (Brasil)",
+                        "ja" to "🇯🇵 日本語",
+                        "sw" to "🇰🇪 Kiswahili",
+                        "bn" to "🇧🇩 বাংলা",
+                        "ko" to "🇰🇷 한국어",
+                        "am" to "🇪🇹 አማርኛ",
+                        "qu" to "🇵🇪 Runasimi",
                     ).forEach { (tag, label) ->
                         val isSelected = if (tag.isEmpty()) {
                             currentLocales.isEmpty
                         } else {
                             val selectedTag = currentLocales[0]?.let {
-                                when (it.language) {
-                                    "zh" -> "zh-CN"
-                                    "in" -> "id"
+                                when {
+                                    it.language == "pt" && it.country.equals("BR", ignoreCase = true) -> "pt-BR"
+                                    it.language == "zh" -> "zh-CN"
+                                    it.language == "in" -> "id"
                                     else -> it.language
                                 }
                             }
@@ -2166,29 +2192,110 @@ fun SettingsScreen(
             }
         )
     }
-    val openSourceLicenses = remember(context) {
+    val licenseGroups = remember(context) {
         listOf(
-            "Phosphor Icons" to "phosphor_LICENSE.txt",
-            "Tabler Icons" to "tabler_LICENSE.txt",
-            "Iconoir" to "iconoir_LICENSE.txt",
-            "Heroicons" to "heroicons_LICENSE.txt",
-            "Bootstrap Icons" to "bootstrap_LICENSE.txt",
-            "Eva Icons" to "eva_LICENSE.txt",
-        ).joinToString("\n\n") { (name, file) ->
-            val license = context.assets.open("licenses/$file").bufferedReader().use { it.readText() }
-            "$name\n${"-".repeat(name.length)}\n$license"
+            "MIT" to listOf(
+                "Phosphor Icons" to "phosphor_LICENSE.txt",
+                "Tabler Icons" to "tabler_LICENSE.txt",
+                "Iconoir" to "iconoir_LICENSE.txt",
+                "Heroicons" to "heroicons_LICENSE.txt",
+                "Bootstrap Icons" to "bootstrap_LICENSE.txt",
+                "Eva Icons" to "eva_LICENSE.txt",
+                "Fluent UI System Icons" to "fluent_LICENSE.txt",
+                "Pixelarticons" to "pixelart_LICENSE.txt",
+                "Ionicons" to "ionicons_LICENSE.txt",
+                "Lucide" to "lucide_LICENSE.txt",
+                "Radix Icons" to "radix_LICENSE.txt",
+            ),
+            "SIL Open Font License 1.1" to listOf(
+                "Noto Sans CJK KR" to "noto_sans_cjk_LICENSE.txt",
+                "Manrope" to "MANROPE_OFL.txt",
+                "Space Grotesk" to "SPACE_GROTESK_OFL.txt",
+            ),
+        ).map { (title, entries) ->
+            title to entries.map { (name, file) ->
+                name to context.assets.open("licenses/$file").bufferedReader().use { it.readText() }
+            }
         }
     }
+    var expandedLicenseGroup by remember { mutableStateOf<String?>(null) }
+    var expandedLicenseEntry by remember { mutableStateOf<String?>(null) }
     if (showLicensesDialog) {
         AlertDialog(
             onDismissRequest = { showLicensesDialog = false },
             title = { Text(stringResource(R.string.open_source_licenses)) },
             text = {
-                Text(
-                    text = openSourceLicenses,
-                    style = MaterialTheme.typography.bodySmall,
+                Column(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
-                )
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    licenseGroups.forEach { (groupTitle, entries) ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+                                .clickable {
+                                    expandedLicenseGroup = if (expandedLicenseGroup == groupTitle) null else groupTitle
+                                    expandedLicenseEntry = null
+                                }
+                                .padding(12.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(groupTitle, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = entries.joinToString(" · ") { it.first },
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 2,
+                                    )
+                                }
+                                Icon(
+                                    imageVector = if (expandedLicenseGroup == groupTitle) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                )
+                            }
+                            AnimatedVisibility(visible = expandedLicenseGroup == groupTitle) {
+                                Column(modifier = Modifier.padding(top = 10.dp)) {
+                                    entries.forEach { (name, license) ->
+                                        val entryKey = "$groupTitle/$name"
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    expandedLicenseEntry = if (expandedLicenseEntry == entryKey) null else entryKey
+                                                }
+                                                .padding(vertical = 7.dp, horizontal = 8.dp),
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(name, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                                                Icon(
+                                                    imageVector = if (expandedLicenseEntry == entryKey) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                                    contentDescription = null,
+                                                )
+                                            }
+                                            AnimatedVisibility(visible = expandedLicenseEntry == entryKey) {
+                                                Text(
+                                                    text = license,
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    modifier = Modifier.padding(top = 6.dp),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             },
             confirmButton = {
                 TextButton(onClick = { showLicensesDialog = false }) {

@@ -1,0 +1,13 @@
+<resources>
+    <string name="diagnostic_app_name">Akış للتشخيص</string>
+    <string name="diagnostic_title">جلسة التشخيص</string>
+    <string name="diagnostic_subtitle">لا يتم التسجيل إلا بعد بدء جلسة صراحةً. تبقى آخر 300 من الأحداث في الذاكرة وتُكتب عند تصدير التقرير فقط.</string>
+    <string name="diagnostic_recording">جارٍ التسجيل • %1$d من الأحداث</string>
+    <string name="diagnostic_idle">متوقف عن التسجيل • %1$d من الأحداث محفوظة</string>
+    <string name="diagnostic_start">بدء</string>
+    <string name="diagnostic_stop">إيقاف</string>
+    <string name="diagnostic_clear">مسح</string>
+    <string name="diagnostic_export">تصدير التقرير</string>
+    <string name="diagnostic_exported">تم تصدير تقرير التشخيص</string>
+    <string name="diagnostic_export_failed">تعذر تصدير تقرير التشخيص</string>
+</resources>

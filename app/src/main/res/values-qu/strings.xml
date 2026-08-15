@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="language_quechua">Runasimi</string>
+    <string name="language">Simi</string>
+    <string name="language_subtitle">App-pa siminta akllay</string>
+    <string name="edge_map">Kantu mapa</string>
+    <string name="gesture_map">Kuyuy mapa</string>
+    <string name="map_section_title">%1$d t’aqa</string>
+    <string name="left_edge">Lluq’i kantu</string>
+    <string name="right_edge">Paña kantu</string>
+    <string name="bottom_edge">Uray kantu</string>
+    <string name="edge_left">Lluq’i</string>
+    <string name="edge_right">Paña</string>
+    <string name="edge_bottom">Uray</string>
+    <string name="section_all">Llapan kantu</string>
+    <string name="section_top">Hanan t’aqa</string>
+    <string name="section_bottom">Uray t’aqa</string>
+    <string name="section_left">Lluq’i t’aqa</string>
+    <string name="section_right">Paña t’aqa</string>
+    <string name="section_middle">Chawpi t’aqa</string>
+    <string name="section_top_half">Hanan kuskan</string>
+    <string name="section_bottom_half">Uray kuskan</string>
+    <string name="section_left_half">Lluq’i kuskan</string>
+    <string name="section_right_half">Paña kuskan</string>
+    <string name="section_custom">Rurakusqa t’aqa · %1$d–%2$d</string>
+    <string name="ring_size">Muyu sayay</string>
+    <string name="max_three_sections_title">Kimsa t’aqallakama</string>
+    <string name="max_three_sections_message">Huk kantupi kimsa t’aqamanta aswanqa llamkayta sasa rurachin; kuyuy k’uchukuykunamanta pantayqa yapakun. Musuq t’aqa yapaypa ñawpaqta huk t’aqata qulluy.</string>
+    <string name="add_rule">Kamachiy yapay</string>
+    <string name="delete_section">T’aqa qulluy</string>
+    <string name="delete_section_confirm">Kay t’aqapi llapan kuyuykuna qullunqa. ¿Qhipaman rina munankichu?</string>
+    <string name="gesture_quick">Utqay kuyuy</string>
+    <string name="gesture_hold">Kuyuy hapiywan</string>
+    <string name="gesture_l_up">L-kuyuy (hanan)</string>
+    <string name="gesture_l_down">L-kuyuy (uray)</string>
+    <string name="gesture_l_right">L-kuyuy (paña)</string>
+    <string name="gesture_l_left">L-kuyuy (lluq’i)</string>
+    <string name="action_back">Kutiy</string>
+    <string name="action_home">Qallariy</string>
+    <string name="action_recents">Qhipa app-kuna</string>
+    <string name="action_previous_app">Ñawpaq app</string>
+    <string name="action_next_app">Qatiq app</string>
+    <string name="action_none">Mana imapas</string>
+    <string name="ring_slot_label">⭕ %1$d</string>
+    <string name="ring_actions_menu">Muyu ruwanakuna menú</string>
+    <string name="general_layout_pause_details_title">Kikinpa ruraypa allinchasqankuna</string>
+    <string name="general_layout_pause_open_settings">Ruraypa allinchasqankunata kichay</string>
+    <string name="general_layout_pause_warning_blacklist">Akllakusqa app-kunapi kuyuykuna sayanqa; huk llaqtakunapiqa purinqa.</string>
+    <string name="general_layout_pause_warning_whitelist">Kuyuykuna akllakusqa app-kunallapim purinqa; huk app-kunapiqa sayanqa.</string>
+    <string name="app_pause_mode_blacklist_hint">Akllakusqa app-kunapi kuyuykuna sayan; hukpiqa purin.</string>
+    <string name="app_pause_mode_whitelist_hint">Kuyuykuna akllakusqa app-kunallapi purin; huk app-kuna sayan.</string>
+    <string name="app_pause_mode_blacklist_short">Harkasqa lista</string>
+    <string name="app_pause_mode_whitelist_short">Permisokuna lista</string>
+    <string name="app_pause_mode_whitelist_warning_title">Permisokuna lista modoqa kachkan</string>
+    <string name="app_pause_mode_whitelist_warning_desc">Akış kuyuykuna uraypi akllakusqa app-kunallapi purinqa. Huk llapanku sayanqaku.</string>
+    <string name="paused_apps_run_title">Kuyuykunata permisusqa app-kuna</string>
+    <string name="pause_warning_landscape_title">Horizontal modo sayachiyqa kachkan</string>
+    <string name="pause_warning_lock_title">Pantalla wisq’asqa sayachiyqa kachkan</string>
+    <string name="pause_warning_lock_desc">Dispositivo wisq’asqa kaptinqa Akış kuyuykuna mana rikurinchu.</string>
+    <string name="pause_warning_landscape_desc">Pantalla horizontal kaptinqa Akış kuyuykuna mana rikurinchu.</string>
+    <string name="pause_warning_fullscreen_title">Llapan pantalla sayachiyqa kachkan</string>
+    <string name="pause_warning_fullscreen_desc">Llapan pantalla app-kunapi Akış kuyuykuna mana rikurinchu.</string>
+    <string name="pause_warning_permission_title">Permiso pantalla sayachiyqa kachkan</string>
+    <string name="pause_warning_permission_desc">Android permiso utaq APK churay pantalla kichasqa kaptinqa Akış kuyuykuna mana rikurinchu.</string>
+    <string name="pause_warning_camera_title">Cámara sayachiyqa kachkan</string>
+    <string name="pause_warning_camera_desc">Cámara utaq video grabación kachkan chayqa Akış kuyuykuna sayanqa.</string>
+    <string name="pause_warning_call_title">Llamada sayachiyqa kachkan</string>
+    <string name="pause_warning_call_desc">Haykuq utaq ruwakusqa llamadakunapi Akış kuyuykuna sayanqa.</string>
+    <string name="pause_warning_launcher_title">Launcher sayachiyqa kachkan</string>
+    <string name="pause_warning_launcher_desc">Qallariy pantallapi Akış kuyuykuna sayanqa.</string>
+    <string name="keyboard_open_warning_title">⚠️ Teclado kichasqa kaptinqa llapan Akış kantu kuyuykuna mana llamkanqachu</string>
+    <string name="keyboard_open_warning_desc">Teclado rikurimuptin Akış kuyuy overlay-kunata churayta saqin. Tecladota utaq sistema navegaciónta llamk’achiy; wisq’akuptinqa kuyuykuna kutimunqaku.</string>
+    <string name="home">Qallariy</string>
+    <string name="settings">Allinchasqa</string>
+    <string name="appearance">Rikch’akuy</string>
+    <string name="pause">Sayachiy</string>
+    <string name="protection">Amachay</string>
+    <string name="about_subtitle">Kantu kuyuykunapa kikin, kichasqa pukllay</string>
+    <string name="version">Raki</string>
+    <string name="app_name">Akış Gesture</string>
+    <string name="accessibility_service_description">Pantalla kantu kuyuykunata riqsichin, kutiy, qallariy, qhipa app hina ruwanakunata ruran. Pantalla kaqtaqa mana huñunchu.</string>
+    <string name="notification_channel_name">Kuyuy servicio</string>
+    <string name="notification_title">Akış Gesture wakichisqa kachkan</string>
+    <string name="language_system">Sistema ñawpaq simi</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_chinese">简体中文</string>
+    <string name="language_indonesian">Bahasa Indonesia</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_portuguese">Português (Brasil)</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_swahili">Kiswahili</string>
+    <string name="language_bengali">বাংলা</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_amharic">አማርኛ</string>
+    <string name="about_title">Akış Gesture</string>
+    <string name="edge_enabled_subtitle">Kantumanta kuyuykunata kachiy</string>
+    <string name="gesture_indicator_bar">Kuyuy rikuchiq barra</string>
+    <string name="gesture_indicator_bar_subtitle">Kuyuy kutichiy barra rikuchiy</string>
+    <string name="update_check_title">App musuqyachiykuna</string>
+    <string name="update_check_idle">GitHub-ta qhaway musuq raki maskanaykipaq</string>
+    <string name="update_check_checking">Musuqyachiykunata maskachkan…</string>
+    <string name="update_check_current">Rakiyniki (%1$s) ñawpaqman kachkan.</string>
+    <string name="update_check_dev_build">🛠️ Yachachiq / prueba raki churakusqa</string>
+    <string name="update_check_dev_build_desc">Churakusqa raki (%1$s) GitHub raki musuqmanta (%2$s) hatunmi.</string>
+    <string name="update_check_available">Musuq raki tarisqa: %1$s</string>
+    <string name="update_check_failed">Musuq raki maskayqa mana atirqachu</string>
+    <string name="update_check_last_checked">Qhipa qhawariy: %1$s</string>
+    <string name="update_check_action">Musuqta maskay</string>
+    <string name="update_dialog_title">Musuq raki: %1$s</string>
+    <string name="update_dialog_subtitle">Musuqyaykunapa pusaq simikuna</string>
+    <string name="update_dialog_no_notes">Mana qillqasqa willakuykuna kachkanchu.</string>
+    <string name="update_dialog_download">APK uraykachiy</string>
+    <string name="about_support">Yanapay</string>
+    <string name="about_root">Root</string>
+    <string name="about_root_title">Root ruwanakuna</string>
+    <string name="root_warning_title">Root permisoqa mañakusqa</string>
+    <string name="root_warning_desc">Root permisoqa sistema ruwanakunata ruwanapaqmi; mana chayqa kay khipuqa rikurinqachu.</string>
+    <string name="about_root_not_required_title">Root mana necesariochu</string>
+    <string name="about_root_not_required_desc">Akış Gesturepa kantu kuyuy ruwananpaq root mana necesariochu.</string>
+    <string name="about_root_features_title">Rootwan atikuna</string>
+    <string name="about_root_features_desc">Rootwan sistema ruwanakuna aswan utqaylla ruwakun.</string>
+    <string name="about_root_privacy_desc">Root ruwanakunaqa qampaq akllasqallam ruwakun; willakuykunata mana huñunchu.</string>
+    <string name="about_upstream">Upstream proyecto</string>
+    <string name="open_project_repo">Proyecto repositorio kichay</string>
+    <string name="open_upstream">Upstream kichay</string>
+    <string name="version_history_button">Rakiq ñawpaq kawsaynin</string>
+    <string name="version_history_title">Rakiq ñawpaq kawsaynin</string>
+    <string name="recents_lock_title">Qhipa app-kunata wisq’ay</string>
+    <string name="recents_lock_subtitle">Qhipa app listapi Akış-ta pakay</string>
+    <string name="hide_from_recents">Qhipa app-kunamanta pakay</string>
+    <string name="hide_from_recents_subtitle">Akış-ta qhipa app listapi ama rikuchiychu</string>
+    <string name="recents_lock_guide_title">Qhipa appkuna wisq’aypa yanapay</string>
+    <string name="recents_lock_guide_text">Kay akllayqa Akış-ta qhipa appkunamanta pakayta yanapan.</string>
+    <string name="action_lock_screen">Pantalla wisq’ay</string>
+    <string name="action_screenshot">Pantalla fotota hap’iy</string>
+    <string name="action_split_screen">P’akisqa pantalla</string>
+    <string name="action_power_menu">Kallpa menú</string>
+    <string name="action_menu">Menú</string>
+    <string name="action_notifications">Willakuykuna</string>
+    <string name="action_quick_settings">Utqay allinchasqakuna</string>
+    <string name="action_keyboard_picker">Qillqana akllaq</string>
+    <string name="action_volume_panel">Uyay panel</string>
+    <string name="action_system_assistant">Sistema yanapaq</string>
+    <string name="action_auto_rotate">Kikin muyuchiy</string>
+    <string name="action_portrait">Sayaq rikch’ay</string>
+    <string name="action_landscape">Chuta rikch’ay</string>
+    <string name="action_one_hand">Huk maki modo</string>
+    <string name="action_play_pause">Pukllay / sayachiy</string>
+    <string name="action_next_track">Qatiq pista</string>
+    <string name="action_previous_track">Ñawpaq pista</string>
+    <string name="action_volume_up">Uyay hatunyachiy</string>
+    <string name="action_volume_down">Uyay huch’uyachiy</string>
+    <string name="action_toggle_mute">Uyay chinkachiy</string>
+    <string name="action_voice_search">Rimaywan maskay</string>
+    <string name="action_voice_assistant">Rimay yanapaq</string>
+    <string name="action_keycode">Tecla: %1$s</string>
+    <string name="action_flashlight">Linternata tikray</string>
+    <string name="action_force_stop">Ñawpaq app-ta kallpawan wisq’ay</string>
+    <string name="action_brightness_up">Kanchay hatunyachiy</string>
+    <string name="action_brightness_down">Kanchay huch’uyachiy</string>
+    <string name="hold_on_release">Kachariy hapiyta</string>
+    <string name="hold_on_threshold">Hapiy tupu</string>
+    <string name="animation_ocean">Mama qucha</string><string name="animation_droplet">Gota</string><string name="animation_fire">Nina</string><string name="animation_mist">Puyu</string><string name="animation_electric">Electricidad</string><string name="animation_sun">Inti</string><string name="animation_aurora">Aurora</string><string name="animation_glass">Qispi</string><string name="animation_neon">Neón</string><string name="animation_stars">Ch’askakuna</string><string name="animation_ice">Chullunku</string><string name="animation_vortex">Muyuq</string><string name="animation_rain">Para</string><string name="animation_ember">Nina ruru</string><string name="animation_wind">Wayra</string><string name="animation_bubbles">Pukllukuna</string><string name="animation_ink">Tinta</string><string name="animation_heat">Ruphay</string><string name="animation_elastic">Estirable</string><string name="animation_night">Tuta</string><string name="animation_particles">Huch’uy rurukuna</string><string name="animation_pressure">Ñit’iy</string><string name="animation_dew">Chhullunku</string><string name="animation_prism">Prisma</string><string name="animation_icon_only">Icono chulla</string><string name="animation_off">Mana</string>
+    <string name="service_channel_description">Kantu kuyuy servicioq willakuykuna</string><string name="service_running">Servicioqa purichkan</string><string name="service_ready_tap">Kachkan. Akllanaykipaq llamk’achiy.</string>
+    <string name="tile_label">Akış Gesture</string><string name="tile_on">Kachkan</string><string name="tile_off">Wañusqa</string><string name="tile_service_label">Kuyuy servicio</string>
+    <string name="command_start_label">Qallariy</string><string name="command_stop_label">Sayachiy</string><string name="command_toggle_label">Tikray</string>
+    <string name="macro_start">Macro qallariy</string><string name="macro_stop">Macro sayachiy</string><string name="macro_toggle">Macro tikray</string><string name="macro_title">Macro</string><string name="macro_blurb">Akış Gesture · %1$s</string>
+    <string name="home_active">Akış kachkan</string><string name="home_service_off">Servicioqa wañusqami</string><string name="home_summary">%1$d kuyuy · %2$d kachka kantu · v%3$s</string><string name="home_enable_accessibility">Accesibilidadta kachiy</string>
+    <string name="edit_arrow">Ruwachiy</string><string name="left_right_edges">Lluq’i / paña kantukuna</string><string name="home_map_resize_hint">Maketapi kantukunapa sayayninta huch’uyachiy utaq hatunyachiy.</string><string name="edge_range_live">Posición %1$d%% · Sayay %2$d%%</string><string name="edge_vertical_length_title">Saynin sayay</string><string name="edge_vertical_length_hint">Kantupa sayayninta allinchay</string><string name="edge_vertical_position_title">Saynin posición</string><string name="edge_vertical_position_hint">Kantu qallariyninta chaymanta kuyuchiy</string>
+    <string name="hold_physics_card_title">Kantu kuyuy física</string><string name="hold_physics_card_subtitle">Kuyuy hapiypa imayna kasqanta allinchay</string><string name="haptic_sound_card_title">Haptic uyay</string><string name="haptic_sound_card_subtitle">Kuyuywan kuyuchiyta utaq uyayta allinchay</string><string name="palette_icon_card_title">Icono color</string><string name="palette_icon_card_subtitle">Ruwanakunapa rikch’ayta akllay</string><string name="manual_color_edit">Color kikillan allinchay</string>
+    <string name="app_exceptions_card_title">App excepciónkuna</string><string name="app_exceptions_card_subtitle">Akllakusqa app-kunapi kuyuykunata sayachiy</string><string name="remove">Qulluy</string><string name="version_history_subtitle">Musuq rakiq tikraykuna</string>
+    <string name="add_rule_for_edge">%1$s · Kamachiy yapay</string><string name="gesture_actions_title">Kuyuy ruwanakuna</string><string name="add_rule_step">Kamachiy yapay – %1$s</string><string name="gesture_action">Kuyuy / ruwana</string><string name="gestures_title">Kuyuykuna</string><string name="gesture_count">%1$d kuyuykuna</string><string name="add_action">Ruwana yapay</string>
+    <string name="pause_on_launcher">Launcherpi sayachiy</string><string name="pause_on_launcher_subtitle">Qallariy pantalla kaptinqa kuyuykunata sayachiy</string><string name="no_assigned_actions">Mana ruwana churakusqachu</string><string name="disable_battery_restriction">Batería harkayta wañuchiy</string><string name="battery_restriction_description">Batería allinchasqa Akışta sayachiyta atinman.</string>
+    <string name="permissions_title">Permisokuna</string><string name="permissions_intro">Akışta ruwanapaq kay permisokuna necesario.</string><string name="accessibility_service">Accesibilidad servicio</string><string name="accessibility_description">Kantu kuyuykunata riqsichin.</string><string name="battery_permission_title">Batería permiso</string><string name="battery_permission_description">Akışpa qhipa puriyninta harkayta ama saqiychu.</string>
+    <string name="start_using">Llamk’ayta qallariy</string><string name="enable_accessibility_first">Ñawpaqta accesibilidadta kachiy</string><string name="step_title">T’aqa %1$d: %2$s</string><string name="required">Necesario</string><string name="open_settings">Allinchasqakuna kichay</string>
+    <string name="nav_home">Qallariy</string><string name="nav_gestures">Kuyuykuna</string><string name="nav_settings">Allinchasqakuna</string><string name="service_ready">Servicio wakichisqa</string><string name="service_disconnected">Servicioqa t’akasqa</string><string name="service_enabled_user">Usuario kachisqa</string><string name="service_permission_prompt">Kay permisota quway</string><string name="grant_permission">Permiso qoy</string>
+    <string name="tab_motion">Kuyuy</string><string name="tab_appearance">Rikch’ay</string><string name="tab_pause">Sayachiy</string><string name="tab_backup">Waqaychay</string><string name="tab_about">Qhawariy</string><string name="tab_root">Root</string>
+    <string name="motion_section">Kuyuy allinchasqakuna</string><string name="motion_section_subtitle">Kuyuykunapa imayna ruwakusqanta allinchay</string><string name="trigger_thickness">Tiqsi rakhu kay</string><string name="trigger_help">Kantu tiqsi rakhu kay</string><string name="sensitivity_damping">Sensibilidad sayachiy</string><string name="sensitivity_help">Aswan hatunqa aswan pisi sensibilidad.</string><string name="threshold_distance">Tupu karu kay</string><string name="threshold_help">Kuyuyqa kay karuta pasayqa qallarin.</string><string name="l_threshold">L tupu</string><string name="l_threshold_help">L kuyuy qallariypa tupu</string><string name="hold_duration">Hapiy unay</string><string name="hold_mode">Hapiy modo</string>
+    <string name="feedback_section">Kutichiy</string><string name="feedback_section_subtitle">Kuyuy rikuchiykunata allinchay</string><string name="animation_style">Animación rikch’ay</string><string name="quick_color">Utqay color</string><string name="hold_color">Hapiy color</string><string name="l_color">L color</string><string name="color_palettes">Color paletakuna</string><string name="color_palettes_subtitle">Ñawpaq ruwasqa paletakunamanta akllay</string><string name="adaptive_color">Kikillan color</string><string name="adaptive_color_subtitle">Pantalla rikch’ayman hina color akllay</string><string name="opacity">Mana sut’i kay</string><string name="animation_speed">Animación utqaynin</string><string name="animation_size">Animación sayaynin</string><string name="icon_size">Icono sayay</string><string name="haptic_feedback">Haptic kutichiy</string><string name="haptic_feedback_subtitle">Kuyuywan makipi kutichiyta rikuchiy</string><string name="vibration_intensity">Kuyuchiy kallpa</string><string name="click_sound">T’iqyay uyay</string><string name="click_sound_subtitle">Iconota t’iqyaptin uyayta ruwachiy</string>
+    <string name="pause_section">Sayachiy allinchasqakuna</string><string name="pause_section_subtitle">Kuyuykunata maypi sayachinata akllay</string><string name="lock_screen">Wisq’asqa pantalla</string><string name="lock_screen_subtitle">Wisq’asqa kaptinqa kuyuykunata sayachiy</string><string name="keyboard_open">Qillqana kichasqa</string><string name="keyboard_open_subtitle">Qillqana rikurimuptin kuyuykunata sayachiy</string><string name="landscape_screen">Chuta pantalla</string><string name="landscape_screen_subtitle">Chuta rikch’aypi kuyuykunata sayachiy</string><string name="immersive_fullscreen">Llapan pantalla</string><string name="immersive_fullscreen_subtitle">Llapan pantalla app-kunapi kuyuykunata sayachiy</string><string name="permission_screens">Permiso pantallakuna</string><string name="permission_screens_subtitle">Permiso utaq APK pantalla kaptinqa sayachiy</string><string name="camera_active">Cámara kachkan</string><string name="camera_active_subtitle">Cámara ruwachkan chayqa kuyuykunata sayachiy</string><string name="phone_call_active">Llamada kachkan</string><string name="phone_call_active_subtitle">Llamada kaptinqa kuyuykunata sayachiy</string>
+    <string name="app_pause_mode_title">App sayachiy modo</string><string name="app_pause_mode_blacklist">Harkasqa lista modo</string><string name="app_pause_mode_whitelist">Permisusqa lista modo</string><string name="app_exclusions">App excepciónkuna</string><string name="no_paused_apps">Mana sayachisqa app-kunachu</string><string name="paused_apps_count">%d app-kuna sayachisqa</string><string name="backup_section">Waqaychay / kutichiy</string><string name="backup_section_subtitle">Allinchasqakunata waqaychay utaq kutichiy</string><string name="backup_action">Waqaychay</string><string name="restore_action">Kutichiy</string>
+    <string name="root_status">Root situación</string><string name="root_checking">Root qhawachkan…</string><string name="root_available">Root kachkan</string><string name="root_unavailable">Root mana kachkanchu</string><string name="protection_section">Amachay</string><string name="protection_section_subtitle">Servicioq allin puriyninta qhaway</string><string name="health_card_title">Servicio salud</string><string name="health_card_subtitle">Akışpa qhawariynin</string><string name="health_status_connected">Tinkisqa</string><string name="health_status_disconnected">T’akasqa</string><string name="health_status_rebind">Servicio kutin watay</string><string name="battery_card_title">Batería</string><string name="battery_card_subtitle">Bateríapa harkayninta qhaway</string><string name="battery_unrestricted">Mana harkasqachu</string><string name="battery_restricted">Harkasqa</string><string name="battery_open_settings">Batería allinchasqakuna kichay</string><string name="privileged_card_title">Privilegiado ruwanakuna</string><string name="privileged_card_subtitle">Root ruwanakunapa situación</string><string name="backup_saved">Waqaychasqa</string><string name="backup_save_failed">Waqaychayqa mana atirqachu</string><string name="backup_loaded">Kutichisqa</string><string name="backup_load_failed">Kutichiyqa mana atirqachu</string><string name="file_open_failed">Khipu kichayqa mana atirqachu</string><string name="generic_error">Pantaymi rikurimun</string><string name="restore_confirm_title">Kutichiyta takyachiy</string><string name="restore_confirm_text">Kay allinchasqakunaqa kunan allinchasqakunata rantinqa. ¿Qhipaman rina munankichu?</string><string name="cancel">Saqiy</string><string name="done">Tukusqa</string><string name="paused_apps_title">Sayachisqa app-kuna</string>
+    <string name="preset_colors">Ñawpaq color-kuna</string><string name="color_picker">Color akllaq</string><string name="hex_hue">HEX: %1$s | Matiz: %2$d°</string><string name="hue_value">Matiz</string><string name="saturation_value">Saturación</string><string name="brightness_value">Kanchay</string><string name="edit_rule_title">Kamachiy allinchay</string><string name="edit_rule_subtitle">Kay kamachiyta allinchay</string><string name="rule_detail">Kamachiy sut’i willakuy</string><string name="rule_not_found">Kamachiyqa mana tarisqachu</string><string name="enable_rule">Kamachiyta kachiy</string><string name="enabled">Kachkan</string><string name="disabled">Wañusqa</string><string name="gesture_condition">Kuyuy condición</string><string name="horizontal_bounds">Chuta sayaypa k’uchukuna</string><string name="vertical_bounds">Sayaq sayaypa k’uchukuna</string><string name="gesture_type">Kuyuy tipo</string><string name="trigger_mode">Tiqsi modo</string><string name="swipe">Lluqsiy kuyuy</string><string name="swipe_description">Huk lado-man kuyuy</string><string name="touch">T’iqyay</string><string name="touch_description">Kantu t’iqyay</string><string name="assigned_action">Churasqa ruwana</string><string name="change">Tikray</string><string name="delete_rule">Kamachiy qulluy</string><string name="delete_rule_confirm">¿Kay kamachiyta qullunki?</string>
+    <string name="quick_with_icon">Utqay kuyuy</string><string name="quick_description">Utqaylla kuyuy</string><string name="hold_with_icon">Hapiy kuyuy</string><string name="hold_description">Kuyuyta hapiy</string><string name="l_up_with_icon">L hanan</string><string name="l_up_description">L kuyuy hananman</string><string name="l_down_with_icon">L uray</string><string name="l_down_description">L kuyuy urayman</string><string name="swipe_recommended">Kuyuy (akllakusqa)</string><string name="remove_action">%1$s ruwana qulluy</string><string name="edge_left_hint">Lluq’i kantupi kuyuy</string><string name="edge_right_hint">Paña kantupi kuyuy</string><string name="edge_bottom_hint">Uray kantupi kuyuy</string><string name="area_bounds">Área k’uchukuna</string><string name="drag_horizontal_bounds">Chuta k’uchukunata aysay</string><string name="drag_vertical_bounds">Sayaq k’uchukunata aysay</string><string name="selected_area_percent">Akllasqa área: %1$d%% – %2$d%%</string>
+    <string name="palette_deep_ocean">Uku qucha</string><string name="palette_sunset_pulse">Inti chinkay</string><string name="palette_cyber_neon">Cyber neon</string><string name="palette_emerald_aurora">Esmeralda aurora</string><string name="palette_midnight_galaxy">Chawpi tuta</string><string name="palette_lavender_sunset">Lavanda inti chinkay</string><string name="palette_monochrome_slate">Suni yuraq yana</string><string name="edge_left_arrow">Lluq’i kantupa flecha</string><string name="edge_right_arrow">Paña kantupa flecha</string><string name="edge_bottom_arrow">Uray kantupa flecha</string>
+    <string name="general_layout">General allinchasqa</string><string name="templates">Plantillakuna</string><string name="all_apps_gestures">Llapan app-kunapa kuyuykuna</string><string name="profile_only">%1$s ñawpaqpi kaptinllam llamkan</string><string name="change_profile">Perfil tikray</string><string name="conflict_count">%d ch’aqwaykuna</string><string name="no_rules">Mana kamachiykunachu</string><string name="edge_areas">%1$s áreakuna</string><string name="map_frame">Mapa marco</string><string name="templates_subtitle">Ñawpaq allinchasqa ruwanakuna</string><string name="general_layout_subtitle">Kantukunapa general rikch’ay</string><string name="edit_area_gestures">Área kuyuykunata allinchay</string><string name="fine_tuning">Suma allinchay</string><string name="add_symbol">Símbolo yapay</string><string name="quick_badge">U</string><string name="hold_badge">H</string><string name="l_up_badge">L↑</string><string name="l_down_badge">L↓</string><string name="options">Akllanakuna</string><string name="disable">Wañuchiy</string><string name="enable">Kachiy</string>
+    <string name="choose_app">App akllay</string><string name="choose_action">Ruwana akllay</string><string name="choose_app_hint">Huk app-ta maskay utaq akllay</string><string name="choose_action_hint">Huk ruwana akllay</string><string name="back_to_actions">Ruwanakunaman kutiy</string><string name="clear_search">Maskayta pichay</string><string name="no_matching_app">Mana tupaq app tarisqachu</string><string name="no_matching_action">Mana tupaq ruwana tarisqachu</string><string name="launch_app">App kichay</string><string name="choose_from_apps">App-kunamanta akllay</string><string name="apps_loading">App-kuna cargachkan…</string><string name="unavailable_android">Kay Androidpi mana kachkanchu</string><string name="select">Akllay</string>
+    <string name="gesture_areas">Kuyuy áreakuna</string><string name="map_expanded_hint">Mapa hatunyachisqa</string><string name="active_area_count">%d kawsachka área</string><string name="collapse">Huch’uyachiy</string><string name="open_map">Mapa kichay</string><string name="map_edit_hint">Mapapi área k’uchukunata aysay</string><string name="edit">Allinchay</string><string name="quick_legend">Utqay</string><string name="both_legend">Iskaynin</string><string name="rehearsal_start">Prueba qallariy</string><string name="rehearsal_pull">Kantumanta lluqsiy</string><string name="rehearsal_hold_ready">Hapiyqa wakichisqa</string><string name="rehearsal_quick_ready">Utqayqa wakichisqa</string><string name="rehearsal_more">Aswan kuyuy</string><string name="rehearsal_hold_detected">Hapiy riqsisqa</string><string name="rehearsal_quick_detected">Utqay riqsisqa</string><string name="rehearsal_not_reached">Tupuman mana chayarqachu</string><string name="rule_conflict">%1$s %2$s área ch’aqway</string><string name="back">Kutiy</string>
+    <string name="save">Waqaychay</string><string name="edge">Kantu</string><string name="area">Área</string><string name="confirm">Takyachiy</string><string name="delete">Qulluy</string><string name="close">Wisq’ay</string><string name="finish">Tukuy</string><string name="assign_action">Ruwana churay</string><string name="gesture_profile">Kuyuy perfil</string><string name="try_action">Ruwana pruebay</string><string name="hold_legend">Hapiy</string><string name="search_apps">App-kunata maskay</string><string name="search_actions">Ruwanakunata maskay</string><string name="category_frequent">Sapa kuti</string><string name="category_navigation">Navegación</string><string name="category_system">Sistema</string><string name="category_media_tools">Media / herramientas</string><string name="key_back">Kutiy tecla</string><string name="key_home">Qallariy tecla</string><string name="key_recents">Qhipa tecla</string><string name="key_volume_up">Uyay hanan tecla</string><string name="key_volume_down">Uyay uray tecla</string><string name="key_media_toggle">Media tikray tecla</string>
+    <string name="invalid_backup">Waqaychasqa khipuqa mana allinchu</string><string name="unsupported_backup_version">Kay waqaychasqa rakita mana yanapanchu</string><string name="unknown_backup_field">Mana riqsisqa waqaychay campo</string><string name="saved">Waqaychasqa</string><string name="template_applied">%1$s plantilla churakusqa!</string><string name="gesture_count_label">%d kuyuykuna</string><string name="tab_all">Llapan</string><string name="stream_paused">Flujo sayachisqa</string><string name="stream_paused_hint">Kuyuy ruwanakunaqa kunan mana rikurinchu</string><string name="live_chart_title">Kawsachka gráfico</string><string name="live_chart_subtitle">Kuyuykunapa kawsachka qhawariynin</string><string name="live_chart_empty">Manaraq kuyuykuna kachkanchu</string><string name="hold_physics_title">Hapiy física</string><string name="hold_physics_subtitle">Hapiy kuyuypa parámetros</string><string name="color_palette_title">Color paleta</string><string name="color_palette_subtitle">Kuyuy color paleta</string><string name="haptic_sound_title">Haptic / uyay</string><string name="haptic_sound_subtitle">Kuyuchiyta uyayta allinchay</string><string name="app_exclusions_title">App excepciónkuna</string><string name="app_exclusions_subtitle">Akllakusqa appkunapi sayachiy</string>
+    <string name="home_cards_title">Qallariy tarjeta-kuna</string><string name="home_cards_subtitle">Qallariy pantalla rikuchiykunata allinchay</string><string name="show_phone_map">Telefono mapa rikuchiy</string><string name="show_phone_map_subtitle">Kantu mapa maketata rikuchiy</string><string name="show_summary_chart">Resumen gráfico rikuchiy</string><string name="show_summary_chart_subtitle">Kuyuy resumen rikuchiy</string><string name="show_presets_card">Plantilla tarjeta rikuchiy</string><string name="show_presets_card_subtitle">Ñawpaq plantillakuna rikuchiy</string><string name="apply">Churay</string><string name="edge_distribution">Kantu rakiynin</string><string name="icon_pack_section">Icono paquete</string><string name="icon_pack_section_subtitle">Kuyuy iconokunapa paqete</string><string name="root_watchdog_title">Root qhawaq</string><string name="root_watchdog_subtitle">Root servicio puriyninta qhaway</string><string name="root_watchdog_interval">Qhaway pacha</string><string name="battery_impact_high">Batería impacto hatun</string><string name="battery_impact_high_desc">Kay allinchasqa bateríata aswan utqayta tukuchinman.</string><string name="battery_impact_moderate">Batería impacto chawpi</string><string name="battery_impact_moderate_desc">Bateríapi chawpi impacto.</string><string name="battery_impact_low">Batería impacto pisi</string><string name="battery_impact_low_desc">Bateríapi pisi impacto.</string><string name="root_scope_title">Rootpa alcance</string><string name="root_scope_does">Rootqa kaykunata ruwan</string><string name="root_scope_does_not">Rootqa kaykunata mana ruwanchu</string>
+    <string name="icon_color_mode_title">Icono color modo</string><string name="icon_color_mode_monochrome">Monocromo</string><string name="icon_color_mode_theme">Tema color</string><string name="icon_color_mode_functional">Ruwana color</string><string name="icon_color_mode_neon">Neón</string><string name="icon_color_mode_accent">Acento color</string><string name="open_source_licenses">Kichasqa fuente licenciakuna</string><string name="open_source_licenses_desc">Kichasqa fuente bibliotecakunapa licenciakuna</string><string name="close_licenses">Licenciakuna wisq’ay</string><string name="l_right_with_icon">L paña</string><string name="l_right_description">L kuyuy paña lado-man</string><string name="l_left_with_icon">L lluq’i</string><string name="l_left_description">L kuyuy lluq’i lado-man</string><string name="l_right_badge">L→</string><string name="l_left_badge">L←</string><string name="action_requires_root">%1$s (Root)</string>
+    <string name="automation_apps">Automatización app-kuna</string><string name="automation_apps_title">Automatización app-kuna</string><string name="automation_apps_subtitle">Automatización appkunata allinchay</string><string name="telegram_group_title">Telegram grupo</string><string name="telegram_group_subtitle">Telegram grupoman rina</string><string name="telegram_channel_title">Telegram canal</string><string name="telegram_channel_subtitle">Telegram canalta kichay</string><string name="ring_menu_title">Muyu menú</string><string name="ring_menu_subtitle">Kantu muyupi ruwanakuna</string><string name="ring_menu_enabled">Muyu menú kachkan</string><string name="ring_menu_enabled_subtitle">Kantu muyu menúta kachiy</string><string name="ring_group_inset">Muyu grupo ukhu</string><string name="ring_group_spacing">Muyu grupo chinkay</string><string name="ring_arc">Muyu arco</string><string name="ring_edge_card_title">%1$s muyukuna</string><string name="ring_edge_card_subtitle">Kantu muyu ruwanakuna</string><string name="ring_choose_action">Muyu %1$d ruwana akllay</string><string name="ring_slot">Muyu %1$d: %2$s</string><string name="ring_unassigned">Mana churakusqachu</string>
+    <string name="write_settings_permission_title">Sistema allinchasqa permiso</string><string name="write_settings_permission_description">Kay permisoqa sistema allinchasqakunata ruwanapaq necesario.</string><string name="quick_start_title">Utqay qallariy</string><string name="quick_start_subtitle">Akışta ruwanapaq kay ñankunata tukuy</string><string name="permission_ready">Permisoqa wakichisqami</string><string name="quick_start_accessibility_missing">Accesibilidad permisoqa mana kachkanchu</string><string name="quick_start_write_settings_missing">Sistema allinchasqa permisoqa mana kachkanchu</string><string name="quick_start_battery_missing">Batería permisoqa mana kachkanchu</string><string name="open_permission_steps">Permiso ñankunata kichay</string>
+    <string-array name="preset_names"><item>Ñawpaq kantu</item><item>Kuyuy qallariy</item><item>Utqay navegación</item></string-array>
+    <string-array name="preset_descriptions"><item>Allinchasqa kantu kuyuy plantilla</item><item>Qallariypaq ruwanakuna</item><item>Utqay sistema ruwanakuna</item></string-array>
+    <string name="icon_pack_phosphor">Phosphor</string><string name="icon_pack_phosphor_desc">Phosphor iconokuna</string><string name="icon_pack_tabler">Tabler</string><string name="icon_pack_tabler_desc">Tabler iconokuna</string><string name="icon_pack_iconoir">Iconoir</string><string name="icon_pack_iconoir_desc">Iconoir iconokuna</string><string name="icon_pack_heroicons">Heroicons</string><string name="icon_pack_heroicons_desc">Heroicons iconokuna</string><string name="icon_pack_bootstrap">Bootstrap</string><string name="icon_pack_bootstrap_desc">Bootstrap iconokuna</string><string name="icon_pack_eva">Eva</string><string name="icon_pack_eva_desc">Eva iconokuna</string><string name="icon_pack_fluent">Fluent</string><string name="icon_pack_fluent_desc">Fluent iconokuna</string><string name="icon_pack_pixelart">Pixel Art</string><string name="icon_pack_pixelart_desc">Pixel art iconokuna</string><string name="icon_pack_ionicons">Ionicons</string><string name="icon_pack_ionicons_desc">Ionicons iconokuna</string><string name="icon_pack_lucide">Lucide</string><string name="icon_pack_lucide_desc">Lucide iconokuna</string><string name="icon_pack_radix">Radix</string><string name="icon_pack_radix_desc">Radix iconokuna</string>
+</resources>

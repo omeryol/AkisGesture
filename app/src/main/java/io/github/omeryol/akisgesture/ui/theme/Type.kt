@@ -8,19 +8,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import io.github.omeryol.akisgesture.R
 
+// The bundled Latin display font has no Korean/CJK glyphs. Android's default
+// family provides script-aware fallback while keeping the same weight choices.
 private val AkisDisplayFont = FontFamily(
-    Font(R.font.space_grotesk, FontWeight.Normal),
-    Font(R.font.space_grotesk, FontWeight.Medium),
-    Font(R.font.space_grotesk, FontWeight.SemiBold),
-    Font(R.font.space_grotesk, FontWeight.Bold),
+    Font(R.font.noto_sans_cjk_kr_regular, FontWeight.Normal),
+    Font(R.font.noto_sans_cjk_kr_regular, FontWeight.Medium),
+    Font(R.font.noto_sans_cjk_kr_regular, FontWeight.SemiBold),
+    Font(R.font.noto_sans_cjk_kr_regular, FontWeight.Bold),
 )
 
-private val AkisBodyFont = FontFamily(
-    Font(R.font.manrope, FontWeight.Normal),
-    Font(R.font.manrope, FontWeight.Medium),
-    Font(R.font.manrope, FontWeight.SemiBold),
-    Font(R.font.manrope, FontWeight.Bold),
-)
+private val AkisBodyFont = AkisDisplayFont
 
 val Typography = Typography(
     displayLarge = TextStyle(

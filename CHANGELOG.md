@@ -1,5 +1,23 @@
 # Değişiklik Günlüğü
 
+## [1.7.2] - 2026-08-15
+
+### Kullanıcı deneyimi
+- Aynı kenara eklenen hareketler artık otomatik olarak çakışmayan bölümlere ayrılır.
+- Harita, bölüm etiketleri ve atanan eylemler senkronize ve daha anlaşılır gösterilir.
+- Root bilgileri ayrı Root sekmesinde, izin durumları doğrudan işlem butonlarıyla sunulur.
+- Kart, buton ve ikon yerleşimleri iyileştirilir; hareket ekleme ve silme akışı sadeleştirilir.
+
+### Dil ve erişilebilirlik
+- Amharca, Bengalce, İspanyolca, Japonca, Korece, Portekizce, Quechua ve Svahili eklendi.
+- Korece yazı tipi ve üçüncü taraf lisans bildirimi eklendi.
+
+### Teknik
+- Sürüm `1.7.2`, version code `61`.
+- İmzalı APK: `AkisGesture-v1.7.2.apk`.
+
+---
+
 ## [1.7.0] - 2026-08-13
 
 ### 🎨 İkon Paketleri ve Renk Modları

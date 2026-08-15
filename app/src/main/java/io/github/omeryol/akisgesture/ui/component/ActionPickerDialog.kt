@@ -107,12 +107,12 @@ fun ActionPickerScreen(
     val categoryMap = remember(categories) { categories.toMap() }
     val pickerCategories = remember(categories, keyActions, frequentActions) {
         listOf(
-            "Sık" to frequentActions,
-            "Gezinme" to categoryMap["Gezinme"].orEmpty(),
-            "Sistem" to listOf(
+            context.getString(R.string.category_frequent) to frequentActions,
+            context.getString(R.string.category_navigation) to categoryMap["Gezinme"].orEmpty(),
+            context.getString(R.string.category_system) to listOf(
                 "Sistem", "Paneller", "Asistan", "Ekran", "Sistem Arayüzü", "Root",
             ).flatMap { categoryMap[it].orEmpty() },
-            "Medya & Araçlar" to listOf(
+            context.getString(R.string.category_media_tools) to listOf(
                 "Medya", "Döndürme", "Donanım", "Diğer",
             ).flatMap { categoryMap[it].orEmpty() } + keyActions,
         )
