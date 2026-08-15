@@ -10,7 +10,6 @@
 
 ### Dil ve erişilebilirlik
 - Amharca, Bengalce, İspanyolca, Japonca, Korece, Portekizce, Quechua ve Svahili eklendi.
-- Korece yazı tipi ve üçüncü taraf lisans bildirimi eklendi.
 
 ### Teknik
 - Sürüm `1.7.2`, version code `61`.
