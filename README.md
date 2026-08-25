@@ -18,7 +18,8 @@ paket adı `io.github.omeryol.akisgesture`dir.
 - 🔔 **Ön Plan Bildirimi:** Koruma sekmesine bildirim görünürlüğü seçeneği ve bildirim kapatıldığında gösterilen koruma uyarısı eklendi.
 - 📚 **Dinamik Sürüm Geçmişi:** Hakkında ekranı GitHub Releases üzerinden güncellenir; önbellek ve APK içi yedek liste çevrimdışı kullanımı korur.
 
-İmzalı APK: [Akış Gesture v1.7.3](https://github.com/omeryol/AkisGesture/releases/download/v1.7.3/app-release.apk)  
+İmzalı APK: [Akış Gesture v1.7.3](https://github.com/omeryol/AkisGesture/releases/download/v1.7.3/app-release.apk)
+
 SHA-256: `A140FD22051873EBC56AE9EC062FF7C519D54DBBBE315868A1B625A1BFD107B`
 
 ## v1.7.2 öne çıkanlar

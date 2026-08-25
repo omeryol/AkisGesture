@@ -18,7 +18,8 @@ project; attribution and license notices are retained. Its application ID is
 - 🔔 **Foreground Notification:** Added a notification-visibility option in Protection and a warning when the notification is disabled.
 - 📚 **Dynamic Version History:** The About screen updates from GitHub Releases, with cached and bundled offline fallbacks.
 
-Signed APK: [Akış Gesture v1.7.3](https://github.com/omeryol/AkisGesture/releases/download/v1.7.3/app-release.apk)  
+Signed APK: [Akış Gesture v1.7.3](https://github.com/omeryol/AkisGesture/releases/download/v1.7.3/app-release.apk)
+
 SHA-256: `A140FD22051873EBC56AE9EC062FF7C519D54DBBBE315868A1B625A1BFD107B`
 
 ## v1.7.2 highlights
