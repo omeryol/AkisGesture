@@ -11,6 +11,16 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.7.3 highlights
+
+- 🛡️ **Watchdog and Accessibility Protection:** Configurable from 5 seconds to 120 minutes, with immediate screen-on health checks and improved recovery after a manual stop.
+- ⚡ **Quick Settings:** More reliable tile state synchronization with delayed verification and immediate watchdog signaling.
+- 🔔 **Foreground Notification:** Added a notification-visibility option in Protection and a warning when the notification is disabled.
+- 📚 **Dynamic Version History:** The About screen updates from GitHub Releases, with cached and bundled offline fallbacks.
+
+Signed APK: [Akış Gesture v1.7.3](https://github.com/omeryol/AkisGesture/releases/download/v1.7.3/app-release.apk)  
+SHA-256: `A140FD22051873EBC56AE9EC062FF7C519D54DBBBE315868A1B625A1BFD107B`
+
 ## v1.7.2 highlights
 
 - 🧭 **Dynamic Edge Sections:** Multiple gestures on one edge are automatically divided without overlap.

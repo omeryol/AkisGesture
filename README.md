@@ -11,6 +11,16 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.7.3 öne çıkanlar
+
+- 🛡️ **Bekçi ve Erişilebilirlik Koruması:** 5 saniye ile 120 dakika arasında yapılandırılabilir bekçi, ekran açılışında anında sağlık kontrolü ve manuel durdurma sonrası otomatik yeniden etkinleştirme.
+- ⚡ **Hızlı Ayarlar:** Kutucuk aktif/pasif durumu daha güvenilir güncellenir; gecikmeli doğrulama ve bekçiye anlık durum sinyali eklendi.
+- 🔔 **Ön Plan Bildirimi:** Koruma sekmesine bildirim görünürlüğü seçeneği ve bildirim kapatıldığında gösterilen koruma uyarısı eklendi.
+- 📚 **Dinamik Sürüm Geçmişi:** Hakkında ekranı GitHub Releases üzerinden güncellenir; önbellek ve APK içi yedek liste çevrimdışı kullanımı korur.
+
+İmzalı APK: [Akış Gesture v1.7.3](https://github.com/omeryol/AkisGesture/releases/download/v1.7.3/app-release.apk)  
+SHA-256: `A140FD22051873EBC56AE9EC062FF7C519D54DBBBE315868A1B625A1BFD107B`
+
 ## v1.7.2 öne çıkanlar
 
 - 🧭 **Dinamik Kenar Bölümleri:** Aynı kenardaki hareketler otomatik olarak çakışmadan bölümlere ayrılır.
