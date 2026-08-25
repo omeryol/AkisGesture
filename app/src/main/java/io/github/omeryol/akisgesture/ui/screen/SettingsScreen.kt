@@ -113,6 +113,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import io.github.omeryol.akisgesture.util.GithubRelease
 import io.github.omeryol.akisgesture.util.GithubReleaseChecker
+import io.github.omeryol.akisgesture.util.GithubReleaseHistoryItem
+import io.github.omeryol.akisgesture.util.ReleaseHistoryRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -152,6 +154,8 @@ fun SettingsScreen(
     var updateDownloading by remember { mutableStateOf(false) }
     var updateDownloadError by remember { mutableStateOf<String?>(null) }
     var showVersionHistoryDialog by remember { mutableStateOf(false) }
+    var versionHistoryLoading by remember { mutableStateOf(false) }
+    var versionHistory by remember { mutableStateOf<List<GithubReleaseHistoryItem>>(emptyList()) }
     var showLicensesDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showCustomColorPickers by remember { mutableStateOf(false) }
@@ -168,6 +172,25 @@ fun SettingsScreen(
         if (lastCheckedAt > 0L) DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(Date(lastCheckedAt)) else null
     }
     val scope = rememberCoroutineScope()
+    val releaseHistoryRepository = remember(context) { ReleaseHistoryRepository(context) }
+    LaunchedEffect(showVersionHistoryDialog) {
+        if (!showVersionHistoryDialog) return@LaunchedEffect
+        val fallback = io.github.omeryol.akisgesture.util.VersionHistoryProvider.HISTORY.map { item ->
+            GithubReleaseHistoryItem(item.version, item.date, item.changesTr, item.changesEn)
+        }
+        versionHistory = releaseHistoryRepository.cached().ifEmpty { fallback }
+        versionHistoryLoading = true
+        withContext(Dispatchers.IO) {
+            runCatching { GithubReleaseChecker.fetchReleaseHistory() }
+                .onSuccess { remote ->
+                    if (remote.isNotEmpty()) {
+                        releaseHistoryRepository.save(remote)
+                        withContext(Dispatchers.Main) { versionHistory = remote }
+                    }
+                }
+        }
+        versionHistoryLoading = false
+    }
     var sideRangeFeedback by remember { mutableStateOf<Pair<Int, Int>?>(null) }
     var sideRangeFeedbackJob by remember { mutableStateOf<Job?>(null) }
 
@@ -1876,7 +1899,14 @@ fun SettingsScreen(
                                 .verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            io.github.omeryol.akisgesture.util.VersionHistoryProvider.HISTORY.forEach { item ->
+                            if (versionHistoryLoading) {
+                                Text(
+                                    text = if (isTurkishLocale) "GitHub sürüm geçmişi güncelleniyor…" else "Refreshing release history from GitHub…",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = scheme.onSurfaceVariant,
+                                )
+                            }
+                            versionHistory.forEachIndexed { index, item ->
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -1895,7 +1925,7 @@ fun SettingsScreen(
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFFFFAB00)
                                         )
-                                        if (item.isCurrent) {
+                                        if (index == 0) {
                                             Box(
                                                 modifier = Modifier
                                                     .clip(RoundedCornerShape(6.dp))

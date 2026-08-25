@@ -1,6 +1,7 @@
 package io.github.omeryol.akisgesture.util
 
 import org.json.JSONObject
+import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -14,11 +15,20 @@ data class GithubRelease(
     val assetSha256: String?,
 )
 
+data class GithubReleaseHistoryItem(
+    val version: String,
+    val date: String,
+    val changesTr: List<String>,
+    val changesEn: List<String>,
+)
+
 class ReleaseValidationException(message: String) : IllegalStateException(message)
 
 object GithubReleaseChecker {
     private const val LATEST_RELEASE_URL =
         "https://api.github.com/repos/omeryol/AkisGesture/releases/latest"
+    private const val RELEASE_HISTORY_URL =
+        "https://api.github.com/repos/omeryol/AkisGesture/releases?per_page=30"
 
     fun fetchLatestRelease(): GithubRelease {
         val connection = (URL(LATEST_RELEASE_URL).openConnection() as HttpURLConnection).apply {
@@ -73,6 +83,40 @@ object GithubReleaseChecker {
         }
     }
 
+    fun fetchReleaseHistory(): List<GithubReleaseHistoryItem> {
+        val connection = (URL(RELEASE_HISTORY_URL).openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = 8_000
+            readTimeout = 8_000
+            setRequestProperty("Accept", "application/vnd.github+json")
+            setRequestProperty("User-Agent", "AkisGesture-Android")
+        }
+        return try {
+            check(connection.responseCode in 200..299) { "GitHub HTTP ${connection.responseCode}" }
+            val releases = JSONArray(connection.inputStream.bufferedReader().use { it.readText() })
+            (0 until releases.length()).mapNotNull { index ->
+                val release = releases.getJSONObject(index)
+                if (release.optBoolean("draft") || release.optBoolean("prerelease")) return@mapNotNull null
+                val notes = release.optString("body").trim()
+                val version = release.optString("tag_name").removePrefix("v").trim()
+                if (version.isBlank()) return@mapNotNull null
+                GithubReleaseHistoryItem(
+                    version = version,
+                    date = release.optString("published_at").take(10).ifBlank { "-" },
+                    changesTr = releaseNotesToList(extractCleanReleaseNotes(notes, true)),
+                    changesEn = releaseNotesToList(extractCleanReleaseNotes(notes, false)),
+                )
+            }
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun releaseNotesToList(notes: String): List<String> = notes.lines()
+        .map { it.trim().removePrefix("-").removePrefix("*").trim() }
+        .filter { it.isNotBlank() && !it.startsWith("#") && !it.equals("Download", true) }
+        .ifEmpty { listOf("Release notes are not available.") }
+
     fun compareVersions(current: String, latest: String): Int {
         val currentParts = current.split(Regex("[^0-9]+"))
             .filter(String::isNotEmpty)
@@ -109,20 +153,24 @@ object GithubReleaseChecker {
         var cleaned = rawNotes
 
         // 1. Language section extraction if release follows standard release notes structure
-        if (cleaned.contains("## 🇹🇷 Türkçe") || cleaned.contains("## 🇬🇧 English")) {
-            cleaned = if (isTurkish && cleaned.contains("## 🇹🇷 Türkçe")) {
-                cleaned.substringAfter("## 🇹🇷 Türkçe")
+        val hasTurkishSection = cleaned.contains("## 🇹🇷 Türkçe") || cleaned.contains("## Türkçe")
+        val hasEnglishSection = cleaned.contains("## 🇬🇧 English") || cleaned.contains("## English")
+        if (hasTurkishSection || hasEnglishSection) {
+            val turkishHeader = if (cleaned.contains("## 🇹🇷 Türkçe")) "## 🇹🇷 Türkçe" else "## Türkçe"
+            val englishHeader = if (cleaned.contains("## 🇬🇧 English")) "## 🇬🇧 English" else "## English"
+            cleaned = if (isTurkish && hasTurkishSection) {
+                cleaned.substringAfter(turkishHeader)
                     .substringBefore("---")
-                    .substringBefore("## 🇬🇧 English")
+                    .substringBefore(englishHeader)
                     .substringBefore("## 📦 İndirme")
                     .substringBefore("## 📦 Downloads")
-            } else if (cleaned.contains("## 🇬🇧 English")) {
-                cleaned.substringAfter("## 🇬🇧 English")
+            } else if (hasEnglishSection) {
+                cleaned.substringAfter(englishHeader)
                     .substringBefore("---")
                     .substringBefore("## 📦 İndirme")
                     .substringBefore("## 📦 Downloads")
             } else {
-                cleaned.substringAfter("## 🇹🇷 Türkçe")
+                cleaned.substringAfter(turkishHeader)
                     .substringBefore("---")
                     .substringBefore("## 📦 İndirme")
                     .substringBefore("## 📦 Downloads")

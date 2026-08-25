@@ -11,9 +11,24 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.7.3",
+            date = "2026-08-25",
+            isCurrent = true,
+            changesTr = listOf(
+                "🛡️ Bekçi ve Erişilebilirlik Koruması: 5 saniye ile 120 dakika arasında yapılandırılabilir bekçi eklendi; ekran açılışında anında sağlık kontrolü ve manuel durdurma sonrası otomatik yeniden etkinleştirme iyileştirildi.",
+                "⚡ Hızlı Ayarlar: Kutucuk aktif/pasif durumu daha güvenilir güncellenir; gecikmeli doğrulama ve bekçiye anlık durum sinyali eklendi.",
+                "🔔 Ön Plan Bildirimi: Koruma sekmesine bildirim görünürlüğü seçeneği ve bildirim kapatıldığında gösterilen koruma uyarısı eklendi.",
+            ),
+            changesEn = listOf(
+                "🛡️ Watchdog and Accessibility Protection: Added a configurable 5-second to 120-minute watchdog, immediate screen-on health checks, and improved recovery after a manual stop.",
+                "⚡ Quick Settings: Improved tile state synchronization with delayed verification and immediate watchdog signaling.",
+                "🔔 Foreground Notification: Added a notification-visibility option in Protection and a warning when the notification is disabled.",
+            )
+        ),
+        VersionHistoryItem(
             version = "1.7.2",
             date = "2026-08-15",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "🧭 Dinamik Kenar Bölümleri: Aynı kenardaki hareketler otomatik olarak çakışmadan bölümlere ayrılır.",
                 "📱 Daha Anlaşılır Harita: Atanan hareketler, bölüm başlıkları ve tetik alanları senkronize gösterilir.",
