@@ -119,6 +119,8 @@ data class GestureConfig(
     // Root Watchdog auto-repair settings
     val rootWatchdogEnabled: Boolean = false,
     val rootWatchdogIntervalMinutes: Int = 15,
+    val rootWatchdogIntervalSeconds: Int = 900,
+    val foregroundNotificationVisible: Boolean = true,
 ) {
 
 
@@ -243,6 +245,8 @@ data class GestureConfig(
         val KEY_ACTION_ICON_PACK = stringPreferencesKey("action_icon_pack")
         val KEY_ACTION_ICON_COLOR_MODE = stringPreferencesKey("action_icon_color_mode")
         val KEY_ROOT_WATCHDOG_ENABLED = booleanPreferencesKey("root_watchdog_enabled")
-        val KEY_ROOT_WATCHDOG_INTERVAL_MINUTES = intPreferencesKey("root_watchdog_interval_minutes")
+    val KEY_ROOT_WATCHDOG_INTERVAL_MINUTES = intPreferencesKey("root_watchdog_interval_minutes")
+    val KEY_ROOT_WATCHDOG_INTERVAL_SECONDS = intPreferencesKey("root_watchdog_interval_seconds")
+    val KEY_FOREGROUND_NOTIFICATION_VISIBLE = booleanPreferencesKey("foreground_notification_visible")
     }
 }

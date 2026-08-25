@@ -1425,6 +1425,23 @@ fun SettingsScreen(
 
                     Spacer(Modifier.height(10.dp))
 
+                    AkisSwitchRow(
+                        title = stringResource(R.string.foreground_notification_title),
+                        subtitle = stringResource(R.string.foreground_notification_subtitle),
+                        checked = config.foregroundNotificationVisible,
+                        onCheckedChange = viewModel::setForegroundNotificationVisible
+                    )
+                    if (!config.foregroundNotificationVisible) {
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.foreground_notification_warning),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = scheme.error,
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+
                     // Watchdog Enable/Disable Switch
                     AkisSwitchRow(
                         title = stringResource(R.string.root_watchdog_title),
@@ -1436,31 +1453,36 @@ fun SettingsScreen(
                     if (config.rootWatchdogEnabled) {
                         Spacer(Modifier.height(10.dp))
 
-                        val intervalVal = config.rootWatchdogIntervalMinutes
-                        val intervalText = if (intervalVal >= 60) {
-                            "${intervalVal / 60} saat ${if (intervalVal % 60 > 0) "${intervalVal % 60} dk" else ""}".trim()
+                        val intervalVal = config.rootWatchdogIntervalSeconds
+                        val intervalText = if (intervalVal < 60) {
+                            "$intervalVal sn"
                         } else {
-                            "$intervalVal dk"
+                            val minutes = intervalVal / 60
+                            if (minutes >= 60) {
+                                "${minutes / 60} saat ${if (minutes % 60 > 0) "${minutes % 60} dk" else ""}".trim()
+                            } else {
+                                "$minutes dk"
+                            }
                         }
 
                         AkisSliderRow(
                             title = stringResource(R.string.root_watchdog_interval),
                             valueText = intervalText,
                             value = intervalVal.toFloat(),
-                            valueRange = 5f..120f,
-                            onValueChange = { viewModel.setRootWatchdogInterval(it.toInt()) }
+                            valueRange = 5f..7200f,
+                            onValueChange = { viewModel.setRootWatchdogIntervalSeconds(it.toInt()) }
                         )
 
                         Spacer(Modifier.height(8.dp))
 
                         // Color-coded Battery Impact Indicator & Written Warning
                         val (impactTitle, impactDesc, impactColor) = when {
-                            intervalVal <= 10 -> Triple(
+                            intervalVal <= 600 -> Triple(
                                 stringResource(R.string.battery_impact_high),
                                 stringResource(R.string.battery_impact_high_desc),
                                 Color(0xFFFF1744)
                             )
-                            intervalVal <= 30 -> Triple(
+                            intervalVal <= 1800 -> Triple(
                                 stringResource(R.string.battery_impact_moderate),
                                 stringResource(R.string.battery_impact_moderate_desc),
                                 Color(0xFFFF9100)

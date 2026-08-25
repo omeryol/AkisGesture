@@ -20,15 +20,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 
 class KeepAliveService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var healthCheckJob: Job? = null
+    private var watchdogJob: Job? = null
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_SCREEN_ON ||
-                intent.action == Intent.ACTION_USER_PRESENT
+                intent.action == Intent.ACTION_USER_PRESENT ||
+                intent.action == GestureTileService.ACTION_TILE_STATE_CHANGED
             ) {
                 scheduleHealthCheck()
             }
@@ -53,10 +56,12 @@ class KeepAliveService : Service() {
         } else {
             registerReceiver(screenReceiver, filter)
         }
+        val visible = (application as? io.github.omeryol.akisgesture.AkisGestureApp)
+            ?.gestureConfigFlow?.value?.foregroundNotificationVisible != false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID, "Hareket hizmeti",
-                NotificationManager.IMPORTANCE_LOW
+                if (visible) NotificationManager.IMPORTANCE_LOW else NotificationManager.IMPORTANCE_MIN
             ).apply {
                 setShowBadge(false)
                 description = getString(io.github.omeryol.akisgesture.R.string.service_channel_description)
@@ -79,10 +84,30 @@ class KeepAliveService : Service() {
             .setContentTitle(getString(io.github.omeryol.akisgesture.R.string.service_running))
             .setContentText(getString(io.github.omeryol.akisgesture.R.string.service_ready_tap))
             .setContentIntent(pendingIntent)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(if (visible) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_MIN)
+            .setSilent(!visible)
             .setOngoing(true)
             .build()
         startForeground(NOTIFICATION_ID, notification)
+
+        // The user-configured watchdog is a real periodic loop.  Keep the
+        // existing screen-triggered repair as an immediate fast path.
+        val app = application as? io.github.omeryol.akisgesture.AkisGestureApp
+        if (app != null) {
+            watchdogJob = serviceScope.launch {
+                app.gestureConfigFlow.collectLatest { config ->
+                    if (!config.rootWatchdogEnabled) return@collectLatest
+                    while (true) {
+                        val intervalMs = config.rootWatchdogIntervalSeconds * 1_000L
+                        AccessibilityControl.repairIfNeeded(
+                            this@KeepAliveService,
+                            repairCooldownMs = intervalMs,
+                        )
+                        delay(intervalMs)
+                    }
+                }
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -99,10 +124,12 @@ class KeepAliveService : Service() {
     private fun scheduleHealthCheck() {
         healthCheckJob?.cancel()
         healthCheckJob = serviceScope.launch {
-            // HyperOS'a normal bağlanma için kısa bir süre tanı; yalnızca hâlâ
-            // bağlantı yoksa Akış bileşenini yeniden bağla.
-            delay(1_500)
-            AccessibilityControl.repairIfNeeded(this@KeepAliveService)
+            // Screen-on/user-present is an immediate health boundary.  Do not
+            // wait for the old 1.5s grace period before checking the setting.
+            AccessibilityControl.repairIfNeeded(
+                this@KeepAliveService,
+                repairCooldownMs = 0L,
+            )
         }
     }
 }

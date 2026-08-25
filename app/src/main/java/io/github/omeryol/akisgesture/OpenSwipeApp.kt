@@ -147,6 +147,8 @@ class AkisGestureApp : Application() {
                     actionIconColorMode = ActionIconColorMode.fromId(prefs[GestureConfig.KEY_ACTION_ICON_COLOR_MODE]),
                     rootWatchdogEnabled = prefs[GestureConfig.KEY_ROOT_WATCHDOG_ENABLED] ?: false,
                     rootWatchdogIntervalMinutes = prefs[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] ?: 15,
+                    rootWatchdogIntervalSeconds = prefs[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_SECONDS] ?: 900,
+                    foregroundNotificationVisible = prefs[GestureConfig.KEY_FOREGROUND_NOTIFICATION_VISIBLE] ?: true,
                 )
             }
             .stateIn(appScope, SharingStarted.Eagerly, GestureConfig())
@@ -488,7 +490,23 @@ class AkisGestureApp : Application() {
     }
 
     suspend fun updateRootWatchdogInterval(minutes: Int) {
-        settingsDataStore.edit { it[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] = minutes.coerceIn(5, 120) }
+        val safeMinutes = minutes.coerceIn(1, 120)
+        settingsDataStore.edit {
+            it[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] = safeMinutes
+            it[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_SECONDS] = (safeMinutes * 60).coerceIn(5, 7200)
+        }
+    }
+
+    suspend fun updateForegroundNotificationVisible(visible: Boolean) {
+        settingsDataStore.edit { it[GestureConfig.KEY_FOREGROUND_NOTIFICATION_VISIBLE] = visible }
+    }
+
+    suspend fun updateRootWatchdogIntervalSeconds(seconds: Int) {
+        val safeSeconds = seconds.coerceIn(5, 7200)
+        settingsDataStore.edit {
+            it[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_SECONDS] = safeSeconds
+            it[GestureConfig.KEY_ROOT_WATCHDOG_INTERVAL_MINUTES] = (safeSeconds / 60).coerceAtLeast(1)
+        }
     }
 
     suspend fun updateHapticEnabled(enabled: Boolean) {

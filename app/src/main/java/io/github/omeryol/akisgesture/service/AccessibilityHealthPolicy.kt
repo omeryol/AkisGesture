@@ -14,9 +14,10 @@ object AccessibilityHealthPolicy {
         settingEnabled: Boolean,
         serviceConnected: Boolean,
         millisSinceLastRepair: Long,
+        repairCooldownMs: Long = REPAIR_COOLDOWN_MS,
     ): Action {
         if (!desired) return Action.NONE
-        if (millisSinceLastRepair in 0 until REPAIR_COOLDOWN_MS) return Action.NONE
+        if (millisSinceLastRepair in 0 until repairCooldownMs) return Action.NONE
         if (!settingEnabled) return Action.ENABLE_SETTING
         if (!serviceConnected) return Action.REBIND_SERVICE
         return Action.NONE

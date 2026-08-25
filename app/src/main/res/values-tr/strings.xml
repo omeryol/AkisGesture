@@ -548,6 +548,9 @@
   <string name="icon_pack_section">🎨 Eylem İkon Paketi</string>
   <string name="icon_pack_section_subtitle">Uygulama genelindeki hareket ve bildirim simgelerinin görsel stilini seçin</string>
   <string name="root_watchdog_title">Root Bekçi İncelemesi (Auto-Repair)</string>
+  <string name="foreground_notification_title">Ön plan bildirimi</string>
+  <string name="foreground_notification_subtitle">Bekçi hizmetinin bildirim görünürlüğü</string>
+  <string name="foreground_notification_warning">Kapalı görünürlükte bildirim minimum seviyeye iner; Android arka plan korumasını sınırlayabilir.</string>
   <string name="root_watchdog_subtitle">Root (SU) yetkisiyle servisin canlılığını zamanlanmış aralıklarla kontrol eder</string>
   <string name="root_watchdog_interval">Kontrol periyodu</string>
   <string name="battery_impact_high">🔴 Sık Kontrol (Yüksek Pil Etkisi)</string>

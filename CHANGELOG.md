@@ -1241,3 +1241,9 @@ Bu projedeki önemli değişiklikler bu dosyada tutulur.
 ### Eklendi
 
 - MIT lisanslı OpenSwipe kaynak geçmişi başlangıç tabanı olarak alındı.
+## 1.7.3
+
+- Added a configurable 5-second to 120-minute accessibility watchdog.
+- Added immediate screen-on health checks and quick-settings tile synchronization.
+- Added low-visibility foreground notification control with a protection warning.
+- Improved manual service recovery and diagnostic logging.

@@ -299,6 +299,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateRootWatchdogInterval(minutes) }
     }
 
+    fun setRootWatchdogIntervalSeconds(seconds: Int) {
+        viewModelScope.launch { app.updateRootWatchdogIntervalSeconds(seconds) }
+    }
+
+    fun setForegroundNotificationVisible(visible: Boolean) {
+        viewModelScope.launch { app.updateForegroundNotificationVisible(visible) }
+    }
+
     fun toggleMaster(enabled: Boolean) {
         viewModelScope.launch {
             app.settingsDataStore.edit { prefs ->

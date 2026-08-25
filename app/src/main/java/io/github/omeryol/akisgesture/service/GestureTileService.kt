@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -13,14 +15,19 @@ class GestureTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
         refresh()
+        Handler(Looper.getMainLooper()).postDelayed({ refresh() }, 250L)
     }
 
     override fun onClick() {
         super.onClick()
         val enable = !AccessibilityControl.isEnabled(this)
+        updateTileState(enable)
         Thread {
             when (AccessibilityControl.setEnabled(this, enable)) {
-                RootResult.Success -> refresh()
+                RootResult.Success -> {
+                    sendBroadcast(Intent(ACTION_TILE_STATE_CHANGED).setPackage(packageName))
+                    Handler(Looper.getMainLooper()).post { refresh() }
+                }
                 is RootResult.Failure -> openAccessibilitySettings()
             }
         }.start()
@@ -43,7 +50,10 @@ class GestureTileService : TileService() {
     }
 
     private fun refresh() {
-        val enabled = AccessibilityControl.isEnabled(this)
+        updateTileState(AccessibilityControl.isEnabled(this))
+    }
+
+    private fun updateTileState(enabled: Boolean) {
         qsTile?.apply {
             state = if (enabled) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
             label = getString(io.github.omeryol.akisgesture.R.string.tile_label)
@@ -52,5 +62,10 @@ class GestureTileService : TileService() {
             }
             updateTile()
         }
+    }
+
+    companion object {
+        const val ACTION_TILE_STATE_CHANGED =
+            "io.github.omeryol.akisgesture.action.TILE_STATE_CHANGED"
     }
 }

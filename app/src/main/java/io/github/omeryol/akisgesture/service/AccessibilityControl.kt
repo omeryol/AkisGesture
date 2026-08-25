@@ -33,6 +33,8 @@ object AccessibilityControl {
 
     fun setEnabled(context: Context, enabled: Boolean): RootResult {
         val component = componentName(context)
+        val watchdogEnabled = (context.applicationContext as? io.github.omeryol.akisgesture.AkisGestureApp)
+            ?.gestureConfigFlow?.value?.rootWatchdogEnabled == true
         val read = runRoot("settings get secure enabled_accessibility_services")
         if (read !is CommandResult.Success) {
             return RootResult.Failure("Erişilebilirlik listesi okunamadı")
@@ -55,8 +57,11 @@ object AccessibilityControl {
             return RootResult.Failure("Accessibility setting could not be verified")
         }
         if (enabled) runRoot("settings put secure accessibility_enabled 1")
-        setDesired(context, enabled)
-        if (!enabled) {
+        // With the watchdog enabled, an in-app stop is treated as a temporary
+        // interruption. Keep the guard service alive so it can restore the
+        // accessibility entry at the configured interval.
+        setDesired(context, enabled || watchdogEnabled)
+        if (!enabled && !watchdogEnabled) {
             context.stopService(Intent(context, KeepAliveService::class.java))
         }
         return RootResult.Success
@@ -66,6 +71,7 @@ object AccessibilityControl {
         context: Context,
         serviceConnected: Boolean = GestureAccessibilityService.instance != null,
         nowMillis: Long = System.currentTimeMillis(),
+        repairCooldownMs: Long = AccessibilityHealthPolicy.REPAIR_COOLDOWN_MS,
     ): RootResult {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val lastRepair = prefs.getLong(KEY_LAST_REPAIR, 0L)
@@ -74,6 +80,7 @@ object AccessibilityControl {
             settingEnabled = isEnabled(context),
             serviceConnected = serviceConnected,
             millisSinceLastRepair = nowMillis - lastRepair,
+            repairCooldownMs = repairCooldownMs,
         )
         if (action == AccessibilityHealthPolicy.Action.NONE) return RootResult.Success
         prefs.edit().putLong(KEY_LAST_REPAIR, nowMillis).apply()

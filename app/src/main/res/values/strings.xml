@@ -263,6 +263,9 @@
     <string name="icon_pack_section_subtitle">Select visual symbol style for gesture actions across the app</string>
     <!-- Root Watchdog & Scope Notice -->
     <string name="root_watchdog_title">Root Watchdog Auto-Repair</string>
+    <string name="foreground_notification_title">Foreground notification</string>
+    <string name="foreground_notification_subtitle">Visibility of the watchdog notification</string>
+    <string name="foreground_notification_warning">With reduced visibility, Android may limit background protection.</string>
     <string name="root_watchdog_subtitle">Background timer monitoring AccessibilityService health via Root (SU)</string>
     <string name="root_watchdog_interval">Check interval</string>
     <string name="battery_impact_high">🔴 High Check Rate (High Battery Impact)</string>
