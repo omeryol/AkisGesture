@@ -94,6 +94,8 @@ class AkisGestureApp : Application() {
                     ringGroupSpacingDp = prefs[GestureConfig.KEY_RING_GROUP_SPACING_DP] ?: 60f,
                     ringSizeDp = prefs[GestureConfig.KEY_RING_SIZE_DP] ?: 58f,
                     ringArc = prefs[GestureConfig.KEY_RING_ARC] ?: 0.92f,
+                    ringMenuHoldDelayMs = prefs[GestureConfig.KEY_RING_MENU_HOLD_DELAY_MS] ?: 300L,
+                    recentAppsHoldDelayMs = prefs[GestureConfig.KEY_RECENT_APPS_HOLD_DELAY_MS] ?: 300L,
                     leftDamping = prefs[GestureConfig.KEY_LEFT_DAMPING] ?: 2.0f,
                     rightDamping = prefs[GestureConfig.KEY_RIGHT_DAMPING] ?: 2.0f,
                     bottomDamping = prefs[GestureConfig.KEY_BOTTOM_DAMPING] ?: 2.0f,
@@ -498,6 +500,14 @@ class AkisGestureApp : Application() {
 
     suspend fun updateRecentAppsArc(value: Float) {
         settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_ARC] = value.coerceIn(0f, 1f) }
+    }
+
+    suspend fun updateRingMenuHoldDelayMs(value: Long) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RING_MENU_HOLD_DELAY_MS] = value.coerceIn(100L, 2000L) }
+    }
+
+    suspend fun updateRecentAppsHoldDelayMs(value: Long) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_HOLD_DELAY_MS] = value.coerceIn(100L, 2000L) }
     }
 
     suspend fun updateAutomationAppsEnabled(enabled: Boolean) {

@@ -570,4 +570,5 @@
     <string name="recent_apps_spacing">অ্যাপের মধ্যবর্তী দূরত্ব</string>
     <string name="recent_apps_size">আইকনের আকার</string>
     <string name="recent_apps_arc">বক্রতার মাত্রা</string>
+    <string name="menu_hold_delay">খোলার অপেক্ষার সময়</string>
 </resources>

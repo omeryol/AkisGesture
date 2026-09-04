@@ -654,4 +654,5 @@
     <string name="recent_apps_spacing">Uygulama Aralığı</string>
     <string name="recent_apps_size">İkon Büyüklüğü</string>
     <string name="recent_apps_arc">Kavis Derecesi</string>
+    <string name="menu_hold_delay">Açılma Bekleme Süresi</string>
 </resources>

@@ -321,9 +321,22 @@ class GestureAccessibilityService : AccessibilityService() {
         currentForegroundPackage?.takeIf(::isAppHistoryCandidate)
             ?: foregroundHistory.firstOrNull()
 
+    private fun getSystemRecentPackages(): List<String>? {
+        return runCatching {
+            io.github.omeryol.akisgesture.root.RootCommandExecutor(this).getRecentTaskPackages()
+                ?.filter { isAppHistoryCandidate(it) }
+        }.getOrNull()
+    }
+
     fun recentForegroundPackages(maxCount: Int = 6): List<String> {
+        // 1. Try real system recents via Root or Shizuku if available
+        val systemRecents = runCatching { getSystemRecentPackages() }.getOrNull()
+        if (!systemRecents.isNullOrEmpty()) {
+            return systemRecents.take(maxCount)
+        }
+
+        // 2. Otherwise use accessibility foreground history (real apps visited by user)
         val result = LinkedHashSet<String>()
-        // Exclude current app and system UI
         for (pkg in foregroundHistory) {
             if (isAppHistoryCandidate(pkg)) {
                 result.add(pkg)
@@ -333,19 +346,6 @@ class GestureAccessibilityService : AccessibilityService() {
         if (result.size < maxCount) {
             currentForegroundPackage?.takeIf(::isAppHistoryCandidate)?.let {
                 result.add(it)
-            }
-        }
-        if (result.size < maxCount) {
-            runCatching {
-                val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                val resolveInfos = packageManager.queryIntentActivities(intent, 0)
-                for (ri in resolveInfos) {
-                    val pkg = ri.activityInfo?.packageName ?: continue
-                    if (isAppHistoryCandidate(pkg)) {
-                        result.add(pkg)
-                        if (result.size >= maxCount) break
-                    }
-                }
             }
         }
         return result.take(maxCount)

@@ -606,4 +606,5 @@
     <string name="recent_apps_spacing">Nafasi ya Programu</string>
     <string name="recent_apps_size">Ukubwa wa Aikoni</string>
     <string name="recent_apps_arc">Mkunjo wa Tao</string>
+    <string name="menu_hold_delay">Muda wa Kusubiri Kufungua</string>
 </resources>

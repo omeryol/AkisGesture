@@ -82,6 +82,8 @@ data class GestureConfig(
     val recentAppsSpacingDp: Float = 60f,
     val recentAppsSizeDp: Float = 58f,
     val recentAppsArc: Float = 0.92f,
+    val ringMenuHoldDelayMs: Long = 300L,
+    val recentAppsHoldDelayMs: Long = 300L,
 
     // Bölümleme
     val sectionCount: Int = 1,
@@ -218,6 +220,8 @@ data class GestureConfig(
         val KEY_RING_GROUP_SPACING_DP = floatPreferencesKey("ring_group_spacing_dp")
         val KEY_RING_SIZE_DP = floatPreferencesKey("ring_size_dp")
         val KEY_RING_ARC = floatPreferencesKey("ring_arc")
+        val KEY_RING_MENU_HOLD_DELAY_MS = longPreferencesKey("ring_menu_hold_delay_ms")
+        val KEY_RECENT_APPS_HOLD_DELAY_MS = longPreferencesKey("recent_apps_hold_delay_ms")
         val KEY_FEEDBACK_COLOR = intPreferencesKey("feedback_color_argb")
         val KEY_SECONDARY_COLOR = intPreferencesKey("secondary_color_argb")
         val KEY_L_SWIPE_COLOR = intPreferencesKey("l_swipe_color_argb")

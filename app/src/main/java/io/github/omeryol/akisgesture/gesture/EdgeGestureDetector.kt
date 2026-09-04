@@ -604,12 +604,15 @@ class EdgeGestureDetector(
 
     private fun ringSelectionArmDistancePx(): Float = maxOf(scaledTouchSlop * 2f, 16f)
 
-    /** Keep the ring reveal behind the configured hold threshold. */
-    private fun ringRevealDelayMs(): Long = maxOf(RING_REVEAL_DELAY_MS, config.holdTimeMs)
+    /** Keep the ring reveal responsive to the user-configured hold delay. */
+    private fun ringRevealDelayMs(): Long = if (config.recentAppsEnabledFor(edge)) {
+        config.recentAppsHoldDelayMs
+    } else {
+        config.ringMenuHoldDelayMs
+    }.coerceIn(100L, 2000L)
 
     companion object {
         private const val LOG_TAG = "AkisGesture"
-        private const val RING_REVEAL_DELAY_MS = 1_000L
     }
 }
 

@@ -130,6 +130,14 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch { app.updateRecentAppsArc(value) }
     }
 
+    fun setRingMenuHoldDelayMs(value: Long) {
+        viewModelScope.launch { app.updateRingMenuHoldDelayMs(value) }
+    }
+
+    fun setRecentAppsHoldDelayMs(value: Long) {
+        viewModelScope.launch { app.updateRecentAppsHoldDelayMs(value) }
+    }
+
     private val _rules = MutableStateFlow<List<GestureRule>>(emptyList())
     val rules: StateFlow<List<GestureRule>> = _rules.asStateFlow()
 

@@ -606,4 +606,5 @@
     <string name="recent_apps_spacing">Jarak Antar Aplikasi</string>
     <string name="recent_apps_size">Ukuran Ikon</string>
     <string name="recent_apps_arc">Kelengkungan Busur</string>
+    <string name="menu_hold_delay">Waktu Tunggu Pembukaan</string>
 </resources>

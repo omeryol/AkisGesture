@@ -202,6 +202,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateRecentAppsArc(value) }
     }
 
+    fun setRingMenuHoldDelayMs(value: Long) {
+        viewModelScope.launch { app.updateRingMenuHoldDelayMs(value) }
+    }
+
+    fun setRecentAppsHoldDelayMs(value: Long) {
+        viewModelScope.launch { app.updateRecentAppsHoldDelayMs(value) }
+    }
+
     fun setAutomationAppsEnabled(enabled: Boolean) {
         viewModelScope.launch { app.updateAutomationAppsEnabled(enabled) }
     }

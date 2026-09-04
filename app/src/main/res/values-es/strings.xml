@@ -606,4 +606,5 @@
     <string name="recent_apps_spacing">Espaciado entre aplicaciones</string>
     <string name="recent_apps_size">Tamaño de icono</string>
     <string name="recent_apps_arc">Curvatura del arco</string>
+    <string name="menu_hold_delay">Tiempo de espera para abrir</string>
 </resources>

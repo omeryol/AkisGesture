@@ -641,6 +641,17 @@ fun RuleListScreen(
                                     )
                                 },
                             )
+                            AkisSliderRow(
+                                title = stringResource(R.string.menu_hold_delay),
+                                valueText = "${gestureConfig.ringMenuHoldDelayMs} ms",
+                                value = gestureConfig.ringMenuHoldDelayMs.toFloat(),
+                                valueRange = 150f..1000f,
+                                steps = 17,
+                                onValueChange = { value ->
+                                    val delay = value.roundToInt().toLong()
+                                    viewModel.setRingMenuHoldDelayMs(delay)
+                                },
+                            )
                         }
                     }
                     item(key = "recent_apps_edge_${selectedEdge.name}") {
@@ -729,6 +740,17 @@ fun RuleListScreen(
                                         selectedEdge,
                                         gestureConfig.copy(recentAppsArc = value),
                                     )
+                                },
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.menu_hold_delay),
+                                valueText = "${gestureConfig.recentAppsHoldDelayMs} ms",
+                                value = gestureConfig.recentAppsHoldDelayMs.toFloat(),
+                                valueRange = 150f..1000f,
+                                steps = 17,
+                                onValueChange = { value ->
+                                    val delay = value.roundToInt().toLong()
+                                    viewModel.setRecentAppsHoldDelayMs(delay)
                                 },
                             )
                         }

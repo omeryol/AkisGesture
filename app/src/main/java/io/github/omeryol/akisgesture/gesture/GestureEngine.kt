@@ -357,7 +357,17 @@ class GestureEngine(
         view.feedbackOpacity = previewConfig.feedbackOpacity
         view.primaryColor = previewConfig.feedbackColorArgb
         val previewActions = if (isRecent) {
-            getEdgeActions(edge, previewConfig)
+            val actual = getEdgeActions(edge, previewConfig)
+            if (actual.isNotEmpty()) actual else {
+                listOf(
+                    ActionNode.SwitchLastApp,
+                    ActionNode.Recents,
+                    ActionNode.LockScreen,
+                    ActionNode.Screenshot,
+                    ActionNode.NotificationPanel,
+                    ActionNode.Home,
+                ).take(previewConfig.recentAppsCount.coerceIn(2, 6))
+            }
         } else {
             previewConfig.ringActionsFor(edge)
         }
@@ -374,14 +384,7 @@ class GestureEngine(
         if (config.recentAppsEnabledFor(edge)) {
             val count = config.recentAppsCount.coerceIn(2, 6)
             val service = io.github.omeryol.akisgesture.service.GestureAccessibilityService.instance
-            val recents = service?.recentForegroundPackages(count).orEmpty().ifEmpty {
-                val pm = overlayManager.context.packageManager
-                val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-                pm.queryIntentActivities(intent, 0)
-                    .mapNotNull { it.activityInfo?.packageName }
-                    .filter { it != overlayManager.context.packageName && it != "com.android.systemui" }
-                    .take(count)
-            }
+            val recents = service?.recentForegroundPackages(count).orEmpty()
             val pm = overlayManager.context.packageManager
             val recentActions = recents.mapNotNull { pkg ->
                 runCatching {
@@ -390,7 +393,7 @@ class GestureEngine(
                     ActionNode.LaunchApp(pkg, label)
                 }.getOrNull()
             }.take(count)
-            if (recentActions.isNotEmpty()) return recentActions
+            return recentActions
         }
         return if (config.hasRingActionsFor(edge)) config.ringActionsFor(edge) else emptyList()
     }

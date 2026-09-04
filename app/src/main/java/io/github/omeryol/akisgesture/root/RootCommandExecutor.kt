@@ -108,6 +108,23 @@ class RootCommandExecutor(private val context: Context) {
     private fun executeForOutput(command: String): String? =
         runCommand(command)?.takeIf { it.exitCode == 0 }?.output
 
+    fun getRecentTaskPackages(): List<String>? {
+        val recents = executeForOutput("dumpsys activity recents") ?: return null
+        val matcher = Regex(
+            """Recent #\d+: Task\{[^#]*#(\d+) type=standard A=\d+:([^ }\r\n]+)""",
+        )
+        val ignored = setOf(
+            context.packageName,
+            "com.android.systemui",
+            "com.miui.securitycenter",
+            "com.miui.home",
+        )
+        return matcher.findAll(recents).mapNotNull { match ->
+            val packageName = match.groupValues[2]
+            if (packageName in ignored) null else packageName
+        }.distinct().toList()
+    }
+
     fun execute(command: String): RootResult {
         val result = runCommand(command)
             ?: return RootResult.Failure("Root işlemi zaman aşımına uğradı veya başlatılamadı")
@@ -176,6 +193,16 @@ class RootCommandExecutor(private val context: Context) {
     companion object {
         private const val ROOT_TIMEOUT_SECONDS = 8L
         private val PACKAGE_NAME = Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+$")
+
+        fun isRootAvailable(): Boolean {
+            return try {
+                java.io.File("/system/bin/su").exists() ||
+                    java.io.File("/system/xbin/su").exists() ||
+                    java.io.File("/sbin/su").exists()
+            } catch (_: Exception) {
+                false
+            }
+        }
     }
 
     private data class CommandResult(val exitCode: Int, val output: String)

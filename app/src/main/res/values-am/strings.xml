@@ -56,4 +56,5 @@
     <string name="recent_apps_spacing">በመተግበሪያዎች መካከል ያለው ክፍተት</string>
     <string name="recent_apps_size">የአርማ መጠን</string>
     <string name="recent_apps_arc">የቀስት ጥምዝምዝነት</string>
+    <string name="menu_hold_delay">ለመክፈት የመቆያ ጊዜ</string>
 </resources>

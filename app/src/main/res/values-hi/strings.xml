@@ -606,4 +606,5 @@
     <string name="recent_apps_spacing">ऐप्स के बीच की दूरी</string>
     <string name="recent_apps_size">आइकन का आकार</string>
     <string name="recent_apps_arc">चाप की वक्रता</string>
+    <string name="menu_hold_delay">खुलने में देरी (होल्ड अवधि)</string>
 </resources>
