@@ -376,8 +376,9 @@ class EdgeGestureDetector(
             if (!ringSelectionArmed && movedSinceReveal >= ringSelectionArmDistancePx()) {
                 ringSelectionArmed = true
             }
-            val hitAtRelease = if (ringSelectionArmed) {
-                ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+            val hitAtRelease = if (ringSelectionArmed || ringSelectedIndex >= 0) {
+                val hit = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
+                if (hit >= 0) hit else ringSelectedIndex
             } else {
                 -1
             }
