@@ -10,4 +10,5 @@
     <string name="diagnostic_export">रिपोर्ट निर्यात करें</string>
     <string name="diagnostic_exported">डायग्नोस्टिक रिपोर्ट निर्यात की गई</string>
     <string name="diagnostic_export_failed">डायग्नोस्टिक रिपोर्ट निर्यात नहीं हो सकी</string>
+    <string name="diagnostic_last_disconnect">पिछली सेवा समाप्ति का कारण: %1$s</string>
 </resources>

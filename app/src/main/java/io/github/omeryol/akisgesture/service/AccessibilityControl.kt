@@ -26,20 +26,33 @@ object AccessibilityControl {
 
     fun isEnabled(context: Context): Boolean {
         val component = componentName(context)
+        val services = getEnabledServicesString(context) ?: return false
+        return services.split(':').any { it.isNotBlank() && sameComponent(it, component) }
+    }
+
+    private fun getEnabledServicesString(context: Context): String? {
+        val resolverSetting = runCatching {
+            android.provider.Settings.Secure.getString(
+                context.contentResolver,
+                android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            )
+        }.getOrNull()
+        if (resolverSetting != null) {
+            return resolverSetting
+        }
         val current = runRoot("settings get secure enabled_accessibility_services")
-        return current is CommandResult.Success &&
-            current.output.split(':').any { sameComponent(it, component) }
+        return if (current is CommandResult.Success) current.output else null
     }
 
     fun setEnabled(context: Context, enabled: Boolean): RootResult {
         val component = componentName(context)
         val watchdogEnabled = (context.applicationContext as? io.github.omeryol.akisgesture.AkisGestureApp)
             ?.gestureConfigFlow?.value?.rootWatchdogEnabled == true
-        val read = runRoot("settings get secure enabled_accessibility_services")
-        if (read !is CommandResult.Success) {
+        val read = getEnabledServicesString(context)
+        if (read == null) {
             return RootResult.Failure("Erişilebilirlik listesi okunamadı")
         }
-        val services = read.output
+        val services = read
             .takeUnless { it == "null" }
             .orEmpty()
             .split(':')
@@ -95,11 +108,11 @@ object AccessibilityControl {
 
     private suspend fun rebind(context: Context): RootResult {
         val component = componentName(context)
-        val read = runRoot("settings get secure enabled_accessibility_services")
-        if (read !is CommandResult.Success) {
+        val read = getEnabledServicesString(context)
+        if (read == null) {
             return RootResult.Failure("Erişilebilirlik listesi okunamadı")
         }
-        val otherServices = read.output
+        val otherServices = read
             .takeUnless { it == "null" }
             .orEmpty()
             .split(':')

@@ -377,8 +377,11 @@ class GestureEngine(
 
     private fun addFeedbackOverlay() {
         val window = OverlayWindowFactory.createFeedbackOverlay(overlayManager.context)
-        feedbackView = window.view as FeedbackView
-        overlayManager.addWindow("gesture_feedback", window)
+        if (overlayManager.addWindow("gesture_feedback", window)) {
+            feedbackView = window.view as? FeedbackView
+        } else {
+            feedbackView = null
+        }
     }
 
     private fun removeEdge(edge: Edge) {
@@ -417,9 +420,13 @@ class GestureEngine(
                     overlayManager.context, Edge.LEFT, triggerSizePx, sensorHeight,
                     offsetPx = verticalOffset, onTouchListener = this
                 )
-                detectors[Edge.LEFT] = detector
-                edgeLengths[Edge.LEFT] = sensorHeight.toFloat()
-                overlayManager.addWindow(tag, window)
+                if (overlayManager.addWindow(tag, window)) {
+                    detectors[Edge.LEFT] = detector
+                    edgeLengths[Edge.LEFT] = sensorHeight.toFloat()
+                } else {
+                    detectors.remove(Edge.LEFT)
+                    edgeLengths.remove(Edge.LEFT)
+                }
             }
             Edge.RIGHT -> {
                 val (vStart, vEnd) = currentConfig.verticalRangeFor(Edge.RIGHT) ?: (0f to 1f)
@@ -436,9 +443,13 @@ class GestureEngine(
                     overlayManager.context, Edge.RIGHT, triggerSizePx, sensorHeight,
                     offsetPx = verticalOffset, onTouchListener = this
                 )
-                detectors[Edge.RIGHT] = detector
-                edgeLengths[Edge.RIGHT] = sensorHeight.toFloat()
-                overlayManager.addWindow(tag, window)
+                if (overlayManager.addWindow(tag, window)) {
+                    detectors[Edge.RIGHT] = detector
+                    edgeLengths[Edge.RIGHT] = sensorHeight.toFloat()
+                } else {
+                    detectors.remove(Edge.RIGHT)
+                    edgeLengths.remove(Edge.RIGHT)
+                }
             }
             Edge.BOTTOM -> {
                 val detector = createDetector(Edge.BOTTOM, screenWidth.toFloat())
@@ -446,9 +457,13 @@ class GestureEngine(
                     overlayManager.context, Edge.BOTTOM, screenWidth, triggerSizePx,
                     onTouchListener = this
                 )
-                detectors[Edge.BOTTOM] = detector
-                edgeLengths[Edge.BOTTOM] = screenWidth.toFloat()
-                overlayManager.addWindow(tag, window)
+                if (overlayManager.addWindow(tag, window)) {
+                    detectors[Edge.BOTTOM] = detector
+                    edgeLengths[Edge.BOTTOM] = screenWidth.toFloat()
+                } else {
+                    detectors.remove(Edge.BOTTOM)
+                    edgeLengths.remove(Edge.BOTTOM)
+                }
             }
         }
     }

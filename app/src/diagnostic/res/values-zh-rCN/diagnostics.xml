@@ -9,5 +9,6 @@
     <string name="diagnostic_clear">清除</string>
     <string name="diagnostic_export">导出报告</string>
     <string name="diagnostic_exported">诊断报告已导出</string>
-    <string name="diagnostic_export_failed">无法导出诊断报告</string>
+    <string name="diagnostic_export_failed">未能导出诊断报告</string>
+    <string name="diagnostic_last_disconnect">上次服务停止原因: %1$s</string>
 </resources>

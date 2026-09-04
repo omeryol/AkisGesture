@@ -553,4 +553,7 @@
     <string name="language_korean">한국어</string>
     <string name="language_amharic">አማርኛ</string>
     <string name="language_quechua">Runasimi</string>
+    <string name="foreground_notification_title">ফোরগ্রাউন্ড বিজ্ঞপ্তি</string>
+    <string name="foreground_notification_subtitle">Watchdog বিজ্ঞপ্তির দৃশ্যমানতা</string>
+    <string name="foreground_notification_warning">দৃশ্যমানতা কমালে Android ব্যাকগ্রাউন্ড সুরক্ষা সীমিত করতে পারে।</string>
 </resources>

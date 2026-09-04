@@ -589,4 +589,7 @@
     <string name="language_quechua">Runasimi</string>
     <string name="gesture_count_label">%d gestures</string>
     <string name="delete_section_confirm">All gestures in this section will be deleted. Continue?</string>
+  <string name="foreground_notification_title">フォアグラウンド通知</string>
+  <string name="foreground_notification_subtitle">監視通知の表示</string>
+  <string name="foreground_notification_warning">表示を下げると、Android がバックグラウンド保護を制限する場合があります。</string>
 </resources>

@@ -1,5 +1,6 @@
 package io.github.omeryol.akisgesture.diagnostics
 
+import android.content.Context
 import io.github.omeryol.akisgesture.action.ActionResult
 import io.github.omeryol.akisgesture.root.RootResult
 
@@ -7,7 +8,16 @@ import io.github.omeryol.akisgesture.root.RootResult
 object RuntimeDiagnostics {
     fun serviceConnected() = Unit
     fun engineStarted() = Unit
-    fun serviceDisconnected(reason: String) = Unit
+    fun serviceDisconnected(
+        reason: String,
+        context: Context? = null,
+        foregroundPackage: String? = null,
+        uptimeMs: Long = 0L,
+    ) = Unit
+    fun serviceInterrupted() = Unit
+    fun healthCheckEvaluated(trigger: String, decision: String, details: Map<String, String> = emptyMap()) = Unit
+    fun recordHistoricalExitReasons(context: Context) = Unit
+    fun getLastDisconnectSummary(context: Context): String? = null
     fun gestureMatched(edge: String, gesture: String, actionId: String?) = Unit
     fun gestureSignal(edge: String, signal: String) = Unit
     fun lActionLookup(edge: String, touchPx: Float, ratio: Float, matched: Boolean) = Unit

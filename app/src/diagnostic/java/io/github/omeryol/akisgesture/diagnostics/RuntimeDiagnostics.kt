@@ -1,8 +1,12 @@
 package io.github.omeryol.akisgesture.diagnostics
 
+import android.app.ActivityManager
+import android.app.ApplicationExitInfo
 import android.content.Context
 import android.os.Build
+import android.os.PowerManager
 import android.os.SystemClock
+import android.provider.Settings
 import android.util.Log
 import io.github.omeryol.akisgesture.BuildConfig
 import io.github.omeryol.akisgesture.action.ActionResult
@@ -25,6 +29,12 @@ object RuntimeDiagnostics {
     var isRecording: Boolean = true
         private set
 
+    @Volatile
+    var lastDisconnectSummary: String? = null
+        private set
+
+    private val historicalExits = mutableListOf<Map<String, String>>()
+
     init {
         recordLocked("session", "started_default")
     }
@@ -45,14 +55,133 @@ object RuntimeDiagnostics {
     }
 
     fun clear() {
-        synchronized(lock) { events.clear() }
+        synchronized(lock) {
+            events.clear()
+            lastDisconnectSummary = null
+        }
     }
 
     fun eventCount(): Int = synchronized(lock) { events.size }
 
     fun serviceConnected() = record("service", "connected")
     fun engineStarted() = record("engine", "started")
-    fun serviceDisconnected(reason: String) = record("service", "disconnected", mapOf("reason" to reason))
+
+    fun serviceDisconnected(
+        reason: String,
+        context: Context? = null,
+        foregroundPackage: String? = null,
+        uptimeMs: Long = 0L,
+    ) {
+        val details = mutableMapOf<String, String>()
+        details["reason"] = reason
+        if (uptimeMs > 0) details["uptime_ms"] = uptimeMs.toString()
+        if (!foregroundPackage.isNullOrBlank()) details["foreground_package"] = foregroundPackage
+
+        var readableSummary = "Sebep: $reason"
+
+        if (context != null) {
+            runCatching {
+                val cr = context.contentResolver
+                val services = Settings.Secure.getString(cr, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES).orEmpty()
+                val pkg = context.packageName
+                val settingStillEnabled = services.split(':').any { it.contains(pkg) }
+                details["setting_present"] = settingStillEnabled.toString()
+
+                val masterA11y = Settings.Secure.getInt(cr, Settings.Secure.ACCESSIBILITY_ENABLED, -1)
+                details["master_a11y_enabled"] = masterA11y.toString()
+
+                val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+                if (pm != null) {
+                    details["is_interactive"] = pm.isInteractive.toString()
+                    details["is_power_save_mode"] = pm.isPowerSaveMode.toString()
+                    details["ignoring_battery_optimizations"] = pm.isIgnoringBatteryOptimizations(pkg).toString()
+                }
+
+                val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+                if (am != null) {
+                    val memInfo = ActivityManager.MemoryInfo()
+                    am.getMemoryInfo(memInfo)
+                    details["low_memory"] = memInfo.lowMemory.toString()
+                    details["avail_ram_mb"] = (memInfo.availMem / (1024 * 1024)).toString()
+                }
+
+                readableSummary = when {
+                    reason == "unbind" && settingStillEnabled -> "onUnbind (Ayar açık • Sistem bağlantıyı kesti)"
+                    reason == "unbind" && !settingStillEnabled -> "onUnbind (Ayar silindi • Kullanıcı veya sistem kapattı)"
+                    reason == "destroy" -> "onDestroy (Sistem servisi yok etti)"
+                    else -> "$reason (Ayar: ${if (settingStillEnabled) "açık" else "kapalı"})"
+                }
+            }
+        }
+
+        lastDisconnectSummary = readableSummary
+        record("service", "disconnected", details)
+    }
+
+    fun serviceInterrupted() {
+        record("service", "interrupted")
+    }
+
+    fun healthCheckEvaluated(trigger: String, decision: String, details: Map<String, String> = emptyMap()) {
+        record("health_check", decision, buildMap {
+            put("trigger", trigger)
+            putAll(details)
+        })
+    }
+
+    fun recordHistoricalExitReasons(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        runCatching {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager ?: return
+            val exits = am.getHistoricalProcessExitReasons(context.packageName, 0, 5)
+            if (exits.isEmpty()) return
+            synchronized(lock) {
+                historicalExits.clear()
+                for (exit in exits) {
+                    val reasonDesc = when (exit.reason) {
+                        ApplicationExitInfo.REASON_LOW_MEMORY -> "LMK (Düşük Bellek)"
+                        ApplicationExitInfo.REASON_SIGNALED -> "Killed by Signal (SIGKILL/MIUI)"
+                        ApplicationExitInfo.REASON_CRASH -> "Uygulama Çökmesi"
+                        ApplicationExitInfo.REASON_CRASH_NATIVE -> "Yerel Çökme (Native)"
+                        ApplicationExitInfo.REASON_ANR -> "ANR (Yanıt Vermiyor)"
+                        ApplicationExitInfo.REASON_USER_REQUESTED -> "Kullanıcı Zorla Durdurdu"
+                        ApplicationExitInfo.REASON_USER_STOPPED -> "Kullanıcı Durdurdu"
+                        ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE -> "Aşırı Kaynak / CPU Kullanımı"
+                        ApplicationExitInfo.REASON_PERMISSION_CHANGE -> "İzin Değişikliği"
+                        ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> "Başlatma Hatası"
+                        ApplicationExitInfo.REASON_EXIT_SELF -> "Normal Çıkış"
+                        16 -> "Paket Güncellendi"
+                        17 -> "Paket Durumu Değişti"
+                        else -> "Kod: ${exit.reason}"
+                    }
+                    val map = buildMap {
+                        put("reason", reasonDesc)
+                        put("raw_reason", exit.reason.toString())
+                        put("status", exit.status.toString())
+                        put("importance", exit.importance.toString())
+                        put("pss_mb", (exit.pss / 1024).toString())
+                        put("rss_mb", (exit.rss / 1024).toString())
+                        put("timestamp_epoch_ms", exit.timestamp.toString())
+                        exit.description?.let { put("description", it) }
+                    }
+                    historicalExits.add(map)
+                    recordLocked("process_exit", "historical", map)
+                }
+                val firstAbnormal = historicalExits.firstOrNull {
+                    it["raw_reason"] != ApplicationExitInfo.REASON_EXIT_SELF.toString()
+                }
+                if (firstAbnormal != null && lastDisconnectSummary == null) {
+                    lastDisconnectSummary = "Önceki Süreç: ${firstAbnormal["reason"]}"
+                }
+            }
+        }
+    }
+
+    fun getLastDisconnectSummary(context: Context): String? {
+        return lastDisconnectSummary ?: historicalExits.firstOrNull {
+            it["raw_reason"] != "1"
+        }?.get("reason")?.let { "Önceki Süreç: $it" }
+    }
 
     fun gestureMatched(edge: String, gesture: String, actionId: String?) = record(
         category = "gesture",
@@ -155,6 +284,8 @@ object RuntimeDiagnostics {
 
     fun export(context: Context, output: OutputStream) {
         val snapshot = synchronized(lock) { events.toList() }
+        val exitsSnapshot = synchronized(lock) { historicalExits.toList() }
+        val lastDisconnect = lastDisconnectSummary
         val report = JSONObject().apply {
             put("format", "akis-gesture-diagnostic")
             put("formatVersion", 1)
@@ -164,6 +295,10 @@ object RuntimeDiagnostics {
                 put("manufacturer", Build.MANUFACTURER)
                 put("model", Build.MODEL)
                 put("sdkInt", Build.VERSION.SDK_INT)
+            })
+            lastDisconnect?.let { put("lastDisconnectSummary", it) }
+            put("historicalProcessExits", JSONArray().apply {
+                exitsSnapshot.forEach { put(JSONObject(it)) }
             })
             put("events", JSONArray().apply {
                 snapshot.forEach { event -> put(event.toJson()) }

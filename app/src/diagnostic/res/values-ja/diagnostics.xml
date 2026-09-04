@@ -1,3 +1,4 @@
 <resources>
     <string name="diagnostic_app_name">Akış 診断</string><string name="diagnostic_title">診断セッション</string><string name="diagnostic_subtitle">明示的にセッションを開始した場合のみ記録します。最新 300 件のイベントはメモリに保持され、レポートの書き出し時だけ保存されます。</string><string name="diagnostic_recording">記録中 • %1$d 件</string><string name="diagnostic_idle">記録していません • %1$d 件を保持</string><string name="diagnostic_start">開始</string><string name="diagnostic_stop">停止</string><string name="diagnostic_clear">消去</string><string name="diagnostic_export">レポートを書き出す</string><string name="diagnostic_exported">診断レポートを書き出しました</string><string name="diagnostic_export_failed">診断レポートを書き出せませんでした</string>
+    <string name="diagnostic_last_disconnect">直前のサービス停止理由: %1$s</string>
 </resources>

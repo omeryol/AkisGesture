@@ -69,6 +69,17 @@ fun DiagnosticsSettingsEntry() {
             style = MaterialTheme.typography.labelMedium,
             color = if (recording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,
         )
+        val disconnectSummary = remember(count, refreshToken) {
+            RuntimeDiagnostics.getLastDisconnectSummary(context)
+        }
+        if (!disconnectSummary.isNullOrBlank()) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.diagnostic_last_disconnect, disconnectSummary),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
         Spacer(Modifier.height(10.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),

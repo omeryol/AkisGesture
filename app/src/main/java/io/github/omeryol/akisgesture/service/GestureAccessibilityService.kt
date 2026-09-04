@@ -65,11 +65,14 @@ class GestureAccessibilityService : AccessibilityService() {
 
     // 1x1px saydam overlay penceresi — süreç önceliğini korur
     private var keepAliveView: View? = null
+    private var serviceConnectedEpochMs: Long = 0L
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        serviceConnectedEpochMs = System.currentTimeMillis()
         instance = this
         RuntimeDiagnostics.serviceConnected()
+        RuntimeDiagnostics.recordHistoricalExitReasons(this)
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         serviceInfo = serviceInfo?.apply {
@@ -218,7 +221,7 @@ class GestureAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        // Kesinti işleyici gerektirmez
+        RuntimeDiagnostics.serviceInterrupted()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -248,6 +251,8 @@ class GestureAccessibilityService : AccessibilityService() {
     }
 
     private fun cleanup(reason: String) {
+        val uptime = if (serviceConnectedEpochMs > 0L) System.currentTimeMillis() - serviceConnectedEpochMs else 0L
+        val fgPkg = currentForegroundPackage
         serviceScope.cancel()
         if (::gestureEngine.isInitialized) gestureEngine.stop()
         if (::overlayManager.isInitialized) overlayManager.removeAll()
@@ -262,7 +267,12 @@ class GestureAccessibilityService : AccessibilityService() {
 
         instance = null
         _serviceState.value = ServiceState.DISCONNECTED
-        RuntimeDiagnostics.serviceDisconnected(reason)
+        RuntimeDiagnostics.serviceDisconnected(
+            reason = reason,
+            context = this,
+            foregroundPackage = fgPkg,
+            uptimeMs = uptime,
+        )
     }
 
 

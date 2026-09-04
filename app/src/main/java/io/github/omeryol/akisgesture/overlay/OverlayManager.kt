@@ -12,12 +12,15 @@ class OverlayManager(
 ) {
     private val windows = mutableMapOf<String, OverlayWindow>()
 
-    fun addWindow(tag: String, window: OverlayWindow) {
-        if (windows.containsKey(tag)) return
-        try {
+    fun addWindow(tag: String, window: OverlayWindow): Boolean {
+        if (windows.containsKey(tag)) return true
+        return try {
             windowManager.addView(window.view, window.params)
             windows[tag] = window
-        } catch (_: Exception) {
+            true
+        } catch (e: Exception) {
+            Log.w("OverlayManager", "Failed to add window $tag", e)
+            false
         }
     }
 

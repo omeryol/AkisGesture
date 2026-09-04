@@ -10,4 +10,5 @@
     <string name="diagnostic_export">تصدير التقرير</string>
     <string name="diagnostic_exported">تم تصدير تقرير التشخيص</string>
     <string name="diagnostic_export_failed">تعذر تصدير تقرير التشخيص</string>
+    <string name="diagnostic_last_disconnect">سبب إنهاء الخدمة الأخير: %1$s</string>
 </resources>

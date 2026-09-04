@@ -589,4 +589,7 @@
     <string name="language_quechua">Runasimi</string>
     <string name="gesture_count_label">%d gestures</string>
     <string name="delete_section_confirm">All gestures in this section will be deleted. Continue?</string>
+  <string name="foreground_notification_title">Notificación en primer plano</string>
+  <string name="foreground_notification_subtitle">Visibilidad de la notificación del vigilante</string>
+  <string name="foreground_notification_warning">Con visibilidad reducida, Android puede limitar la protección en segundo plano.</string>
 </resources>

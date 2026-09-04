@@ -20,6 +20,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import kotlinx.coroutines.flow.collectLatest
 
 class KeepAliveService : Service() {
@@ -124,11 +125,23 @@ class KeepAliveService : Service() {
     private fun scheduleHealthCheck() {
         healthCheckJob?.cancel()
         healthCheckJob = serviceScope.launch {
-            // Screen-on/user-present is an immediate health boundary.  Do not
-            // wait for the old 1.5s grace period before checking the setting.
+            // Fast-path: if the accessibility service is already active and healthy,
+            // no delay or repair is needed.
+            if (GestureAccessibilityService.instance != null && AccessibilityControl.isEnabled(this@KeepAliveService)) {
+                RuntimeDiagnostics.healthCheckEvaluated("screen_wake", "healthy_skipped")
+                return@launch
+            }
+            // If the service is not currently bound (e.g. system waking from sleep/doze),
+            // wait a short grace period to allow Android to bind it before triggering a repair.
+            delay(1_500L)
+            RuntimeDiagnostics.healthCheckEvaluated(
+                "screen_wake",
+                "evaluating_repair",
+                mapOf("service_connected" to (GestureAccessibilityService.instance != null).toString()),
+            )
             AccessibilityControl.repairIfNeeded(
                 this@KeepAliveService,
-                repairCooldownMs = 0L,
+                repairCooldownMs = 15_000L,
             )
         }
     }

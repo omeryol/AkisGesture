@@ -10,4 +10,5 @@
     <string name="diagnostic_export">Raporu dışa aktar</string>
     <string name="diagnostic_exported">Tanılama raporu dışa aktarıldı</string>
     <string name="diagnostic_export_failed">Tanılama raporu dışa aktarılamadı</string>
+    <string name="diagnostic_last_disconnect">Son servis kapanma sebebi: %1$s</string>
 </resources>

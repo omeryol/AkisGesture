@@ -1,3 +1,4 @@
 <resources>
     <string name="diagnostic_app_name">Akış Diagnóstico</string><string name="diagnostic_title">Sessão de diagnóstico</string><string name="diagnostic_subtitle">Só registra quando você inicia uma sessão explicitamente. Os últimos 300 eventos ficam na memória e só são gravados ao exportar o relatório.</string><string name="diagnostic_recording">Gravando • %1$d eventos</string><string name="diagnostic_idle">Não gravando • %1$d eventos mantidos</string><string name="diagnostic_start">Iniciar</string><string name="diagnostic_stop">Parar</string><string name="diagnostic_clear">Limpar</string><string name="diagnostic_export">Exportar relatório</string><string name="diagnostic_exported">Relatório de diagnóstico exportado</string><string name="diagnostic_export_failed">Não foi possível exportar o relatório de diagnóstico</string>
+    <string name="diagnostic_last_disconnect">Último motivo de encerramento do serviço: %1$s</string>
 </resources>
