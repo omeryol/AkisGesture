@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">Inafanya kazi (Inahitaji ruhusa)</string>
     <string name="shizuku_authorize_btn">Idhinisha Shizuku</string>
     <string name="shizuku_not_installed">Haijasakinishwa / Imesimama</string>
+    <string name="recent_apps_title">Paa ya Programu za Hivi Majuzi</string>
+    <string name="recent_apps_customization_subtitle">Geuza kukufaa nafasi, ukubwa, idadi ya vipengee na mkunjo wa programu za hivi majuzi</string>
+    <string name="recent_apps_count">Idadi ya Programu Zinazoonekana</string>
+    <string name="recent_apps_inset">Umbali kutoka Ukingoni</string>
+    <string name="recent_apps_spacing">Nafasi ya Programu</string>
+    <string name="recent_apps_size">Ukubwa wa Aikoni</string>
+    <string name="recent_apps_arc">Mkunjo wa Tao</string>
 </resources>

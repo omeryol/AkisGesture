@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">Ejecutándose (Permiso requerido)</string>
     <string name="shizuku_authorize_btn">Autorizar Shizuku</string>
     <string name="shizuku_not_installed">No instalado / Detenido</string>
+    <string name="recent_apps_title">Barra de aplicaciones recientes</string>
+    <string name="recent_apps_customization_subtitle">Personaliza la posición, tamaño, cantidad de elementos y curvatura de las apps recientes</string>
+    <string name="recent_apps_count">Cantidad de aplicaciones visibles</string>
+    <string name="recent_apps_inset">Distancia desde el borde</string>
+    <string name="recent_apps_spacing">Espaciado entre aplicaciones</string>
+    <string name="recent_apps_size">Tamaño de icono</string>
+    <string name="recent_apps_arc">Curvatura del arco</string>
 </resources>

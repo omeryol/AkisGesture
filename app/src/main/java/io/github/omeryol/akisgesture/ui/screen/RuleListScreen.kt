@@ -575,14 +575,7 @@ fun RuleListScreen(
                             },
                         )
                     }
-                    item(key = "recent_apps_edge_${selectedEdge.name}") {
-                        RecentAppsEdgeCard(
-                            edge = selectedEdge,
-                            enabled = gestureConfig.recentAppsEnabledFor(selectedEdge),
-                            onToggleEnabled = { viewModel.setRecentAppsEnabled(selectedEdge, it) },
-                        )
-                    }
-                    if (gestureConfig.ringMenuEnabledFor(selectedEdge)) item(key = "ring_menu_header") {
+                    if (gestureConfig.ringMenuEnabledFor(selectedEdge)) item(key = "ring_menu_customization_${selectedEdge.name}") {
                         AkisGlassCard(accentTint = AkisTertiary) {
                             Text(
                                 stringResource(R.string.ring_menu_title),
@@ -645,6 +638,96 @@ fun RuleListScreen(
                                     GestureAccessibilityService.instance?.previewRingMenu(
                                         selectedEdge,
                                         gestureConfig.copy(ringArc = value),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                    item(key = "recent_apps_edge_${selectedEdge.name}") {
+                        RecentAppsEdgeCard(
+                            edge = selectedEdge,
+                            enabled = gestureConfig.recentAppsEnabledFor(selectedEdge),
+                            onToggleEnabled = { viewModel.setRecentAppsEnabled(selectedEdge, it) },
+                        )
+                    }
+                    if (gestureConfig.recentAppsEnabledFor(selectedEdge)) item(key = "recent_apps_customization_${selectedEdge.name}") {
+                        AkisGlassCard(accentTint = AkisSecondary) {
+                            Text(
+                                stringResource(R.string.recent_apps_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                stringResource(R.string.recent_apps_customization_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            AkisSliderRow(
+                                title = stringResource(R.string.recent_apps_count),
+                                valueText = "${gestureConfig.recentAppsCount}",
+                                value = gestureConfig.recentAppsCount.toFloat(),
+                                valueRange = 2f..6f,
+                                steps = 3,
+                                onValueChange = { value ->
+                                    val count = value.roundToInt()
+                                    viewModel.setRecentAppsCount(count)
+                                    GestureAccessibilityService.instance?.previewRingMenu(
+                                        selectedEdge,
+                                        gestureConfig.copy(recentAppsCount = count),
+                                    )
+                                },
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.recent_apps_inset),
+                                valueText = "${gestureConfig.recentAppsInsetDp.roundToInt()} dp",
+                                value = gestureConfig.recentAppsInsetDp,
+                                valueRange = ringInsetRange,
+                                onValueChange = { value ->
+                                    viewModel.setRecentAppsInsetDp(value)
+                                    GestureAccessibilityService.instance?.previewRingMenu(
+                                        selectedEdge,
+                                        gestureConfig.copy(recentAppsInsetDp = value),
+                                    )
+                                },
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.recent_apps_spacing),
+                                valueText = "${gestureConfig.recentAppsSpacingDp.roundToInt()} dp",
+                                value = gestureConfig.recentAppsSpacingDp,
+                                valueRange = 36f..120f,
+                                onValueChange = { value ->
+                                    viewModel.setRecentAppsSpacingDp(value)
+                                    GestureAccessibilityService.instance?.previewRingMenu(
+                                        selectedEdge,
+                                        gestureConfig.copy(recentAppsSpacingDp = value),
+                                    )
+                                },
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.recent_apps_size),
+                                valueText = "${gestureConfig.recentAppsSizeDp.roundToInt()} dp",
+                                value = gestureConfig.recentAppsSizeDp,
+                                valueRange = 40f..92f,
+                                onValueChange = { value ->
+                                    viewModel.setRecentAppsSizeDp(value)
+                                    GestureAccessibilityService.instance?.previewRingMenu(
+                                        selectedEdge,
+                                        gestureConfig.copy(recentAppsSizeDp = value),
+                                    )
+                                },
+                            )
+                            AkisSliderRow(
+                                title = stringResource(R.string.recent_apps_arc),
+                                valueText = "${(gestureConfig.recentAppsArc * 100f).roundToInt()}%",
+                                value = gestureConfig.recentAppsArc,
+                                valueRange = 0f..1f,
+                                onValueChange = { value ->
+                                    viewModel.setRecentAppsArc(value)
+                                    GestureAccessibilityService.instance?.previewRingMenu(
+                                        selectedEdge,
+                                        gestureConfig.copy(recentAppsArc = value),
                                     )
                                 },
                             )

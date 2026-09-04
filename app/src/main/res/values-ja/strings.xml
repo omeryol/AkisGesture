@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">実行中（権限が必要です）</string>
     <string name="shizuku_authorize_btn">Shizuku を許可</string>
     <string name="shizuku_not_installed">未インストール / 停止中</string>
+    <string name="recent_apps_title">最近のアプリドック</string>
+    <string name="recent_apps_customization_subtitle">最近のアプリドックの位置、サイズ、アプリ数、曲率をカスタマイズします</string>
+    <string name="recent_apps_count">表示するアプリ数</string>
+    <string name="recent_apps_inset">端からの距離</string>
+    <string name="recent_apps_spacing">アプリの間隔</string>
+    <string name="recent_apps_size">アイコンのサイズ</string>
+    <string name="recent_apps_arc">アークの曲率</string>
 </resources>

@@ -647,4 +647,11 @@
     <string name="shizuku_running_unauthorized">Çalışıyor (İzin gerekli)</string>
     <string name="shizuku_authorize_btn">Shizuku Yetkilendir</string>
     <string name="shizuku_not_installed">Yüklü değil / Kapalı</string>
+    <string name="recent_apps_title">Son Kullanılan Uygulamalar</string>
+    <string name="recent_apps_customization_subtitle">Son uygulamalar menüsünün konumunu, boyutunu, öğe sayısını ve kavisini özelleştirin</string>
+    <string name="recent_apps_count">Görüntülenecek Uygulama Sayısı</string>
+    <string name="recent_apps_inset">Kenar Mesafesi (Yakınlık/Uzaklık)</string>
+    <string name="recent_apps_spacing">Uygulama Aralığı</string>
+    <string name="recent_apps_size">İkon Büyüklüğü</string>
+    <string name="recent_apps_arc">Kavis Derecesi</string>
 </resources>

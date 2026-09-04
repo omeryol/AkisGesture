@@ -208,4 +208,11 @@
     <string name="shizuku_running_unauthorized">Llamk’achkan (Permiso munakun)</string>
     <string name="shizuku_authorize_btn">Shizuku-man permiso quy</string>
     <string name="shizuku_not_installed">Mana churasqachu / Sayasqa</string>
+    <string name="recent_apps_title">Qallarisqa app-kuna dock</string>
+    <string name="recent_apps_customization_subtitle">Qallarisqa app dockpa chawpinta, sayayninta, yupayninta tikray</string>
+    <string name="recent_apps_count">Rikukuna app yupay</string>
+    <string name="recent_apps_inset">Kantuymanta karuchakuy</string>
+    <string name="recent_apps_spacing">Appkuna chawpin</string>
+    <string name="recent_apps_size">Sanampa sayay</string>
+    <string name="recent_apps_arc">K’umu kurba</string>
 </resources>

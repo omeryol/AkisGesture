@@ -77,6 +77,11 @@ data class GestureConfig(
     val leftRecentAppsEnabled: Boolean = false,
     val rightRecentAppsEnabled: Boolean = false,
     val bottomRecentAppsEnabled: Boolean = false,
+    val recentAppsCount: Int = 3,
+    val recentAppsInsetDp: Float = 100f,
+    val recentAppsSpacingDp: Float = 60f,
+    val recentAppsSizeDp: Float = 58f,
+    val recentAppsArc: Float = 0.92f,
 
     // Bölümleme
     val sectionCount: Int = 1,
@@ -201,6 +206,11 @@ data class GestureConfig(
         val KEY_LEFT_RECENT_APPS_ENABLED = booleanPreferencesKey("left_recent_apps_enabled")
         val KEY_RIGHT_RECENT_APPS_ENABLED = booleanPreferencesKey("right_recent_apps_enabled")
         val KEY_BOTTOM_RECENT_APPS_ENABLED = booleanPreferencesKey("bottom_recent_apps_enabled")
+        val KEY_RECENT_APPS_COUNT = intPreferencesKey("recent_apps_count")
+        val KEY_RECENT_APPS_INSET_DP = floatPreferencesKey("recent_apps_inset_dp")
+        val KEY_RECENT_APPS_SPACING_DP = floatPreferencesKey("recent_apps_spacing_dp")
+        val KEY_RECENT_APPS_SIZE_DP = floatPreferencesKey("recent_apps_size_dp")
+        val KEY_RECENT_APPS_ARC = floatPreferencesKey("recent_apps_arc")
         val KEY_LEFT_RING_ACTIONS = stringPreferencesKey("left_ring_action_ids")
         val KEY_RIGHT_RING_ACTIONS = stringPreferencesKey("right_ring_action_ids")
         val KEY_BOTTOM_RING_ACTIONS = stringPreferencesKey("bottom_ring_action_ids")

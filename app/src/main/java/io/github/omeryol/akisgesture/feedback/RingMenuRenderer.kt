@@ -64,43 +64,24 @@ class RingMenuRenderer {
             Edge.BOTTOM -> height - menuInset
         }
         val spread = spreadPx.coerceAtLeast(36f)
-        // Make the center bubble visibly lead inward while the outer bubbles
-        // stay close to the edge, producing a pronounced half-arc.
         val middleLead = spread * 1.45f
-        val sideLead = middleLead * (1f - ringArc.coerceIn(0f, 1f))
-        val middleAnchor = when (edge) {
-            Edge.LEFT -> anchor + middleLead
-            Edge.RIGHT -> anchor - middleLead
-            Edge.BOTTOM -> anchor - middleLead
+        val count = icons.size
+        val m = (count - 1) / 2f
+        val maxDistFromCenter = if (m > 0f) m else 1f
+        val maxBound = if (edge == Edge.BOTTOM) width else height
+
+        val positions = (0 until count).map { i ->
+            val u = if (m > 0f) kotlin.math.abs(i - m) / maxDistFromCenter else 0f
+            val itemLead = middleLead * (1f - ringArc.coerceIn(0f, 1f) * (u * u))
+            val deltaEdge = (i - m) * spread
+            val edgePos = (touch + deltaEdge).coerceIn(radius, maxBound - radius)
+            when (edge) {
+                Edge.LEFT -> (anchor + itemLead) to edgePos
+                Edge.RIGHT -> (anchor - itemLead) to edgePos
+                Edge.BOTTOM -> edgePos to (anchor - itemLead)
+            }
         }
-        val sideY = listOf(
-            (touch - spread).coerceIn(radius, height - radius),
-            touch.coerceIn(radius, height - radius),
-            (touch + spread).coerceIn(radius, height - radius),
-        )
-        val bottomX = listOf(
-            (touch - spread).coerceIn(radius, width - radius),
-            touch.coerceIn(radius, width - radius),
-            (touch + spread).coerceIn(radius, width - radius),
-        )
-        val positions = when (edge) {
-            Edge.LEFT -> listOf(
-                (anchor + sideLead) to sideY[0],
-                middleAnchor to sideY[1],
-                (anchor + sideLead) to sideY[2],
-            )
-            Edge.RIGHT -> listOf(
-                (anchor - sideLead) to sideY[0],
-                middleAnchor to sideY[1],
-                (anchor - sideLead) to sideY[2],
-            )
-            Edge.BOTTOM -> listOf(
-                bottomX[0] to (anchor - sideLead),
-                bottomX[1] to middleAnchor,
-                bottomX[2] to (anchor - sideLead),
-            )
-        }
-        icons.take(3).forEachIndexed { index, icon ->
+        icons.forEachIndexed { index, icon ->
             val (x, y) = positions[index]
             val selected = index == selectedIndex
             val pulse = if (selected) {

@@ -182,6 +182,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch { app.updateRingArc(value) }
     }
 
+    fun setRecentAppsCount(value: Int) {
+        viewModelScope.launch { app.updateRecentAppsCount(value) }
+    }
+
+    fun setRecentAppsInsetDp(value: Float) {
+        viewModelScope.launch { app.updateRecentAppsInsetDp(value) }
+    }
+
+    fun setRecentAppsSpacingDp(value: Float) {
+        viewModelScope.launch { app.updateRecentAppsSpacingDp(value) }
+    }
+
+    fun setRecentAppsSizeDp(value: Float) {
+        viewModelScope.launch { app.updateRecentAppsSizeDp(value) }
+    }
+
+    fun setRecentAppsArc(value: Float) {
+        viewModelScope.launch { app.updateRecentAppsArc(value) }
+    }
+
     fun setAutomationAppsEnabled(enabled: Boolean) {
         viewModelScope.launch { app.updateAutomationAppsEnabled(enabled) }
     }

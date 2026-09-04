@@ -321,7 +321,37 @@ class GestureAccessibilityService : AccessibilityService() {
         currentForegroundPackage?.takeIf(::isAppHistoryCandidate)
             ?: foregroundHistory.firstOrNull()
 
-    fun recentForegroundPackages(): List<String> = foregroundHistory.toList()
+    fun recentForegroundPackages(maxCount: Int = 6): List<String> {
+        val result = LinkedHashSet<String>()
+        // Exclude current app and system UI
+        for (pkg in foregroundHistory) {
+            if (isAppHistoryCandidate(pkg)) {
+                result.add(pkg)
+                if (result.size >= maxCount) break
+            }
+        }
+        if (result.size < maxCount) {
+            currentForegroundPackage?.takeIf(::isAppHistoryCandidate)?.let {
+                result.add(it)
+            }
+        }
+        if (result.size < maxCount) {
+            runCatching {
+                val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+                val resolveInfos = packageManager.queryIntentActivities(intent, 0)
+                for (ri in resolveInfos) {
+                    val pkg = ri.activityInfo?.packageName ?: continue
+                    if (isAppHistoryCandidate(pkg)) {
+                        result.add(pkg)
+                        if (result.size >= maxCount) break
+                    }
+                }
+            }
+        }
+        return result.take(maxCount)
+    }
+
+    fun recentForegroundPackages(): List<String> = recentForegroundPackages(6)
 
     fun previousForegroundPackage(): String? =
         foregroundHistory.firstOrNull { it != currentForegroundPackage }

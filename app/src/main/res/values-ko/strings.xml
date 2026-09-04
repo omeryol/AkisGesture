@@ -142,4 +142,11 @@
     <string name="shizuku_running_unauthorized">실행 중 (권한 필요)</string>
     <string name="shizuku_authorize_btn">Shizuku 권한 요청</string>
     <string name="shizuku_not_installed">설치되지 않음 / 중지됨</string>
+    <string name="recent_apps_title">최근 앱 독</string>
+    <string name="recent_apps_customization_subtitle">최근 앱 독의 위치, 크기, 앱 수 및 곡률을 맞춤설정합니다</string>
+    <string name="recent_apps_count">표시할 앱 개수</string>
+    <string name="recent_apps_inset">가장자리 여백 거리</string>
+    <string name="recent_apps_spacing">앱 간격</string>
+    <string name="recent_apps_size">아이콘 크기</string>
+    <string name="recent_apps_arc">호 곡률</string>
 </resources>

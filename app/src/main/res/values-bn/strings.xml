@@ -563,4 +563,11 @@
     <string name="shizuku_running_unauthorized">চলছে (অনুমতি প্রয়োজন)</string>
     <string name="shizuku_authorize_btn">Shizuku অনুমোদন করুন</string>
     <string name="shizuku_not_installed">ইনস্টল নেই / বন্ধ</string>
+    <string name="recent_apps_title">সাম্প্রতিক অ্যাপ ডক</string>
+    <string name="recent_apps_customization_subtitle">সাম্প্রতিক অ্যাপ ডকের অবস্থান, আকার, সংখ্যা ও বক্রতা কাস্টমাইজ করুন</string>
+    <string name="recent_apps_count">দৃশ্যমান অ্যাপের সংখ্যা</string>
+    <string name="recent_apps_inset">প্রান্তের দূরত্ব</string>
+    <string name="recent_apps_spacing">অ্যাপের মধ্যবর্তী দূরত্ব</string>
+    <string name="recent_apps_size">আইকনের আকার</string>
+    <string name="recent_apps_arc">বক্রতার মাত্রা</string>
 </resources>

@@ -353,4 +353,11 @@
     <string name="shizuku_running_unauthorized">Running (Permission needed)</string>
     <string name="shizuku_authorize_btn">Authorize Shizuku</string>
     <string name="shizuku_not_installed">Not installed / Stopped</string>
+    <string name="recent_apps_title">Recent Apps Dock</string>
+    <string name="recent_apps_customization_subtitle">Customize position, size, item count, and curvature of the recent apps dock</string>
+    <string name="recent_apps_count">Visible Apps Count</string>
+    <string name="recent_apps_inset">Edge Inset Distance</string>
+    <string name="recent_apps_spacing">App Spacing</string>
+    <string name="recent_apps_size">Icon Size</string>
+    <string name="recent_apps_arc">Arc Curvature</string>
 </resources>

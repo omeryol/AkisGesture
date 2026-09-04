@@ -347,15 +347,20 @@ class GestureEngine(
     /** Displays the actual ring overlay for live settings adjustment. */
     fun previewRingMenu(edge: Edge, previewConfig: GestureConfig = currentConfig) {
         val view = feedbackView ?: return
-        if (!previewConfig.ringMenuEnabledFor(edge)) return
-        view.ringGroupInsetDp = previewConfig.ringGroupInsetDp
-        view.ringGroupSpacingDp = previewConfig.ringGroupSpacingDp
-        view.ringSizeDp = previewConfig.ringSizeDp
-        view.ringArc = previewConfig.ringArc
+        val isRecent = previewConfig.recentAppsEnabledFor(edge)
+        if (!previewConfig.ringMenuEnabledFor(edge) && !isRecent) return
+        view.ringGroupInsetDp = if (isRecent) previewConfig.recentAppsInsetDp else previewConfig.ringGroupInsetDp
+        view.ringGroupSpacingDp = if (isRecent) previewConfig.recentAppsSpacingDp else previewConfig.ringGroupSpacingDp
+        view.ringSizeDp = if (isRecent) previewConfig.recentAppsSizeDp else previewConfig.ringSizeDp
+        view.ringArc = if (isRecent) previewConfig.recentAppsArc else previewConfig.ringArc
         view.iconSize = previewConfig.iconSize
         view.feedbackOpacity = previewConfig.feedbackOpacity
         view.primaryColor = previewConfig.feedbackColorArgb
-        val previewActions = previewConfig.ringActionsFor(edge)
+        val previewActions = if (isRecent) {
+            getEdgeActions(edge, previewConfig)
+        } else {
+            previewConfig.ringActionsFor(edge)
+        }
         view.setRingActions(previewActions, previewConfig.actionIconPack)
         view.peakThreshold = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -365,9 +370,18 @@ class GestureEngine(
         view.showRingPreview(edge, previewActions, previewConfig.actionIconPack, previewConfig.actionIconColorMode)
     }
 
-    private fun getEdgeActions(edge: Edge): List<ActionNode> {
-        if (currentConfig.recentAppsEnabledFor(edge)) {
-            val recents = io.github.omeryol.akisgesture.service.GestureAccessibilityService.instance?.recentForegroundPackages().orEmpty()
+    private fun getEdgeActions(edge: Edge, config: GestureConfig = currentConfig): List<ActionNode> {
+        if (config.recentAppsEnabledFor(edge)) {
+            val count = config.recentAppsCount.coerceIn(2, 6)
+            val service = io.github.omeryol.akisgesture.service.GestureAccessibilityService.instance
+            val recents = service?.recentForegroundPackages(count).orEmpty().ifEmpty {
+                val pm = overlayManager.context.packageManager
+                val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+                pm.queryIntentActivities(intent, 0)
+                    .mapNotNull { it.activityInfo?.packageName }
+                    .filter { it != overlayManager.context.packageName && it != "com.android.systemui" }
+                    .take(count)
+            }
             val pm = overlayManager.context.packageManager
             val recentActions = recents.mapNotNull { pkg ->
                 runCatching {
@@ -375,10 +389,10 @@ class GestureEngine(
                     val label = pm.getApplicationLabel(appInfo).toString()
                     ActionNode.LaunchApp(pkg, label)
                 }.getOrNull()
-            }.take(3)
+            }.take(count)
             if (recentActions.isNotEmpty()) return recentActions
         }
-        return if (currentConfig.hasRingActionsFor(edge)) currentConfig.ringActionsFor(edge) else emptyList()
+        return if (config.hasRingActionsFor(edge)) config.ringActionsFor(edge) else emptyList()
     }
 
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
@@ -549,42 +563,42 @@ class GestureEngine(
         metrics: android.util.DisplayMetrics,
         hitScale: Float = 1.3f,
     ): Int {
+        val isRecent = currentConfig.recentAppsEnabledFor(edge)
         val density = metrics.density
         val width = metrics.widthPixels.toFloat()
         val height = metrics.heightPixels.toFloat()
         val span = if (edge == Edge.BOTTOM) height else width
-        val radius = currentConfig.ringSizeDp * currentConfig.iconSize
+        val configSizeDp = if (isRecent) currentConfig.recentAppsSizeDp else currentConfig.ringSizeDp
+        val configInsetDp = if (isRecent) currentConfig.recentAppsInsetDp else currentConfig.ringGroupInsetDp
+        val configSpacingDp = if (isRecent) currentConfig.recentAppsSpacingDp else currentConfig.ringGroupSpacingDp
+        val configArc = if (isRecent) currentConfig.recentAppsArc else currentConfig.ringArc
+
+        val radius = configSizeDp * currentConfig.iconSize
         val maxInset = if (edge == Edge.BOTTOM) span * 0.5f else span * 0.9f
-        val inset = (currentConfig.ringGroupInsetDp * density)
-            .coerceIn(radius * 1.2f, maxInset)
-        val spread = (currentConfig.ringGroupSpacingDp * density).coerceAtLeast(36f)
+        val inset = (configInsetDp * density).coerceIn(radius * 1.2f, maxInset)
+        val spread = (configSpacingDp * density).coerceAtLeast(36f)
         val anchor = when (edge) {
             Edge.LEFT -> inset
             Edge.RIGHT -> width - inset
             Edge.BOTTOM -> height - inset
         }
+        val actions = getEdgeActions(edge)
+        val count = actions.size.coerceAtLeast(1)
         val middleLead = spread * 1.45f
-        val sideLead = middleLead * (1f - currentConfig.ringArc.coerceIn(0f, 1f))
-        val middle = when (edge) {
-            Edge.LEFT -> anchor + middleLead
-            Edge.RIGHT, Edge.BOTTOM -> anchor - middleLead
-        }
-        val side = listOf(
-            (touchAlongEdge - spread).coerceIn(radius, if (edge == Edge.BOTTOM) width - radius else height - radius),
-            touchAlongEdge.coerceIn(radius, if (edge == Edge.BOTTOM) width - radius else height - radius),
-            (touchAlongEdge + spread).coerceIn(radius, if (edge == Edge.BOTTOM) width - radius else height - radius),
-        )
-        val centers = when (edge) {
-            Edge.LEFT, Edge.RIGHT -> listOf(
-                (if (edge == Edge.LEFT) anchor + sideLead else anchor - sideLead) to side[0],
-                middle to side[1],
-                (if (edge == Edge.LEFT) anchor + sideLead else anchor - sideLead) to side[2],
-            )
-            Edge.BOTTOM -> listOf(
-                side[0] to (anchor - sideLead),
-                side[1] to middle,
-                side[2] to (anchor - sideLead),
-            )
+        val m = (count - 1) / 2f
+        val maxDistFromCenter = if (m > 0f) m else 1f
+        val maxBound = if (edge == Edge.BOTTOM) width else height
+
+        val centers = (0 until count).map { i ->
+            val u = if (m > 0f) kotlin.math.abs(i - m) / maxDistFromCenter else 0f
+            val itemLead = middleLead * (1f - configArc.coerceIn(0f, 1f) * (u * u))
+            val deltaEdge = (i - m) * spread
+            val edgePos = (touchAlongEdge + deltaEdge).coerceIn(radius, maxBound - radius)
+            when (edge) {
+                Edge.LEFT -> (anchor + itemLead) to edgePos
+                Edge.RIGHT -> (anchor - itemLead) to edgePos
+                Edge.BOTTOM -> edgePos to (anchor - itemLead)
+            }
         }
         // Treat contact with any visible part of the bubble as a hit. The
         // extra margin also covers the selected bubble's animated growth.
@@ -623,10 +637,11 @@ class GestureEngine(
         view.animationSize = currentConfig.animationSize
         view.iconSize = currentConfig.iconSize
         view.showIndicatorBar = currentConfig.showGestureIndicatorBar
-        view.ringGroupInsetDp = currentConfig.ringGroupInsetDp
-        view.ringGroupSpacingDp = currentConfig.ringGroupSpacingDp
-        view.ringSizeDp = currentConfig.ringSizeDp
-        view.ringArc = currentConfig.ringArc
+        val isRecent = currentConfig.recentAppsEnabledFor(progress.edge)
+        view.ringGroupInsetDp = if (isRecent) currentConfig.recentAppsInsetDp else currentConfig.ringGroupInsetDp
+        view.ringGroupSpacingDp = if (isRecent) currentConfig.recentAppsSpacingDp else currentConfig.ringGroupSpacingDp
+        view.ringSizeDp = if (isRecent) currentConfig.recentAppsSizeDp else currentConfig.ringSizeDp
+        view.ringArc = if (isRecent) currentConfig.recentAppsArc else currentConfig.ringArc
         val edgeActions = getEdgeActions(progress.edge)
         view.setRingActions(
             edgeActions,

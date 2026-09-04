@@ -49,4 +49,11 @@
     <string name="shizuku_running_unauthorized">እየሰራ ነው (ፈቃድ ያስፈልጋል)</string>
     <string name="shizuku_authorize_btn">Shizukuን ፍቀድ</string>
     <string name="shizuku_not_installed">አልተጫነም / ቆሟል</string>
+    <string name="recent_apps_title">የቅርብ ጊዜ መተግበሪያዎች ዶክ</string>
+    <string name="recent_apps_customization_subtitle">የቅርብ ጊዜ መተግበሪያዎች ዶክ አቀማመጥ፣ መጠን፣ የመተግበሪያዎች ብዛት እና ጥምዝምዝነት ያብጁ</string>
+    <string name="recent_apps_count">የሚታዩ መተግበሪያዎች ብዛት</string>
+    <string name="recent_apps_inset">ከዳርቻው ያለው ርቀት</string>
+    <string name="recent_apps_spacing">በመተግበሪያዎች መካከል ያለው ክፍተት</string>
+    <string name="recent_apps_size">የአርማ መጠን</string>
+    <string name="recent_apps_arc">የቀስት ጥምዝምዝነት</string>
 </resources>

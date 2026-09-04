@@ -733,36 +733,42 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
 ) {
     if (config == null) return
 
-    val ringRadius = (config.ringSizeDp * density * 0.22f).coerceIn(13f, 24f)
-    val ringSpacing = (config.ringGroupSpacingDp * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
-    val sideLead = ringSpacing * (1f - config.ringArc.coerceIn(0f, 1f))
-    val inset = (config.ringGroupInsetDp * density * 0.20f).coerceIn(ringRadius + 6f, screen.width * 0.30f)
     val edgeColors = mapOf(
         Edge.LEFT to EdgeUi.color(Edge.LEFT),
         Edge.RIGHT to EdgeUi.color(Edge.RIGHT),
         Edge.BOTTOM to EdgeUi.color(Edge.BOTTOM),
     )
 
-    EdgeUi.ordered.filter { config.ringMenuEnabledFor(it) }.forEach { edge ->
-        val actions = config.ringActionsFor(edge).take(3).let { values ->
+    EdgeUi.ordered.filter { config.ringMenuEnabledFor(it) || config.recentAppsEnabledFor(it) }.forEach { edge ->
+        val isRecent = config.recentAppsEnabledFor(edge)
+        val arcValue = if (isRecent) config.recentAppsArc else config.ringArc
+        val sizeValue = if (isRecent) config.recentAppsSizeDp else config.ringSizeDp
+        val spacingValue = if (isRecent) config.recentAppsSpacingDp else config.ringGroupSpacingDp
+        val insetValue = if (isRecent) config.recentAppsInsetDp else config.ringGroupInsetDp
+        val count = if (isRecent) config.recentAppsCount.coerceIn(2, 6) else 3
+
+        val ringRadius = (sizeValue * density * 0.22f).coerceIn(13f, 24f)
+        val ringSpacing = (spacingValue * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
+        val inset = (insetValue * density * 0.20f).coerceIn(ringRadius + 6f, screen.width * 0.30f)
+        val middleLead = ringSpacing * 1.45f
+        val m = (count - 1) / 2f
+        val maxDistFromCenter = if (m > 0f) m else 1f
+
+        val actions = if (isRecent) {
+            List(count) { ActionNode.SwitchLastApp }
+        } else {
+            val values = config.ringActionsFor(edge).take(3)
             values + List(3 - values.size) { ActionNode.NoAction }
         }
-        val centers = when (edge) {
-            Edge.LEFT -> listOf(
-                Offset(screen.left + inset + sideLead, screen.center.y - ringSpacing),
-                Offset(screen.left + inset + ringSpacing, screen.center.y),
-                Offset(screen.left + inset + sideLead, screen.center.y + ringSpacing),
-            )
-            Edge.RIGHT -> listOf(
-                Offset(screen.right - inset - sideLead, screen.center.y - ringSpacing),
-                Offset(screen.right - inset - ringSpacing, screen.center.y),
-                Offset(screen.right - inset - sideLead, screen.center.y + ringSpacing),
-            )
-            Edge.BOTTOM -> listOf(
-                Offset(screen.center.x - ringSpacing, screen.bottom - inset - sideLead),
-                Offset(screen.center.x, screen.bottom - inset - ringSpacing),
-                Offset(screen.center.x + ringSpacing, screen.bottom - inset - sideLead),
-            )
+        val centers = (0 until count).map { i ->
+            val u = if (m > 0f) kotlin.math.abs(i - m) / maxDistFromCenter else 0f
+            val itemLead = middleLead * (1f - arcValue.coerceIn(0f, 1f) * (u * u))
+            val delta = (i - m) * ringSpacing
+            when (edge) {
+                Edge.LEFT -> Offset(screen.left + inset + itemLead, screen.center.y + delta)
+                Edge.RIGHT -> Offset(screen.right - inset - itemLead, screen.center.y + delta)
+                Edge.BOTTOM -> Offset(screen.center.x + delta, screen.bottom - inset - itemLead)
+            }
         }
         centers.forEachIndexed { index, center ->
             val color = edgeColors.getValue(edge)

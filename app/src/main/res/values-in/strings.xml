@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">Berjalan (Perlu izin)</string>
     <string name="shizuku_authorize_btn">Izinkan Shizuku</string>
     <string name="shizuku_not_installed">Tidak terpasang / Berhenti</string>
+    <string name="recent_apps_title">Dock Aplikasi Terbaru</string>
+    <string name="recent_apps_customization_subtitle">Sesuaikan posisi, ukuran, jumlah item, dan lengkungan dock aplikasi terbaru</string>
+    <string name="recent_apps_count">Jumlah Aplikasi Terlihat</string>
+    <string name="recent_apps_inset">Jarak dari Tepi</string>
+    <string name="recent_apps_spacing">Jarak Antar Aplikasi</string>
+    <string name="recent_apps_size">Ukuran Ikon</string>
+    <string name="recent_apps_arc">Kelengkungan Busur</string>
 </resources>

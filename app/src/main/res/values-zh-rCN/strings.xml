@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">运行中（需要授权）</string>
     <string name="shizuku_authorize_btn">授权 Shizuku</string>
     <string name="shizuku_not_installed">未安装 / 已停止</string>
+    <string name="recent_apps_title">最近应用栏</string>
+    <string name="recent_apps_customization_subtitle">自定义最近应用栏的位置、大小、应用数量和弧度</string>
+    <string name="recent_apps_count">可见应用数量</string>
+    <string name="recent_apps_inset">边缘间距</string>
+    <string name="recent_apps_spacing">应用间距</string>
+    <string name="recent_apps_size">图标大小</string>
+    <string name="recent_apps_arc">圆弧弧度</string>
 </resources>

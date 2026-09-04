@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">قيد التشغيل (مطلوب الإذن)</string>
     <string name="shizuku_authorize_btn">منح الإذن لـ Shizuku</string>
     <string name="shizuku_not_installed">غير مثبت / متوقف</string>
+    <string name="recent_apps_title">قائمة التطبيقات الحديثة</string>
+    <string name="recent_apps_customization_subtitle">تخصيص الموضع والحجم وعدد العناصر وانحناء التطبيقات الحديثة</string>
+    <string name="recent_apps_count">عدد التطبيقات المرئية</string>
+    <string name="recent_apps_inset">المسافة عن الحافة</string>
+    <string name="recent_apps_spacing">التباعد بين التطبيقات</string>
+    <string name="recent_apps_size">حجم الأيقونة</string>
+    <string name="recent_apps_arc">درجة الانحناء</string>
 </resources>

@@ -599,4 +599,11 @@
     <string name="shizuku_running_unauthorized">चालू (अनुमति आवश्यक)</string>
     <string name="shizuku_authorize_btn">Shizuku अधिकृत करें</string>
     <string name="shizuku_not_installed">इंस्टॉल नहीं / बंद</string>
+    <string name="recent_apps_title">हाल के ऐप्स डॉक</string>
+    <string name="recent_apps_customization_subtitle">हाल के ऐप्स डॉक की स्थिति, आकार, ऐप्स की संख्या और वक्रता को अनुकूलित करें</string>
+    <string name="recent_apps_count">दिखने वाले ऐप्स की संख्या</string>
+    <string name="recent_apps_inset">किनारे से दूरी</string>
+    <string name="recent_apps_spacing">ऐप्स के बीच की दूरी</string>
+    <string name="recent_apps_size">आइकन का आकार</string>
+    <string name="recent_apps_arc">चाप की वक्रता</string>
 </resources>

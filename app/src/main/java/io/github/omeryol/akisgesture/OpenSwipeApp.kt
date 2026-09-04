@@ -85,6 +85,11 @@ class AkisGestureApp : Application() {
                     leftRecentAppsEnabled = prefs[GestureConfig.KEY_LEFT_RECENT_APPS_ENABLED] ?: false,
                     rightRecentAppsEnabled = prefs[GestureConfig.KEY_RIGHT_RECENT_APPS_ENABLED] ?: false,
                     bottomRecentAppsEnabled = prefs[GestureConfig.KEY_BOTTOM_RECENT_APPS_ENABLED] ?: false,
+                    recentAppsCount = prefs[GestureConfig.KEY_RECENT_APPS_COUNT] ?: 3,
+                    recentAppsInsetDp = prefs[GestureConfig.KEY_RECENT_APPS_INSET_DP] ?: 100f,
+                    recentAppsSpacingDp = prefs[GestureConfig.KEY_RECENT_APPS_SPACING_DP] ?: 60f,
+                    recentAppsSizeDp = prefs[GestureConfig.KEY_RECENT_APPS_SIZE_DP] ?: 58f,
+                    recentAppsArc = prefs[GestureConfig.KEY_RECENT_APPS_ARC] ?: 0.92f,
                     ringGroupInsetDp = prefs[GestureConfig.KEY_RING_GROUP_INSET_DP] ?: 100f,
                     ringGroupSpacingDp = prefs[GestureConfig.KEY_RING_GROUP_SPACING_DP] ?: 60f,
                     ringSizeDp = prefs[GestureConfig.KEY_RING_SIZE_DP] ?: 58f,
@@ -473,6 +478,26 @@ class AkisGestureApp : Application() {
 
     suspend fun updateRingArc(value: Float) {
         settingsDataStore.edit { it[GestureConfig.KEY_RING_ARC] = value.coerceIn(0f, 1f) }
+    }
+
+    suspend fun updateRecentAppsCount(count: Int) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_COUNT] = count.coerceIn(2, 6) }
+    }
+
+    suspend fun updateRecentAppsInsetDp(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_INSET_DP] = value.coerceIn(0f, 2000f) }
+    }
+
+    suspend fun updateRecentAppsSpacingDp(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_SPACING_DP] = value.coerceIn(36f, 120f) }
+    }
+
+    suspend fun updateRecentAppsSizeDp(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_SIZE_DP] = value.coerceIn(40f, 92f) }
+    }
+
+    suspend fun updateRecentAppsArc(value: Float) {
+        settingsDataStore.edit { it[GestureConfig.KEY_RECENT_APPS_ARC] = value.coerceIn(0f, 1f) }
     }
 
     suspend fun updateAutomationAppsEnabled(enabled: Boolean) {
