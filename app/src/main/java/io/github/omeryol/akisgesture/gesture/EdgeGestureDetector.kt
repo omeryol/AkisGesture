@@ -107,10 +107,10 @@ class EdgeGestureDetector(
     private val ringRevealRunnable = Runnable {
         ringRevealScheduled = false
         if (state == GestureState.DETECTED &&
-            holdArmed &&
             lastStretch >= swipeThresholdPx &&
             hasRingActions()
         ) {
+            holdArmed = true
             ringActive = true
             ringSelectedIndex = -1
             ringHitIndex = -1
