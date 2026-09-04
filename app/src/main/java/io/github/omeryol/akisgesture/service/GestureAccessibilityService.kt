@@ -321,10 +321,22 @@ class GestureAccessibilityService : AccessibilityService() {
         currentForegroundPackage?.takeIf(::isAppHistoryCandidate)
             ?: foregroundHistory.firstOrNull()
 
+    private var lastRecentsCheckMs = 0L
+    private var cachedRecentPackages: List<String> = emptyList()
+
     private fun getSystemRecentPackages(): List<String>? {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastRecentsCheckMs < 3_000L && cachedRecentPackages.isNotEmpty()) {
+            return cachedRecentPackages
+        }
         return runCatching {
-            io.github.omeryol.akisgesture.root.RootCommandExecutor(this).getRecentTaskPackages()
+            val list = io.github.omeryol.akisgesture.root.RootCommandExecutor(this).getRecentTaskPackages()
                 ?.filter { isAppHistoryCandidate(it) }
+            if (!list.isNullOrEmpty()) {
+                cachedRecentPackages = list
+                lastRecentsCheckMs = now
+            }
+            list
         }.getOrNull()
     }
 

@@ -326,10 +326,8 @@ class EdgeGestureDetector(
                 )
             }
             if (ringSelectionArmed) {
-                ringSelectedIndex = ringHoverTest(event.rawX, event.rawY, ringAnchorTouch)
                 val hit = ringHitTest(event.rawX, event.rawY, ringAnchorTouch)
-                // A ring is selected only while the finger is currently inside it.
-                // Do not keep the last hit after the finger has moved away.
+                ringSelectedIndex = hit
                 ringHitIndex = hit
             } else {
                 ringSelectedIndex = -1

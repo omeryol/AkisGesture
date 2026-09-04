@@ -380,22 +380,36 @@ class GestureEngine(
         view.showRingPreview(edge, previewActions, previewConfig.actionIconPack, previewConfig.actionIconColorMode)
     }
 
+    private var lastEdgeActionsFetchMs = 0L
+    private var cachedEdgeActionsEdge: Edge? = null
+    private var cachedEdgeActions: List<ActionNode> = emptyList()
+
     private fun getEdgeActions(edge: Edge, config: GestureConfig = currentConfig): List<ActionNode> {
-        if (config.recentAppsEnabledFor(edge)) {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (edge == cachedEdgeActionsEdge && now - lastEdgeActionsFetchMs < 2_000L && cachedEdgeActions.isNotEmpty()) {
+            return cachedEdgeActions
+        }
+        val result = if (config.recentAppsEnabledFor(edge)) {
             val count = config.recentAppsCount.coerceIn(2, 6)
             val service = io.github.omeryol.akisgesture.service.GestureAccessibilityService.instance
             val recents = service?.recentForegroundPackages(count).orEmpty()
             val pm = overlayManager.context.packageManager
-            val recentActions = recents.mapNotNull { pkg ->
+            recents.mapNotNull { pkg ->
                 runCatching {
                     val appInfo = pm.getApplicationInfo(pkg, 0)
                     val label = pm.getApplicationLabel(appInfo).toString()
                     ActionNode.LaunchApp(pkg, label)
                 }.getOrNull()
             }.take(count)
-            return recentActions
+        } else if (config.hasRingActionsFor(edge)) {
+            config.ringActionsFor(edge)
+        } else {
+            emptyList()
         }
-        return if (config.hasRingActionsFor(edge)) config.ringActionsFor(edge) else emptyList()
+        cachedEdgeActionsEdge = edge
+        cachedEdgeActions = result
+        lastEdgeActionsFetchMs = now
+        return result
     }
 
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
@@ -550,10 +564,10 @@ class GestureEngine(
                 }
             },
             ringHitTest = { x, y, touchAlongEdge ->
-                ringHitTest(edge, x, y, touchAlongEdge, displayMetrics)
+                ringHitTest(edge, x, y, touchAlongEdge, displayMetrics, hitScale = 1.15f)
             },
             ringHoverTest = { x, y, touchAlongEdge ->
-                ringHitTest(edge, x, y, touchAlongEdge, displayMetrics, hitScale = 2.2f)
+                ringHitTest(edge, x, y, touchAlongEdge, displayMetrics, hitScale = 1.15f)
             },
         )
     }
@@ -564,7 +578,7 @@ class GestureEngine(
         y: Float,
         touchAlongEdge: Float,
         metrics: android.util.DisplayMetrics,
-        hitScale: Float = 1.3f,
+        hitScale: Float = 1.15f,
     ): Int {
         val isRecent = currentConfig.recentAppsEnabledFor(edge)
         val density = metrics.density

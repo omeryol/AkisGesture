@@ -278,12 +278,22 @@ class FeedbackView(context: Context) : View(context) {
         }
     }
 
+    private var lastRingActions: List<ActionNode>? = null
+    private var lastRingPack: ActionIconPack? = null
+    private var lastRingColorMode: ActionIconColorMode? = null
+
     /** Shows the real overlay rings while the user adjusts ring settings. */
     fun setRingActions(
         actions: List<ActionNode>,
         pack: ActionIconPack,
         colorMode: ActionIconColorMode = ActionIconColorMode.FUNCTIONAL,
     ) {
+        if (actions == lastRingActions && pack == lastRingPack && colorMode == lastRingColorMode) {
+            return
+        }
+        lastRingActions = actions
+        lastRingPack = pack
+        lastRingColorMode = colorMode
         ringIcons = actions.map { loadActionIcon(it, pack, colorMode) }
         invalidate()
     }
