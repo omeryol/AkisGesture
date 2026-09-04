@@ -346,4 +346,11 @@
     <string name="open_permission_steps">Open permission steps</string>
     <string name="max_three_sections_title">At most 3 sections</string>
     <string name="max_three_sections_message">More than three sections on one edge reduces ergonomic use; action areas become narrow and accidental triggers become more likely. Delete an existing section before adding a new one.</string>
+    <string name="recent_apps_edge_card_title">%1$s recent apps</string>
+    <string name="recent_apps_edge_card_subtitle">Quickly switch between recent applications with swipe and hold</string>
+    <string name="shizuku_status">Shizuku status</string>
+    <string name="shizuku_available">Authorized (Active)</string>
+    <string name="shizuku_running_unauthorized">Running (Permission needed)</string>
+    <string name="shizuku_authorize_btn">Authorize Shizuku</string>
+    <string name="shizuku_not_installed">Not installed / Stopped</string>
 </resources>

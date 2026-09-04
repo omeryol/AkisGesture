@@ -82,6 +82,9 @@ class AkisGestureApp : Application() {
                     leftRingActionIds = prefs[GestureConfig.KEY_LEFT_RING_ACTIONS].toRingActionIds(),
                     rightRingActionIds = prefs[GestureConfig.KEY_RIGHT_RING_ACTIONS].toRingActionIds(),
                     bottomRingActionIds = prefs[GestureConfig.KEY_BOTTOM_RING_ACTIONS].toRingActionIds(),
+                    leftRecentAppsEnabled = prefs[GestureConfig.KEY_LEFT_RECENT_APPS_ENABLED] ?: false,
+                    rightRecentAppsEnabled = prefs[GestureConfig.KEY_RIGHT_RECENT_APPS_ENABLED] ?: false,
+                    bottomRecentAppsEnabled = prefs[GestureConfig.KEY_BOTTOM_RECENT_APPS_ENABLED] ?: false,
                     ringGroupInsetDp = prefs[GestureConfig.KEY_RING_GROUP_INSET_DP] ?: 100f,
                     ringGroupSpacingDp = prefs[GestureConfig.KEY_RING_GROUP_SPACING_DP] ?: 60f,
                     ringSizeDp = prefs[GestureConfig.KEY_RING_SIZE_DP] ?: 58f,
@@ -410,9 +413,37 @@ class AkisGestureApp : Application() {
     suspend fun updateRingMenuEnabled(edge: Edge, enabled: Boolean) {
         settingsDataStore.edit { prefs ->
             when (edge) {
-                Edge.LEFT -> prefs[GestureConfig.KEY_LEFT_RING_MENU_ENABLED] = enabled
-                Edge.RIGHT -> prefs[GestureConfig.KEY_RIGHT_RING_MENU_ENABLED] = enabled
-                Edge.BOTTOM -> prefs[GestureConfig.KEY_BOTTOM_RING_MENU_ENABLED] = enabled
+                Edge.LEFT -> {
+                    prefs[GestureConfig.KEY_LEFT_RING_MENU_ENABLED] = enabled
+                    if (enabled) prefs[GestureConfig.KEY_LEFT_RECENT_APPS_ENABLED] = false
+                }
+                Edge.RIGHT -> {
+                    prefs[GestureConfig.KEY_RIGHT_RING_MENU_ENABLED] = enabled
+                    if (enabled) prefs[GestureConfig.KEY_RIGHT_RECENT_APPS_ENABLED] = false
+                }
+                Edge.BOTTOM -> {
+                    prefs[GestureConfig.KEY_BOTTOM_RING_MENU_ENABLED] = enabled
+                    if (enabled) prefs[GestureConfig.KEY_BOTTOM_RECENT_APPS_ENABLED] = false
+                }
+            }
+        }
+    }
+
+    suspend fun updateRecentAppsEnabled(edge: Edge, enabled: Boolean) {
+        settingsDataStore.edit { prefs ->
+            when (edge) {
+                Edge.LEFT -> {
+                    prefs[GestureConfig.KEY_LEFT_RECENT_APPS_ENABLED] = enabled
+                    if (enabled) prefs[GestureConfig.KEY_LEFT_RING_MENU_ENABLED] = false
+                }
+                Edge.RIGHT -> {
+                    prefs[GestureConfig.KEY_RIGHT_RECENT_APPS_ENABLED] = enabled
+                    if (enabled) prefs[GestureConfig.KEY_RIGHT_RING_MENU_ENABLED] = false
+                }
+                Edge.BOTTOM -> {
+                    prefs[GestureConfig.KEY_BOTTOM_RECENT_APPS_ENABLED] = enabled
+                    if (enabled) prefs[GestureConfig.KEY_BOTTOM_RING_MENU_ENABLED] = false
+                }
             }
         }
     }

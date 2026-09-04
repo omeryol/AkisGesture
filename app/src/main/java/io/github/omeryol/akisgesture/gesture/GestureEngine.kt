@@ -365,6 +365,22 @@ class GestureEngine(
         view.showRingPreview(edge, previewActions, previewConfig.actionIconPack, previewConfig.actionIconColorMode)
     }
 
+    private fun getEdgeActions(edge: Edge): List<ActionNode> {
+        if (currentConfig.recentAppsEnabledFor(edge)) {
+            val recents = io.github.omeryol.akisgesture.service.GestureAccessibilityService.instance?.recentForegroundPackages().orEmpty()
+            val pm = overlayManager.context.packageManager
+            val recentActions = recents.mapNotNull { pkg ->
+                runCatching {
+                    val appInfo = pm.getApplicationInfo(pkg, 0)
+                    val label = pm.getApplicationLabel(appInfo).toString()
+                    ActionNode.LaunchApp(pkg, label)
+                }.getOrNull()
+            }.take(3)
+            if (recentActions.isNotEmpty()) return recentActions
+        }
+        return if (currentConfig.hasRingActionsFor(edge)) currentConfig.ringActionsFor(edge) else emptyList()
+    }
+
     private fun rebuildOverlays(ruleSet: CompiledRuleSet) {
         clearOverlays()
         addFeedbackOverlay()
@@ -510,9 +526,9 @@ class GestureEngine(
                         activeRuleSet.match(edge, GestureType.SWIPE_DOWN_L, ratio) != null
                 }
             },
-            hasRingActions = { currentConfig.hasRingActionsFor(edge) },
+            hasRingActions = { currentConfig.hasRingActionsFor(edge) || currentConfig.recentAppsEnabledFor(edge) },
             onRingActionSelected = { index ->
-                currentConfig.ringActionsFor(edge).getOrNull(index)?.let { action ->
+                getEdgeActions(edge).getOrNull(index)?.let { action ->
                     handleRingAction(edge, index, action)
                 }
             },
@@ -611,8 +627,9 @@ class GestureEngine(
         view.ringGroupSpacingDp = currentConfig.ringGroupSpacingDp
         view.ringSizeDp = currentConfig.ringSizeDp
         view.ringArc = currentConfig.ringArc
+        val edgeActions = getEdgeActions(progress.edge)
         view.setRingActions(
-            if (currentConfig.hasRingActionsFor(progress.edge)) currentConfig.ringActionsFor(progress.edge) else emptyList(),
+            edgeActions,
             currentConfig.actionIconPack,
         )
         if (progress.ringActive && !lastRingActive) {
@@ -643,7 +660,7 @@ class GestureEngine(
             activeRuleSet.match(edge = progress.edge, gestureType = gestureType, sectionRatio = ratio)
             } else null
             val selectedRingAction = if (progress.ringActive && progress.ringSelectedIndex >= 0) {
-                currentConfig.ringActionsFor(progress.edge).getOrNull(progress.ringSelectedIndex)
+                getEdgeActions(progress.edge).getOrNull(progress.ringSelectedIndex)
             } else {
                 null
             }

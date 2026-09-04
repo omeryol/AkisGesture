@@ -73,6 +73,10 @@ data class GestureConfig(
     val ringSizeDp: Float = 58f,
     /** 0 = nearly straight row, 1 = pronounced half-arc. */
     val ringArc: Float = 0.92f,
+    // Mutually exclusive with ring menu: recent apps dock per edge
+    val leftRecentAppsEnabled: Boolean = false,
+    val rightRecentAppsEnabled: Boolean = false,
+    val bottomRecentAppsEnabled: Boolean = false,
 
     // Bölümleme
     val sectionCount: Int = 1,
@@ -172,6 +176,12 @@ data class GestureConfig(
 
     fun hasRingActionsFor(edge: Edge): Boolean = ringMenuEnabledFor(edge) && ringActionsFor(edge).isNotEmpty()
 
+    fun recentAppsEnabledFor(edge: Edge): Boolean = when (edge) {
+        Edge.LEFT -> leftRecentAppsEnabled
+        Edge.RIGHT -> rightRecentAppsEnabled
+        Edge.BOTTOM -> bottomRecentAppsEnabled
+    }
+
     companion object {
         val KEY_MASTER_ENABLED = booleanPreferencesKey("master_enabled")
         val KEY_LEFT_ENABLED = booleanPreferencesKey("edge_left_enabled")
@@ -188,6 +198,9 @@ data class GestureConfig(
         val KEY_LEFT_RING_MENU_ENABLED = booleanPreferencesKey("left_ring_menu_enabled")
         val KEY_RIGHT_RING_MENU_ENABLED = booleanPreferencesKey("right_ring_menu_enabled")
         val KEY_BOTTOM_RING_MENU_ENABLED = booleanPreferencesKey("bottom_ring_menu_enabled")
+        val KEY_LEFT_RECENT_APPS_ENABLED = booleanPreferencesKey("left_recent_apps_enabled")
+        val KEY_RIGHT_RECENT_APPS_ENABLED = booleanPreferencesKey("right_recent_apps_enabled")
+        val KEY_BOTTOM_RECENT_APPS_ENABLED = booleanPreferencesKey("bottom_recent_apps_enabled")
         val KEY_LEFT_RING_ACTIONS = stringPreferencesKey("left_ring_action_ids")
         val KEY_RIGHT_RING_ACTIONS = stringPreferencesKey("right_ring_action_ids")
         val KEY_BOTTOM_RING_ACTIONS = stringPreferencesKey("bottom_ring_action_ids")

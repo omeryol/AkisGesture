@@ -31,23 +31,57 @@ object HapticHelper {
                 val strength = intensity.coerceIn(0f, 1f)
                 // Quadratic curve: perceived intensity scales better with strength²
                 val curve = strength * strength
-                val durationMs = when (type) {
-                    HapticType.LIGHT  -> (5 + 30 * curve).toLong()    // 5ms → 35ms
-                    HapticType.MEDIUM -> (8 + 40 * curve).toLong()    // 8ms → 48ms
-                    HapticType.HEAVY  -> (12 + 48 * curve).toLong()   // 12ms → 60ms
-                }
-                val amplitude = when (type) {
-                    HapticType.LIGHT  -> (15 + 200 * curve).toInt()   // 15 → 215
-                    HapticType.MEDIUM -> (25 + 220 * curve).toInt()   // 25 → 245
-                    HapticType.HEAVY  -> (40 + 215 * curve).toInt()   // 40 → 255
-                }.coerceIn(1, 255)
-                vibrateOnce(vibrator, durationMs, amplitude)
+                vibrateModern(vibrator, type, strength, curve)
             }
         }
         if (soundEnabled) playSound(context)
     }
 
-    private fun vibrateOnce(vibrator: Vibrator, durationMs: Long, amplitude: Int) {
+    private fun vibrateModern(vibrator: Vibrator, type: HapticType, strength: Float, curve: Float) {
+        // 1. Android 11+ (API 30): Hardware composition primitives (RichTap/Immersion/LRA)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val primitive = when (type) {
+                HapticType.LIGHT -> VibrationEffect.Composition.PRIMITIVE_LOW_TICK
+                HapticType.MEDIUM -> VibrationEffect.Composition.PRIMITIVE_CLICK
+                HapticType.HEAVY -> VibrationEffect.Composition.PRIMITIVE_THUD
+            }
+            if (runCatching { vibrator.areAllPrimitivesSupported(primitive) }.getOrDefault(false)) {
+                runCatching {
+                    val effect = VibrationEffect.startComposition()
+                        .addPrimitive(primitive, strength.coerceIn(0.1f, 1f))
+                        .compose()
+                    vibrator.vibrate(effect)
+                    return
+                }
+            }
+        }
+
+        // 2. Android 10 (API 29): System predefined tactile effects
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val predefined = when (type) {
+                HapticType.LIGHT -> VibrationEffect.EFFECT_TICK
+                HapticType.MEDIUM -> VibrationEffect.EFFECT_CLICK
+                HapticType.HEAVY -> VibrationEffect.EFFECT_HEAVY_CLICK
+            }
+            val played = runCatching {
+                vibrator.vibrate(VibrationEffect.createPredefined(predefined))
+                true
+            }.getOrDefault(false)
+            if (played) return
+        }
+
+        // 3. Fallback: Crisp micro-pulses (never a long muddy motor buzz)
+        val durationMs = when (type) {
+            HapticType.LIGHT -> (4 + 6 * curve).toLong()    // 4ms → 10ms
+            HapticType.MEDIUM -> (6 + 8 * curve).toLong()   // 6ms → 14ms
+            HapticType.HEAVY -> (8 + 12 * curve).toLong()   // 8ms → 20ms
+        }
+        val amplitude = when (type) {
+            HapticType.LIGHT -> (40 + 160 * curve).toInt()
+            HapticType.MEDIUM -> (70 + 170 * curve).toInt()
+            HapticType.HEAVY -> (100 + 155 * curve).toInt()
+        }.coerceIn(1, 255)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             runCatching {
                 val effect = if (vibrator.hasAmplitudeControl()) {

@@ -42,4 +42,11 @@
     <string name="foreground_notification_title">ፊት ለፊት ማሳወቂያ</string>
     <string name="foreground_notification_subtitle">የWatchdog ማሳወቂያ ታይነት</string>
     <string name="foreground_notification_warning">ታይነት ሲቀንስ Android የጀርባ ጥበቃን ሊገድብ ይችላል።</string>
+    <string name="recent_apps_edge_card_title">%1$s የቅርብ ጊዜ መተግበሪያዎች</string>
+    <string name="recent_apps_edge_card_subtitle">በማንሸራተትና በመያዝ በቅርብ ጊዜ በተከፈቱ መተግበሪያዎች መካከል በፍጥነት ይቀያይሩ</string>
+    <string name="shizuku_status">የShizuku ሁኔታ</string>
+    <string name="shizuku_available">የተፈቀደ (ንቁ)</string>
+    <string name="shizuku_running_unauthorized">እየሰራ ነው (ፈቃድ ያስፈልጋል)</string>
+    <string name="shizuku_authorize_btn">Shizukuን ፍቀድ</string>
+    <string name="shizuku_not_installed">አልተጫነም / ቆሟል</string>
 </resources>

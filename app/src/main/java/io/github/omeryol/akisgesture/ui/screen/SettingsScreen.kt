@@ -66,7 +66,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -137,6 +139,9 @@ fun SettingsScreen(
     val config by viewModel.configState.collectAsState()
     val serviceState by GestureAccessibilityService.serviceState.collectAsState()
     val rootAccess by viewModel.rootAccess.collectAsState()
+    val shizukuStatus by viewModel.shizukuStatus.collectAsState()
+    val isPrivilegedAvailable = rootAccess == RootAccessState.AVAILABLE ||
+        shizukuStatus != io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED
     val pausedPackages by viewModel.pausedPackages.collectAsState()
     val selectableApps by viewModel.selectableApps.collectAsState()
 
@@ -144,8 +149,8 @@ fun SettingsScreen(
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
     var selectedSection by remember(initialSection) { mutableStateOf(initialSection.coerceIn(0, 5)) }
-    LaunchedEffect(rootAccess) {
-        if (rootAccess != RootAccessState.AVAILABLE && selectedSection == 5) {
+    LaunchedEffect(isPrivilegedAvailable) {
+        if (!isPrivilegedAvailable && selectedSection == 5) {
             selectedSection = 4
         }
     }
@@ -322,7 +327,7 @@ fun SettingsScreen(
                 add(stringResource(R.string.tab_pause))
                 add(stringResource(R.string.tab_backup))
                 add(stringResource(R.string.tab_about))
-                if (rootAccess == RootAccessState.AVAILABLE) {
+                if (isPrivilegedAvailable) {
                     add(stringResource(R.string.tab_root))
                 }
             }
@@ -1418,7 +1423,7 @@ fun SettingsScreen(
             }
 
             // Root sekmesindeki ayrıcalıklı otomatik iyileştirme kartı
-            if (selectedSection == 5 && rootAccess == RootAccessState.AVAILABLE) {
+            if (selectedSection == 5 && isPrivilegedAvailable) {
                 AkisGlassCard(accentTint = Color(0xFFAA00FF)) {
                     AkisSectionHeader(
                         title = stringResource(R.string.privileged_card_title),
@@ -1439,11 +1444,52 @@ fun SettingsScreen(
                             color = scheme.onSurface
                         )
                         Text(
-                            text = stringResource(R.string.root_available),
+                            text = if (rootAccess == RootAccessState.AVAILABLE) stringResource(R.string.root_available) else stringResource(R.string.root_unavailable),
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF00E676),
+                            color = if (rootAccess == RootAccessState.AVAILABLE) Color(0xFF00E676) else scheme.onSurfaceVariant,
                             fontWeight = FontWeight.Bold
                         )
+                    }
+
+                    Spacer(Modifier.height(6.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.shizuku_status),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = scheme.onSurface
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = when (shizukuStatus) {
+                                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.AVAILABLE -> stringResource(R.string.shizuku_available)
+                                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED -> stringResource(R.string.shizuku_running_unauthorized)
+                                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED -> stringResource(R.string.shizuku_not_installed)
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = when (shizukuStatus) {
+                                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.AVAILABLE -> Color(0xFF00E676)
+                                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED -> Color(0xFFFFD600)
+                                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED -> scheme.onSurfaceVariant
+                                },
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (shizukuStatus == io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED) {
+                                Spacer(Modifier.width(8.dp))
+                                Button(
+                                    onClick = { viewModel.requestShizukuPermission() },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                    modifier = Modifier.height(28.dp)
+                                ) {
+                                    Text(stringResource(R.string.shizuku_authorize_btn), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
                     }
 
                     Spacer(Modifier.height(10.dp))
@@ -1571,7 +1617,7 @@ fun SettingsScreen(
                 }
             }
 
-            if (selectedSection == 5 && rootAccess == RootAccessState.AVAILABLE) {
+            if (selectedSection == 5 && isPrivilegedAvailable) {
                 AkisGlassCard(accentTint = Color(0xFFFF6D00)) {
                     AkisSectionHeader(
                         title = stringResource(R.string.about_root_title),

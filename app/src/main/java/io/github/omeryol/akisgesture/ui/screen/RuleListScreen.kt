@@ -575,6 +575,13 @@ fun RuleListScreen(
                             },
                         )
                     }
+                    item(key = "recent_apps_edge_${selectedEdge.name}") {
+                        RecentAppsEdgeCard(
+                            edge = selectedEdge,
+                            enabled = gestureConfig.recentAppsEnabledFor(selectedEdge),
+                            onToggleEnabled = { viewModel.setRecentAppsEnabled(selectedEdge, it) },
+                        )
+                    }
                     if (gestureConfig.ringMenuEnabledFor(selectedEdge)) item(key = "ring_menu_header") {
                         AkisGlassCard(accentTint = AkisTertiary) {
                             Text(
@@ -978,6 +985,46 @@ fun RuleListScreen(
         )
     }
 
+}
+
+@Composable
+private fun RecentAppsEdgeCard(
+    edge: Edge,
+    enabled: Boolean,
+    onToggleEnabled: (Boolean) -> Unit,
+) {
+    val context = LocalContext.current
+    AkisGlassCard(accentTint = EdgeUi.color(edge)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            EdgeZoneVisual(
+                edge = edge,
+                section = io.github.omeryol.akisgesture.model.SectionRange.ALL,
+                zoneColor = EdgeUi.color(edge),
+                modifier = Modifier.size(56.dp, 80.dp),
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.recent_apps_edge_card_title, edgeLabel(context, edge)),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(checked = enabled, onCheckedChange = onToggleEnabled)
+                }
+                Text(
+                    stringResource(R.string.recent_apps_edge_card_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
 }
 
 @Composable

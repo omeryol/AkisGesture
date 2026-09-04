@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">फ़ोरग्राउंड सूचना</string>
   <string name="foreground_notification_subtitle">वॉचडॉग सूचना की दृश्यता</string>
   <string name="foreground_notification_warning">दृश्यता कम होने पर Android बैकग्राउंड सुरक्षा को सीमित कर सकता है।</string>
+    <string name="recent_apps_edge_card_title">%1$s हाल के ऐप्स</string>
+    <string name="recent_apps_edge_card_subtitle">स्वाइप और होल्ड करके हाल के ऐप्स के बीच तेजी से स्विच करें</string>
+    <string name="shizuku_status">Shizuku स्थिति</string>
+    <string name="shizuku_available">अधिकृत (सक्रिय)</string>
+    <string name="shizuku_running_unauthorized">चालू (अनुमति आवश्यक)</string>
+    <string name="shizuku_authorize_btn">Shizuku अधिकृत करें</string>
+    <string name="shizuku_not_installed">इंस्टॉल नहीं / बंद</string>
 </resources>

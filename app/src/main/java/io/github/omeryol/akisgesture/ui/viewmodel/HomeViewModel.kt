@@ -54,6 +54,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _rootAccess = MutableStateFlow(RootAccessState.CHECKING)
     val rootAccess = _rootAccess.asStateFlow()
 
+    private val _shizukuStatus = MutableStateFlow(io.github.omeryol.akisgesture.shizuku.ShizukuManager.getStatus())
+    val shizukuStatus: StateFlow<io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status> = _shizukuStatus.asStateFlow()
+
+    fun updateShizukuStatus() {
+        _shizukuStatus.value = io.github.omeryol.akisgesture.shizuku.ShizukuManager.getStatus()
+    }
+
+    fun requestShizukuPermission() {
+        io.github.omeryol.akisgesture.shizuku.ShizukuManager.requestPermission {
+            _shizukuStatus.value = io.github.omeryol.akisgesture.shizuku.ShizukuManager.getStatus()
+            checkRootAccess()
+        }
+    }
+
     init {
         checkRootAccess()
         loadSelectableApps()

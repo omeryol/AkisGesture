@@ -41,7 +41,14 @@ class RootCommandExecutor(private val context: Context) {
         return execute(command)
     }
 
-    fun checkAccess(): RootResult = execute("id -u")
+    fun checkAccess(): RootResult {
+        val suCheck = execute("id -u")
+        if (suCheck is RootResult.Success) return suCheck
+        if (io.github.omeryol.akisgesture.shizuku.ShizukuManager.hasPermission()) {
+            return RootResult.Success
+        }
+        return suCheck
+    }
 
     fun grantCameraPermission(): RootResult =
         execute("pm grant --user 0 ${context.packageName} android.permission.CAMERA")
@@ -111,26 +118,39 @@ class RootCommandExecutor(private val context: Context) {
         }
     }
 
-    private fun runCommand(command: String): CommandResult? = try {
-        val process = ProcessBuilder("su", "-c", command)
-            .redirectErrorStream(true)
-            .start()
-        val output = StringBuilder()
-        val reader = thread(isDaemon = true, name = "akis-root-output") {
-            process.inputStream.bufferedReader().use { stream ->
-                stream.forEachLine { line -> output.appendLine(line) }
+    private fun runCommand(command: String): CommandResult? {
+        val suResult = try {
+            val process = ProcessBuilder("su", "-c", command)
+                .redirectErrorStream(true)
+                .start()
+            val output = StringBuilder()
+            val reader = thread(isDaemon = true, name = "akis-root-output") {
+                process.inputStream.bufferedReader().use { stream ->
+                    stream.forEachLine { line -> output.appendLine(line) }
+                }
+            }
+            if (!process.waitFor(ROOT_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                process.destroyForcibly()
+                reader.join(500L)
+                null
+            } else {
+                reader.join(500L)
+                CommandResult(process.exitValue(), output.toString())
+            }
+        } catch (_: Exception) {
+            null
+        }
+        if (suResult != null && suResult.exitCode == 0) return suResult
+
+        // Shizuku fallback
+        if (io.github.omeryol.akisgesture.shizuku.ShizukuManager.hasPermission()) {
+            val shizukuOutput = io.github.omeryol.akisgesture.shizuku.ShizukuManager.executeShell(command)
+            if (shizukuOutput != null) {
+                return CommandResult(0, shizukuOutput)
             }
         }
-        if (!process.waitFor(ROOT_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
-            process.destroyForcibly()
-            reader.join(500L)
-            null
-        } else {
-            reader.join(500L)
-            CommandResult(process.exitValue(), output.toString())
-        }
-    } catch (_: Exception) {
-        null
+
+        return suResult
     }
 
     private fun protectedPackages(): Set<String> {

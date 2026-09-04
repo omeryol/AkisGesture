@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">إشعار المقدمة</string>
   <string name="foreground_notification_subtitle">ظهور إشعار المراقب</string>
   <string name="foreground_notification_warning">عند تقليل الظهور، قد يقيّد Android الحماية في الخلفية.</string>
+    <string name="recent_apps_edge_card_title">التطبيقات الحديثة لـ %1$s</string>
+    <string name="recent_apps_edge_card_subtitle">التبديل بسرعة بين التطبيقات الحديثة عبر السحب مع الاستمرار</string>
+    <string name="shizuku_status">حالة Shizuku</string>
+    <string name="shizuku_available">مصرّح به (نشط)</string>
+    <string name="shizuku_running_unauthorized">قيد التشغيل (مطلوب الإذن)</string>
+    <string name="shizuku_authorize_btn">منح الإذن لـ Shizuku</string>
+    <string name="shizuku_not_installed">غير مثبت / متوقف</string>
 </resources>

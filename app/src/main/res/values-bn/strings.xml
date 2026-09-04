@@ -556,4 +556,11 @@
     <string name="foreground_notification_title">ফোরগ্রাউন্ড বিজ্ঞপ্তি</string>
     <string name="foreground_notification_subtitle">Watchdog বিজ্ঞপ্তির দৃশ্যমানতা</string>
     <string name="foreground_notification_warning">দৃশ্যমানতা কমালে Android ব্যাকগ্রাউন্ড সুরক্ষা সীমিত করতে পারে।</string>
+    <string name="recent_apps_edge_card_title">%1$s সাম্প্রতিক অ্যাপ</string>
+    <string name="recent_apps_edge_card_subtitle">সোয়াইপ করে ধরে রেখে সাম্প্রতিক অ্যাপের মধ্যে দ্রুত পরিবর্তন করুন</string>
+    <string name="shizuku_status">Shizuku অবস্থা</string>
+    <string name="shizuku_available">অনুমোদিত (সক্রিয়)</string>
+    <string name="shizuku_running_unauthorized">চলছে (অনুমতি প্রয়োজন)</string>
+    <string name="shizuku_authorize_btn">Shizuku অনুমোদন করুন</string>
+    <string name="shizuku_not_installed">ইনস্টল নেই / বন্ধ</string>
 </resources>

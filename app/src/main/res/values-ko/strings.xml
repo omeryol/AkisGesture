@@ -135,4 +135,11 @@
     <string name="foreground_notification_title">포그라운드 알림</string>
     <string name="foreground_notification_subtitle">Watchdog 알림 표시 여부</string>
     <string name="foreground_notification_warning">표시를 낮추면 Android가 백그라운드 보호를 제한할 수 있습니다.</string>
+    <string name="recent_apps_edge_card_title">%1$s 최근 앱</string>
+    <string name="recent_apps_edge_card_subtitle">스와이프 후 유지하여 최근 사용한 앱 간에 빠르게 전환합니다</string>
+    <string name="shizuku_status">Shizuku 상태</string>
+    <string name="shizuku_available">승인됨 (활성)</string>
+    <string name="shizuku_running_unauthorized">실행 중 (권한 필요)</string>
+    <string name="shizuku_authorize_btn">Shizuku 권한 요청</string>
+    <string name="shizuku_not_installed">설치되지 않음 / 중지됨</string>
 </resources>

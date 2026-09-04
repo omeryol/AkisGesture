@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">Notifikasi latar depan</string>
   <string name="foreground_notification_subtitle">Visibilitas notifikasi watchdog</string>
   <string name="foreground_notification_warning">Dengan visibilitas berkurang, Android dapat membatasi perlindungan latar belakang.</string>
+    <string name="recent_apps_edge_card_title">Aplikasi terbaru %1$s</string>
+    <string name="recent_apps_edge_card_subtitle">Beralih cepat antar aplikasi terbaru dengan geser dan tahan</string>
+    <string name="shizuku_status">Status Shizuku</string>
+    <string name="shizuku_available">Diizinkan (Aktif)</string>
+    <string name="shizuku_running_unauthorized">Berjalan (Perlu izin)</string>
+    <string name="shizuku_authorize_btn">Izinkan Shizuku</string>
+    <string name="shizuku_not_installed">Tidak terpasang / Berhenti</string>
 </resources>

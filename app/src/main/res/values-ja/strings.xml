@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">フォアグラウンド通知</string>
   <string name="foreground_notification_subtitle">監視通知の表示</string>
   <string name="foreground_notification_warning">表示を下げると、Android がバックグラウンド保護を制限する場合があります。</string>
+    <string name="recent_apps_edge_card_title">%1$s 最近のアプリ</string>
+    <string name="recent_apps_edge_card_subtitle">スワイプ＆ホールドで最近使用したアプリを素早く切り替えます</string>
+    <string name="shizuku_status">Shizuku ステータス</string>
+    <string name="shizuku_available">許可済み（有効）</string>
+    <string name="shizuku_running_unauthorized">実行中（権限が必要です）</string>
+    <string name="shizuku_authorize_btn">Shizuku を許可</string>
+    <string name="shizuku_not_installed">未インストール / 停止中</string>
 </resources>

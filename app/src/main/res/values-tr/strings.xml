@@ -640,4 +640,11 @@
     <string name="language_quechua">Runasimi</string>
     <string name="gesture_count_label">%d gestures</string>
     <string name="delete_section_confirm">All gestures in this section will be deleted. Continue?</string>
+    <string name="recent_apps_edge_card_title">%1$s son kullanılanlar</string>
+    <string name="recent_apps_edge_card_subtitle">Çekip bekletme ile en son kullanılan uygulamalar arasında hızlı geçiş yapın</string>
+    <string name="shizuku_status">Shizuku durumu</string>
+    <string name="shizuku_available">Yetkilendirildi (Aktif)</string>
+    <string name="shizuku_running_unauthorized">Çalışıyor (İzin gerekli)</string>
+    <string name="shizuku_authorize_btn">Shizuku Yetkilendir</string>
+    <string name="shizuku_not_installed">Yüklü değil / Kapalı</string>
 </resources>

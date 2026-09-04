@@ -201,4 +201,11 @@
     <string name="foreground_notification_title">Ñawpaq willakuy</string>
     <string name="foreground_notification_subtitle">Qhawaq willakuypa rikuynin</string>
     <string name="foreground_notification_warning">Rikuynin pisiyaptin, Android qhipa amachayta pisiyachinman.</string>
+    <string name="recent_apps_edge_card_title">%1$s qallarisqa app-kuna</string>
+    <string name="recent_apps_edge_card_subtitle">Aysaspa hap’ispa ñawpaq appkunata utqaylla tikray</string>
+    <string name="shizuku_status">Shizuku kaynin</string>
+    <string name="shizuku_available">Saqisqa (Kawsachkan)</string>
+    <string name="shizuku_running_unauthorized">Llamk’achkan (Permiso munakun)</string>
+    <string name="shizuku_authorize_btn">Shizuku-man permiso quy</string>
+    <string name="shizuku_not_installed">Mana churasqachu / Sayasqa</string>
 </resources>

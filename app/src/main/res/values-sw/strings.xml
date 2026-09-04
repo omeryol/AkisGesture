@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">Arifa ya mbele</string>
   <string name="foreground_notification_subtitle">Uonekano wa arifa ya ufuatiliaji</string>
   <string name="foreground_notification_warning">Uonekano ukipunguzwa, Android inaweza kupunguza ulinzi wa chinichini.</string>
+    <string name="recent_apps_edge_card_title">Programu za hivi majuzi za %1$s</string>
+    <string name="recent_apps_edge_card_subtitle">Badilisha haraka kati ya programu za hivi majuzi kwa kutelezesha na kushikilia</string>
+    <string name="shizuku_status">Hali ya Shizuku</string>
+    <string name="shizuku_available">Imeidhinishwa (Inatumika)</string>
+    <string name="shizuku_running_unauthorized">Inafanya kazi (Inahitaji ruhusa)</string>
+    <string name="shizuku_authorize_btn">Idhinisha Shizuku</string>
+    <string name="shizuku_not_installed">Haijasakinishwa / Imesimama</string>
 </resources>

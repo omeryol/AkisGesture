@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">Notificação em primeiro plano</string>
   <string name="foreground_notification_subtitle">Visibilidade da notificação do monitor</string>
   <string name="foreground_notification_warning">Com visibilidade reduzida, o Android pode limitar a proteção em segundo plano.</string>
+    <string name="recent_apps_edge_card_title">Aplicativos recentes de %1$s</string>
+    <string name="recent_apps_edge_card_subtitle">Alterne rapidamente entre apps recentes deslizando e segurando</string>
+    <string name="shizuku_status">Status do Shizuku</string>
+    <string name="shizuku_available">Autorizado (Ativo)</string>
+    <string name="shizuku_running_unauthorized">Em execução (Permissão necessária)</string>
+    <string name="shizuku_authorize_btn">Autorizar Shizuku</string>
+    <string name="shizuku_not_installed">Não instalado / Parado</string>
 </resources>

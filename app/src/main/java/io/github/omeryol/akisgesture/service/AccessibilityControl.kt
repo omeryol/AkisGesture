@@ -148,7 +148,7 @@ object AccessibilityControl {
     }
 
     private fun runRoot(command: String): CommandResult {
-        return try {
+        val rootResult = try {
             val process = ProcessBuilder("su", "-c", command)
                 .redirectErrorStream(true)
                 .start()
@@ -163,6 +163,17 @@ object AccessibilityControl {
         } catch (_: Exception) {
             CommandResult.Failure
         }
+        if (rootResult is CommandResult.Success) return rootResult
+
+        // Shizuku fallback
+        if (io.github.omeryol.akisgesture.shizuku.ShizukuManager.hasPermission()) {
+            val shizukuOutput = io.github.omeryol.akisgesture.shizuku.ShizukuManager.executeShell(command)
+            if (shizukuOutput != null) {
+                return CommandResult.Success(shizukuOutput)
+            }
+        }
+
+        return CommandResult.Failure
     }
 
     private sealed interface CommandResult {

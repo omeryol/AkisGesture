@@ -123,7 +123,7 @@ class BezierStretchRenderer {
         val elapsedSeconds = ((nowNanos - lastDrawNanos).coerceAtLeast(0L) / 1_000_000_000f)
             .coerceAtMost(0.1f)
         lastDrawNanos = nowNanos
-        val responseHz = (15f - animation.viscosity * 7f) * (1f - animation.damping * 0.25f)
+        val responseHz = (22f - animation.viscosity * 7f) * (1f - animation.damping * 0.2f)
         val follow = 1f - exp((-responseHz * elapsedSeconds).toDouble()).toFloat()
         renderedStretch += (stretch - renderedStretch) * follow.coerceIn(0f, 1f)
 

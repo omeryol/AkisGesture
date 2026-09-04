@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.PathInterpolator
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.gesture.model.SwipeDirection
 import io.github.omeryol.akisgesture.model.GestureType
@@ -325,8 +326,8 @@ class FeedbackView(context: Context) : View(context) {
             return
         }
         releaseAnimator = ValueAnimator.ofFloat(stretchDistance, 0f).apply {
-            duration = 180L
-            interpolator = DecelerateInterpolator(1.8f)
+            duration = 200L
+            interpolator = PathInterpolator(0.16f, 1f, 0.3f, 1f)
             addUpdateListener {
                 stretchDistance = it.animatedValue as Float
                 if (stretchDistance < 0.5f) {

@@ -592,4 +592,11 @@
   <string name="foreground_notification_title">前台通知</string>
   <string name="foreground_notification_subtitle">看门狗通知的可见性</string>
   <string name="foreground_notification_warning">降低可见性后，Android 可能会限制后台保护。</string>
+    <string name="recent_apps_edge_card_title">%1$s 最近应用</string>
+    <string name="recent_apps_edge_card_subtitle">通过滑动并按住快速在最近打开的应用之间切换</string>
+    <string name="shizuku_status">Shizuku 状态</string>
+    <string name="shizuku_available">已授权（运行中）</string>
+    <string name="shizuku_running_unauthorized">运行中（需要授权）</string>
+    <string name="shizuku_authorize_btn">授权 Shizuku</string>
+    <string name="shizuku_not_installed">未安装 / 已停止</string>
 </resources>
