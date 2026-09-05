@@ -200,105 +200,230 @@ fun InteractivePhoneMap(
                     },
             ) {
                 val screen = phoneScreenRect(size.width, size.height)
-                val body = Rect(screen.left - 8f, screen.top - 8f, screen.right + 8f, screen.bottom + 8f)
+                val body = Rect(screen.left - 9f, screen.top - 9f, screen.right + 9f, screen.bottom + 9f)
 
-                // Static 3D phone: cast shadow, deep side rail and a raised display surface.
+                // 1. Soft Realistic Ambient Shadow
                 drawRoundRect(
-                    color = Color.Black.copy(alpha = 0.45f),
-                    topLeft = Offset(body.left + 10f, body.top + 14f),
+                    color = Color.Black.copy(alpha = 0.55f),
+                    topLeft = Offset(body.left + 8f, body.top + 14f),
                     size = body.size,
-                    cornerRadius = CornerRadius(42f),
+                    cornerRadius = CornerRadius(44f),
                 )
+                // 2. Obsidian Titanium Hardware Rail (Frame)
                 drawRoundRect(
                     brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFF60677A), Color(0xFF171A24), Color(0xFF343846)),
+                        colors = listOf(Color(0xFF383C4A), Color(0xFF14161F), Color(0xFF262936), Color(0xFF0F1118)),
                         start = body.topLeft,
                         end = body.bottomRight,
                     ),
                     topLeft = body.topLeft,
                     size = body.size,
-                    cornerRadius = CornerRadius(42f),
+                    cornerRadius = CornerRadius(44f),
                 )
+                // 3. Bezel Edge Specular Highlight
                 drawRoundRect(
-                    color = Color(0xFF090B12),
+                    color = Color.White.copy(alpha = 0.18f),
+                    topLeft = body.topLeft,
+                    size = body.size,
+                    cornerRadius = CornerRadius(44f),
+                    style = Stroke(1.5f),
+                )
+                // 4. OLED Display Border
+                drawRoundRect(
+                    color = Color(0xFF06070B),
                     topLeft = screen.topLeft,
                     size = screen.size,
-                    cornerRadius = CornerRadius(34f),
+                    cornerRadius = CornerRadius(36f),
                 )
+                // 5. Deep Space OLED Display Surface with Ambient Center Glow
                 drawRoundRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(Color(0xFF172554), Color(0xFF0F172A), Color(0xFF020617)),
-                        center = Offset(screen.center.x, screen.top + screen.height * 0.28f),
-                        radius = screen.width * 1.45f,
+                        colors = listOf(Color(0xFF0F172A), Color(0xFF090D18), Color(0xFF020408)),
+                        center = Offset(screen.center.x, screen.top + screen.height * 0.35f),
+                        radius = screen.width * 1.35f,
                     ),
-                    topLeft = Offset(screen.left + 3f, screen.top + 3f),
-                    size = Size(screen.width - 6f, screen.height - 6f),
-                    cornerRadius = CornerRadius(30f),
-                )
-                drawLine(
-                    color = Color.White.copy(alpha = 0.26f),
-                    start = Offset(body.left + 4f, body.top + 30f),
-                    end = Offset(body.left + 4f, body.bottom - 30f),
-                    strokeWidth = 2f,
+                    topLeft = Offset(screen.left + 2f, screen.top + 2f),
+                    size = Size(screen.width - 4f, screen.height - 4f),
+                    cornerRadius = CornerRadius(34f),
                 )
 
                 val screenClip = androidx.compose.ui.graphics.Path().apply {
                     addRoundRect(RoundRect(screen, CornerRadius(34f)))
                 }
                 clipPath(screenClip) {
-                    drawCircle(
-                        brush = Brush.radialGradient(listOf(scheme.primary.copy(alpha = 0.32f), Color.Transparent)),
-                        radius = screen.width * 0.72f,
-                        center = Offset(screen.right * 0.82f, screen.top + screen.height * 0.36f),
-                    )
-                    zones.forEach { zone ->
-                        val zoneRect = phoneZoneRect(zone, screen, config, dragPreview)
+                    // Subtle Cybernetic Matrix Dot Grid
+                    val gridStep = 22.dp.toPx()
+                    var gx = screen.left + 16f
+                    while (gx < screen.right - 16f) {
+                        var gy = screen.top + 20f
+                        while (gy < screen.bottom - 20f) {
+                            drawCircle(
+                                color = Color.White.copy(alpha = 0.04f),
+                                radius = 1.2f,
+                                center = Offset(gx, gy),
+                            )
+                            gy += gridStep
+                        }
+                        gx += gridStep
+                    }
+
+                    // Side Recessed Sensor Tracks
+                    listOf(Edge.LEFT, Edge.RIGHT).forEach { edge ->
+                        val track = sideSensorRect(edge, screen, config, dragPreview)
                         drawRoundRect(
-                            brush = Brush.horizontalGradient(listOf(zone.color.copy(alpha = 0.78f), zone.color.copy(alpha = 0.38f))),
-                            topLeft = zoneRect.topLeft,
-                            size = zoneRect.size,
-                            cornerRadius = CornerRadius(10f),
+                            color = Color(0xFF0C101A),
+                            topLeft = track.topLeft,
+                            size = track.size,
+                            cornerRadius = CornerRadius(8f),
                         )
                         drawRoundRect(
-                            color = zone.color,
-                            topLeft = zoneRect.topLeft,
-                            size = zoneRect.size,
-                            cornerRadius = CornerRadius(10f),
-                            style = Stroke(2f),
+                            color = Color.White.copy(alpha = 0.06f),
+                            topLeft = track.topLeft,
+                            size = track.size,
+                            cornerRadius = CornerRadius(8f),
+                            style = Stroke(1f),
                         )
                     }
+
+                    // Dynamic Segmented Neon Zones (Bölünmüş Kenarlar)
+                    zones.forEach { zone ->
+                        val rawRect = phoneZoneRect(zone, screen, config, dragPreview)
+                        val isSide = zone.edge == Edge.LEFT || zone.edge == Edge.RIGHT
+                        val zoneRect = if (isSide) {
+                            Rect(rawRect.left, rawRect.top + 2.5f, rawRect.right, rawRect.bottom - 2.5f)
+                        } else {
+                            Rect(rawRect.left + 2.5f, rawRect.top, rawRect.right - 2.5f, rawRect.bottom)
+                        }
+
+                        if (zoneRect.height > 4f && zoneRect.width > 4f) {
+                            // A. Ambient Neon Halo Glow
+                            drawRoundRect(
+                                color = zone.color.copy(alpha = 0.24f),
+                                topLeft = Offset(zoneRect.left - 3f, zoneRect.top - 3f),
+                                size = Size(zoneRect.width + 6f, zoneRect.height + 6f),
+                                cornerRadius = CornerRadius(10f),
+                            )
+                            // B. Luminous Neon Tube Body
+                            val gradientColors = when (zone.edge) {
+                                Edge.LEFT -> listOf(zone.color.copy(alpha = 0.90f), zone.color.copy(alpha = 0.45f))
+                                Edge.RIGHT -> listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f))
+                                Edge.BOTTOM -> listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f))
+                            }
+                            drawRoundRect(
+                                brush = Brush.horizontalGradient(gradientColors, startX = zoneRect.left, endX = zoneRect.right),
+                                topLeft = zoneRect.topLeft,
+                                size = zoneRect.size,
+                                cornerRadius = CornerRadius(8f),
+                            )
+                            // C. Neon Tube Specular Edge
+                            drawRoundRect(
+                                color = zone.color,
+                                topLeft = zoneRect.topLeft,
+                                size = zoneRect.size,
+                                cornerRadius = CornerRadius(8f),
+                                style = Stroke(1.8f),
+                            )
+                            // D. High-Tech Specular Core Streak
+                            if (isSide) {
+                                val streakX = if (zone.edge == Edge.LEFT) zoneRect.left + 2.5f else zoneRect.right - 2.5f
+                                drawLine(
+                                    color = Color.White.copy(alpha = 0.70f),
+                                    start = Offset(streakX, zoneRect.top + 6f),
+                                    end = Offset(streakX, zoneRect.bottom - 6f),
+                                    strokeWidth = 1.5f,
+                                )
+                            }
+                        }
+                    }
+
+                    // Divider Notches Between Adjacent Sections
+                    listOf(Edge.LEFT, Edge.RIGHT).forEach { edge ->
+                        val edgeZones = zones.filter { it.edge == edge }.sortedBy { it.start }
+                        if (edgeZones.size > 1) {
+                            val sensor = sideSensorRect(edge, screen, config, dragPreview)
+                            edgeZones.drop(1).forEach { nextZone ->
+                                val dividerY = sensor.top + nextZone.start * sensor.height
+                                drawLine(
+                                    color = Color.White.copy(alpha = 0.90f),
+                                    start = Offset(sensor.left - 2f, dividerY),
+                                    end = Offset(sensor.right + 2f, dividerY),
+                                    strokeWidth = 2.5f,
+                                )
+                            }
+                        }
+                    }
+
                     drawRingPreviews(screen, config, density, ringPreviewBitmaps)
                 }
 
-                // High-contrast endpoint arrows stay inside the coloured trigger range.
+                // Glowing Tactile Range Handles
                 listOf(Edge.LEFT, Edge.RIGHT).forEach { edge ->
                     val range = sideRange(edge, config, dragPreview)
                     val sensor = sideSensorRect(edge, screen, config, dragPreview)
+                    val edgeColor = EdgeUi.color(edge)
                     val x = sensor.center.x
                     listOf(range.first, range.second).forEach { ratio ->
-                        val y = if (ratio == range.first) sensor.top + 10f else sensor.bottom - 10f
-                        val direction = if (ratio == range.first) -1f else 1f
-                        val triangle = androidx.compose.ui.graphics.Path().apply {
-                            moveTo(x - 9f, y - direction * 6f)
-                            lineTo(x + 9f, y - direction * 6f)
-                            lineTo(x, y + direction * 11f)
-                            close()
-                        }
-                        drawPath(triangle, color = Color(0xFFF1EEE6))
+                        val y = if (ratio == range.first) sensor.top else sensor.bottom
+                        // Outer Halo Glow
+                        drawCircle(
+                            color = edgeColor.copy(alpha = 0.40f),
+                            radius = 12f,
+                            center = Offset(x, y),
+                        )
+                        // Handle Base
+                        drawCircle(
+                            color = Color(0xFF0E131E),
+                            radius = 8.5f,
+                            center = Offset(x, y),
+                        )
+                        // Handle Accent Rim
+                        drawCircle(
+                            color = edgeColor,
+                            radius = 8.5f,
+                            center = Offset(x, y),
+                            style = Stroke(2f),
+                        )
+                        // Crisp Center Specular Dot
+                        drawCircle(
+                            color = Color.White,
+                            radius = 3.5f,
+                            center = Offset(x, y),
+                        )
                     }
                 }
 
-                val islandWidth = screen.width * 0.30f
+                // Dynamic Island with Camera Lens Reflection
+                val islandWidth = screen.width * 0.28f
                 drawRoundRect(
-                    color = Color(0xFF020204),
-                    topLeft = Offset(screen.center.x - islandWidth / 2f, screen.top + 9f),
-                    size = Size(islandWidth, 11f),
-                    cornerRadius = CornerRadius(7f),
+                    color = Color(0xFF030406),
+                    topLeft = Offset(screen.center.x - islandWidth / 2f, screen.top + 8f),
+                    size = Size(islandWidth, 12f),
+                    cornerRadius = CornerRadius(8f),
                 )
+                drawCircle(
+                    color = Color(0xFF1E293B),
+                    radius = 3f,
+                    center = Offset(screen.center.x + islandWidth * 0.28f, screen.top + 14f),
+                )
+                drawCircle(
+                    color = Color(0xFF38BDF8).copy(alpha = 0.6f),
+                    radius = 1.2f,
+                    center = Offset(screen.center.x + islandWidth * 0.28f, screen.top + 14f),
+                )
+
+                // Speaker Slit
                 drawRoundRect(
-                    color = Color.White.copy(alpha = 0.45f),
-                    topLeft = Offset(screen.center.x - screen.width * 0.16f, screen.bottom - 13f),
-                    size = Size(screen.width * 0.32f, 3f),
+                    color = Color(0xFF151821),
+                    topLeft = Offset(screen.center.x - 14f, screen.top + 4f),
+                    size = Size(28f, 2.5f),
+                    cornerRadius = CornerRadius(1.5f),
+                )
+
+                // Bottom Home Indicator Bar
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.50f),
+                    topLeft = Offset(screen.center.x - screen.width * 0.16f, screen.bottom - 12f),
+                    size = Size(screen.width * 0.32f, 3.5f),
                     cornerRadius = CornerRadius(2f),
                 )
             }
@@ -401,6 +526,7 @@ private fun EdgeActionPanelDirectional(
     iconPack: ActionIconPack,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
     val visibleGroups = groups.filter { it.isNotEmpty() }
     val groupColors = listOf(
@@ -438,7 +564,7 @@ private fun EdgeActionPanelDirectional(
                     ) {
                     if (visibleGroups.size > 1) {
                         Text(
-                            text = "Bölüm ${index + 1}",
+                            text = context.getString(io.github.omeryol.akisgesture.R.string.map_section_title, index + 1),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = EdgeUi.color(edge),
