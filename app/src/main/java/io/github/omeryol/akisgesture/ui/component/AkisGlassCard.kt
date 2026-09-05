@@ -126,7 +126,7 @@ fun AkisGlassCard(
     val scheme = MaterialTheme.colorScheme
     
     val baseBg = containerColor ?: if (dark) {
-        scheme.surfaceVariant.copy(alpha = 0.35f)
+        Color(0xFF0B0F17).copy(alpha = 0.85f)
     } else {
         scheme.surface.copy(alpha = 0.85f)
     }
@@ -135,9 +135,9 @@ fun AkisGlassCard(
     val bg = baseBg
 
     val border = borderColor ?: if (accentTint != null) {
-        accentTint.copy(alpha = 0.40f)
+        accentTint.copy(alpha = 0.45f)
     } else if (dark) {
-        scheme.outlineVariant.copy(alpha = 0.25f)
+        Color.White.copy(alpha = 0.08f)
     } else {
         scheme.outlineVariant.copy(alpha = 0.40f)
     }
@@ -147,7 +147,7 @@ fun AkisGlassCard(
             onClick = onClick,
             modifier = modifier,
             shape = RoundedCornerShape(14.dp),
-            border = BorderStroke(0.5.dp, border),
+            border = BorderStroke(1.dp, border),
             colors = CardDefaults.cardColors(containerColor = bg),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
@@ -160,7 +160,7 @@ fun AkisGlassCard(
         Card(
             modifier = modifier,
             shape = RoundedCornerShape(14.dp),
-            border = BorderStroke(0.5.dp, border),
+            border = BorderStroke(1.dp, border),
             colors = CardDefaults.cardColors(containerColor = bg),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {

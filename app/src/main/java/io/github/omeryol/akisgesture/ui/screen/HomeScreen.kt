@@ -152,6 +152,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(start = 2.dp),
             )
 
+            val statusColor = if (isMasterActive) Color(0xFF00E676) else if (!isConnected) scheme.error else Color(0xFFFFB300)
             AkisGlassCard(
                 onClick = {
                     if (!isConnected) {
@@ -161,8 +162,8 @@ fun HomeScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                accentTint = if (isMasterActive) Color(0xFF43A047) else scheme.error,
-                containerColor = (if (isMasterActive) Color(0xFF43A047) else scheme.error).copy(alpha = 0.12f),
+                accentTint = statusColor,
+                containerColor = statusColor.copy(alpha = 0.08f),
             ) {
                 Row(
                     modifier = Modifier
@@ -174,10 +175,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .size(42.dp)
                             .clip(CircleShape)
-                            .background(
-                                if (isMasterActive) Color(0xFF43A047)
-                                else scheme.error
-                            ),
+                            .background(statusColor),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -225,7 +223,7 @@ fun HomeScreen(
 
                     AkisFluidSwitch(
                         checked = isMasterActive,
-                        activeColor = Color(0xFF43A047),
+                        activeColor = Color(0xFF00E676),
                         onCheckedChange = { checked ->
                             if (!isConnected) {
                                 onNavigateToPermissions()
@@ -518,7 +516,7 @@ private fun AkisSummaryChartCard(
                     modifier = Modifier
                         .weight(leftWeight)
                         .fillMaxHeight()
-                        .background(Color(0xFF3D5AFE)),
+                        .background(EdgeUi.color(Edge.LEFT)),
                 )
             }
             if (bottomCount > 0 || totalCount == 0) {
@@ -563,9 +561,9 @@ private fun AkisSummaryChartCard(
         Spacer(Modifier.height(8.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            GestureTypeBarRow(title = "⚡ ${stringResource(R.string.gesture_quick)}", count = quickCount, total = totalCount, color = Color(0xFF3D5AFE))
-            GestureTypeBarRow(title = "⏱️ ${stringResource(R.string.gesture_hold)}", count = holdCount, total = totalCount, color = Color(0xFFD500F9))
-            GestureTypeBarRow(title = "↗️ ${stringResource(R.string.gesture_l_up)}", count = lCount, total = totalCount, color = Color(0xFF00E5FF))
+            GestureTypeBarRow(title = "⚡ ${stringResource(R.string.gesture_quick)}", count = quickCount, total = totalCount, color = EdgeUi.color(Edge.LEFT))
+            GestureTypeBarRow(title = "⏱️ ${stringResource(R.string.gesture_hold)}", count = holdCount, total = totalCount, color = EdgeUi.color(Edge.RIGHT))
+            GestureTypeBarRow(title = "↗️ ${stringResource(R.string.gesture_l_up)}", count = lCount, total = totalCount, color = EdgeUi.color(Edge.BOTTOM))
         }
     }
 }

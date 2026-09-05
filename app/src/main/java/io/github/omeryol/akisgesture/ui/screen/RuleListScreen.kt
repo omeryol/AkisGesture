@@ -92,6 +92,7 @@ import io.github.omeryol.akisgesture.ui.component.AkisGlassCard
 import io.github.omeryol.akisgesture.ui.component.AkisSliderRow
 import io.github.omeryol.akisgesture.ui.component.AkisSwitchRow
 import io.github.omeryol.akisgesture.ui.component.ActionPickerScreen
+import io.github.omeryol.akisgesture.ui.component.MiniPhoneRingPreview
 import io.github.omeryol.akisgesture.ui.component.EdgeZoneVisual
 import io.github.omeryol.akisgesture.ui.component.GestureMapCard
 import io.github.omeryol.akisgesture.ui.util.appLabel
@@ -1125,21 +1126,11 @@ private fun RecentAppsEdgeCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp, 80.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF0B0F17))
-                    .border(1.dp, EdgeUi.color(edge).copy(alpha = 0.40f), RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(ringMenuRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+            MiniPhoneRingPreview(
+                edge = edge,
+                isRecentApps = true,
+                modifier = Modifier.size(width = 56.dp, height = 80.dp),
+            )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1173,31 +1164,16 @@ private fun RingEdgeCard(
 ) {
     val context = LocalContext.current
     val actions = config.ringActionsFor(edge)
-    val ringMenuRes = when (edge) {
-        Edge.LEFT -> R.drawable.illus_ring_menu_left_unified
-        Edge.RIGHT -> R.drawable.illus_ring_menu_right_unified
-        Edge.BOTTOM -> R.drawable.illus_ring_menu_bottom_unified
-    }
     AkisGlassCard(accentTint = EdgeUi.color(edge)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp, 80.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFF0B0F17))
-                    .border(1.dp, EdgeUi.color(edge).copy(alpha = 0.40f), RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(ringMenuRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
+            MiniPhoneRingPreview(
+                edge = edge,
+                isRecentApps = false,
+                modifier = Modifier.size(width = 56.dp, height = 80.dp),
+            )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
