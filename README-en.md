@@ -11,6 +11,17 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.9.0 highlights
+
+- 🎨 **Organic Edge Animations:** Rebuilt 14 edge animation modules with fluid mechanics and natural luminosity while preserving Aurora Flow.
+- 📊 **Live Home and Smart Diagnostic Hub:** Added a pulse-beacon Hero status card, dynamic edge indicators, and a 1-tap diagnostic panel with a HyperOS optimization guide.
+- 📐 **19.5:9 Modern Phone Previews:** Updated gesture previews to modern smartphone ratios and added a vector neon trigger-zone visual.
+- 🎯 **Bottom Edge and Section Ordering:** Enforced deterministic coordinate-based ordering with synchronized Left/Middle/Right position labels.
+- 🎨 **Edge-Themed Card Framing:** Section cards and gesture settings now use the live theme color of their designated edge.
+
+Signed APK: [Akış Gesture v1.9.0](https://github.com/omeryol/AkisGesture/releases/download/v1.9.0/app-release.apk)
+SHA-256: `379DF5B76B8555AADB09933CE7B06CE45A2A82DEFBF3AD0EDF7081F277F96706`
+
 ## v1.8.1 highlights
 
 - 🌍 **8 New Languages:** Added Russian (`ru`), Polish (`pl`), German (`de`), French (`fr`), Italian (`it`), Vietnamese (`vi`), Traditional Chinese (`zh-rTW`), and Persian (`fa`).

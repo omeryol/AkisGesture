@@ -11,6 +11,17 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.9.0 öne çıkanlar
+
+- 🎨 **Organik Kenar Animasyonları:** Aurora Akışı korunarak 14 kenar animasyonu akışkanlar mekaniği ve doğal ışık geçirgenliğiyle baştan tasarlandı.
+- 📊 **Canlı Ana Sayfa ve Akıllı Teşhis Paneli:** Canlı nabız göstergeli Hero durum kartı, dinamik kenar rozetleri ve HyperOS optimizasyon rehberli tek dokunuşlu teşhis paneli eklendi.
+- 📐 **19.5:9 Modern Telefon Göstergeleri:** Hareket önizlemeleri modern telefon oranlarına güncellendi; vektörel neon tetik alanı göstergesi eklendi.
+- 🎯 **Alt Kenar ve Kural Sıralaması:** Bölümler UUID yerine koordinat sırasıyla deterministik dizilir; Sol/Orta/Sağ konum etiketleriyle senkronize gösterilir.
+- 🎨 **Kenar Temalı Kart Çerçeveleri:** Bölüm kartları ve ayar panelleri ait oldukları kenarın canlı tema renklerini kullanır.
+
+İmzalı APK: [Akış Gesture v1.9.0](https://github.com/omeryol/AkisGesture/releases/download/v1.9.0/app-release.apk)
+SHA-256: `379DF5B76B8555AADB09933CE7B06CE45A2A82DEFBF3AD0EDF7081F277F96706`
+
 ## v1.8.1 öne çıkanlar
 
 - 🌍 **8 Yeni Dil Desteği:** Rusça (`ru`), Lehçe (`pl`), Almanca (`de`), Fransızca (`fr`), İtalyanca (`it`), Vietnamca (`vi`), Geleneksel Çince (`zh-rTW`) ve Farsça (`fa`) eklendi.
