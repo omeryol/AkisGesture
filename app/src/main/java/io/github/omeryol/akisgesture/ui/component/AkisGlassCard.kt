@@ -379,6 +379,7 @@ fun AkisSliderRow(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     steps: Int = 0,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)) {
@@ -397,14 +398,15 @@ fun AkisSliderRow(
                 text = valueText,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
-                color = scheme.primary
+                color = activeColor
             )
         }
         AkisFluidSlider(
             value = value,
             onValueChange = onValueChange,
             valueRange = valueRange,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            activeColor = activeColor
         )
     }
 }

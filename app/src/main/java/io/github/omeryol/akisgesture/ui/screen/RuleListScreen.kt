@@ -592,7 +592,7 @@ fun RuleListScreen(
                         )
                     }
                     if (gestureConfig.ringMenuEnabledFor(selectedEdge)) item(key = "ring_menu_customization_${selectedEdge.name}") {
-                        AkisGlassCard(accentTint = AkisTertiary) {
+                        AkisGlassCard(accentTint = EdgeUi.color(selectedEdge)) {
                             Text(
                                 stringResource(R.string.ring_menu_title),
                                 style = MaterialTheme.typography.titleMedium,
@@ -610,6 +610,7 @@ fun RuleListScreen(
                                 valueText = "${gestureConfig.ringGroupInsetDp.roundToInt()} dp",
                                 value = gestureConfig.ringGroupInsetDp,
                                 valueRange = ringInsetRange,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRingGroupInsetDp(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -623,6 +624,7 @@ fun RuleListScreen(
                                 valueText = "${gestureConfig.ringGroupSpacingDp.roundToInt()} dp",
                                 value = gestureConfig.ringGroupSpacingDp,
                                 valueRange = 36f..120f,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRingGroupSpacingDp(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -636,6 +638,7 @@ fun RuleListScreen(
                                 valueText = "${gestureConfig.ringSizeDp.roundToInt()} dp",
                                 value = gestureConfig.ringSizeDp,
                                 valueRange = 40f..92f,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRingSizeDp(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -649,6 +652,7 @@ fun RuleListScreen(
                                 valueText = "${(gestureConfig.ringArc * 100f).roundToInt()}%",
                                 value = gestureConfig.ringArc,
                                 valueRange = 0f..1f,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRingArc(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -663,6 +667,7 @@ fun RuleListScreen(
                                 value = gestureConfig.ringMenuHoldDelayMs.toFloat(),
                                 valueRange = 150f..1000f,
                                 steps = 17,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     val delay = value.roundToInt().toLong()
                                     viewModel.setRingMenuHoldDelayMs(delay)
@@ -678,7 +683,7 @@ fun RuleListScreen(
                         )
                     }
                     if (gestureConfig.recentAppsEnabledFor(selectedEdge)) item(key = "recent_apps_customization_${selectedEdge.name}") {
-                        AkisGlassCard(accentTint = AkisSecondary) {
+                        AkisGlassCard(accentTint = EdgeUi.color(selectedEdge)) {
                             Text(
                                 stringResource(R.string.recent_apps_title),
                                 style = MaterialTheme.typography.titleMedium,
@@ -697,6 +702,7 @@ fun RuleListScreen(
                                 value = gestureConfig.recentAppsCount.toFloat(),
                                 valueRange = 2f..6f,
                                 steps = 3,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     val count = value.roundToInt()
                                     viewModel.setRecentAppsCount(count)
@@ -711,6 +717,7 @@ fun RuleListScreen(
                                 valueText = "${gestureConfig.recentAppsInsetDp.roundToInt()} dp",
                                 value = gestureConfig.recentAppsInsetDp,
                                 valueRange = ringInsetRange,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRecentAppsInsetDp(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -724,6 +731,7 @@ fun RuleListScreen(
                                 valueText = "${gestureConfig.recentAppsSpacingDp.roundToInt()} dp",
                                 value = gestureConfig.recentAppsSpacingDp,
                                 valueRange = 36f..120f,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRecentAppsSpacingDp(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -737,6 +745,7 @@ fun RuleListScreen(
                                 valueText = "${gestureConfig.recentAppsSizeDp.roundToInt()} dp",
                                 value = gestureConfig.recentAppsSizeDp,
                                 valueRange = 40f..92f,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRecentAppsSizeDp(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -750,6 +759,7 @@ fun RuleListScreen(
                                 valueText = "${(gestureConfig.recentAppsArc * 100f).roundToInt()}%",
                                 value = gestureConfig.recentAppsArc,
                                 valueRange = 0f..1f,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     viewModel.setRecentAppsArc(value)
                                     GestureAccessibilityService.instance?.previewRingMenu(
@@ -764,6 +774,7 @@ fun RuleListScreen(
                                 value = gestureConfig.recentAppsHoldDelayMs.toFloat(),
                                 valueRange = 150f..1000f,
                                 steps = 17,
+                                activeColor = EdgeUi.color(selectedEdge),
                                 onValueChange = { value ->
                                     val delay = value.roundToInt().toLong()
                                     viewModel.setRecentAppsHoldDelayMs(delay)
@@ -1561,17 +1572,15 @@ private fun RuleTableRow(
     val rule = group.representative
     val enabled = listOfNotNull(group.quick, group.hold, group.lUp, group.lDown).any { it.enabled }
     val scheme = MaterialTheme.colorScheme
-    val accent = listOf(
-        scheme.primary, scheme.secondary, scheme.tertiary,
-        scheme.primary.copy(alpha = 0.78f), scheme.secondary.copy(alpha = 0.78f), scheme.tertiary.copy(alpha = 0.78f),
-    )[number.minus(1) % 6]
+    val edgeColor = EdgeUi.color(rule.trigger.edge)
+    val accent = edgeColor
     var contentAlpha = if (enabled) 1f else 0.45f
 
     AkisGlassCard(
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer { alpha = contentAlpha },
-        accentTint = if (enabled) scheme.primary else null,
+        accentTint = if (enabled) edgeColor else null,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(
