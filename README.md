@@ -2,6 +2,8 @@
 
 [![Toplam İndirme](https://img.shields.io/github/downloads/omeryol/AkisGesture/total?color=blue&label=Toplam%20İndirme)](https://github.com/omeryol/AkisGesture/releases)
 [![Son Sürüm](https://img.shields.io/github/v/release/omeryol/AkisGesture?color=green&label=Son%20Sürüm)](https://github.com/omeryol/AkisGesture/releases)
+[![Telegram Grubu](https://img.shields.io/badge/Telegram-Destek%20Grubu-2CA5E0?logo=telegram)](https://t.me/+ZRMewoFvaIdhM2I0)
+[![Telegram Kanalı](https://img.shields.io/badge/Telegram-Kanal-2CA5E0?logo=telegram)](https://t.me/+ZTbxUGG-ynowOWE0)
 
 **Türkçe** | [English](README-en.md)
 
