@@ -11,9 +11,28 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.8.0",
+            date = "2026-09-05",
+            isCurrent = true,
+            changesTr = listOf(
+                "📱 Son Uygulamalar Menüsü (Dock): Kenardan çekip bekleterek son kullanılan uygulamalara doğrudan erişin; Halka Menüsü ile karşılıklı akıllı kilitleme.",
+                "🎛️ Tam Özelleştirme: Son uygulamalar için uygulama sayısı (2-6), kenar mesafesi, ikon boyutu, aralık ve yay kavisi için bağımsız kaydırıcılar.",
+                "⏱️ Açılma Bekleme Süresi: Menünün açılma süresini milisaniye hassasiyetinde (150 ms - 1000 ms) belirleyebilme.",
+                "⚡ 120 FPS ve Sıfır Gecikme: Dokunma olaylarında UI iş parçacığını kilitleyen sistem çağrıları önbelleğe alındı; BAL optimizasyonu ile uygulama anında öne gelir.",
+                "🎯 Kesin Parmak Üzeri Seçim: Halka seçim alanı optimize edildi; halka içinde gezinirken yan halkaya sıçrama engellendi.",
+            ),
+            changesEn = listOf(
+                "📱 Recent Apps Dock: Access recent apps by swiping and holding from the edge; smart mutual exclusion with Ring Menu.",
+                "🎛️ Full Customization: Independent sliders for recent apps count (2-6), inset, icon size, spacing, and arc curvature.",
+                "⏱️ Configurable Hold Delay: Customize reveal delay with millisecond precision (150 ms - 1000 ms).",
+                "⚡ 120 FPS & Zero-Delay Launch: Cached system calls to eliminate UI thread lag; optimized BAL for instant app switching.",
+                "🎯 Precise Touch Selection: Tightened hit detection to ensure selection only occurs directly over the target bubble.",
+            ),
+        ),
+        VersionHistoryItem(
             version = "1.7.3",
             date = "2026-08-25",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "🛡️ Bekçi ve Erişilebilirlik Koruması: 5 saniye ile 120 dakika arasında yapılandırılabilir bekçi eklendi; ekran açılışında anında sağlık kontrolü ve manuel durdurma sonrası otomatik yeniden etkinleştirme iyileştirildi.",
                 "⚡ Hızlı Ayarlar: Kutucuk aktif/pasif durumu daha güvenilir güncellenir; gecikmeli doğrulama ve bekçiye anlık durum sinyali eklendi.",
