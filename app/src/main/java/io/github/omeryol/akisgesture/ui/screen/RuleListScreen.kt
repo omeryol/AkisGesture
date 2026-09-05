@@ -1163,12 +1163,21 @@ private fun RingEdgeCard(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            EdgeZoneVisual(
-                edge = edge,
-                section = io.github.omeryol.akisgesture.model.SectionRange.ALL,
-                zoneColor = EdgeUi.color(edge),
-                modifier = Modifier.size(56.dp, 80.dp),
-            )
+            Box(
+                modifier = Modifier
+                    .size(56.dp, 80.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF0B0F17))
+                    .border(1.dp, EdgeUi.color(edge).copy(alpha = 0.40f), RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.illus_ring_menu_unified),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
