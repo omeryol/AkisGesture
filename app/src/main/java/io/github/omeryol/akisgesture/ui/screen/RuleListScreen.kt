@@ -978,7 +978,8 @@ fun RuleListScreen(
                         edge = selectedGroup.representative.trigger.edge,
                         section = selectedGroup.representative.trigger.section,
                         zoneColor = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(42.dp),
+                        width = 38.dp,
+                        height = 54.dp,
                     )
                     Spacer(Modifier.width(10.dp))
                     Column {
@@ -1114,17 +1115,31 @@ private fun RecentAppsEdgeCard(
     onToggleEnabled: (Boolean) -> Unit,
 ) {
     val context = LocalContext.current
+    val ringMenuRes = when (edge) {
+        Edge.LEFT -> R.drawable.illus_ring_menu_left_unified
+        Edge.RIGHT -> R.drawable.illus_ring_menu_right_unified
+        Edge.BOTTOM -> R.drawable.illus_ring_menu_bottom_unified
+    }
     AkisGlassCard(accentTint = EdgeUi.color(edge)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            EdgeZoneVisual(
-                edge = edge,
-                section = io.github.omeryol.akisgesture.model.SectionRange.ALL,
-                zoneColor = EdgeUi.color(edge),
-                modifier = Modifier.size(56.dp, 80.dp),
-            )
+            Box(
+                modifier = Modifier
+                    .size(56.dp, 80.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF0B0F17))
+                    .border(1.dp, EdgeUi.color(edge).copy(alpha = 0.40f), RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(ringMenuRes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1158,6 +1173,11 @@ private fun RingEdgeCard(
 ) {
     val context = LocalContext.current
     val actions = config.ringActionsFor(edge)
+    val ringMenuRes = when (edge) {
+        Edge.LEFT -> R.drawable.illus_ring_menu_left_unified
+        Edge.RIGHT -> R.drawable.illus_ring_menu_right_unified
+        Edge.BOTTOM -> R.drawable.illus_ring_menu_bottom_unified
+    }
     AkisGlassCard(accentTint = EdgeUi.color(edge)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1172,7 +1192,7 @@ private fun RingEdgeCard(
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(R.drawable.illus_ring_menu_unified),
+                    painter = painterResource(ringMenuRes),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
@@ -1578,47 +1598,41 @@ private fun RuleTableRow(
         accentTint = if (enabled) scheme.primary else null,
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.size(48.dp, 92.dp),
-                contentAlignment = Alignment.TopStart,
+            Column(
+                modifier = Modifier.width(48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                Column(
-                    modifier = Modifier.align(Alignment.TopStart),
-                    horizontalAlignment = Alignment.Start,
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(accent.copy(alpha = if (enabled) 0.24f else 0.10f)),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(accent.copy(alpha = if (enabled) 0.24f else 0.10f)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            number.toString(),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = if (enabled) accent else scheme.onSurfaceVariant,
-                        )
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    EdgeZoneVisual(
-                        edge = rule.trigger.edge,
-                        section = rule.trigger.section,
-                        modifier = Modifier.align(Alignment.Start),
-                        zoneColor = if (enabled) accent else scheme.outline,
-                        width = 40.dp,
-                        height = 60.dp,
+                    Text(
+                        number.toString(),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (enabled) accent else scheme.onSurfaceVariant,
                     )
                 }
+                EdgeZoneVisual(
+                    edge = rule.trigger.edge,
+                    section = rule.trigger.section,
+                    zoneColor = if (enabled) accent else scheme.outline,
+                    width = 44.dp,
+                    height = 64.dp,
+                )
             }
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        "Bölüm $number",
+                        stringResource(R.string.map_section_title, number),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = accent,
