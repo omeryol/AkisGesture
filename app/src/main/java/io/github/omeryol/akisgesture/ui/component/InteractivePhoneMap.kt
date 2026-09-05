@@ -304,13 +304,21 @@ fun InteractivePhoneMap(
                                 cornerRadius = CornerRadius(10f),
                             )
                             // B. Luminous Neon Tube Body
-                            val gradientColors = when (zone.edge) {
-                                Edge.LEFT -> listOf(zone.color.copy(alpha = 0.90f), zone.color.copy(alpha = 0.45f))
-                                Edge.RIGHT -> listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f))
-                                Edge.BOTTOM -> listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f))
+                            val brush = if (isSide) {
+                                val gradientColors = when (zone.edge) {
+                                    Edge.LEFT -> listOf(zone.color.copy(alpha = 0.90f), zone.color.copy(alpha = 0.45f))
+                                    else -> listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f))
+                                }
+                                Brush.horizontalGradient(gradientColors, startX = zoneRect.left, endX = zoneRect.right)
+                            } else {
+                                Brush.verticalGradient(
+                                    listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f)),
+                                    startY = zoneRect.top,
+                                    endY = zoneRect.bottom,
+                                )
                             }
                             drawRoundRect(
-                                brush = Brush.horizontalGradient(gradientColors, startX = zoneRect.left, endX = zoneRect.right),
+                                brush = brush,
                                 topLeft = zoneRect.topLeft,
                                 size = zoneRect.size,
                                 cornerRadius = CornerRadius(8f),
@@ -332,6 +340,14 @@ fun InteractivePhoneMap(
                                     end = Offset(streakX, zoneRect.bottom - 6f),
                                     strokeWidth = 1.5f,
                                 )
+                            } else {
+                                val streakY = zoneRect.bottom - 2.5f
+                                drawLine(
+                                    color = Color.White.copy(alpha = 0.70f),
+                                    start = Offset(zoneRect.left + 6f, streakY),
+                                    end = Offset(zoneRect.right - 6f, streakY),
+                                    strokeWidth = 1.5f,
+                                )
                             }
                         }
                     }
@@ -350,6 +366,19 @@ fun InteractivePhoneMap(
                                     strokeWidth = 2.5f,
                                 )
                             }
+                        }
+                    }
+                    val bottomZones = zones.filter { it.edge == Edge.BOTTOM }.sortedBy { it.start }
+                    if (bottomZones.size > 1) {
+                        bottomZones.drop(1).forEach { nextZone ->
+                            val rawRect = phoneZoneRect(nextZone, screen, config, dragPreview)
+                            val dividerX = rawRect.left
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.90f),
+                                start = Offset(dividerX, rawRect.top - 2f),
+                                end = Offset(dividerX, rawRect.bottom + 2f),
+                                strokeWidth = 2.5f,
+                            )
                         }
                     }
 
@@ -529,16 +558,13 @@ private fun EdgeActionPanelDirectional(
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
     val visibleGroups = groups.filter { it.isNotEmpty() }
-    val groupColors = listOf(
-        Color(0xFF3D5AFE), Color(0xFF00E676), Color(0xFFFF9100),
-        Color(0xFFFF1744), Color(0xFFD500F9), Color(0xFF00E5FF),
-    )
+    val edgeColor = EdgeUi.color(edge)
     Column(modifier = modifier.height(MAP_HEIGHT).padding(vertical = 6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             title,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = EdgeUi.color(edge),
+            color = edgeColor,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
@@ -557,7 +583,7 @@ private fun EdgeActionPanelDirectional(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(groupColors[index % groupColors.size].copy(alpha = 0.12f))
+                            .background(edgeColor.copy(alpha = 0.12f))
                             .padding(horizontal = 2.dp, vertical = 2.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
@@ -567,7 +593,7 @@ private fun EdgeActionPanelDirectional(
                             text = context.getString(io.github.omeryol.akisgesture.R.string.map_section_title, index + 1),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = EdgeUi.color(edge),
+                            color = edgeColor,
                         )
                     }
                     SideDirectionalActions(entries, edge, iconPack, scheme)
@@ -1009,21 +1035,21 @@ private fun expanded(rect: Rect, amount: Float): Rect = Rect(
 )
 
 private fun buildPhoneZones(rules: List<GestureRule>, scheme: androidx.compose.material3.ColorScheme): List<PhoneZone> {
-    val colors = listOf(Color(0xFF3D5AFE), Color(0xFF00E676), Color(0xFFFF9100), Color(0xFFFF1744), Color(0xFFD500F9), Color(0xFF00E5FF))
     val zones = rules.filter { it.enabled }
         .groupBy { Triple(it.trigger.edge, it.trigger.section, it.triggerMode) }
         .values
-        .mapIndexed { index, group ->
+        .map { group ->
             val representative = group.first()
+            val edge = representative.trigger.edge
             PhoneZone(
-                edge = representative.trigger.edge,
+                edge = edge,
                 start = representative.trigger.section.start,
                 end = representative.trigger.section.end,
                 quickAction = group.firstOrNull { it.trigger.gestureType == GestureType.QUICK_SWIPE }?.action,
                 holdAction = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_HOLD }?.action,
                 lUpAction = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_UP_L }?.action,
                 lDownAction = group.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_DOWN_L }?.action,
-                color = colors[index % colors.size],
+                color = EdgeUi.color(edge),
                 ruleIds = group.map { it.id }.toSet(),
             )
         }
