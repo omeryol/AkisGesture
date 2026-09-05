@@ -26,7 +26,7 @@ import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 fun MiniPhoneRingPreview(
     edge: Edge,
     isRecentApps: Boolean,
-    modifier: Modifier = Modifier.size(width = 62.dp, height = 86.dp),
+    modifier: Modifier = Modifier.size(width = 42.dp, height = 80.dp),
 ) {
     val edgeColor = EdgeUi.color(edge)
     val coreTone = when (edge) {
@@ -229,10 +229,10 @@ fun MiniPhoneRingPreview(
 
             // 7. Render 3 Dock Pods (Arching correctly inward from the edge)
             val podCount = 3
-            val podRadius = 6.2f
-            val spacing = podRadius * 2.8f
-            val baseInset = podRadius + 4f
-            val lead = 5.5f
+            val podRadius = 5.2f
+            val spacing = podRadius * 2.7f
+            val baseInset = podRadius + 3.5f
+            val lead = 4.2f
 
             val podCenters = (0 until podCount).map { i ->
                 val m = (podCount - 1) / 2f

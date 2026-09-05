@@ -1140,7 +1140,7 @@ private fun RecentAppsEdgeCard(
             MiniPhoneRingPreview(
                 edge = edge,
                 isRecentApps = true,
-                modifier = Modifier.size(width = 56.dp, height = 80.dp),
+                modifier = Modifier.size(width = 42.dp, height = 80.dp),
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
@@ -1183,7 +1183,7 @@ private fun RingEdgeCard(
             MiniPhoneRingPreview(
                 edge = edge,
                 isRecentApps = false,
-                modifier = Modifier.size(width = 56.dp, height = 80.dp),
+                modifier = Modifier.size(width = 42.dp, height = 80.dp),
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
@@ -1541,16 +1541,15 @@ private fun EdgeHeroCard(
             Box(
                 modifier = Modifier
                     .height(96.dp)
-                    .width(60.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF0B0F17))
-                    .border(1.dp, edgeColor.copy(alpha = 0.40f), RoundedCornerShape(12.dp)),
+                    .width(48.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(1.dp, edgeColor.copy(alpha = 0.40f), RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
                     painter = painterResource(illustrationRes),
                     contentDescription = title,
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -1584,7 +1583,7 @@ private fun RuleTableRow(
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(
-                modifier = Modifier.width(48.dp),
+                modifier = Modifier.width(36.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
@@ -1606,8 +1605,8 @@ private fun RuleTableRow(
                     edge = rule.trigger.edge,
                     section = rule.trigger.section,
                     zoneColor = if (enabled) accent else scheme.outline,
-                    width = 44.dp,
-                    height = 64.dp,
+                    width = 34.dp,
+                    height = 68.dp,
                 )
             }
             Spacer(Modifier.width(10.dp))
