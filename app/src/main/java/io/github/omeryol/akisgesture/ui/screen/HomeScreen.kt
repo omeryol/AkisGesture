@@ -105,14 +105,6 @@ fun HomeScreen(
         writeSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
         batteryExemptionGranted = PermissionHelper.isBatteryOptimizationIgnored(context)
     }
-    LaunchedEffect(Unit) {
-        while (true) {
-            accessibilityGranted = PermissionHelper.isAccessibilityServiceEnabled(context)
-            writeSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
-            batteryExemptionGranted = PermissionHelper.isBatteryOptimizationIgnored(context)
-            delay(500)
-        }
-    }
     val gestureConfig by viewModel.configState.collectAsState()
     val ringActionCount = Edge.entries.sumOf { gestureConfig.ringActionsFor(it).size }
     val totalActions = ruleSet.totalRuleCount() + ringActionCount

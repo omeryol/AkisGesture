@@ -1,11 +1,14 @@
 package io.github.omeryol.akisgesture.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -494,17 +497,33 @@ fun RuleListScreen(
 
             // ── Rule List ──
             if (rules.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                LazyColumn(
+                    state = ruleListState,
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    Text(
-                        text = stringResource(R.string.no_rules),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    item(key = "header_empty") {
+                        EdgeHeroCard(
+                            edge = selectedEdge,
+                            ruleCount = 0,
+                            groupCount = 0,
+                        )
+                    }
+                    item(key = "empty_content") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.no_rules),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             } else {
                 LazyColumn(
@@ -514,18 +533,14 @@ fun RuleListScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     item(key = "header") {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                stringResource(R.string.edge_areas, edgeLabel(context, selectedEdge)),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f),
-                            )
+                        val activeRuleCount = visibleGroups.sumOf {
+                            listOfNotNull(it.quick, it.hold, it.lUp, it.lDown).count { r -> r.enabled }
                         }
+                        EdgeHeroCard(
+                            edge = selectedEdge,
+                            ruleCount = activeRuleCount,
+                            groupCount = visibleGroups.size,
+                        )
                     }
                     itemsIndexed(visibleGroups, key = { _, group -> group.key }) { index, group ->
                         RuleTableRow(
@@ -1414,6 +1429,119 @@ private fun GestureSlotButton(
         }
     }
 }
+
+@Composable
+private fun EdgeHeroCard(
+    edge: Edge,
+    ruleCount: Int,
+    groupCount: Int,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val edgeColor = EdgeUi.color(edge)
+    val title = edgeLabel(context, edge)
+    val illustrationRes = when (edge) {
+        Edge.LEFT -> R.drawable.illus_edge_left_unified
+        Edge.RIGHT -> R.drawable.illus_edge_right_unified
+        Edge.BOTTOM -> R.drawable.illus_edge_bottom_unified
+    }
+
+    AkisGlassCard(
+        modifier = modifier.fillMaxWidth(),
+        accentTint = edgeColor,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(edgeColor),
+                    )
+                    Text(
+                        text = stringResource(R.string.edge_areas, title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(edgeColor.copy(alpha = 0.16f))
+                            .border(1.dp, edgeColor.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.gesture_count_label, ruleCount),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = edgeColor,
+                        )
+                    }
+                    if (groupCount > 0) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .padding(horizontal = 8.dp, vertical = 3.dp),
+                        ) {
+                            Text(
+                                text = "$groupCount / 3",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+
+                Text(
+                    text = stringResource(R.string.edit_area_gestures),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            // High-tech front-facing obsidian smartphone illustration
+            Box(
+                modifier = Modifier
+                    .height(96.dp)
+                    .width(60.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF0B0F17))
+                    .border(1.dp, edgeColor.copy(alpha = 0.40f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    painter = painterResource(illustrationRes),
+                    contentDescription = title,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun RuleTableRow(
     group: RuleGroup,
