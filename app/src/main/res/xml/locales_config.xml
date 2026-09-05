@@ -14,4 +14,12 @@
     <locale android:name="ko" />
     <locale android:name="am" />
     <locale android:name="qu" />
+    <locale android:name="ru" />
+    <locale android:name="pl" />
+    <locale android:name="vi" />
+    <locale android:name="de" />
+    <locale android:name="fr" />
+    <locale android:name="it" />
+    <locale android:name="zh-TW" />
+    <locale android:name="fa" />
 </locale-config>

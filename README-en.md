@@ -11,6 +11,27 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.8.1 highlights
+
+- 🌍 **8 New Languages:** Added Russian (`ru`), Polish (`pl`), German (`de`), French (`fr`), Italian (`it`), Vietnamese (`vi`), Traditional Chinese (`zh-rTW`), and Persian (`fa`).
+- 🌐 **22 Supported Languages:** Integrated a 22-language scrollable selector in Settings and updated Android 13+ Per-App Language Preferences.
+- 📱 **Complete Key Parity:** 100% parity across all 607 string keys with native Android and HyperOS terminology.
+
+Signed APK: [Akış Gesture v1.8.1](https://github.com/omeryol/AkisGesture/releases/download/v1.8.1/app-release.apk)
+SHA-256: `33AA782A574E36298F2536643679026C582B89CFA522B74632723C34E45602B5`
+
+## v1.8.0 highlights
+
+- 📱 **Recent Apps Dock Menu:** Quick task switching by swiping and holding from the screen edge; smart mutual exclusion with Ring Menu.
+- 🎛️ **Fully Customizable Dock Settings:** Independent sliders for recent apps count (2-6), inset distance, icon size, spacing, and arc curvature.
+- ⏱️ **Configurable Reveal Hold Delay:** Customize hold duration before menu reveal with millisecond precision (150 ms – 1000 ms).
+- ⚡ **120 FPS Ultra-Smooth Animations & Zero Lag:** Cached system calls and bitmap rendering during gesture moves to eliminate UI lag; instant launch via Android 14 BAL optimization.
+- 🎯 **Strict Hit Detection:** Tightened target hit zones ensure selection only occurs directly over target bubble.
+
+Signed APK: [Akış Gesture v1.8.0](https://github.com/omeryol/AkisGesture/releases/download/v1.8.0/app-release.apk)
+
+SHA-256: `DCA0D61A36700F73A7702ED5899138196276F51E3412031DD9120D2750ABF37C`
+
 ## v1.7.3 highlights
 
 - 🛡️ **Watchdog and Accessibility Protection:** Configurable from 5 seconds to 120 minutes, with immediate screen-on health checks and improved recovery after a manual stop.

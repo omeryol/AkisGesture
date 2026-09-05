@@ -11,9 +11,24 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.8.0",
+            version = "1.8.1",
             date = "2026-09-05",
             isCurrent = true,
+            changesTr = listOf(
+                "🌍 8 Yeni Dil Desteği: Rusça (ru), Lehçe (pl), Almanca (de), Fransızca (fr), İtalyanca (it), Vietnamca (vi), Geleneksel Çince (zh-rTW) ve Farsça (fa) eklendi.",
+                "🌐 22 Dilli Arayüz: Ayarlar menüsüne kaydırılabilir ve tüm yerel alfabeleri destekleyen kapsamlı dil seçim diyaloğu entegre edildi.",
+                "📱 Tam Dil Eşleşmesi: Tüm yeni diller 607 anahtarın tamamında ve Android sistem standartlarında yerelleştirildi.",
+            ),
+            changesEn = listOf(
+                "🌍 8 New Languages: Added Russian (ru), Polish (pl), German (de), French (fr), Italian (it), Vietnamese (vi), Traditional Chinese (zh-rTW), and Persian (fa).",
+                "🌐 22 Supported Languages: Integrated a full scrollable language selection dialog in Settings.",
+                "📱 Complete Key Parity: All 607 string keys fully localized with native Android OS and HyperOS terminology.",
+            ),
+        ),
+        VersionHistoryItem(
+            version = "1.8.0",
+            date = "2026-09-05",
+            isCurrent = false,
             changesTr = listOf(
                 "📱 Son Uygulamalar Menüsü (Dock): Kenardan çekip bekleterek son kullanılan uygulamalara doğrudan erişin; Halka Menüsü ile karşılıklı akıllı kilitleme.",
                 "🎛️ Tam Özelleştirme: Son uygulamalar için uygulama sayısı (2-6), kenar mesafesi, ikon boyutu, aralık ve yay kavisi için bağımsız kaydırıcılar.",

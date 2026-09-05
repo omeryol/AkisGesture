@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -363,14 +364,15 @@ fun SettingsScreen(
         if (selectedSection == 0) AkisGlassCard(accentTint = Color(0xFF3D5AFE)) {
             val currentLocales = AppCompatDelegate.getApplicationLocales()
             val configuration = LocalConfiguration.current
-            val resolvedLanguage = (currentLocales[0]
-                ?: configuration.locales[0]).language.lowercase(Locale.ROOT)
+            val activeLocale = currentLocales[0] ?: configuration.locales[0]
+            val resolvedLanguage = activeLocale.language.lowercase(Locale.ROOT)
+            val resolvedCountry = activeLocale.country.uppercase(Locale.ROOT)
             val currentLanguageTag = when (resolvedLanguage) {
                 "tr" -> "tr"
                 "en" -> "en"
                 "ar" -> "ar"
                 "hi" -> "hi"
-                "zh" -> "zh-CN"
+                "zh" -> if (resolvedCountry == "TW" || resolvedCountry == "HK") "zh-TW" else "zh-CN"
                 "id", "in" -> "id"
                 "es" -> "es"
                 "pt" -> "pt-BR"
@@ -379,6 +381,14 @@ fun SettingsScreen(
                 "bn" -> "bn"
                 "ko" -> "ko"
                 "am" -> "am"
+                "qu" -> "qu"
+                "ru" -> "ru"
+                "pl" -> "pl"
+                "vi" -> "vi"
+                "de" -> "de"
+                "fr" -> "fr"
+                "it" -> "it"
+                "fa" -> "fa"
                 else -> "en"
             }
             val currentLanguageFlag = when (currentLanguageTag) {
@@ -386,6 +396,7 @@ fun SettingsScreen(
                 "ar" -> "🇸🇦"
                 "hi" -> "🇮🇳"
                 "zh-CN" -> "🇨🇳"
+                "zh-TW" -> "🇹🇼"
                 "id" -> "🇮🇩"
                 "es" -> "🇪🇸"
                 "pt-BR" -> "🇧🇷"
@@ -394,6 +405,14 @@ fun SettingsScreen(
                 "bn" -> "🇧🇩"
                 "ko" -> "🇰🇷"
                 "am" -> "🇪🇹"
+                "qu" -> "🇵🇪"
+                "ru" -> "🇷🇺"
+                "pl" -> "🇵🇱"
+                "vi" -> "🇻🇳"
+                "de" -> "🇩🇪"
+                "fr" -> "🇫🇷"
+                "it" -> "🇮🇹"
+                "fa" -> "🇮🇷"
                 else -> "🇬🇧"
             }
             AkisSectionHeader(
@@ -2153,7 +2172,13 @@ fun SettingsScreen(
             onDismissRequest = { showLanguageDialog = false },
             title = { Text(stringResource(R.string.language)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 440.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
                     Text(
                         text = stringResource(R.string.language_subtitle),
                         style = MaterialTheme.typography.bodySmall,
@@ -2163,16 +2188,24 @@ fun SettingsScreen(
                         "" to "🌐 System default",
                         "tr" to "🇹🇷 Türkçe",
                         "en" to "🇬🇧 English",
-                        "ar" to "🇸🇦 العربية",
-                        "hi" to "🇮🇳 हिन्दी",
-                        "zh-CN" to "🇨🇳 简体中文",
-                        "id" to "🇮🇩 Bahasa Indonesia",
+                        "ru" to "🇷🇺 Русский",
+                        "pl" to "🇵🇱 Polski",
+                        "de" to "🇩🇪 Deutsch",
+                        "fr" to "🇫🇷 Français",
+                        "it" to "🇮🇹 Italiano",
                         "es" to "🇪🇸 Español",
                         "pt-BR" to "🇧🇷 Português (Brasil)",
+                        "zh-CN" to "🇨🇳 简体中文",
+                        "zh-TW" to "🇹🇼 繁體中文",
                         "ja" to "🇯🇵 日本語",
-                        "sw" to "🇰🇪 Kiswahili",
-                        "bn" to "🇧🇩 বাংলা",
                         "ko" to "🇰🇷 한국어",
+                        "vi" to "🇻🇳 Tiếng Việt",
+                        "id" to "🇮🇩 Bahasa Indonesia",
+                        "hi" to "🇮🇳 हिन्दी",
+                        "bn" to "🇧🇩 বাংলা",
+                        "ar" to "🇸🇦 العربية",
+                        "fa" to "🇮🇷 فارسی",
+                        "sw" to "🇰🇪 Kiswahili",
                         "am" to "🇪🇹 አማርኛ",
                         "qu" to "🇵🇪 Runasimi",
                     ).forEach { (tag, label) ->
@@ -2182,6 +2215,7 @@ fun SettingsScreen(
                             val selectedTag = currentLocales[0]?.let {
                                 when {
                                     it.language == "pt" && it.country.equals("BR", ignoreCase = true) -> "pt-BR"
+                                    it.language == "zh" && (it.country.equals("TW", ignoreCase = true) || it.country.equals("HK", ignoreCase = true)) -> "zh-TW"
                                     it.language == "zh" -> "zh-CN"
                                     it.language == "in" -> "id"
                                     else -> it.language

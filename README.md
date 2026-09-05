@@ -11,6 +11,27 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.8.1 öne çıkanlar
+
+- 🌍 **8 Yeni Dil Desteği:** Rusça (`ru`), Lehçe (`pl`), Almanca (`de`), Fransızca (`fr`), İtalyanca (`it`), Vietnamca (`vi`), Geleneksel Çince (`zh-rTW`) ve Farsça (`fa`) eklendi.
+- 🌐 **22 Dilli Yerel Deneyim:** Ayarlar menüsüne 22 dili içeren kaydırılabilir seçim diyaloğu entegre edildi; Android 13+ uygulama bazlı dil tercihleri güncellendi.
+- 📱 **Tam Anahtar Paritesi:** 607 çeviri anahtarının tamamında ve Android sistem standartlarında %100 uyumluluk sağlandı.
+
+İmzalı APK: [Akış Gesture v1.8.1](https://github.com/omeryol/AkisGesture/releases/download/v1.8.1/app-release.apk)
+SHA-256: `33AA782A574E36298F2536643679026C582B89CFA522B74632723C34E45602B5`
+
+## v1.8.0 öne çıkanlar
+
+- 📱 **Son Kullanılan Uygulamalar Dock Menüsü:** Kenardan çekip bekleterek son kullanılan uygulamalar arasında hızlı geçiş yapabilme; Halka Menüsü ile karşılıklı akıllı kilitleme.
+- 🎛️ **Tam Özelleştirilebilir Menü Ayarları:** Uygulama sayısı (2-6), kenar mesafesi, ikon boyutu, aralık ve yay kavisi için bağımsız kaydırıcılar.
+- ⏱️ **Açılma Bekleme Süresi Ayarı:** Menünün açılma süresini milisaniye hassasiyetinde (150 ms – 1000 ms) ayarlayabilme.
+- ⚡ **120 FPS Ultra Akıcı Animasyonlar & Sıfır Gecikme:** Sistem çağrıları ve ikon yüklemeleri önbelleğe alınarak sıfır takılma sağlandı; Android 14 BAL optimizasyonu ile anında başlatma.
+- 🎯 **Kesin Parmak Üzeri Seçim:** Daraltılmış seçim alanı sayesinde yalnızca parmak doğrudan hedef halkanın üzerine geldiğinde seçim gerçekleşir.
+
+İmzalı APK: [Akış Gesture v1.8.0](https://github.com/omeryol/AkisGesture/releases/download/v1.8.0/app-release.apk)
+
+SHA-256: `DCA0D61A36700F73A7702ED5899138196276F51E3412031DD9120D2750ABF37C`
+
 ## v1.7.3 öne çıkanlar
 
 - 🛡️ **Bekçi ve Erişilebilirlik Koruması:** 5 saniye ile 120 dakika arasında yapılandırılabilir bekçi, ekran açılışında anında sağlık kontrolü ve manuel durdurma sonrası otomatik yeniden etkinleştirme.

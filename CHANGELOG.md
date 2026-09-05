@@ -1,4 +1,52 @@
-# Değişiklik Günlüğü
+
+## [1.8.1] - 2026-09-05
+
+### Dil ve yerelleştirme
+- 8 Yeni Dil: Rusça (ru), Lehçe (pl), Almanca (de), Fransızca (fr), İtalyanca (it), Vietnamca (vi), Geleneksel Çince (zh-rTW) ve Farsça (fa) eklendi.
+- Toplam desteklenen dil sayısı 22'ye yükseltildi.
+- Ayarlar menüsüne kaydırılabilir 22 dilli seçim diyaloğu entegre edildi.
+- Android 13+ Per-App Language Preferences (`locales_config.xml`) 8 yeni dille güncellendi.
+- 607 çeviri anahtarının tamamında ve yerel Android OS standartlarında %100 parite sağlandı.
+
+### Teknik
+- Sürüm `1.8.1`, version code `64`.
+- İmzalı APK: `app-release.apk`.
+- SHA-256: `33AA782A574E36298F2536643679026C582B89CFA522B74632723C34E45602B5`.
+
+---
+
+## [1.8.0] - 2026-09-05
+
+### Son Kullanılan Uygulamalar Menüsü (Dock) & Jestler
+- Kenardan çekip bekleterek son kullanılan uygulamalar arasında hızlı geçiş yapabilen Dock menüsü eklendi.
+- Halka menüsü ile karşılıklı akıllı kilitleme (biri açıldığında diğeri otomatik kapanır) uygulandı.
+- Uygulama sayısı (2 ila 6), kenar mesafesi, ikon boyutu, aralık ve yay kavisi için bağımsız kaydırıcılar eklendi.
+- Menü açılma bekleme süresi milisaniye hassasiyetinde (150 ms - 1000 ms) ayarlanabilir hale getirildi.
+- 120 FPS akıcı animasyonlar: Hareket anındaki sistem sorguları ve bitmap yüklemeleri önbelleğe alınarak sıfır takılma sağlandı.
+- Sıfır gecikmeli başlatma: Android 14 BAL optimizasyonu ile uygulama bırakıldığı anda anında öne gelir.
+- Kesin seçim: Daraltılmış algılama alanı (1.15x) ile yalnızca parmak doğrudan hedef halkanın üzerine geldiğinde seçim gerçekleşir.
+
+### Teknik
+- Sürüm `1.8.0`, version code `63`.
+- İmzalı APK: `app-release.apk`.
+- SHA-256: `DCA0D61A36700F73A7702ED5899138196276F51E3412031DD9120D2750ABF37C`.
+
+---
+
+## [1.7.3] - 2026-08-25
+
+### Koruma ve bekçi
+- Root erişimli cihazlarda 5 saniye ile 120 dakika arasında yapılandırılabilir bekçi eklendi.
+- Ekran açılışında anında sağlık kontrolü ve manuel durdurma sonrası otomatik yeniden etkinleştirme.
+- Hızlı ayarlar kutucuğu için gecikmeli doğrulama ve durum sinyali eklendi.
+- Ön plan hizmeti bildirimi görünürlük seçeneği ve koruma uyarısı eklendi.
+- Sürüm geçmişi GitHub Releases üzerinden güncellenebilir hale getirildi.
+
+### Teknik
+- Sürüm `1.7.3`, version code `62`.
+- İmzalı APK: `app-release.apk`.
+
+---
 
 ## [1.7.2] - 2026-08-15
 
