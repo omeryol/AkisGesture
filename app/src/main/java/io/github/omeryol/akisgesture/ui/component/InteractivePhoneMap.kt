@@ -114,19 +114,26 @@ fun InteractivePhoneMap(
     val sensorTouchPadding = with(LocalDensity.current) { 12.dp.toPx() }
     val zones = buildPhoneZones(rules, scheme)
     val ringPreviewBitmaps = remember(config, iconPack, config?.actionIconColorMode) {
-        EdgeUi.ordered
-            .flatMap { edge -> config?.ringActionsFor(edge).orEmpty() }
-            .distinctBy { it.id }
-            .associate { action ->
-                val colorMode = config?.actionIconColorMode ?: ActionIconColorMode.FUNCTIONAL
-                action.id to ActionBitmapLoader.load(
-                    context = context,
-                    action = action,
-                    pack = iconPack,
-                    sizePx = 96,
-                    tint = colorMode.resolveColorInt(action),
-                )?.asImageBitmap()
+        val actionsToLoad = EdgeUi.ordered
+            .flatMap { edge ->
+                val list = mutableListOf<ActionNode>()
+                list.addAll(config?.ringActionsFor(edge).orEmpty())
+                if (config?.recentAppsEnabledFor(edge) == true) {
+                    list.add(ActionNode.SwitchLastApp)
+                }
+                list
             }
+            .distinctBy { it.id }
+        actionsToLoad.associate { action ->
+            val colorMode = config?.actionIconColorMode ?: ActionIconColorMode.FUNCTIONAL
+            action.id to ActionBitmapLoader.load(
+                context = context,
+                action = action,
+                pack = iconPack,
+                sizePx = 96,
+                tint = colorMode.resolveColorInt(action),
+            )?.asImageBitmap()
+        }
     }
     var dragPreview by remember { mutableStateOf<Map<Edge, Pair<Float, Float>>>(emptyMap()) }
     var rangeFeedback by remember { mutableStateOf<Pair<Edge, Pair<Float, Float>>?>(null) }
@@ -251,21 +258,48 @@ fun InteractivePhoneMap(
                     addRoundRect(RoundRect(screen, CornerRadius(34f)))
                 }
                 clipPath(screenClip) {
-                    // Subtle Cybernetic Matrix Dot Grid
-                    val gridStep = 22.dp.toPx()
-                    var gx = screen.left + 16f
-                    while (gx < screen.right - 16f) {
-                        var gy = screen.top + 20f
-                        while (gy < screen.bottom - 20f) {
-                            drawCircle(
-                                color = Color.White.copy(alpha = 0.04f),
-                                radius = 1.2f,
-                                center = Offset(gx, gy),
+                    // Subtle Cybernetic Blueprint Grid & HUD Telemetry (matched to master artwork)
+                    val gridStep = 28.dp.toPx()
+                    var gx = screen.left + 18f
+                    while (gx < screen.right - 18f) {
+                        var gy = screen.top + 24f
+                        while (gy < screen.bottom - 24f) {
+                            // Faint Crosshairs at Grid Intersections
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.08f),
+                                start = Offset(gx - 3.5f, gy),
+                                end = Offset(gx + 3.5f, gy),
+                                strokeWidth = 1f,
+                            )
+                            drawLine(
+                                color = Color.White.copy(alpha = 0.08f),
+                                start = Offset(gx, gy - 3.5f),
+                                end = Offset(gx, gy + 3.5f),
+                                strokeWidth = 1f,
                             )
                             gy += gridStep
                         }
                         gx += gridStep
                     }
+
+                    // Futuristic HUD Telemetry Brackets (Center Screen - exactly matching master visual)
+                    val hudY = screen.top + screen.height * 0.38f
+                    val hudColor = Color(0xFF64FEFF).copy(alpha = 0.16f)
+                    val hudW = screen.width * 0.68f
+                    val hudLeft = screen.center.x - hudW / 2f
+                    // Top Telemetry Bracket Line
+                    drawLine(color = hudColor, start = Offset(hudLeft, hudY), end = Offset(hudLeft + hudW * 0.22f, hudY), strokeWidth = 1.2f)
+                    drawLine(color = hudColor, start = Offset(hudLeft + hudW * 0.78f, hudY), end = Offset(hudLeft + hudW, hudY), strokeWidth = 1.2f)
+                    // Stepped Center Channel
+                    val stepY = hudY + 14f
+                    drawLine(color = hudColor, start = Offset(hudLeft + hudW * 0.22f, hudY), end = Offset(hudLeft + hudW * 0.28f, stepY), strokeWidth = 1.2f)
+                    drawLine(color = hudColor, start = Offset(hudLeft + hudW * 0.28f, stepY), end = Offset(hudLeft + hudW * 0.72f, stepY), strokeWidth = 1.2f)
+                    drawLine(color = hudColor, start = Offset(hudLeft + hudW * 0.72f, stepY), end = Offset(hudLeft + hudW * 0.78f, hudY), strokeWidth = 1.2f)
+                    // Secondary Lower Telemetry Line
+                    val lowerY = screen.top + screen.height * 0.58f
+                    val hudColor2 = Color(0xFFA573E2).copy(alpha = 0.14f)
+                    drawLine(color = hudColor2, start = Offset(hudLeft + 8f, lowerY), end = Offset(hudLeft + hudW * 0.38f, lowerY), strokeWidth = 1.2f)
+                    drawLine(color = hudColor2, start = Offset(hudLeft + hudW * 0.62f, lowerY), end = Offset(hudLeft + hudW - 8f, lowerY), strokeWidth = 1.2f)
 
                     // Side Recessed Sensor Tracks
                     listOf(Edge.LEFT, Edge.RIGHT).forEach { edge ->
@@ -285,7 +319,7 @@ fun InteractivePhoneMap(
                         )
                     }
 
-                    // Dynamic Segmented Neon Zones (Bölünmüş Kenarlar)
+                    // Dynamic Segmented Neon Zones (Bölünmüş Kenarlar - Multi-Layer Radiant Bloom)
                     zones.forEach { zone ->
                         val rawRect = phoneZoneRect(zone, screen, config, dragPreview)
                         val isSide = zone.edge == Edge.LEFT || zone.edge == Edge.RIGHT
@@ -296,23 +330,39 @@ fun InteractivePhoneMap(
                         }
 
                         if (zoneRect.height > 4f && zoneRect.width > 4f) {
-                            // A. Ambient Neon Halo Glow
+                            // Layer 1: Wide Ambient Diffuse Bloom (glowing light bleed into glass and chassis)
+                            val bloomX = if (isSide) 16f else 4f
+                            val bloomY = if (isSide) 4f else 16f
                             drawRoundRect(
-                                color = zone.color.copy(alpha = 0.24f),
-                                topLeft = Offset(zoneRect.left - 3f, zoneRect.top - 3f),
-                                size = Size(zoneRect.width + 6f, zoneRect.height + 6f),
-                                cornerRadius = CornerRadius(10f),
+                                color = zone.color.copy(alpha = 0.22f),
+                                topLeft = Offset(zoneRect.left - bloomX, zoneRect.top - bloomY),
+                                size = Size(zoneRect.width + bloomX * 2f, zoneRect.height + bloomY * 2f),
+                                cornerRadius = CornerRadius(16f),
                             )
-                            // B. Luminous Neon Tube Body
+                            // Layer 2: Focused Neon Aura Halo
+                            val haloX = if (isSide) 7f else 2f
+                            val haloY = if (isSide) 2f else 7f
+                            drawRoundRect(
+                                color = zone.color.copy(alpha = 0.48f),
+                                topLeft = Offset(zoneRect.left - haloX, zoneRect.top - haloY),
+                                size = Size(zoneRect.width + haloX * 2f, zoneRect.height + haloY * 2f),
+                                cornerRadius = CornerRadius(12f),
+                            )
+                            // Layer 3: Luminous High-Contrast Neon Tube Body
+                            val coreTone = when (zone.edge) {
+                                Edge.LEFT -> Color(0xFF80F7FF)   // Cyan-White Core
+                                Edge.RIGHT -> Color(0xFFF3E5F5)  // Violet-Lavender Core
+                                Edge.BOTTOM -> Color(0xFFFFF9C4) // Amber-Gold Core
+                            }
                             val brush = if (isSide) {
                                 val gradientColors = when (zone.edge) {
-                                    Edge.LEFT -> listOf(zone.color.copy(alpha = 0.90f), zone.color.copy(alpha = 0.45f))
-                                    else -> listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f))
+                                    Edge.LEFT -> listOf(coreTone.copy(alpha = 0.95f), zone.color.copy(alpha = 0.85f), zone.color.copy(alpha = 0.35f))
+                                    else -> listOf(zone.color.copy(alpha = 0.35f), zone.color.copy(alpha = 0.85f), coreTone.copy(alpha = 0.95f))
                                 }
                                 Brush.horizontalGradient(gradientColors, startX = zoneRect.left, endX = zoneRect.right)
                             } else {
                                 Brush.verticalGradient(
-                                    listOf(zone.color.copy(alpha = 0.45f), zone.color.copy(alpha = 0.90f)),
+                                    listOf(zone.color.copy(alpha = 0.35f), zone.color.copy(alpha = 0.85f), coreTone.copy(alpha = 0.95f)),
                                     startY = zoneRect.top,
                                     endY = zoneRect.bottom,
                                 )
@@ -323,30 +373,30 @@ fun InteractivePhoneMap(
                                 size = zoneRect.size,
                                 cornerRadius = CornerRadius(8f),
                             )
-                            // C. Neon Tube Specular Edge
+                            // Layer 4: Neon Outer Specular Rim
                             drawRoundRect(
                                 color = zone.color,
                                 topLeft = zoneRect.topLeft,
                                 size = zoneRect.size,
                                 cornerRadius = CornerRadius(8f),
-                                style = Stroke(1.8f),
+                                style = Stroke(2f),
                             )
-                            // D. High-Tech Specular Core Streak
+                            // Layer 5: High-Tech Specular White Light Streak (Beam)
                             if (isSide) {
-                                val streakX = if (zone.edge == Edge.LEFT) zoneRect.left + 2.5f else zoneRect.right - 2.5f
+                                val streakX = if (zone.edge == Edge.LEFT) zoneRect.left + 2f else zoneRect.right - 2f
                                 drawLine(
-                                    color = Color.White.copy(alpha = 0.70f),
+                                    color = Color.White.copy(alpha = 0.90f),
                                     start = Offset(streakX, zoneRect.top + 6f),
                                     end = Offset(streakX, zoneRect.bottom - 6f),
-                                    strokeWidth = 1.5f,
+                                    strokeWidth = 2.2f,
                                 )
                             } else {
-                                val streakY = zoneRect.bottom - 2.5f
+                                val streakY = zoneRect.bottom - 2f
                                 drawLine(
-                                    color = Color.White.copy(alpha = 0.70f),
+                                    color = Color.White.copy(alpha = 0.90f),
                                     start = Offset(zoneRect.left + 6f, streakY),
                                     end = Offset(zoneRect.right - 6f, streakY),
-                                    strokeWidth = 1.5f,
+                                    strokeWidth = 2.2f,
                                 )
                             }
                         }
