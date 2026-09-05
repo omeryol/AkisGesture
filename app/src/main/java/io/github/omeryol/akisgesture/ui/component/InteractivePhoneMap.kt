@@ -301,17 +301,39 @@ fun InteractivePhoneMap(
                     drawLine(color = hudColor2, start = Offset(hudLeft + 8f, lowerY), end = Offset(hudLeft + hudW * 0.38f, lowerY), strokeWidth = 1.2f)
                     drawLine(color = hudColor2, start = Offset(hudLeft + hudW * 0.62f, lowerY), end = Offset(hudLeft + hudW - 8f, lowerY), strokeWidth = 1.2f)
 
-                    // Side Recessed Sensor Tracks
+                    // Side Recessed Sensor Tracks with soft faded ends
                     listOf(Edge.LEFT, Edge.RIGHT).forEach { edge ->
                         val track = sideSensorRect(edge, screen, config, dragPreview)
+                        val trackBrush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color(0xFF0C101A).copy(alpha = 0.50f),
+                                Color(0xFF0C101A).copy(alpha = 0.80f),
+                                Color(0xFF0C101A).copy(alpha = 0.50f),
+                                Color.Transparent,
+                            ),
+                            startY = track.top,
+                            endY = track.bottom,
+                        )
                         drawRoundRect(
-                            color = Color(0xFF0C101A),
+                            brush = trackBrush,
                             topLeft = track.topLeft,
                             size = track.size,
                             cornerRadius = CornerRadius(8f),
                         )
+                        val strokeBrush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = 0.05f),
+                                Color.White.copy(alpha = 0.12f),
+                                Color.White.copy(alpha = 0.05f),
+                                Color.Transparent,
+                            ),
+                            startY = track.top,
+                            endY = track.bottom,
+                        )
                         drawRoundRect(
-                            color = Color.White.copy(alpha = 0.06f),
+                            brush = strokeBrush,
                             topLeft = track.topLeft,
                             size = track.size,
                             cornerRadius = CornerRadius(8f),
@@ -319,7 +341,7 @@ fun InteractivePhoneMap(
                         )
                     }
 
-                    // Dynamic Segmented Neon Zones (Bölünmüş Kenarlar - Multi-Layer Radiant Bloom)
+                    // Dynamic Segmented Neon Zones (End-Fading & Radiant Center Bloom)
                     zones.forEach { zone ->
                         val rawRect = phoneZoneRect(zone, screen, config, dragPreview)
                         val isSide = zone.edge == Edge.LEFT || zone.edge == Edge.RIGHT
@@ -330,73 +352,212 @@ fun InteractivePhoneMap(
                         }
 
                         if (zoneRect.height > 4f && zoneRect.width > 4f) {
-                            // Layer 1: Wide Ambient Diffuse Bloom (glowing light bleed into glass and chassis)
-                            val bloomX = if (isSide) 16f else 4f
-                            val bloomY = if (isSide) 4f else 16f
-                            drawRoundRect(
-                                color = zone.color.copy(alpha = 0.22f),
-                                topLeft = Offset(zoneRect.left - bloomX, zoneRect.top - bloomY),
-                                size = Size(zoneRect.width + bloomX * 2f, zoneRect.height + bloomY * 2f),
-                                cornerRadius = CornerRadius(16f),
-                            )
-                            // Layer 2: Focused Neon Aura Halo
-                            val haloX = if (isSide) 7f else 2f
-                            val haloY = if (isSide) 2f else 7f
-                            drawRoundRect(
-                                color = zone.color.copy(alpha = 0.48f),
-                                topLeft = Offset(zoneRect.left - haloX, zoneRect.top - haloY),
-                                size = Size(zoneRect.width + haloX * 2f, zoneRect.height + haloY * 2f),
-                                cornerRadius = CornerRadius(12f),
-                            )
-                            // Layer 3: Luminous High-Contrast Neon Tube Body
                             val coreTone = when (zone.edge) {
                                 Edge.LEFT -> Color(0xFF80F7FF)   // Cyan-White Core
                                 Edge.RIGHT -> Color(0xFFF3E5F5)  // Violet-Lavender Core
                                 Edge.BOTTOM -> Color(0xFFFFF9C4) // Amber-Gold Core
                             }
-                            val brush = if (isSide) {
-                                val gradientColors = when (zone.edge) {
-                                    Edge.LEFT -> listOf(coreTone.copy(alpha = 0.95f), zone.color.copy(alpha = 0.85f), zone.color.copy(alpha = 0.35f))
-                                    else -> listOf(zone.color.copy(alpha = 0.35f), zone.color.copy(alpha = 0.85f), coreTone.copy(alpha = 0.95f))
-                                }
-                                Brush.horizontalGradient(gradientColors, startX = zoneRect.left, endX = zoneRect.right)
-                            } else {
+
+                            // Layer 0: Center Flare Bloom (Soft radial light bleed spreading into screen interior from hot center)
+                            val flareRadius = if (isSide) (zoneRect.height * 0.45f).coerceIn(24f, 60f) else (zoneRect.width * 0.40f).coerceIn(24f, 50f)
+                            val flareCenter = when (zone.edge) {
+                                Edge.LEFT -> Offset(zoneRect.left + 4f, zoneRect.center.y)
+                                Edge.RIGHT -> Offset(zoneRect.right - 4f, zoneRect.center.y)
+                                Edge.BOTTOM -> Offset(zoneRect.center.x, zoneRect.bottom - 4f)
+                            }
+                            drawCircle(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(
+                                        zone.color.copy(alpha = 0.42f),
+                                        zone.color.copy(alpha = 0.18f),
+                                        Color.Transparent,
+                                    ),
+                                    center = flareCenter,
+                                    radius = flareRadius,
+                                ),
+                                radius = flareRadius,
+                                center = flareCenter,
+                            )
+
+                            // Layer 1: Wide Ambient Diffuse Bloom (longitudinal fade to transparent at tips)
+                            val bloomBrush = if (isSide) {
                                 Brush.verticalGradient(
-                                    listOf(zone.color.copy(alpha = 0.35f), zone.color.copy(alpha = 0.85f), coreTone.copy(alpha = 0.95f)),
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        zone.color.copy(alpha = 0.12f),
+                                        zone.color.copy(alpha = 0.36f),
+                                        zone.color.copy(alpha = 0.12f),
+                                        Color.Transparent,
+                                    ),
+                                    startY = zoneRect.top - 6f,
+                                    endY = zoneRect.bottom + 6f,
+                                )
+                            } else {
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        zone.color.copy(alpha = 0.12f),
+                                        zone.color.copy(alpha = 0.36f),
+                                        zone.color.copy(alpha = 0.12f),
+                                        Color.Transparent,
+                                    ),
+                                    startX = zoneRect.left - 6f,
+                                    endX = zoneRect.right + 6f,
+                                )
+                            }
+                            val bloomX = if (isSide) 18f else 4f
+                            val bloomY = if (isSide) 4f else 18f
+                            drawRoundRect(
+                                brush = bloomBrush,
+                                topLeft = Offset(zoneRect.left - bloomX, zoneRect.top - bloomY),
+                                size = Size(zoneRect.width + bloomX * 2f, zoneRect.height + bloomY * 2f),
+                                cornerRadius = CornerRadius(16f),
+                            )
+
+                            // Layer 2: Focused Neon Aura Halo (concentrated glow along tube)
+                            val auraBrush = if (isSide) {
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        zone.color.copy(alpha = 0.25f),
+                                        zone.color.copy(alpha = 0.75f),
+                                        zone.color.copy(alpha = 0.25f),
+                                        Color.Transparent,
+                                    ),
                                     startY = zoneRect.top,
                                     endY = zoneRect.bottom,
                                 )
+                            } else {
+                                Brush.horizontalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        zone.color.copy(alpha = 0.25f),
+                                        zone.color.copy(alpha = 0.75f),
+                                        zone.color.copy(alpha = 0.25f),
+                                        Color.Transparent,
+                                    ),
+                                    startX = zoneRect.left,
+                                    endX = zoneRect.right,
+                                )
+                            }
+                            val haloX = if (isSide) 8f else 2f
+                            val haloY = if (isSide) 2f else 8f
+                            drawRoundRect(
+                                brush = auraBrush,
+                                topLeft = Offset(zoneRect.left - haloX, zoneRect.top - haloY),
+                                size = Size(zoneRect.width + haloX * 2f, zoneRect.height + haloY * 2f),
+                                cornerRadius = CornerRadius(12f),
+                            )
+
+                            // Layer 3: Luminous High-Contrast Neon Tube Body (hot white/coreTone center, fading out to tips)
+                            val tubeBrush = if (isSide) {
+                                Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.12f to zone.color.copy(alpha = 0.35f),
+                                        0.35f to coreTone.copy(alpha = 0.85f),
+                                        0.50f to Color.White.copy(alpha = 0.95f),
+                                        0.65f to coreTone.copy(alpha = 0.85f),
+                                        0.88f to zone.color.copy(alpha = 0.35f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    startY = zoneRect.top,
+                                    endY = zoneRect.bottom,
+                                )
+                            } else {
+                                Brush.horizontalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.12f to zone.color.copy(alpha = 0.35f),
+                                        0.35f to coreTone.copy(alpha = 0.85f),
+                                        0.50f to Color.White.copy(alpha = 0.95f),
+                                        0.65f to coreTone.copy(alpha = 0.85f),
+                                        0.88f to zone.color.copy(alpha = 0.35f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    startX = zoneRect.left,
+                                    endX = zoneRect.right,
+                                )
                             }
                             drawRoundRect(
-                                brush = brush,
+                                brush = tubeBrush,
                                 topLeft = zoneRect.topLeft,
                                 size = zoneRect.size,
                                 cornerRadius = CornerRadius(8f),
                             )
-                            // Layer 4: Neon Outer Specular Rim
+
+                            // Layer 4: Neon Outer Specular Rim (intense center, fading to zero at ends)
+                            val rimBrush = if (isSide) {
+                                Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.15f to zone.color.copy(alpha = 0.30f),
+                                        0.50f to zone.color.copy(alpha = 0.95f),
+                                        0.85f to zone.color.copy(alpha = 0.30f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    startY = zoneRect.top,
+                                    endY = zoneRect.bottom,
+                                )
+                            } else {
+                                Brush.horizontalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.15f to zone.color.copy(alpha = 0.30f),
+                                        0.50f to zone.color.copy(alpha = 0.95f),
+                                        0.85f to zone.color.copy(alpha = 0.30f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    startX = zoneRect.left,
+                                    endX = zoneRect.right,
+                                )
+                            }
                             drawRoundRect(
-                                color = zone.color,
+                                brush = rimBrush,
                                 topLeft = zoneRect.topLeft,
                                 size = zoneRect.size,
                                 cornerRadius = CornerRadius(8f),
                                 style = Stroke(2f),
                             )
-                            // Layer 5: High-Tech Specular White Light Streak (Beam)
+
+                            // Layer 5: High-Tech Specular White Light Streak (Beam) - blazing laser core in center
                             if (isSide) {
                                 val streakX = if (zone.edge == Edge.LEFT) zoneRect.left + 2f else zoneRect.right - 2f
+                                val streakBrush = Brush.verticalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.20f to Color.White.copy(alpha = 0.40f),
+                                        0.50f to Color.White.copy(alpha = 0.98f),
+                                        0.80f to Color.White.copy(alpha = 0.40f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    startY = zoneRect.top,
+                                    endY = zoneRect.bottom,
+                                )
                                 drawLine(
-                                    color = Color.White.copy(alpha = 0.90f),
-                                    start = Offset(streakX, zoneRect.top + 6f),
-                                    end = Offset(streakX, zoneRect.bottom - 6f),
-                                    strokeWidth = 2.2f,
+                                    brush = streakBrush,
+                                    start = Offset(streakX, zoneRect.top + 2f),
+                                    end = Offset(streakX, zoneRect.bottom - 2f),
+                                    strokeWidth = 2.4f,
                                 )
                             } else {
                                 val streakY = zoneRect.bottom - 2f
+                                val streakBrush = Brush.horizontalGradient(
+                                    colorStops = arrayOf(
+                                        0.0f to Color.Transparent,
+                                        0.20f to Color.White.copy(alpha = 0.40f),
+                                        0.50f to Color.White.copy(alpha = 0.98f),
+                                        0.80f to Color.White.copy(alpha = 0.40f),
+                                        1.0f to Color.Transparent,
+                                    ),
+                                    startX = zoneRect.left,
+                                    endX = zoneRect.right,
+                                )
                                 drawLine(
-                                    color = Color.White.copy(alpha = 0.90f),
-                                    start = Offset(zoneRect.left + 6f, streakY),
-                                    end = Offset(zoneRect.right - 6f, streakY),
-                                    strokeWidth = 2.2f,
+                                    brush = streakBrush,
+                                    start = Offset(zoneRect.left + 2f, streakY),
+                                    end = Offset(zoneRect.right - 2f, streakY),
+                                    strokeWidth = 2.4f,
                                 )
                             }
                         }
