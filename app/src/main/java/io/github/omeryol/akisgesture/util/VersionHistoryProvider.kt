@@ -11,9 +11,28 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.8.1",
+            version = "1.9.0",
             date = "2026-09-05",
             isCurrent = true,
+            changesTr = listOf(
+                "🎨 Organik Kenar Animasyonları: Aurora Akışı dokunulmadan korunarak 14 kenar animasyonu (Okyanus, Cıva Damlası, Plazma Alevi, Sis, Güneş Halesi, Yıldız Alanı, Girdap, Yağmur, Rüzgar vb.) pürüzsüz akışkanlar mekaniği ve doğal ışık geçirgenliğiyle sıfırdan yeniden yazıldı.",
+                "📊 Canlı Ana Sayfa & Teşhis Paneli: Canlı nabız göstergeli Hero durum kartı, dinamik kenar rozetleri ve arka plan koruması ile HyperOS optimizasyon rehberini içeren tek dokunuşlu Akıllı Teşhis Paneli.",
+                "📐 19.5:9 Modern Telefon Göstergeleri: Hareketler sayfasındaki önizlemeler modern akıllı telefon oranlarına güncellendi; vektörel neon aydınlatmalı dinamik tetikleyici alanı göstergesi (EdgeZoneVisual) eklendi.",
+                "🎯 Alt Kenar & Kural Sıralaması Düzeltmesi: Alt kenar ve bölümlerin rastgele UUID yerine koordinat sırasına göre deterministik dizilmesi sağlandı; bölüm kartları açık konum etiketleriyle (Sol/Orta/Sağ) senkronize edildi.",
+                "🎨 Kenar Temalı Kart Çerçeveleri: Bölüm kartları ve ayar panelleri ait oldukları kenarın canlı tema rengiyle (Siyan, Macenta, Kehribar) bütünleştirildi.",
+            ),
+            changesEn = listOf(
+                "🎨 Organic Edge Animations: Completely rebuilt 14 edge animation modules (Ocean, Mercury Teardrop, Plasma Fire, Mist, Solar Corona, Starfield, Vortex, Rain, Wind, etc.) with fluid mechanics and natural luminosity, keeping Aurora untouched.",
+                "📊 Live Home & Smart Diagnostic Hub: Redesigned live hero card with pulse beacon and edge indicators, paired with a unified 1-tap diagnostic health hub and HyperOS optimization guide.",
+                "📐 19.5:9 Vector Phone Previews: Updated edge visualizers to modern smartphone aspect ratios with a razor-sharp vector OLED illustration and active neon trigger tube bloom.",
+                "🎯 Bottom Edge & Section Ordering Fix: Resolved section sorting bug by enforcing deterministic coordinate-based ordering; synchronized table rows with explicit spatial labels (Left/Middle/Right).",
+                "🎨 Edge-Themed Visual Framing: Section cards and gesture settings now dynamically reflect their designated edge theme colors (Cyan, Purple, Amber).",
+            ),
+        ),
+        VersionHistoryItem(
+            version = "1.8.1",
+            date = "2026-09-05",
+            isCurrent = false,
             changesTr = listOf(
                 "🌍 8 Yeni Dil Desteği: Rusça (ru), Lehçe (pl), Almanca (de), Fransızca (fr), İtalyanca (it), Vietnamca (vi), Geleneksel Çince (zh-rTW) ve Farsça (fa) eklendi.",
                 "🌐 22 Dilli Arayüz: Ayarlar menüsüne kaydırılabilir ve tüm yerel alfabeleri destekleyen kapsamlı dil seçim diyaloğu entegre edildi.",
