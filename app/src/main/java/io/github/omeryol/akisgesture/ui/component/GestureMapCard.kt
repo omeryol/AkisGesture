@@ -75,6 +75,13 @@ fun GestureMapCard(
                 )
             }
         }
+        .sortedWith(
+            compareBy(
+                { it.representative.trigger.edge.ordinal },
+                { it.representative.trigger.section.start },
+                { it.representative.triggerMode.ordinal }
+            )
+        )
 
     AkisGlassCard(
         modifier = modifier.fillMaxWidth(),

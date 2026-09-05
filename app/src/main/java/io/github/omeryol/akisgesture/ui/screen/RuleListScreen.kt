@@ -244,6 +244,13 @@ fun RuleListScreen(
                     lDown = groupedRules.firstOrNull { it.trigger.gestureType == GestureType.SWIPE_DOWN_L },
                 )
             }
+            .sortedWith(
+                compareBy(
+                    { it.representative.trigger.edge.ordinal },
+                    { it.representative.trigger.section.start },
+                    { it.representative.triggerMode.ordinal }
+                )
+            )
     }
 
     LaunchedEffect(actionPickerToken) {
@@ -296,7 +303,9 @@ fun RuleListScreen(
             }
         }
     }
-    val visibleGroups = ruleGroups.filter { it.representative.trigger.edge == selectedEdge }
+    val visibleGroups = ruleGroups
+        .filter { it.representative.trigger.edge == selectedEdge }
+        .sortedBy { it.representative.trigger.section.start }
     val ruleListState = rememberLazyListState()
 
     Scaffold(
@@ -1615,8 +1624,10 @@ private fun RuleTableRow(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    val rowContext = androidx.compose.ui.platform.LocalContext.current
+                    val localizedSec = sectionLabel(rowContext, rule.trigger.section, rule.trigger.edge)
                     Text(
-                        stringResource(R.string.map_section_title, number),
+                        "${stringResource(R.string.map_section_title, number)} · $localizedSec",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = accent,

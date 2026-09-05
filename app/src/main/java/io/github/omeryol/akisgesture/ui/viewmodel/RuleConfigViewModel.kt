@@ -186,11 +186,15 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 }
                 .collect { graph ->
                     graph ?: return@collect
-                    _rules.value = graph.rules
-                    _appliedRules.value = graph.rules
+                    val normalized = normalizeSections(graph.rules)
+                    _rules.value = normalized
+                    _appliedRules.value = normalized
                     _activePresetName.value = Presets.ALL
-                        .firstOrNull { it.second.rules == graph.rules }
+                        .firstOrNull { it.second.rules == normalized }
                         ?.first
+                    if (normalized != graph.rules) {
+                        app.applyRules(GestureRuleGraph(normalized))
+                    }
                     revalidate()
                 }
         }
@@ -449,7 +453,14 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                     rule.copy(trigger = rule.trigger.copy(section = replacements.getValue(rule.trigger.section)))
                 }
             }
-            .sortedBy { it.id }
+            .sortedWith(
+                compareBy(
+                    { it.trigger.edge.ordinal },
+                    { it.trigger.section.start },
+                    { it.trigger.gestureType.ordinal },
+                    { it.id }
+                )
+            )
     }
 
     // ── Validation ──
