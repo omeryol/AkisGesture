@@ -1,80 +1,114 @@
 package io.github.omeryol.akisgesture.feedback.animation
 
 import android.graphics.Color
+import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.RadialGradient
 import android.graphics.Shader
 import io.github.omeryol.akisgesture.overlay.Edge
 import kotlin.math.PI
+import kotlin.math.pow
 import kotlin.math.sin
 
+/**
+ * Cosmic Starfield & Deep Stellar Parallax Stream.
+ * Renders an interstellar nebula envelope expanding from the bezel with
+ * depth-projected twinkling stars, luminous comet tails, and cosmic dust clouds.
+ */
 class StarsModule : NaturalAnimationModule {
+    private val nebulaPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val starPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val trailPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val tailPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
-    private val nebulaPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val trailPath = Path()
+
+    private val nebulaPath = Path()
+    private val tailPath = Path()
 
     override fun draw(f: AnimationFrame) {
         val timeSec = f.time
-        val depth = (20f + f.stretch * 1.25f).coerceAtMost(400f * f.size)
-        val span = (50f + f.progress * 180f) * f.size
+        val growth = (f.progress / 1.15f).coerceIn(0f, 1.3f)
+        val depth = (18f + f.stretch * 1.22f).coerceAtMost(380f * f.size)
+        val span = (48f + f.progress * 210f) * f.size
 
-        val center = when (f.edge) {
-            Edge.LEFT -> depth to f.touch
-            Edge.RIGHT -> (f.width - depth) to f.touch
-            Edge.BOTTOM -> f.touch to (f.height - depth)
+        // ── 1. Interstellar Nebula Dust Cloud ──
+        nebulaPath.reset()
+        val steps = 36
+        for (i in 0..steps) {
+            val u = i / steps.toFloat()
+            val env = sin(PI * u).toFloat().pow(1.4f)
+            val wave = sin(u * PI * 3.5 + timeSec * 2.2) * (7.0 + depth * 0.08)
+            val d = (depth * 0.90f + wave.toFloat()) * env
+
+            val p = point(f, f.touch - span + u * span * 2f, d)
+            if (i == 0) nebulaPath.moveTo(p.first, p.second) else nebulaPath.lineTo(p.first, p.second)
         }
+        close(nebulaPath, f, span)
 
-        // ── 1. Galactic Nebula Aura ──
-        val nebulaRadius = span * 1.2f
-        nebulaPaint.shader = RadialGradient(
-            center.first, center.second, nebulaRadius,
-            intArrayOf(withAlpha(0xFF7C4DFF.toInt(), (140 * f.opacity).toInt()), withAlpha(0xFF00E5FF.toInt(), (70 * f.opacity).toInt()), Color.TRANSPARENT),
-            floatArrayOf(0f, 0.6f, 1f),
-            Shader.TileMode.CLAMP
+        val cosmicViolet = 0xFF7C4DFF.toInt()
+        val cosmicCyan = 0xFF00E5FF.toInt()
+        nebulaPaint.shader = gradient(
+            f, depth * 0.90f,
+            alpha(cosmicViolet, (160 * f.opacity).toInt()),
+            alpha(cosmicCyan, (60 * f.opacity).toInt())
         )
-        f.canvas.drawCircle(center.first, center.second, nebulaRadius, nebulaPaint)
+        f.canvas.drawPath(nebulaPath, nebulaPaint)
 
-        // ── 2. Twinkling Stars (18 Stars) ──
-        for (i in 0..17) {
-            val seed = i * 29.3f
-            val phase = ((timeSec * 0.8 + seed) % 1.0).toFloat()
-            val along = f.touch - span + (i / 17f) * span * 2f
-            val d = depth * (0.2f + sin(seed + timeSec).toFloat() * 0.4f + 0.4f)
+        // ── 2. Parallax Cosmic Stars & Streaming Tails ──
+        val starCount = 18
+        for (i in 0 until starCount) {
+            val seed = i * 23.9f
+            val phase = ((timeSec * 0.7 + seed) % 1.0).toFloat()
+            // Radial dispersion outward from the edge
+            val alongSpread = (i / (starCount - 1).toFloat() - 0.5f) * 2f
+            val along = f.touch + alongSpread * (span * (0.4f + phase * 0.6f))
+            val starDepth = depth * (0.15f + phase * 0.95f)
 
-            val p = when (f.edge) {
-                Edge.LEFT -> d to along
-                Edge.RIGHT -> (f.width - d) to along
-                Edge.BOTTOM -> along to (f.height - d)
-            }
+            val p = point(f, along, starDepth)
+            val twinkle = (sin(phase * PI * 2.0 + seed) * 0.4 + 0.6).toFloat()
+            val starRadius = (1.5f + twinkle * (2.2f + (i % 3) * 0.8f)) * f.size
+            val starAlpha = ((twinkle * 245) * f.opacity).toInt().coerceIn(0, 255)
 
-            val twinkle = (sin(phase * PI * 2) * 0.4 + 0.6).toFloat()
-            val starRadius = (2.5f + twinkle * 3f) * f.size
-            val alpha = ((twinkle * 240) * f.opacity).toInt().coerceIn(0, 255)
-
-            starPaint.color = withAlpha(if (i % 3 == 0) 0xFFFFFFFF.toInt() else 0xFF80D8FF.toInt(), alpha)
+            // Star Core Glow
+            starPaint.color = alpha(if (i % 3 == 0) Color.WHITE else 0xFF80D8FF.toInt(), starAlpha)
             f.canvas.drawCircle(p.first, p.second, starRadius, starPaint)
 
-            // Meteor streak for every 4th star
-            if (i % 4 == 0 && phase > 0.4f) {
-                trailPath.reset()
-                trailPath.moveTo(p.first, p.second)
-                val tailX = p.first - 15f * f.size
-                val tailY = p.second - 15f * f.size
-                trailPath.lineTo(tailX, tailY)
+            // Stream Tail for Fast Stars (pointing back toward the edge)
+            if (i % 3 == 0 && phase > 0.25f) {
+                tailPath.reset()
+                tailPath.moveTo(p.first, p.second)
+                val tailLen = (12f + phase * 22f) * f.size
+                val tailOrigin = point(f, along - alongSpread * 4f * f.size, (starDepth - tailLen).coerceAtLeast(0f))
+                tailPath.lineTo(tailOrigin.first, tailOrigin.second)
 
-                trailPaint.strokeWidth = 2.0f * f.size
-                trailPaint.color = withAlpha(0xFFFFFFFF.toInt(), (alpha * 0.6f).toInt())
-                f.canvas.drawPath(trailPath, trailPaint)
+                tailPaint.strokeWidth = (1.6f * (1f - phase * 0.5f)) * f.size
+                tailPaint.color = alpha(Color.WHITE, (starAlpha * 0.65f).toInt())
+                f.canvas.drawPath(tailPath, tailPaint)
             }
         }
 
         nebulaPaint.shader = null
     }
 
-    private fun withAlpha(c: Int, a: Int) = Color.argb(a.coerceIn(0, 255), Color.red(c), Color.green(c), Color.blue(c))
+    private fun point(f: AnimationFrame, along: Float, depth: Float) = when (f.edge) {
+        Edge.LEFT -> depth to along
+        Edge.RIGHT -> (f.width - depth) to along
+        Edge.BOTTOM -> along to (f.height - depth)
+    }
+
+    private fun close(p: Path, f: AnimationFrame, span: Float) {
+        when (f.edge) {
+            Edge.LEFT -> { p.lineTo(0f, f.touch + span); p.lineTo(0f, f.touch - span) }
+            Edge.RIGHT -> { p.lineTo(f.width, f.touch + span); p.lineTo(f.width, f.touch - span) }
+            Edge.BOTTOM -> { p.lineTo(f.touch + span, f.height); p.lineTo(f.touch - span, f.height) }
+        }
+        p.close()
+    }
+
+    private fun gradient(f: AnimationFrame, depth: Float, startColor: Int, endColor: Int) = when (f.edge) {
+        Edge.LEFT -> LinearGradient(0f, f.touch, depth, f.touch, startColor, endColor, Shader.TileMode.CLAMP)
+        Edge.RIGHT -> LinearGradient(f.width, f.touch, f.width - depth, f.touch, startColor, endColor, Shader.TileMode.CLAMP)
+        Edge.BOTTOM -> LinearGradient(f.touch, f.height, f.touch, f.height - depth, startColor, endColor, Shader.TileMode.CLAMP)
+    }
 }
