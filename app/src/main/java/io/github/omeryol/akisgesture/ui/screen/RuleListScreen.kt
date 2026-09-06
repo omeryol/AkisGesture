@@ -115,7 +115,7 @@ import kotlin.math.roundToInt
 fun RuleListScreen(
     viewModel: RuleConfigViewModel,
     onRuleClick: (String) -> Unit,
-    initialEdge: Edge = Edge.LEFT,
+    initialEdge: Edge? = null,
     modifier: Modifier = Modifier,
     onNavigateToSettings: (Int) -> Unit = {},
 ) {
@@ -134,7 +134,12 @@ fun RuleListScreen(
         activeProfilePackage?.let { appLabel(context, it) } ?: context.getString(R.string.general_layout)
     }
 
-    var selectedEdge by remember(initialEdge) { mutableStateOf(initialEdge) }
+    LaunchedEffect(initialEdge) {
+        if (initialEdge != null) {
+            viewModel.setSelectedEdge(initialEdge)
+        }
+    }
+    val selectedEdge by viewModel.selectedEdge.collectAsState()
     val ringInsetRange = if (selectedEdge == Edge.BOTTOM) {
         0f..(screenConfig.screenHeightDp * .50f)
     } else {
@@ -257,45 +262,6 @@ fun RuleListScreen(
         val token = actionPickerToken ?: return@LaunchedEffect
         InternalNavigationBus.actionPickerResults.collect { result ->
             if (result.token == token) {
-                editingActionRuleId?.let { ruleId ->
-                    viewModel.updateRuleAction(ruleId, result.action)
-                } ?: addingGestureType?.let { gestureType ->
-                    val targetKey = addingGroupKey ?: selectedGroupKey
-                    val repRule = ruleGroups.firstOrNull { it.key == targetKey }?.representative
-                    val edge = repRule?.trigger?.edge ?: run {
-                        if (targetKey != null && targetKey.contains(":")) {
-                            runCatching { Edge.valueOf(targetKey.split(":")[0]) }.getOrNull()
-                        } else null
-                    } ?: selectedEdge
-                    val section = repRule?.trigger?.section ?: run {
-                        if (targetKey != null && targetKey.contains(":")) {
-                            val parts = targetKey.split(":")
-                            if (parts.size >= 3) {
-                                runCatching { io.github.omeryol.akisgesture.model.SectionRange(parts[1].toFloat(), parts[2].toFloat()) }.getOrNull()
-                            } else null
-                        } else null
-                    } ?: io.github.omeryol.akisgesture.model.SectionRange.ALL
-                    val triggerMode = repRule?.triggerMode ?: run {
-                        if (targetKey != null && targetKey.contains(":")) {
-                            val parts = targetKey.split(":")
-                            if (parts.size >= 4) {
-                                runCatching { io.github.omeryol.akisgesture.model.TriggerMode.valueOf(parts[3]) }.getOrNull()
-                            } else null
-                        } else null
-                    } ?: io.github.omeryol.akisgesture.model.TriggerMode.SWIPE
-
-                    viewModel.addGesturePair(
-                        edge = edge,
-                        section = section,
-                        quickAction = if (gestureType == GestureType.QUICK_SWIPE) result.action else null,
-                        holdAction = if (gestureType == GestureType.SWIPE_HOLD) result.action else null,
-                        lUpAction = if (gestureType == GestureType.SWIPE_UP_L) result.action else null,
-                        lDownAction = if (gestureType == GestureType.SWIPE_DOWN_L) result.action else null,
-                        triggerMode = triggerMode,
-                    )
-                    // Keep the edge selected after returning from the action picker.
-                    selectedEdge = edge
-                }
                 editingActionRuleId = null
                 addingGestureType = null
                 addingGroupKey = null
@@ -455,7 +421,7 @@ fun RuleListScreen(
                                 color = if (isSelected) edgeColor else MaterialTheme.colorScheme.outlineVariant,
                                 shape = RoundedCornerShape(14.dp),
                             )
-                            .clickable { selectedEdge = edge }
+                            .clickable { viewModel.setSelectedEdge(edge) }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center,
                     ) {

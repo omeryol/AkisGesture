@@ -218,12 +218,14 @@ private fun AkisGestureApp() {
                 "rules?edge={edge}",
                 arguments = listOf(navArgument("edge") {
                     type = NavType.StringType
-                    defaultValue = "LEFT"
+                    nullable = true
+                    defaultValue = null
                 }),
             ) { backStackEntry ->
-                val edgeStr = backStackEntry.arguments?.getString("edge") ?: "LEFT"
-                val initialEdge = runCatching { io.github.omeryol.akisgesture.overlay.Edge.valueOf(edgeStr) }
-                    .getOrDefault(io.github.omeryol.akisgesture.overlay.Edge.LEFT)
+                val edgeStr = backStackEntry.arguments?.getString("edge")
+                val initialEdge = edgeStr?.let {
+                    runCatching { io.github.omeryol.akisgesture.overlay.Edge.valueOf(it) }.getOrNull()
+                }
                 RuleListScreen(
                     viewModel = ruleConfigViewModel,
                     initialEdge = initialEdge,
@@ -375,7 +377,7 @@ private fun AkisGestureBottomBar(
                             else -> currentRoute == item.route
                         }
                         if (isSelected) return@Surface
-                        val destination = if (item.route == "rules") "rules?edge=LEFT" else if (item.route == "settings") "settings?section=0" else item.route
+                        val destination = if (item.route == "rules") "rules" else if (item.route == "settings") "settings?section=0" else item.route
                         navController.navigate(destination) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true

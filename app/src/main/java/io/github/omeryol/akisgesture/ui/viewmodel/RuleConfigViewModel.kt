@@ -54,6 +54,13 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     val gestureConfig = app.gestureConfigFlow
     val pausedPackages = app.pausedPackagesFlow
 
+    private val _selectedEdge = MutableStateFlow(Edge.LEFT)
+    val selectedEdge: StateFlow<Edge> = _selectedEdge.asStateFlow()
+
+    fun setSelectedEdge(edge: Edge) {
+        _selectedEdge.value = edge
+    }
+
     var pendingTarget: PendingActionTarget? = null
 
     fun onActionSelected(action: ActionNode) {
@@ -61,9 +68,12 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         val target = pendingTarget ?: return
         when (target) {
             is PendingActionTarget.EditRule -> {
+                val rule = getRuleById(target.ruleId)
+                rule?.let { _selectedEdge.value = it.trigger.edge }
                 updateRuleAction(target.ruleId, action)
             }
             is PendingActionTarget.AddGesture -> {
+                _selectedEdge.value = target.edge
                 addGesturePair(
                     edge = target.edge,
                     section = target.section,
@@ -235,6 +245,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
         lDownAction: ActionNode? = null,
         triggerMode: TriggerMode = TriggerMode.SWIPE,
     ) {
+        _selectedEdge.value = edge
         val current = _rules.value.toMutableList()
 
         fun setAction(type: GestureType, action: ActionNode?) {
@@ -268,6 +279,7 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun addEmptyGroup(edge: Edge, section: SectionRange, triggerMode: TriggerMode = TriggerMode.SWIPE) {
+        _selectedEdge.value = edge
         val current = _rules.value.toMutableList()
         current += GestureRule(
             id = UUID.randomUUID().toString(),
@@ -307,8 +319,10 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
     fun updateRuleAction(ruleId: String, newAction: ActionNode) {
         if (newAction is ActionNode.NoAction) return
-        _rules.value = _rules.value.map { rule ->
-            if (rule.id == ruleId) rule.copy(action = newAction) else rule
+        val rule = getRuleById(ruleId)
+        rule?.let { _selectedEdge.value = it.trigger.edge }
+        _rules.value = _rules.value.map { r ->
+            if (r.id == ruleId) r.copy(action = newAction) else r
         }
         _activePresetName.value = null
         revalidate()
