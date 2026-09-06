@@ -607,4 +607,7 @@
     <string name="recent_apps_size">आइकन का आकार</string>
     <string name="recent_apps_arc">चाप की वक्रता</string>
     <string name="menu_hold_delay">खुलने में देरी (होल्ड अवधि)</string>
+    <string name="tier1_smart_repair_title">स्तर 1: स्मार्ट ऑन-डिमांड मरम्मत</string>
+    <string name="tier1_smart_repair_subtitle">शून्य बैटरी खपत। पृष्ठभूमि लूप के बिना स्क्रीन चालू होने या सेवा डिस्कनेक्ट होने पर स्वचालित रूप से मरम्मत करता है।</string>
+    <string name="tier1_smart_repair_badge">0 बैटरी • हमेशा सक्रिय</string>
 </resources>

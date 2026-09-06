@@ -607,4 +607,7 @@
     <string name="recent_apps_size">Ukuran Ikon</string>
     <string name="recent_apps_arc">Kelengkungan Busur</string>
     <string name="menu_hold_delay">Waktu Tunggu Pembukaan</string>
+    <string name="tier1_smart_repair_title">Tingkat 1: Perbaikan Cerdas Berdasarkan Kebutuhan</string>
+    <string name="tier1_smart_repair_subtitle">Nol konsumsi baterai. Secara otomatis memperbaiki aksesibilitas saat layar menyala atau layanan terputus tanpa loop latar belakang.</string>
+    <string name="tier1_smart_repair_badge">0 baterai • Selalu aktif</string>
 </resources>

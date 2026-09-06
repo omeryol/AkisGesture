@@ -607,4 +607,7 @@
     <string name="recent_apps_size">アイコンのサイズ</string>
     <string name="recent_apps_arc">アークの曲率</string>
     <string name="menu_hold_delay">展開待機時間（ホールド時間）</string>
+    <string name="tier1_smart_repair_title">レベル1: スマートなオンデマンド修復</string>
+    <string name="tier1_smart_repair_subtitle">バッテリー消費ゼロ。バックグラウンドループなしで、画面起動時や切断時にユーザー補助を自動修復します。</string>
+    <string name="tier1_smart_repair_badge">バッテリー消費0 • 常時有効</string>
 </resources>

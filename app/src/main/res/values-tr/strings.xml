@@ -655,4 +655,7 @@
     <string name="recent_apps_size">İkon Büyüklüğü</string>
     <string name="recent_apps_arc">Kavis Derecesi</string>
     <string name="menu_hold_delay">Açılma Bekleme Süresi</string>
+    <string name="tier1_smart_repair_title">1. Kademe: Akıllı Reaktif Onarım</string>
+    <string name="tier1_smart_repair_subtitle">Sıfır pil tüketimi. Arka plan döngüsü olmadan; ekran açıldığında, kutucuk değiştiğinde veya servis koptuğunda anında otomatik onarır.</string>
+    <string name="tier1_smart_repair_badge">0 Pil Tüketimi • Daima Aktif</string>
 </resources>

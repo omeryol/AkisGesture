@@ -42,6 +42,19 @@ class KeepAliveService : Service() {
     companion object {
         private const val CHANNEL_ID = "openswipe_keepalive"
         private const val NOTIFICATION_ID = 1001
+        const val ACTION_REACTIVE_REPAIR = "io.github.omeryol.akisgesture.action.REACTIVE_REPAIR"
+
+        fun triggerReactiveRepair(context: Context, reason: String = "service_unbind") {
+            val intent = Intent(context, KeepAliveService::class.java).apply {
+                action = ACTION_REACTIVE_REPAIR
+                putExtra("reason", reason)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -91,20 +104,23 @@ class KeepAliveService : Service() {
             .build()
         startForeground(NOTIFICATION_ID, notification)
 
-        // The user-configured watchdog is a real periodic loop.  Keep the
-        // existing screen-triggered repair as an immediate fast path.
+        // Tier 2: Agresif Periyodik Denetim (Watchdog)
+        // Yalnızca kullanıcı ayarlardan açıkça etkinleştirirse periyodik arka plan döngüsü çalıştırılır.
         val app = application as? io.github.omeryol.akisgesture.AkisGestureApp
         if (app != null) {
             watchdogJob = serviceScope.launch {
                 app.gestureConfigFlow.collectLatest { config ->
                     if (!config.rootWatchdogEnabled) return@collectLatest
                     while (true) {
-                        val intervalMs = config.rootWatchdogIntervalSeconds * 1_000L
-                        AccessibilityControl.repairIfNeeded(
-                            this@KeepAliveService,
-                            repairCooldownMs = intervalMs,
-                        )
+                        val intervalMs = (config.rootWatchdogIntervalSeconds.coerceAtLeast(15)) * 1_000L
                         delay(intervalMs)
+                        // Hızlı yol: Servis zaten bağlı ve sağlıklıysa gereksiz kabuk (shell) işlemi yürütme
+                        if (GestureAccessibilityService.instance == null || !AccessibilityControl.isEnabled(this@KeepAliveService)) {
+                            AccessibilityControl.repairIfNeeded(
+                                this@KeepAliveService,
+                                repairCooldownMs = intervalMs / 2,
+                            )
+                        }
                     }
                 }
             }
@@ -112,7 +128,13 @@ class KeepAliveService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        scheduleHealthCheck()
+        val action = intent?.action
+        if (action == ACTION_REACTIVE_REPAIR) {
+            val reason = intent.getStringExtra("reason") ?: "reactive"
+            scheduleHealthCheck(gracePeriodMs = 1_000L, source = reason)
+        } else {
+            scheduleHealthCheck(gracePeriodMs = 1_500L, source = "start_command")
+        }
         return START_STICKY
     }
 
@@ -122,26 +144,30 @@ class KeepAliveService : Service() {
         super.onDestroy()
     }
 
-    private fun scheduleHealthCheck() {
+    private fun scheduleHealthCheck(gracePeriodMs: Long = 1_500L, source: String = "screen_wake") {
         healthCheckJob?.cancel()
         healthCheckJob = serviceScope.launch {
-            // Fast-path: if the accessibility service is already active and healthy,
-            // no delay or repair is needed.
+            // Hızlı yol (Tier 1): Servis zaten etkin ve bağlıysa 0 ms, 0 işlemci yükü ile geç
             if (GestureAccessibilityService.instance != null && AccessibilityControl.isEnabled(this@KeepAliveService)) {
-                RuntimeDiagnostics.healthCheckEvaluated("screen_wake", "healthy_skipped")
+                RuntimeDiagnostics.healthCheckEvaluated(source, "healthy_skipped")
                 return@launch
             }
-            // If the service is not currently bound (e.g. system waking from sleep/doze),
-            // wait a short grace period to allow Android to bind it before triggering a repair.
-            delay(1_500L)
+            // Servis henüz bağlı değilse Android'in doğal olarak bağlanması için kısa bir yetki/bekleme süresi tanı
+            if (gracePeriodMs > 0) {
+                delay(gracePeriodMs)
+            }
+            if (GestureAccessibilityService.instance != null && AccessibilityControl.isEnabled(this@KeepAliveService)) {
+                RuntimeDiagnostics.healthCheckEvaluated(source, "healthy_after_grace")
+                return@launch
+            }
             RuntimeDiagnostics.healthCheckEvaluated(
-                "screen_wake",
+                source,
                 "evaluating_repair",
                 mapOf("service_connected" to (GestureAccessibilityService.instance != null).toString()),
             )
             AccessibilityControl.repairIfNeeded(
                 this@KeepAliveService,
-                repairCooldownMs = 15_000L,
+                repairCooldownMs = 10_000L,
             )
         }
     }

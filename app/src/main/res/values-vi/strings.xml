@@ -655,4 +655,7 @@
   <string name="recent_apps_size">Kích thước biểu tượng</string>
   <string name="recent_apps_arc">Độ cong của vòng cung</string>
   <string name="menu_hold_delay">Độ trễ mở menu (ms)</string>
+    <string name="tier1_smart_repair_title">Cấp 1: Tự sửa chữa thông minh theo nhu cầu</string>
+    <string name="tier1_smart_repair_subtitle">Không tốn pin. Tự động sửa chữa dịch vụ khi bật màn hình hoặc ngắt kết nối mà không cần vòng lặp nền.</string>
+    <string name="tier1_smart_repair_badge">0 tốn pin • Luôn hoạt động</string>
 </resources>

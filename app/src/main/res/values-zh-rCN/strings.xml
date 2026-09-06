@@ -607,4 +607,7 @@
   <string name="recent_apps_size">图标大小</string>
   <string name="recent_apps_arc">圆弧弧度</string>
   <string name="menu_hold_delay">展开等待时间（按住时长）</string>
+    <string name="tier1_smart_repair_title">第 1 级：智能响应式即时修复</string>
+    <string name="tier1_smart_repair_subtitle">零电量消耗。在屏幕唤醒、磁贴切换或服务中断时自动修复，无需后台轮询。</string>
+    <string name="tier1_smart_repair_badge">0 电量消耗 • 始终启用</string>
 </resources>

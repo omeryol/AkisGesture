@@ -607,4 +607,7 @@
     <string name="recent_apps_size">Tamaño de icono</string>
     <string name="recent_apps_arc">Curvatura del arco</string>
     <string name="menu_hold_delay">Tiempo de espera para abrir</string>
+    <string name="tier1_smart_repair_title">Nivel 1: Reparación reactiva inteligente</string>
+    <string name="tier1_smart_repair_subtitle">Cero consumo de batería. Repara automáticamente la accesibilidad al encender la pantalla o desconectarse el servicio sin bucles en segundo plano.</string>
+    <string name="tier1_smart_repair_badge">0 batería • Siempre activo</string>
 </resources>

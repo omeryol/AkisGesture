@@ -655,4 +655,7 @@
   <string name="recent_apps_size">Symbolgröße</string>
   <string name="recent_apps_arc">Bogenkrümmung</string>
   <string name="menu_hold_delay">Verzögerung zum Öffnen (ms)</string>
+    <string name="tier1_smart_repair_title">Stufe 1: Intelligente reaktive Wiederherstellung</string>
+    <string name="tier1_smart_repair_subtitle">Kein Akkuverbrauch. Stellt den Dienst beim Einschalten des Bildschirms oder bei Trennung ohne Hintergrundschleife wieder her.</string>
+    <string name="tier1_smart_repair_badge">0 Akkuverbrauch • Immer aktiv</string>
 </resources>

@@ -150,4 +150,7 @@
     <string name="recent_apps_size">아이콘 크기</string>
     <string name="recent_apps_arc">호 곡률</string>
     <string name="menu_hold_delay">열림 대기 시간(길게 누르기)</string>
+    <string name="tier1_smart_repair_title">1단계: 스마트 반응형 즉시 복구</string>
+    <string name="tier1_smart_repair_subtitle">배터리 소모 0. 백그라운드 반복 작업 없이 화면이 켜지거나 연결이 끊길 때 접근성을 자동으로 복구합니다.</string>
+    <string name="tier1_smart_repair_badge">배터리 소모 0 • 항상 활성</string>
 </resources>

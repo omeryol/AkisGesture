@@ -3,6 +3,7 @@ package io.github.omeryol.akisgesture.service
 import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import io.github.omeryol.akisgesture.root.RootResult
 import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import kotlinx.coroutines.delay
@@ -108,6 +109,17 @@ object AccessibilityControl {
 
     private suspend fun rebind(context: Context): RootResult {
         val component = componentName(context)
+        // Modern Android (10+): Doğrudan shell servisi üzerinden başlatmayı dene (en hızlı ve temiz yöntem)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val cmdResult = runRoot("cmd accessibility start-service $component")
+            if (cmdResult is CommandResult.Success) {
+                delay(300)
+                if (GestureAccessibilityService.instance != null) {
+                    return RootResult.Success
+                }
+            }
+        }
+
         val read = getEnabledServicesString(context)
         if (read == null) {
             return RootResult.Failure("Erişilebilirlik listesi okunamadı")

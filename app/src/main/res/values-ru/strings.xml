@@ -655,4 +655,7 @@
   <string name="recent_apps_size">Размер значков</string>
   <string name="recent_apps_arc">Кривизна дуги</string>
   <string name="menu_hold_delay">Задержка открытия меню (мс)</string>
+    <string name="tier1_smart_repair_title">Уровень 1: Умное реактивное восстановление</string>
+    <string name="tier1_smart_repair_subtitle">Нулевой расход батареи. Автоматически восстанавливает службу при включении экрана или сбое без фонового цикла.</string>
+    <string name="tier1_smart_repair_badge">0 расхода батареи • Всегда активен</string>
 </resources>

@@ -655,4 +655,7 @@
   <string name="recent_apps_size">Dimensione icone</string>
   <string name="recent_apps_arc">Curvatura dell\'arco</string>
   <string name="menu_hold_delay">Ritardo apertura menu (ms)</string>
+    <string name="tier1_smart_repair_title">Livello 1: Ripristino reattivo intelligente</string>
+    <string name="tier1_smart_repair_subtitle">Nessun consumo di batteria. Ripristina automaticamente il servizio al risveglio dello schermo o alla disconnessione senza loop in background.</string>
+    <string name="tier1_smart_repair_badge">0 batteria • Sempre attivo</string>
 </resources>

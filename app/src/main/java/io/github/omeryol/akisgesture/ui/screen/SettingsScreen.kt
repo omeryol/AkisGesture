@@ -1621,7 +1621,51 @@ fun SettingsScreen(
 
                     Spacer(Modifier.height(10.dp))
 
-                    // Watchdog Enable/Disable Switch
+                    // Tier 1: Akıllı Reaktif Onarım (Varsayılan & Daima Devrede)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(scheme.surfaceVariant.copy(alpha = 0.45f))
+                            .border(1.dp, Color(0xFF00E676).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.tier1_smart_repair_title),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.onSurface
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color(0xFF00E676).copy(alpha = 0.15f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.tier1_smart_repair_badge),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF00E676)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(
+                            text = stringResource(R.string.tier1_smart_repair_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    // Tier 2: Agresif Periyodik Denetim (Kullanıcı İnisiyatifinde İkincil Seçenek)
                     AkisSwitchRow(
                         title = stringResource(R.string.root_watchdog_title),
                         subtitle = stringResource(R.string.root_watchdog_subtitle),

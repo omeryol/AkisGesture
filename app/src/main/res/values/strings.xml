@@ -361,4 +361,7 @@
     <string name="recent_apps_size">Icon Size</string>
     <string name="recent_apps_arc">Arc Curvature</string>
     <string name="menu_hold_delay">Reveal Delay (Hold Duration)</string>
+    <string name="tier1_smart_repair_title">Tier 1: Smart On-Demand Healing</string>
+    <string name="tier1_smart_repair_subtitle">Zero battery drain. Automatically repairs accessibility upon screen wake, tile change, or service unbind without background loops.</string>
+    <string name="tier1_smart_repair_badge">Zero Battery • Always Active</string>
 </resources>

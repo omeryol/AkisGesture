@@ -607,4 +607,7 @@
     <string name="recent_apps_size">حجم الأيقونة</string>
     <string name="recent_apps_arc">درجة الانحناء</string>
     <string name="menu_hold_delay">مدة الانتظار للفتح</string>
+    <string name="tier1_smart_repair_title">المستوى 1: الإصلاح التلقائي الذكي</string>
+    <string name="tier1_smart_repair_subtitle">استهلاك بطارية صفر. يصلح إمكانية الوصول تلقائياً عند تشغيل الشاشة أو انقطاع الخدمة دون دورات في الخلفية.</string>
+    <string name="tier1_smart_repair_badge">0 بطارية • نشط دائماً</string>
 </resources>

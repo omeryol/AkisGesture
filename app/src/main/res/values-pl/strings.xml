@@ -655,4 +655,7 @@
   <string name="recent_apps_size">Rozmiar ikon</string>
   <string name="recent_apps_arc">Krzywizna łuku</string>
   <string name="menu_hold_delay">Opóźnienie otwarcia menu (ms)</string>
+    <string name="tier1_smart_repair_title">Poziom 1: Inteligentna naprawa reaktywna</string>
+    <string name="tier1_smart_repair_subtitle">Zerowe zużycie baterii. Automatycznie przywraca usługę po wybudzeniu ekranu lub awarii bez pętli w tle.</string>
+    <string name="tier1_smart_repair_badge">0 zużycia baterii • Zawsze aktywny</string>
 </resources>

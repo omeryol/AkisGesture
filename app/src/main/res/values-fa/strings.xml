@@ -655,4 +655,7 @@
   <string name="recent_apps_size">اندازه آیکون‌ها</string>
   <string name="recent_apps_arc">انحنای کمان</string>
   <string name="menu_hold_delay">تأخیر باز شدن منو (میلی‌ثانیه)</string>
+    <string name="tier1_smart_repair_title">سطح ۱: بازیابی هوشمند واکنشی</string>
+    <string name="tier1_smart_repair_subtitle">بدون مصرف باتری. بازیابی خودکار سرویس دسترسی‌پذیری هنگام روشن شدن صفحه یا قطعی، بدون حلقه پس‌زمینه.</string>
+    <string name="tier1_smart_repair_badge">بدون مصرف باتری • همیشه فعال</string>
 </resources>

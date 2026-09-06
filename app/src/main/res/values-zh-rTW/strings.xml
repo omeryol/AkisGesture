@@ -607,4 +607,7 @@
   <string name="recent_apps_size">圖示大小</string>
   <string name="recent_apps_arc">圓弧弧度</string>
   <string name="menu_hold_delay">展開等待時間（按住時長）</string>
+    <string name="tier1_smart_repair_title">第 1 級：智慧反應式即時修復</string>
+    <string name="tier1_smart_repair_subtitle">零電量消耗。在螢幕喚醒、圖塊切換或服務中斷時自動修復，無需後臺輪詢。</string>
+    <string name="tier1_smart_repair_badge">0 電量消耗 • 一直啟用</string>
 </resources>

@@ -233,6 +233,9 @@ class GestureAccessibilityService : AccessibilityService() {
 
     override fun onUnbind(intent: Intent?): Boolean {
         cleanup("unbind")
+        if (AccessibilityControl.isDesired(this)) {
+            KeepAliveService.triggerReactiveRepair(this)
+        }
         return super.onUnbind(intent)
     }
 
@@ -380,6 +383,7 @@ class GestureAccessibilityService : AccessibilityService() {
         val gesture = GestureDescription.Builder().addStroke(stroke).build()
         dispatchGesture(gesture, null, null)
     }
+
 
     enum class ServiceState { DISCONNECTED, CONNECTED }
 }

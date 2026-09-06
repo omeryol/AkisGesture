@@ -571,4 +571,7 @@
     <string name="recent_apps_size">আইকনের আকার</string>
     <string name="recent_apps_arc">বক্রতার মাত্রা</string>
     <string name="menu_hold_delay">খোলার অপেক্ষার সময়</string>
+    <string name="tier1_smart_repair_title">স্তর ১: স্মার্ট অন-ডিমান্ড মেরামত</string>
+    <string name="tier1_smart_repair_subtitle">শূন্য ব্যাটারি খরচ। ব্যাকগ্রাউন্ড লুপ ছাড়াই স্ক্রিন চালু হলে বা সংযোগ বিচ্ছিন্ন হলে স্বয়ংক্রিয়ভাবে অ্যাক্সেসিবিলিটি মেরামত করে।</string>
+    <string name="tier1_smart_repair_badge">০ ব্যাটারি • সর্বদা সক্রিয়</string>
 </resources>

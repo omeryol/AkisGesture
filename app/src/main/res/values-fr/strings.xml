@@ -655,4 +655,7 @@
   <string name="recent_apps_size">Taille des icônes</string>
   <string name="recent_apps_arc">Courbure de l\'arc</string>
   <string name="menu_hold_delay">Délai d\'ouverture (ms)</string>
+    <string name="tier1_smart_repair_title">Niveau 1 : Réparation réactive intelligente</string>
+    <string name="tier1_smart_repair_subtitle">Zéro consommation de batterie. Répare automatiquement le service au réveil de l\'écran ou en cas de coupure sans boucle en arrière-plan.</string>
+    <string name="tier1_smart_repair_badge">0 batterie • Toujours actif</string>
 </resources>

@@ -57,4 +57,7 @@
     <string name="recent_apps_size">የአርማ መጠን</string>
     <string name="recent_apps_arc">የቀስት ጥምዝምዝነት</string>
     <string name="menu_hold_delay">ለመክፈት የመቆያ ጊዜ</string>
+    <string name="tier1_smart_repair_title">ደረጃ 1: ብልህ ፍላጎት ላይ የተመሰረተ ጥገና</string>
+    <string name="tier1_smart_repair_subtitle">ዜሮ የባትሪ አጠቃቀም። ማያ ገጹ ሲበራ ወይም አገልግሎቱ ሲቋረጥ ያለ ጀርባ ዙር በቀጥታ ተደራሽነትን ይጠግናል።</string>
+    <string name="tier1_smart_repair_badge">0 ባትሪ • ሁልጊዜ ንቁ</string>
 </resources>

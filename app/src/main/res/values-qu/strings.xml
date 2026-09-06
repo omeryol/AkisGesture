@@ -216,4 +216,7 @@
     <string name="recent_apps_size">Sanampa sayay</string>
     <string name="recent_apps_arc">K’umu kurba</string>
     <string name="menu_hold_delay">Kicharikunapaq suyana pacha</string>
+    <string name="tier1_smart_repair_title">1 Kaq pata: Allichay mañakuypi</string>
+    <string name="tier1_smart_repair_subtitle">Manam batería usuchiychu. Pantalla kichariptin kikinmanta allichan.</string>
+    <string name="tier1_smart_repair_badge">0 batería • Wiñay kichasqa</string>
 </resources>
