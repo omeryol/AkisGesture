@@ -13,6 +13,18 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+## v1.9.1 highlights
+
+- 🎯 **Preserve Active Edge Tab:** Prevented resetting to the right edge when adding or editing gestures; the currently edited edge tab remains active.
+- 🛡️ **Streamlined Protection Tab:** Refactored permissions card with compact status switches and prominent contextual alert banners for missing permissions.
+- ⚡ **Tiered Root & Recovery Panel:** Structured root tools into "Tier 1: Automatic Repair" and "Tier 2: Periodic Watchdog" with expandable guidance notes.
+- 🔒 **In-Device Component Isolation:** Secured exported receivers and activities against unauthorized inter-app intervention and intent injection; hardened data backup and automation rules.
+- 🚀 **Background Resilience:** Reinforced reactive accessibility service healing, hang detection, and watchdog stability on HyperOS and aggressive battery managers.
+
+Signed APK: [Akış Gesture v1.9.1](https://github.com/omeryol/AkisGesture/releases/download/v1.9.1/app-release.apk)
+
+> 💡 **Recommendation:** For the best stability, advanced in-device component isolation, and latest background resilience improvements, updating to **v1.9.1** (latest release) is recommended.
+
 ## v1.9.0 highlights
 
 - 🎨 **Organic Edge Animations:** Rebuilt 14 edge animation modules with fluid mechanics and natural luminosity while preserving Aurora Flow.

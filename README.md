@@ -13,6 +13,18 @@ Proje MIT lisanslı [OpenSwipe](https://github.com/ARCJ137442/OpenSwipe)
 tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygulamanın
 paket adı `io.github.omeryol.akisgesture`dir.
 
+## v1.9.1 öne çıkanlar
+
+- 🎯 **Kenar Seçimi Hafızası:** Hareket listesinde kural eklerken veya düzenlerken seçili kenarın kaybolması engellendi; üzerinde çalışılan kenar (Sol/Alt/Sağ) korunur.
+- 🛡️ **Sade ve Dinamik Koruma Sekmesi:** İzinler kartı sadeleştirildi, aktif izinler için modern durum anahtarları eklendi, eksik izinler belirgin uyarı kartlarıyla donatıldı.
+- ⚡ **Kademeli Root Paneli:** Sistem onarımları "1. Kademe: Otomatik Onarım" ve "2. Kademe: Periyodik Nöbetçi" olarak ayrıldı; açıklamalar katlanabilir kılavuz notlarına taşındı.
+- 🔒 **Cihaz İçi Güvenlik ve İzolasyon:** Cihazdaki diğer uygulamaların izinsiz müdahalesi ve yetkisiz intent tetiklemeleri engellendi; bileşenler, otomasyon izinleri ve veri koruma kuralları sıkılaştırıldı.
+- 🚀 **Kararlılık ve Dayanıklılık:** Arka plan erişilebilirlik servisi donma takibi, çökme koruması ve sistem bazlı reaktif iyileşme mekanizmaları güçlendirildi.
+
+İmzalı APK: [Akış Gesture v1.9.1](https://github.com/omeryol/AkisGesture/releases/download/v1.9.1/app-release.apk)
+
+> 💡 **Önemli Tavsiye:** Güvenlik sıkılaştırmaları, cihaz içi bileşen yalıtımı ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için tüm kullanıcılarımızın en güncel sürüme (**v1.9.1**) geçmeleri tavsiye edilir.
+
 ## v1.9.0 öne çıkanlar
 
 - 🎨 **Organik Kenar Animasyonları:** Aurora Akışı korunarak 14 kenar animasyonu akışkanlar mekaniği ve doğal ışık geçirgenliğiyle baştan tasarlandı.

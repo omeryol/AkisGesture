@@ -11,10 +11,30 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
-            version = "1.9.0",
-            date = "2026-09-05",
+            version = "1.9.1",
+            date = "2026-09-06",
             isCurrent = true,
             changesTr = listOf(
+                "🎯 Kenar Seçimi Hafızası: Hareket ekleme veya düzenleme sonrasında üzerinde çalışılan kenarın (Sol/Alt/Sağ) korunması sağlandı; ekranın sağ kenara dönme sorunu giderildi.",
+                "🛡️ Sade ve Dinamik Koruma Sekmesi: İzinler kartı sadeleştirildi, aktif izinler için pratik durum anahtarları eklendi ve eksik izinler belirgin uyarı kartlarıyla donatıldı.",
+                "⚡ Kademeli Root Sekmesi: Onarım seçenekleri '1. Kademe: Otomatik Onarım' ve '2. Kademe: Periyodik Nöbetçi' olarak yapılandırıldı; açıklamalar açılır-kapanır kılavuz notlarına taşındı.",
+                "🔒 Cihaz İçi Güvenlik ve İzolasyon: Cihazdaki diğer uygulamaların Akış Gesture'a izinsiz müdahale etmesi, sahte komut göndermesi veya yetkisiz tetikleme yapması engellendi; bileşenler, otomasyon izinleri ve veri güvenliği sıkılaştırıldı.",
+                "🚀 Arka Plan Dayanıklılığı: Erişilebilirlik servisi için sistem düzeyinde reaktif iyileşme, donma monitörü ve çökme koruması güçlendirildi.",
+            ),
+            changesEn = listOf(
+                "🎯 Preserve Active Edge Tab: Prevented resetting to the right edge when adding or editing gestures; the currently edited edge tab remains active.",
+                "🛡️ Streamlined Protection Tab: Refactored permissions card with compact status switches and prominent contextual alert banners for missing permissions.",
+                "⚡ Tiered Root & Recovery Panel: Structured root tools into 'Tier 1: Automatic Repair' and 'Tier 2: Periodic Watchdog' with expandable guidance notes.",
+                "🔒 In-Device Component Isolation: Secured exported receivers and activities against unauthorized inter-app intervention and intent injection; hardened data backup and automation rules.",
+                "🚀 Background Resilience: Reinforced reactive accessibility service healing, hang detection, and watchdog stability on HyperOS and aggressive battery managers.",
+            ),
+        ),
+        VersionHistoryItem(
+            version = "1.9.0",
+            date = "2026-09-05",
+            isCurrent = false,
+            changesTr = listOf(
+                "💡 Tavsiye: Gelişmiş cihaz içi güvenlik yalıtımı ve HyperOS arka plan dayanıklılığı için v1.9.1 sürümüne güncellemeniz önerilir.",
                 "🎨 Organik Kenar Animasyonları: Aurora Akışı dokunulmadan korunarak 14 kenar animasyonu (Okyanus, Cıva Damlası, Plazma Alevi, Sis, Güneş Halesi, Yıldız Alanı, Girdap, Yağmur, Rüzgar vb.) pürüzsüz akışkanlar mekaniği ve doğal ışık geçirgenliğiyle sıfırdan yeniden yazıldı.",
                 "📊 Canlı Ana Sayfa & Teşhis Paneli: Canlı nabız göstergeli Hero durum kartı, dinamik kenar rozetleri ve arka plan koruması ile HyperOS optimizasyon rehberini içeren tek dokunuşlu Akıllı Teşhis Paneli.",
                 "📐 19.5:9 Modern Telefon Göstergeleri: Hareketler sayfasındaki önizlemeler modern akıllı telefon oranlarına güncellendi; vektörel neon aydınlatmalı dinamik tetikleyici alanı göstergesi (EdgeZoneVisual) eklendi.",
@@ -22,6 +42,7 @@ object VersionHistoryProvider {
                 "🎨 Kenar Temalı Kart Çerçeveleri: Bölüm kartları ve ayar panelleri ait oldukları kenarın canlı tema rengiyle (Siyan, Macenta, Kehribar) bütünleştirildi.",
             ),
             changesEn = listOf(
+                "💡 Recommendation: Updating to v1.9.1 is recommended for advanced in-device component isolation and HyperOS background resilience.",
                 "🎨 Organic Edge Animations: Completely rebuilt 14 edge animation modules (Ocean, Mercury Teardrop, Plasma Fire, Mist, Solar Corona, Starfield, Vortex, Rain, Wind, etc.) with fluid mechanics and natural luminosity, keeping Aurora untouched.",
                 "📊 Live Home & Smart Diagnostic Hub: Redesigned live hero card with pulse beacon and edge indicators, paired with a unified 1-tap diagnostic health hub and HyperOS optimization guide.",
                 "📐 19.5:9 Vector Phone Previews: Updated edge visualizers to modern smartphone aspect ratios with a razor-sharp vector OLED illustration and active neon trigger tube bloom.",
@@ -34,11 +55,13 @@ object VersionHistoryProvider {
             date = "2026-09-05",
             isCurrent = false,
             changesTr = listOf(
+                "💡 Tavsiye: Gelişmiş güvenlik ve kararlılık iyileştirmeleri için v1.9.1 sürümüne güncellemeniz önerilir.",
                 "🌍 8 Yeni Dil Desteği: Rusça (ru), Lehçe (pl), Almanca (de), Fransızca (fr), İtalyanca (it), Vietnamca (vi), Geleneksel Çince (zh-rTW) ve Farsça (fa) eklendi.",
                 "🌐 22 Dilli Arayüz: Ayarlar menüsüne kaydırılabilir ve tüm yerel alfabeleri destekleyen kapsamlı dil seçim diyaloğu entegre edildi.",
                 "📱 Tam Dil Eşleşmesi: Tüm yeni diller 607 anahtarın tamamında ve Android sistem standartlarında yerelleştirildi.",
             ),
             changesEn = listOf(
+                "💡 Recommendation: Updating to v1.9.1 is recommended for latest security hardening and stability improvements.",
                 "🌍 8 New Languages: Added Russian (ru), Polish (pl), German (de), French (fr), Italian (it), Vietnamese (vi), Traditional Chinese (zh-rTW), and Persian (fa).",
                 "🌐 22 Supported Languages: Integrated a full scrollable language selection dialog in Settings.",
                 "📱 Complete Key Parity: All 607 string keys fully localized with native Android OS and HyperOS terminology.",

@@ -1,4 +1,40 @@
 
+## [1.9.1] - 2026-09-06
+
+### Kullanıcı Deneyimi & Arayüz
+- **Kenar Seçimi Hafızası:** Hareket listesinde yeni kural ekleme veya düzenleme sonrasında üzerinde çalışılan kenar sekmesi (Sol/Alt/Sağ) korunur; ekranın sağ kenara sıfırlanma sorunu giderildi.
+- **Sade ve Dinamik Koruma Sekmesi:** İzinler kartı sadeleştirildi, aktif izinler modern durum anahtarlarına (Switch) dönüştürüldü, eksik izinler belirgin uyarı kartlarıyla vurgulandı.
+- **Kademeli Root Paneli:** Sistem kurtarma ve koruma araçları "1. Kademe: Otomatik Onarım" ve "2. Kademe: Periyodik Nöbetçi" olarak ayrıldı; detaylar açılır-kapanır kılavuz notlarına taşındı.
+
+### Güvenlik & Mimari
+- **Cihaz İçi Bileşen İzolasyonu (IPC & Intent Güvenliği):** Dışarıya açık Receiver ve Activity bileşenleri yetkisiz intent tetiklemelerine ve injection saldırılarına karşı sıkılaştırıldı.
+- **Yetkilendirme Sınırları:** Otomasyon araçları (MacroDroid vb.) için açık izin kontrolü eklendi; rastgele kabuk (shell) komutları kısıtlandı.
+- **Ağ ve Yedekleme Güvenliği:** `cleartextTrafficPermitted="false"` politikası zorunlu kılındı; yedekleme ve veri izolasyon kuralları (`data_extraction_rules.xml`) güncellendi.
+- **Kararlılık ve Dayanıklılık:** Erişilebilirlik servisi donma takibi, çökme koruması ve sistem bazlı reaktif iyileşme mekanizmaları güçlendirildi.
+
+> 💡 **Tavsiye:** Gelişmiş güvenlik sıkılaştırmaları, cihaz içi bileşen yalıtımı ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için tüm kullanıcılarımızın en güncel sürüme (**v1.9.1**) geçmeleri tavsiye edilir.
+
+### Teknik
+- Sürüm `1.9.1`, version code `66`.
+- İmzalı APK: `app-release.apk`.
+
+---
+
+## [1.9.0] - 2026-09-05
+
+### Arayüz ve Animasyonlar
+- Organik Kenar Animasyonları: 14 kenar animasyonu akışkanlar mekaniği ve doğal ışık geçirgenliğiyle baştan tasarlandı.
+- Canlı Ana Sayfa & Akıllı Teşhis Paneli: Canlı nabız göstergeli Hero durum kartı, dinamik kenar rozetleri ve HyperOS optimizasyon rehberli tek dokunuşlu teşhis paneli eklendi.
+- 19.5:9 Modern Telefon Göstergeleri: Vektörel neon tetik alanı göstergesi ve modern en-boy oranları.
+- Alt Kenar Kural Sıralaması: Bölümler koordinat sırasıyla deterministik dizilir; Sol/Orta/Sağ konum etiketleriyle senkronize gösterilir.
+
+### Teknik
+- Sürüm `1.9.0`, version code `65`.
+- İmzalı APK: `app-release.apk`.
+- SHA-256: `379DF5B76B8555AADB09933CE7B06CE45A2A82DEFBF3AD0EDF7081F277F96706`.
+
+---
+
 ## [1.8.1] - 2026-09-05
 
 ### Dil ve yerelleştirme
