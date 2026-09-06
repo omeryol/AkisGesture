@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import io.github.omeryol.akisgesture.AkisGestureApp
 
 class MacroDroidPluginActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +36,10 @@ class MacroDroidPluginActivity : Activity() {
 
 class MacroDroidPluginReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val app = context.applicationContext as? AkisGestureApp
+        if (app?.gestureConfigFlow?.value?.automationAppsEnabled != true) {
+            return
+        }
         val command = intent.getBundleExtra(EXTRA_BUNDLE)?.getString(KEY_COMMAND) ?: return
         val enabled = when (command) {
             "start" -> true
