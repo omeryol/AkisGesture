@@ -75,7 +75,9 @@ object RuntimeDiagnostics {
         val details = mutableMapOf<String, String>()
         details["reason"] = reason
         if (uptimeMs > 0) details["uptime_ms"] = uptimeMs.toString()
-        if (!foregroundPackage.isNullOrBlank()) details["foreground_package"] = foregroundPackage
+        if (!foregroundPackage.isNullOrBlank()) {
+            details["foreground_package"] = maskPackageName(foregroundPackage)
+        }
 
         var readableSummary = "Sebep: $reason"
 
@@ -116,6 +118,9 @@ object RuntimeDiagnostics {
 
         lastDisconnectSummary = readableSummary
         record("service", "disconnected", details)
+        if (context != null) {
+            persistSnapshot(context, "disconnect_$reason")
+        }
     }
 
     fun serviceInterrupted() {
@@ -282,13 +287,129 @@ object RuntimeDiagnostics {
         },
     )
 
+    fun shizukuEvent(event: String, details: Map<String, String> = emptyMap()) = record(
+        category = "shizuku",
+        name = event,
+        details = details,
+    )
+
+    fun shellCommandExecuted(
+        commandTag: String,
+        durationMs: Long,
+        success: Boolean,
+        reason: String? = null,
+    ) = record(
+        category = "shell_command",
+        name = if (success) "success" else "failure",
+        details = buildMap {
+            put("tag", commandTag)
+            put("duration_ms", durationMs.toString())
+            if (!reason.isNullOrBlank()) put("reason", reason.take(120))
+        },
+    )
+
+    fun mainThreadStalled(stallMs: Long) = record(
+        category = "health",
+        name = "main_thread_stalled",
+        details = mapOf("stall_ms" to stallMs.toString()),
+    )
+
+    private const val PERSISTED_FILE = "diagnostic_persisted_dump.json"
+
+    fun installUncaughtExceptionHandler(context: Context) {
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            runCatching {
+                record(
+                    category = "crash",
+                    name = "uncaught_exception",
+                    details = mapOf(
+                        "thread" to thread.name,
+                        "exception" to (throwable::class.simpleName ?: "Exception"),
+                        "message" to (throwable.message ?: "").take(200),
+                        "stack" to throwable.stackTraceToString().take(600).replace('\n', ' '),
+                    ),
+                )
+                persistSnapshot(context, "uncaught_exception_${throwable::class.simpleName}")
+            }
+            defaultHandler?.uncaughtException(thread, throwable)
+        }
+    }
+
+    fun persistSnapshot(context: Context, triggerReason: String) {
+        runCatching {
+            val file = java.io.File(context.filesDir, PERSISTED_FILE)
+            val json = JSONObject().apply {
+                put("persistedAtEpochMs", System.currentTimeMillis())
+                put("triggerReason", triggerReason)
+                val snapshot = synchronized(lock) { events.takeLast(60) }
+                put("events", JSONArray().apply {
+                    snapshot.forEach { put(it.toJson()) }
+                })
+            }
+            file.writeText(json.toString(2))
+        }
+    }
+
+    private fun maskPackageName(pkg: String): String {
+        val systemPrefixes = listOf(
+            "com.android.", "android", "io.github.omeryol.", "com.miui.", "com.xiaomi."
+        )
+        if (systemPrefixes.any { pkg.startsWith(it) } || pkg.contains("launcher", ignoreCase = true)) {
+            return pkg
+        }
+        val parts = pkg.split('.')
+        val hash = Integer.toHexString(pkg.hashCode()).take(4)
+        return if (parts.size >= 2) {
+            "${parts[0]}.${parts[1]}.***#$hash"
+        } else {
+            "app_***#$hash"
+        }
+    }
+
     fun export(context: Context, output: OutputStream) {
         val snapshot = synchronized(lock) { events.toList() }
         val exitsSnapshot = synchronized(lock) { historicalExits.toList() }
         val lastDisconnect = lastDisconnectSummary
+
+        val app = context.applicationContext as? io.github.omeryol.akisgesture.AkisGestureApp
+        val cfg = app?.gestureConfigFlow?.value
+        val configJson = JSONObject().apply {
+            if (cfg != null) {
+                put("masterEnabled", cfg.masterEnabled)
+                put("rootWatchdogEnabled", cfg.rootWatchdogEnabled)
+                put("rootWatchdogIntervalSeconds", cfg.rootWatchdogIntervalSeconds)
+                put("automationAppsEnabled", cfg.automationAppsEnabled)
+                put("foregroundNotificationVisible", cfg.foregroundNotificationVisible)
+                put("leftEnabled", cfg.leftEnabled)
+                put("rightEnabled", cfg.rightEnabled)
+                put("bottomEnabled", cfg.bottomEnabled)
+                put("holdTimeMs", cfg.holdTimeMs)
+                put("ringMenuEnabled", cfg.ringMenuEnabled)
+                put("recentAppsCount", cfg.recentAppsCount)
+            }
+        }
+
+        val privilegesJson = JSONObject().apply {
+            put("shizukuStatus", io.github.omeryol.akisgesture.shizuku.ShizukuManager.getStatus().name)
+            put("shizukuHasPermission", io.github.omeryol.akisgesture.shizuku.ShizukuManager.hasPermission())
+            put("accessibilityDesired", io.github.omeryol.akisgesture.service.AccessibilityControl.isDesired(context))
+            put("accessibilityEnabled", io.github.omeryol.akisgesture.service.AccessibilityControl.isEnabled(context))
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            if (pm != null) {
+                put("ignoringBatteryOptimizations", pm.isIgnoringBatteryOptimizations(context.packageName))
+                put("isPowerSaveMode", pm.isPowerSaveMode)
+            }
+        }
+
+        val persistedCrashJson = runCatching {
+            val file = java.io.File(context.filesDir, PERSISTED_FILE)
+            if (file.exists()) JSONObject(file.readText()) else null
+        }.getOrNull()
+
         val report = JSONObject().apply {
             put("format", "akis-gesture-diagnostic")
-            put("formatVersion", 1)
+            put("formatVersion", 2)
             put("exportedAtEpochMs", System.currentTimeMillis())
             put("appVersion", BuildConfig.VERSION_NAME)
             put("device", JSONObject().apply {
@@ -296,7 +417,10 @@ object RuntimeDiagnostics {
                 put("model", Build.MODEL)
                 put("sdkInt", Build.VERSION.SDK_INT)
             })
+            put("config", configJson)
+            put("privileges", privilegesJson)
             lastDisconnect?.let { put("lastDisconnectSummary", it) }
+            persistedCrashJson?.let { put("persistedPreviousCrashOrDisconnect", it) }
             put("historicalProcessExits", JSONArray().apply {
                 exitsSnapshot.forEach { put(JSONObject(it)) }
             })

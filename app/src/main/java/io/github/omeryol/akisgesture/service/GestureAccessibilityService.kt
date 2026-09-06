@@ -24,14 +24,20 @@ import io.github.omeryol.akisgesture.action.ActionDispatcherImpl
 import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import io.github.omeryol.akisgesture.gesture.GestureEngine
 import io.github.omeryol.akisgesture.overlay.OverlayManager
+import android.os.SystemClock
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 class GestureAccessibilityService : AccessibilityService() {
 
@@ -66,6 +72,8 @@ class GestureAccessibilityService : AccessibilityService() {
     // 1x1px saydam overlay penceresi — süreç önceliğini korur
     private var keepAliveView: View? = null
     private var serviceConnectedEpochMs: Long = 0L
+    private var heartbeatJob: Job? = null
+    private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -73,6 +81,7 @@ class GestureAccessibilityService : AccessibilityService() {
         instance = this
         RuntimeDiagnostics.serviceConnected()
         RuntimeDiagnostics.recordHistoricalExitReasons(this)
+        startHeartbeatMonitor()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         serviceInfo = serviceInfo?.apply {
@@ -256,6 +265,8 @@ class GestureAccessibilityService : AccessibilityService() {
     private fun cleanup(reason: String) {
         val uptime = if (serviceConnectedEpochMs > 0L) System.currentTimeMillis() - serviceConnectedEpochMs else 0L
         val fgPkg = currentForegroundPackage
+        heartbeatJob?.cancel()
+        heartbeatJob = null
         serviceScope.cancel()
         if (::gestureEngine.isInitialized) gestureEngine.stop()
         if (::overlayManager.isInitialized) overlayManager.removeAll()
@@ -382,6 +393,29 @@ class GestureAccessibilityService : AccessibilityService() {
         val stroke = GestureDescription.StrokeDescription(path, 0, 1)
         val gesture = GestureDescription.Builder().addStroke(stroke).build()
         dispatchGesture(gesture, null, null)
+    }
+
+    private fun startHeartbeatMonitor() {
+        heartbeatJob?.cancel()
+        heartbeatJob = serviceScope.launch(Dispatchers.Default) {
+            while (isActive) {
+                delay(15_000L)
+                val pingTime = SystemClock.elapsedRealtime()
+                val completed = CompletableDeferred<Long>()
+                mainHandler.post {
+                    val duration = SystemClock.elapsedRealtime() - pingTime
+                    completed.complete(duration)
+                }
+                val duration = withTimeoutOrNull(3_000L) {
+                    completed.await()
+                }
+                if (duration == null) {
+                    RuntimeDiagnostics.mainThreadStalled(3_000L)
+                } else if (duration > 1_500L) {
+                    RuntimeDiagnostics.mainThreadStalled(duration)
+                }
+            }
+        }
     }
 
 

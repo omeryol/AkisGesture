@@ -17,14 +17,19 @@ object ShizukuManager {
     private val statusListeners = mutableListOf<() -> Unit>()
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
+        io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics.shizukuEvent("binder_received")
         notifyStatusChanged()
     }
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
+        io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics.shizukuEvent("binder_dead")
         notifyStatusChanged()
     }
     private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
         if (requestCode == REQUEST_CODE_SHIZUKU) {
             val granted = grantResult == PackageManager.PERMISSION_GRANTED
+            io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics.shizukuEvent(
+                if (granted) "permission_granted" else "permission_denied"
+            )
             permissionListeners.forEach { it(granted) }
             notifyStatusChanged()
         }
@@ -72,6 +77,7 @@ object ShizukuManager {
             permissionListeners.add(onResult)
         }
         if (isRunning() && !hasPermission()) {
+            io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics.shizukuEvent("permission_request_launched")
             runCatching {
                 Shizuku.requestPermission(REQUEST_CODE_SHIZUKU)
             }

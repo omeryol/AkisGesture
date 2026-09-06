@@ -60,6 +60,7 @@ class AkisGestureApp : Application() {
         super.onCreate()
         instance = this
         io.github.omeryol.akisgesture.util.GestureTracker.init(this)
+        io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics.installUncaughtExceptionHandler(this)
 
         gestureConfigFlow = settingsDataStore.data
             .map { prefs ->

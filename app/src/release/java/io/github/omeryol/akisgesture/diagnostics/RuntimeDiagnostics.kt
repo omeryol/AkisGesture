@@ -32,4 +32,9 @@ object RuntimeDiagnostics {
     fun ringHitProbe(edge: String, index: Int, x: Float, y: Float, touch: Float) = Unit
     fun actionFinished(actionId: String, result: ActionResult) = Unit
     fun repairFinished(action: String, result: RootResult) = Unit
+    fun shizukuEvent(event: String, details: Map<String, String> = emptyMap()) = Unit
+    fun shellCommandExecuted(commandTag: String, durationMs: Long, success: Boolean, reason: String? = null) = Unit
+    fun mainThreadStalled(stallMs: Long) = Unit
+    fun installUncaughtExceptionHandler(context: Context) = Unit
+    fun persistSnapshot(context: Context, triggerReason: String) = Unit
 }

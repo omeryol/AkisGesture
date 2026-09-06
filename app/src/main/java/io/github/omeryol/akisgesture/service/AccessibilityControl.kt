@@ -166,6 +166,8 @@ object AccessibilityControl {
         COMPONENT_NAME_REGEX.matches(value.trim())
 
     private fun runRoot(command: String): CommandResult {
+        val startTime = android.os.SystemClock.elapsedRealtime()
+        val tag = command.split(' ').firstOrNull() ?: "cmd"
         val rootResult = try {
             val process = ProcessBuilder("su", "-c", command)
                 .redirectErrorStream(true)
@@ -181,17 +183,28 @@ object AccessibilityControl {
         } catch (_: Exception) {
             CommandResult.Failure
         }
-        if (rootResult is CommandResult.Success) return rootResult
 
-        // Shizuku fallback
-        if (io.github.omeryol.akisgesture.shizuku.ShizukuManager.hasPermission()) {
+        val result = if (rootResult is CommandResult.Success) {
+            rootResult
+        } else if (io.github.omeryol.akisgesture.shizuku.ShizukuManager.hasPermission()) {
+            // Shizuku fallback
             val shizukuOutput = io.github.omeryol.akisgesture.shizuku.ShizukuManager.executeShell(command)
-            if (shizukuOutput != null) {
-                return CommandResult.Success(shizukuOutput)
-            }
+            if (shizukuOutput != null) CommandResult.Success(shizukuOutput) else CommandResult.Failure
+        } else {
+            CommandResult.Failure
         }
 
-        return CommandResult.Failure
+        val elapsed = android.os.SystemClock.elapsedRealtime() - startTime
+        if (elapsed > 400L || result is CommandResult.Failure) {
+            RuntimeDiagnostics.shellCommandExecuted(
+                commandTag = tag,
+                durationMs = elapsed,
+                success = result is CommandResult.Success,
+                reason = if (result is CommandResult.Failure) "failed_or_timeout" else null,
+            )
+        }
+
+        return result
     }
 
     private sealed interface CommandResult {
