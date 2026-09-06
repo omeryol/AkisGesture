@@ -91,6 +91,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -1540,6 +1541,10 @@ fun SettingsScreen(
 
             // Root sekmesindeki ayrıcalıklı otomatik iyileştirme kartı
             if (selectedSection == 5 && isPrivilegedAvailable) {
+                var expandedTier1 by remember { mutableStateOf(false) }
+                var expandedTier2Info by remember { mutableStateOf(false) }
+                var expandedScope by remember { mutableStateOf(false) }
+
                 AkisGlassCard(accentTint = Color(0xFFAA00FF)) {
                     AkisSectionHeader(
                         title = stringResource(R.string.privileged_card_title),
@@ -1627,13 +1632,14 @@ fun SettingsScreen(
 
                     Spacer(Modifier.height(10.dp))
 
-                    // Tier 1: Akıllı Reaktif Onarım (Varsayılan & Daima Devrede)
+                    // 1. Kademe: Akıllı Reaktif Onarım (Varsayılan & Daima Devrede)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .background(scheme.surfaceVariant.copy(alpha = 0.45f))
                             .border(1.dp, Color(0xFF00E676).copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                            .clickable { expandedTier1 = !expandedTier1 }
                             .padding(12.dp)
                     ) {
                         Row(
@@ -1645,104 +1651,176 @@ fun SettingsScreen(
                                 text = stringResource(R.string.tier1_smart_repair_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = scheme.onSurface
+                                color = scheme.onSurface,
+                                modifier = Modifier.weight(1f, fill = false)
                             )
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(Color(0xFF00E676).copy(alpha = 0.15f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.tier1_smart_repair_badge),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF00E676)
+                            Spacer(Modifier.width(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(Color(0xFF00E676).copy(alpha = 0.15f))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.tier1_smart_repair_badge),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF00E676)
+                                    )
+                                }
+                                Spacer(Modifier.width(4.dp))
+                                Icon(
+                                    imageVector = if (expandedTier1) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = scheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            text = stringResource(R.string.tier1_smart_repair_subtitle),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = scheme.onSurfaceVariant
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.tier1_smart_repair_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = scheme.onSurfaceVariant,
+                                maxLines = if (expandedTier1) Int.MAX_VALUE else 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
 
                     Spacer(Modifier.height(12.dp))
 
-                    // Tier 2: Agresif Periyodik Denetim (Kullanıcı İnisiyatifinde İkincil Seçenek)
-                    AkisSwitchRow(
-                        title = stringResource(R.string.root_watchdog_title),
-                        subtitle = stringResource(R.string.root_watchdog_subtitle),
-                        checked = config.rootWatchdogEnabled,
-                        onCheckedChange = viewModel::setRootWatchdogEnabled
-                    )
+                    // 2. Kademe: Periyodik Bekçi Denetimi (Kullanıcı İnisiyatifinde İkincil Seçenek)
+                    val currentLocales = AppCompatDelegate.getApplicationLocales()
+                    val isTr = (currentLocales[0] ?: LocalConfiguration.current.locales[0])?.language?.lowercase(Locale.ROOT) == "tr"
+                    val tier2Title = if (isTr) "2. Kademe: ${stringResource(R.string.root_watchdog_title)}" else "Tier 2: ${stringResource(R.string.root_watchdog_title)}"
+                    val tier2BorderColor = if (config.rootWatchdogEnabled) Color(0xFFAA00FF) else scheme.outlineVariant.copy(alpha = 0.35f)
 
-                    if (config.rootWatchdogEnabled) {
-                        Spacer(Modifier.height(10.dp))
-
-                        val intervalVal = config.rootWatchdogIntervalSeconds
-                        val intervalText = if (intervalVal < 60) {
-                            "$intervalVal sn"
-                        } else {
-                            val minutes = intervalVal / 60
-                            if (minutes >= 60) {
-                                "${minutes / 60} saat ${if (minutes % 60 > 0) "${minutes % 60} dk" else ""}".trim()
-                            } else {
-                                "$minutes dk"
-                            }
-                        }
-
-                        AkisSliderRow(
-                            title = stringResource(R.string.root_watchdog_interval),
-                            valueText = intervalText,
-                            value = intervalVal.toFloat(),
-                            valueRange = 5f..7200f,
-                            onValueChange = { viewModel.setRootWatchdogIntervalSeconds(it.toInt()) }
-                        )
-
-                        Spacer(Modifier.height(8.dp))
-
-                        // Color-coded Battery Impact Indicator & Written Warning
-                        val (impactTitle, impactDesc, impactColor) = when {
-                            intervalVal <= 600 -> Triple(
-                                stringResource(R.string.battery_impact_high),
-                                stringResource(R.string.battery_impact_high_desc),
-                                Color(0xFFFF1744)
-                            )
-                            intervalVal <= 1800 -> Triple(
-                                stringResource(R.string.battery_impact_moderate),
-                                stringResource(R.string.battery_impact_moderate_desc),
-                                Color(0xFFFF9100)
-                            )
-                            else -> Triple(
-                                stringResource(R.string.battery_impact_low),
-                                stringResource(R.string.battery_impact_low_desc),
-                                Color(0xFF00E676)
-                            )
-                        }
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(impactColor.copy(alpha = 0.12f))
-                                .border(1.dp, impactColor.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
-                                .padding(10.dp)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(scheme.surfaceVariant.copy(alpha = 0.45f))
+                            .border(1.dp, tier2BorderColor.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = impactTitle,
-                                style = MaterialTheme.typography.labelMedium,
+                                text = tier2Title,
+                                style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = impactColor
+                                color = scheme.onSurface,
+                                modifier = Modifier.weight(1f)
                             )
-                            Spacer(Modifier.height(2.dp))
+                            Spacer(Modifier.width(10.dp))
+                            AkisFluidSwitch(
+                                checked = config.rootWatchdogEnabled,
+                                activeColor = Color(0xFFAA00FF),
+                                onCheckedChange = viewModel::setRootWatchdogEnabled
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(6.dp))
+                                .clickable { expandedTier2Info = !expandedTier2Info }
+                                .padding(top = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = impactDesc,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = scheme.onSurfaceVariant
+                                text = stringResource(R.string.root_watchdog_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = scheme.onSurfaceVariant,
+                                maxLines = if (expandedTier2Info) Int.MAX_VALUE else 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
                             )
+                            Spacer(Modifier.width(4.dp))
+                            Icon(
+                                imageVector = if (expandedTier2Info) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                contentDescription = null,
+                                tint = scheme.onSurfaceVariant,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        if (config.rootWatchdogEnabled) {
+                            Spacer(Modifier.height(10.dp))
+
+                            val intervalVal = config.rootWatchdogIntervalSeconds
+                            val intervalText = if (intervalVal < 60) {
+                                "$intervalVal sn"
+                            } else {
+                                val minutes = intervalVal / 60
+                                if (minutes >= 60) {
+                                    "${minutes / 60} saat ${if (minutes % 60 > 0) "${minutes % 60} dk" else ""}".trim()
+                                } else {
+                                    "$minutes dk"
+                                }
+                            }
+
+                            AkisSliderRow(
+                                title = stringResource(R.string.root_watchdog_interval),
+                                valueText = intervalText,
+                                value = intervalVal.toFloat(),
+                                valueRange = 5f..7200f,
+                                onValueChange = { viewModel.setRootWatchdogIntervalSeconds(it.toInt()) }
+                            )
+
+                            Spacer(Modifier.height(8.dp))
+
+                            // Color-coded Battery Impact Indicator & Written Warning
+                            val (impactTitle, impactDesc, impactColor) = when {
+                                intervalVal <= 600 -> Triple(
+                                    stringResource(R.string.battery_impact_high),
+                                    stringResource(R.string.battery_impact_high_desc),
+                                    Color(0xFFFF1744)
+                                )
+                                intervalVal <= 1800 -> Triple(
+                                    stringResource(R.string.battery_impact_moderate),
+                                    stringResource(R.string.battery_impact_moderate_desc),
+                                    Color(0xFFFF9100)
+                                )
+                                else -> Triple(
+                                    stringResource(R.string.battery_impact_low),
+                                    stringResource(R.string.battery_impact_low_desc),
+                                    Color(0xFF00E676)
+                                )
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(impactColor.copy(alpha = 0.12f))
+                                    .border(1.dp, impactColor.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                                    .padding(10.dp)
+                            ) {
+                                Text(
+                                    text = impactTitle,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = impactColor
+                                )
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    text = impactDesc,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = scheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
 
@@ -1754,90 +1832,132 @@ fun SettingsScreen(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))
                             .background(scheme.surfaceVariant.copy(alpha = 0.35f))
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                            .clickable { expandedScope = !expandedScope }
+                            .padding(12.dp)
                     ) {
-                        Text(
-                            text = stringResource(R.string.root_scope_title),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = scheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(R.string.root_scope_does),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = scheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = stringResource(R.string.root_scope_does_not),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = scheme.onSurfaceVariant
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.root_scope_title),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Icon(
+                                imageVector = if (expandedScope) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                contentDescription = null,
+                                tint = scheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        AnimatedVisibility(visible = expandedScope) {
+                            Column(
+                                modifier = Modifier.padding(top = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.root_scope_does),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = scheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = stringResource(R.string.root_scope_does_not),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = scheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
             }
 
             if (selectedSection == 5 && isPrivilegedAvailable) {
+                var expandedAboutRoot by remember { mutableStateOf(false) }
                 AkisGlassCard(accentTint = Color(0xFFFF6D00)) {
-                    AkisSectionHeader(
-                        title = stringResource(R.string.about_root_title),
-                        subtitle = stringResource(R.string.root_scope_title),
-                        icon = Icons.Filled.Security,
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { expandedAboutRoot = !expandedAboutRoot },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AkisSectionHeader(
+                            title = stringResource(R.string.about_root_title),
+                            subtitle = if (!expandedAboutRoot) stringResource(R.string.root_warning_title) else stringResource(R.string.root_scope_title),
+                            icon = Icons.Filled.Security,
+                            modifier = Modifier.weight(1f),
+                            action = {
+                                Icon(
+                                    imageVector = if (expandedAboutRoot) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFF6D00),
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                        )
+                    }
+                    AnimatedVisibility(visible = expandedAboutRoot) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFD50000).copy(alpha = 0.12f))
-                                .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-                                .padding(10.dp),
+                            modifier = Modifier.padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(0xFFD50000).copy(alpha = 0.12f))
+                                    .border(1.dp, Color(0xFFD50000).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                                    .padding(10.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.root_warning_title),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFFF5252),
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    text = stringResource(R.string.root_warning_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = scheme.onSurface,
+                                )
+                            }
+                            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
                             Text(
-                                text = stringResource(R.string.root_warning_title),
+                                text = stringResource(R.string.about_root_not_required_title),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFF5252),
+                                color = Color(0xFF00E676),
                             )
-                            Spacer(Modifier.height(4.dp))
                             Text(
-                                text = stringResource(R.string.root_warning_desc),
+                                text = stringResource(R.string.about_root_not_required_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = scheme.onSurface,
                             )
+                            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+                            Text(
+                                text = stringResource(R.string.about_root_features_title),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = scheme.onSurface,
+                            )
+                            Text(
+                                text = stringResource(R.string.about_root_features_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = scheme.onSurfaceVariant,
+                            )
+                            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
+                            Text(
+                                text = stringResource(R.string.about_root_privacy_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Medium,
+                                color = scheme.onSurface,
+                            )
                         }
-                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-                        Text(
-                            text = stringResource(R.string.about_root_not_required_title),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF00E676),
-                        )
-                        Text(
-                            text = stringResource(R.string.about_root_not_required_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = scheme.onSurface,
-                        )
-                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-                        Text(
-                            text = stringResource(R.string.about_root_features_title),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = scheme.onSurface,
-                        )
-                        Text(
-                            text = stringResource(R.string.about_root_features_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = scheme.onSurfaceVariant,
-                        )
-                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.3f))
-                        Text(
-                            text = stringResource(R.string.about_root_privacy_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium,
-                            color = scheme.onSurface,
-                        )
                     }
                 }
             }
