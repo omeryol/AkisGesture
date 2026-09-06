@@ -17,6 +17,7 @@
 ### Teknik
 - Sürüm `1.9.1`, version code `66`.
 - İmzalı APK: `app-release.apk`.
+- SHA-256: `33E37AF4BC84CBBB5E02F845595ADBA622C98F053A603F1925B0C96D2213D0B5`.
 
 ---
 

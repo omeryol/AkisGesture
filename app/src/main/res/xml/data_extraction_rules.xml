@@ -3,11 +3,9 @@
     <cloud-backup>
         <include domain="sharedpref" path="." />
         <include domain="file" path="datastore/" />
-        <exclude domain="file" path="verified-updates/" />
     </cloud-backup>
     <device-transfer>
         <include domain="sharedpref" path="." />
         <include domain="file" path="datastore/" />
-        <exclude domain="file" path="verified-updates/" />
     </device-transfer>
 </data-extraction-rules>

@@ -2,5 +2,4 @@
 <full-backup-content>
     <include domain="sharedpref" path="." />
     <include domain="file" path="datastore/" />
-    <exclude domain="file" path="verified-updates/" />
 </full-backup-content>
