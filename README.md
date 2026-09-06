@@ -24,7 +24,8 @@ paket adı `io.github.omeryol.akisgesture`dir.
 İmzalı APK: [Akış Gesture v1.9.1](https://github.com/omeryol/AkisGesture/releases/download/v1.9.1/app-release.apk)
 SHA-256: `01F73171350BD9CB40E13B99509B4430609429B5D3A13F4AAFA82B0688516151`
 
-> 💡 **Önemli Tavsiye:** Güvenlik sıkılaştırmaları, cihaz içi bileşen yalıtımı ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için tüm kullanıcılarımızın en güncel sürüme (**v1.9.1**) geçmeleri tavsiye edilir.
+> [!TIP]
+> **Önemli Tavsiye:** Gelişmiş cihaz içi bileşen yalıtımı, izin korumaları ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için **[v1.9.1 (En Güncel Sürüm)](#v191-öne-çıkanlar)** kullanmanız tavsiye edilir.
 
 ## v1.9.0 öne çıkanlar
 

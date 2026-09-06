@@ -12,7 +12,8 @@
 - **Ağ ve Yedekleme Güvenliği:** `cleartextTrafficPermitted="false"` politikası zorunlu kılındı; yedekleme ve veri izolasyon kuralları (`data_extraction_rules.xml`) güncellendi.
 - **Kararlılık ve Dayanıklılık:** Erişilebilirlik servisi donma takibi, çökme koruması ve sistem bazlı reaktif iyileşme mekanizmaları güçlendirildi.
 
-> 💡 **Tavsiye:** Gelişmiş güvenlik sıkılaştırmaları, cihaz içi bileşen yalıtımı ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için tüm kullanıcılarımızın en güncel sürüme (**v1.9.1**) geçmeleri tavsiye edilir.
+> [!TIP]
+> **Tavsiye:** Gelişmiş güvenlik sıkılaştırmaları, cihaz içi bileşen yalıtımı ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için tüm kullanıcılarımızın en güncel sürüme (**[v1.9.1](#191---2026-09-06)**) geçmeleri tavsiye edilir.
 
 ### Teknik
 - Sürüm `1.9.1`, version code `66`.
