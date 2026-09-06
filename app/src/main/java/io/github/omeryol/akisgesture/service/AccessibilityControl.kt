@@ -56,12 +56,12 @@ object AccessibilityControl {
             .takeUnless { it == "null" }
             .orEmpty()
             .split(':')
-            .filter { it.isNotBlank() && !sameComponent(it, component) }
+            .filter { it.isNotBlank() && isValidComponentName(it) && !sameComponent(it, component) }
             .toMutableList()
         if (enabled) services += component
         val safeValue = services.joinToString(":")
         val write = runRoot(
-            "settings put secure enabled_accessibility_services '${safeValue.replace("'", "")}'",
+            "settings put secure enabled_accessibility_services '$safeValue'",
         )
         if (write !is CommandResult.Success) {
             return RootResult.Failure("Erişilebilirlik durumu değiştirilemedi")
@@ -132,7 +132,8 @@ object AccessibilityControl {
     }
 
     private fun writeServices(services: List<String>): Boolean {
-        val safeValue = services.joinToString(":").replace("'", "")
+        val validServices = services.filter { it.isNotBlank() && isValidComponentName(it) }
+        val safeValue = validServices.joinToString(":")
         return runRoot(
             "settings put secure enabled_accessibility_services '$safeValue'",
         ) is CommandResult.Success
@@ -146,6 +147,11 @@ object AccessibilityControl {
         val right = ComponentName.unflattenFromString(target) ?: return false
         return left == right
     }
+
+    private val COMPONENT_NAME_REGEX = Regex("^[a-zA-Z0-9_.]+/([a-zA-Z0-9_.]+|\\.[a-zA-Z0-9_.]+)$")
+
+    fun isValidComponentName(value: String): Boolean =
+        COMPONENT_NAME_REGEX.matches(value.trim())
 
     private fun runRoot(command: String): CommandResult {
         val rootResult = try {

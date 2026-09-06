@@ -58,7 +58,7 @@ object ShizukuManager {
         }
     }
 
-    fun executeShell(command: String): String? {
+    internal fun executeShell(command: String): String? {
         if (!hasPermission()) return null
         return runCatching {
             val method = Shizuku::class.java.getDeclaredMethod(
