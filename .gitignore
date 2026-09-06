@@ -45,3 +45,13 @@ NAVIGASYON_*.md
 OTURUM*_*.md
 PROJECT_DEVELOPMENT_REPORT.md
 release_notes_*.md
+
+# Logs, dumps, and diagnostic artifacts
+*.log
+*.hprof
+*.dump
+*.diag
+*.stacktrace
+diagnostic-dumps/
+*.diagnostic.json
+Thumbs.db
