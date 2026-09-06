@@ -74,6 +74,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -142,9 +143,23 @@ fun SettingsScreen(
     val rootAccess by viewModel.rootAccess.collectAsState()
     val shizukuStatus by viewModel.shizukuStatus.collectAsState()
     val isPrivilegedAvailable = rootAccess == RootAccessState.AVAILABLE ||
-        shizukuStatus != io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED
+        shizukuStatus == io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.AVAILABLE
     val pausedPackages by viewModel.pausedPackages.collectAsState()
     val selectableApps by viewModel.selectableApps.collectAsState()
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                viewModel.updateShizukuStatus()
+                viewModel.checkRootAccess()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     var showAppPicker by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
@@ -1390,6 +1405,82 @@ fun SettingsScreen(
             }
 
             DiagnosticsSettingsEntry()
+
+            // 2. Shizuku Ayrıcalık ve Yetkilendirme Kartı (Koruma sekmesi)
+            AkisGlassCard(
+                accentTint = when (shizukuStatus) {
+                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.AVAILABLE -> Color(0xFF00E676)
+                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED -> Color(0xFFFFD600)
+                    io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED -> scheme.onSurfaceVariant
+                }
+            ) {
+                AkisSectionHeader(
+                    title = stringResource(R.string.shizuku_status),
+                    subtitle = stringResource(R.string.privileged_card_subtitle),
+                    icon = Icons.Filled.Security
+                )
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            text = when (shizukuStatus) {
+                                io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.AVAILABLE -> stringResource(R.string.shizuku_available)
+                                io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED -> stringResource(R.string.shizuku_running_unauthorized)
+                                io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED -> stringResource(R.string.shizuku_not_installed)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = when (shizukuStatus) {
+                                io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.AVAILABLE -> Color(0xFF00E676)
+                                io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED -> Color(0xFFFFD600)
+                                io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED -> scheme.onSurfaceVariant
+                            }
+                        )
+                    }
+
+                    if (shizukuStatus == io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.RUNNING_UNAUTHORIZED) {
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = { viewModel.requestShizukuPermission() },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFFD600),
+                                contentColor = Color.Black
+                            ),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            modifier = Modifier.height(34.dp)
+                        ) {
+                            Text(stringResource(R.string.shizuku_authorize_btn), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelSmall)
+                        }
+                    } else if (shizukuStatus == io.github.omeryol.akisgesture.shizuku.ShizukuManager.Status.NOT_INSTALLED) {
+                        Spacer(Modifier.width(8.dp))
+                        OutlinedButton(
+                            onClick = {
+                                viewModel.updateShizukuStatus()
+                                val pm = context.packageManager
+                                val launchIntent = pm.getLaunchIntentForPackage("moe.shizuku.privileged.api")
+                                if (launchIntent != null) {
+                                    context.startActivity(launchIntent)
+                                } else {
+                                    runCatching {
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://shizuku.rikka.app/")))
+                                    }
+                                }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                            modifier = Modifier.height(34.dp)
+                        ) {
+                            Text(stringResource(R.string.open_permission_steps), style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                }
+            }
 
             // 3. Son Kullanılanlardan Gizle ve Kapanmayı Önleme Kartı
             AkisGlassCard(accentTint = Color(0xFF00E5FF)) {

@@ -14,10 +14,19 @@ object ShizukuManager {
     }
 
     private val permissionListeners = mutableListOf<(Boolean) -> Unit>()
+    private val statusListeners = mutableListOf<() -> Unit>()
+
+    private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
+        notifyStatusChanged()
+    }
+    private val binderDeadListener = Shizuku.OnBinderDeadListener {
+        notifyStatusChanged()
+    }
     private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
         if (requestCode == REQUEST_CODE_SHIZUKU) {
             val granted = grantResult == PackageManager.PERMISSION_GRANTED
             permissionListeners.forEach { it(granted) }
+            notifyStatusChanged()
         }
     }
 
@@ -28,8 +37,19 @@ object ShizukuManager {
         if (initialized) return
         initialized = true
         runCatching {
+            Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
+            Shizuku.addBinderDeadListener(binderDeadListener)
             Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
         }
+    }
+
+    fun addStatusListener(listener: () -> Unit) {
+        init()
+        statusListeners.add(listener)
+    }
+
+    private fun notifyStatusChanged() {
+        statusListeners.forEach { runCatching { it() } }
     }
 
     fun isRunning(): Boolean = runCatching {

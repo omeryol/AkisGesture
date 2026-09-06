@@ -69,6 +69,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     init {
+        io.github.omeryol.akisgesture.shizuku.ShizukuManager.init()
+        io.github.omeryol.akisgesture.shizuku.ShizukuManager.addStatusListener {
+            viewModelScope.launch(Dispatchers.Main) {
+                _shizukuStatus.value = io.github.omeryol.akisgesture.shizuku.ShizukuManager.getStatus()
+                checkRootAccess()
+            }
+        }
         checkRootAccess()
         loadSelectableApps()
     }
