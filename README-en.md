@@ -13,6 +13,9 @@ It began from the MIT-licensed [OpenSwipe](https://github.com/ARCJ137442/OpenSwi
 project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
+> [!TIP]
+> **Recommendation:** For the best stability, advanced in-device component isolation, and latest background resilience improvements, updating to **v1.9.1** (latest release) is recommended.
+
 ## v1.9.1 highlights
 
 - 🎯 **Preserve Active Edge Tab:** Prevented resetting to the right edge when adding or editing gestures; the currently edited edge tab remains active.
@@ -23,9 +26,6 @@ project; attribution and license notices are retained. Its application ID is
 
 Signed APK: [Akış Gesture v1.9.1](https://github.com/omeryol/AkisGesture/releases/download/v1.9.1/app-release.apk)
 SHA-256: `01F73171350BD9CB40E13B99509B4430609429B5D3A13F4AAFA82B0688516151`
-
-> [!TIP]
-> **Recommendation:** For the best stability, advanced in-device component isolation, and latest background resilience improvements, updating to **[v1.9.1 (Latest Release)](#v191-highlights)** is recommended.
 
 ## v1.9.0 highlights
 
