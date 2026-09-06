@@ -1,0 +1,1 @@
+Fluid, private & customizable edge gestures for Android and HyperOS.

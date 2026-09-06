@@ -1,0 +1,23 @@
+Akış Gesture, Android ve HyperOS cihazlar için tasarlanmış, açık kaynaklı ve yüksek düzeyde özelleştirilebilir bir kenar hareketleri (navigasyon jestleri) uygulamasıdır.
+
+Ekranınızın sol, sağ ve alt kenarlarından kaydırma hareketleri tanımlayarak geri gitme, ana ekrana dönme, son uygulamaları açma veya özel kısayolları tetikleme gibi işlemleri kolayca yönetebilirsiniz.
+
+Öne Çıkan Özellikler:
+
+• Akıcı Kenar Hareketleri:
+Sol, sağ ve alt kenarlarda bağımsız tetikleme alanları; hızlı kaydırma, kaydırıp bekletme ve çift kaydırma hareketleri.
+
+• 120 FPS Organik Animasyonlar:
+Aurora Akışı dahil olmak üzere akışkanlar mekaniği ve doğal ışık geçirgenliğiyle tasarlanmış 14 farklı kenar animasyonu.
+
+• Son Kullanılan Uygulamalar Dock Menüsü:
+Kenardan çekip bekleterek son kullanılan uygulamalar arasında gecikmesiz, akıcı ve pratik geçiş imkanı.
+
+• HyperOS ve Android 10+ Kararlılığı:
+Agresif pil tasarrufu politikalarına karşı donma takibi, çökme koruması ve reaktif iyileşme mekanizmaları ile kesintisiz erişilebilirlik servisi deneyimi.
+
+• Root ve Shizuku Nöbetçi Desteği:
+İsteğe bağlı olarak Shizuku veya Root yetkileriyle erişilebilirlik servisini arka planda kullanıcı müdahalesi olmadan otomatik onarabilme.
+
+• Tavizsiz Güvenlik ve Gizlilik:
+%100 Açık Kaynak (MIT Lisansı). İnternet erişim izni gerektirmez. Sıfır izleyici, sıfır analiz kodu, sıfır reklam. Tüm verileriniz yalnızca cihazınızda kalır.

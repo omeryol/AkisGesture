@@ -1,0 +1,23 @@
+Akış Gesture is an open-source, highly customizable navigation gesture application designed for Android and HyperOS devices.
+
+It allows you to customize swipe gestures from the left, right, and bottom edges of your screen to perform navigation actions, switch apps, or launch custom shortcuts.
+
+Key Features:
+
+• Fluid Edge Gestures:
+Configure swipe, swipe & hold, and double-swipe actions across multiple zones along the left, right, and bottom screen edges.
+
+• 120 FPS Fluid Animations:
+Experience 14 organic edge animations, including Aurora flow, liquid curves, and natural light effects tuned for modern high-refresh screens.
+
+• Recent Apps Dock Menu:
+Pull and hold from any edge to invoke an interactive curved dock menu for fast, zero-latency app switching.
+
+• System Stability on HyperOS & Android 10+:
+Engineered with reactive recovery mechanisms, crash protection, and frozen service monitors to keep accessibility gestures running reliably even on aggressive battery-optimizing OEM skins.
+
+• Root & Shizuku Watchdog:
+Optional, non-intrusive self-recovery via Shizuku or Root to restore accessibility services without user interruption.
+
+• Complete Privacy & Security:
+100% Free and Open Source (MIT License). Requires NO internet permission. Zero trackers, zero analytics, zero advertisements. All settings stay strictly local to your device.

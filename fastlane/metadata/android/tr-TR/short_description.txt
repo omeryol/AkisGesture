@@ -1,0 +1,1 @@
+Android ve HyperOS için akıcı, güvenli ve özelleştirilebilir kenar hareketleri.
