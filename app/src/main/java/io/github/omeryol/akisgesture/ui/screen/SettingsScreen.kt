@@ -92,6 +92,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import io.github.omeryol.akisgesture.AkisGestureApp
 import io.github.omeryol.akisgesture.R
 import io.github.omeryol.akisgesture.backup.SettingsBackupManager
@@ -1371,8 +1373,12 @@ fun SettingsScreen(
             if (selectedSection == 3) {
             // 1. Gerekli izinler: durum ve doğrudan erişim tek kartta
             val isServiceConnected = serviceState == GestureAccessibilityService.ServiceState.CONNECTED
-            val isWriteSettingsGranted = remember { PermissionHelper.canWriteSystemSettings(context) }
-            val isBatteryIgnored = remember { PermissionHelper.isBatteryOptimizationIgnored(context) }
+            var isWriteSettingsGranted by remember { mutableStateOf(PermissionHelper.canWriteSystemSettings(context)) }
+            var isBatteryIgnored by remember { mutableStateOf(PermissionHelper.isBatteryOptimizationIgnored(context)) }
+            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                isWriteSettingsGranted = PermissionHelper.canWriteSystemSettings(context)
+                isBatteryIgnored = PermissionHelper.isBatteryOptimizationIgnored(context)
+            }
             val allPermissionsReady = isServiceConnected && isWriteSettingsGranted && isBatteryIgnored
             AkisGlassCard(accentTint = if (allPermissionsReady) Color(0xFF00E676) else Color(0xFFFF9100)) {
                 AkisSectionHeader(
@@ -2585,10 +2591,14 @@ private fun PermissionStatusRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 4.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .clickable(onClick = onClick)
+                .padding(vertical = 6.dp, horizontal = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -2604,32 +2614,47 @@ private fun PermissionStatusRow(
                 )
                 Spacer(Modifier.width(8.dp))
                 Column {
-                    Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                    Text(status, style = MaterialTheme.typography.labelSmall, color = statusColor)
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = status,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = statusColor,
+                    )
                 }
             }
-            OutlinedButton(
+            Spacer(Modifier.width(10.dp))
+            AkisFluidSwitch(
+                checked = ready,
+                activeColor = Color(0xFF00E676),
+                onCheckedChange = { onClick() },
+            )
+        }
+        if (!ready) {
+            PauseWarningCard(
+                title = title,
+                description = description,
                 onClick = onClick,
-                shape = RoundedCornerShape(14.dp),
-            ) {
-                Text(stringResource(R.string.open_settings), style = MaterialTheme.typography.labelMedium)
-            }
-            }
-        Text(
-            description,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 18.dp, top = 2.dp, end = 4.dp),
-        )
+            )
+        }
     }
 }
 
 @Composable
-private fun PauseWarningCard(title: String, description: String) {
+private fun PauseWarningCard(
+    title: String,
+    description: String,
+    onClick: (() -> Unit)? = null,
+) {
     AkisGlassCard(
         modifier = Modifier.padding(top = 4.dp),
         accentTint = Color(0xFFFF6D00),
         containerColor = Color(0xFFFF6D00).copy(alpha = 0.08f),
+        onClick = onClick,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
