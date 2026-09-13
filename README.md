@@ -14,7 +14,18 @@ tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygula
 paket adı `io.github.omeryol.akisgesture`dir.
 
 > [!TIP]
-> **Önemli Tavsiye:** Gelişmiş cihaz içi bileşen yalıtımı, izin korumaları ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için **v1.9.1** (en güncel sürüm) kullanmanız tavsiye edilir.
+> **Önemli Tavsiye:** Menülerin yeni yay görünümü, yeni uygulama simgesi ve otomasyon izninin daha güvenli çalışması için **v1.9.2** (en güncel sürüm) kullanmanız tavsiye edilir.
+
+## v1.9.2 öne çıkanlar
+
+- 🌀 **Menüler artık yay şeklinde:** Halka menüsü ve son uygulamalar düz bir sıra yerine yumuşak bir yay üzerinde dizilir. Ortadaki baloncuk en ileride durur, kenarlara doğru hafifçe geriler; görünüm daha doğal ve dengeli.
+- 🩹 **Baloncuklar artık üst üste binmiyor:** Boyutu büyütüp aralığı kıssanız bile baloncuklar birbirine değmez. Aralarında her zaman en az 1 dp boşluk kalır ve aralıklar menü büyüdükçe kendini otomatik ayarlar.
+- ⚖️ **Simetri ve kenar mesafesi:** Menü parmağınızın olduğu yere göre ortalanır ve ekran kenarına çarpmadan bir bütün olarak kayar; kenara çok yaklaşmaz.
+- 🔐 **Otomasyon izni gerçekten kapatıyor:** İzin kapalıyken MacroDroid, Tasker gibi uygulamalar Akış Gesture'ı göremez ve çalıştıramaz. Açıkken komutlar sorunsuz çalışır.
+- 🎨 **Yeni uygulama simgesi:** Üç kenar hareketini ortada buluşturan yeni simge; telefonunuz temalı simgeleri kullanıyorsa uygulama da ona uyum sağlar.
+
+İmzalı APK: [Akış Gesture v1.9.2](https://github.com/omeryol/AkisGesture/releases/download/v1.9.2/app-release.apk)
+SHA-256: `6C72BE7BD324FCA26D3C28C0E3855D2758B26BF6703475098D4C8F25FC655808`
 
 ## v1.9.1 öne çıkanlar
 
@@ -115,6 +126,8 @@ SHA-256: `A140FD22051873EBC56AE9EC062FF7C519D54DBBBE315868A1B625A1BFD107B`
 - Uygulama, ekran yönü ve sistem durumuna göre duraklatma
 - Ayarlanabilir kenar alanı, eşik ve hassasiyet
 - 15 ayrı görsel geri bildirim stili, haptik ve isteğe bağlı ses
+- Halka menüsü ve son uygulamalar şeridi doğal bir yay üzerinde, simetrik ve üst
+  üste binmeyen yerleşimle çizilir; boyut büyütüldüğünde aralıklar otomatik uyum sağlar
 - Uygulama başlatma, gezinme, medya, sistem ve korumalı root eylemleri
 - JSON ile kural ve ayar yedekleme/geri yükleme
 - Türkçe ve İngilizce arayüz
@@ -146,7 +159,7 @@ bölümünde yayınlanır. Yayınlarda sürüm etiketi ve SHA-256 özeti bulunur
 
 ## Otomasyon
 
-Akış hizmetini başka uygulamalardan yönetmek için aşağıdaki broadcast intentleri
+Akış hizmetini başka uygulamalardan yönetmek için aşağıdaki intentler
 kullanılabilir:
 
 ```text
@@ -155,8 +168,23 @@ io.github.omeryol.akisgesture.action.STOP
 io.github.omeryol.akisgesture.action.TOGGLE
 ```
 
-Otomasyon uygulaması entegrasyonu ve Hızlı Ayarlar kutucuğu aynı güvenli denetim yolunu
-kullanır. Bu komutlar yalnızca Akış Gesture hizmetini etkiler.
+Aynı adlar hem broadcast hem de activity olarak çözülür; otomasyon aracınızdaki
+"Intent gönder" adımının hedef türü Broadcast veya Activity olabilir. En güvenilir
+kullanım, paket adını (`io.github.omeryol.akisgesture`) açıkça belirtmektir:
+Android, uygulama arka planda değilken örtük (implicit) broadcastleri düşürebilir.
+
+MacroDroid ve Tasker, Akış Gesture'ı bir Locale/Tasker eklentisi olarak listeler
+(eylem: Hareketleri başlat / Hareketleri durdur / Durumu değiştir). Eklenti
+yeniden düzenlendiğinde mevcut seçim işaretli gelir.
+
+Otomasyon uygulaması entegrasyonu, eklenti ve Hızlı Ayarlar kutucuğu aynı güvenli
+denetim yolunu kullanır. Bu komutlar yalnızca Akış Gesture hizmetini etkiler.
+
+Güvenlik anahtarı: Ayarlar ekranındaki **Otomasyon uygulamalarına izin ver**
+anahtarı kapalıyken dışa açık tüm giriş noktaları (eklenti, broadcast receiver ve
+Başlat/Durdur/Durum değiştir activity'leri) sistem düzeyinde devre dışı bırakılır.
+Bu durumda otomasyon uygulamaları eklentiyi listesinde görmez ve intentler
+çözülemez. Anahtar okunamazsa güvenli varsayılan "kapalı"dır.
 
 ## Durum ve yol haritası
 

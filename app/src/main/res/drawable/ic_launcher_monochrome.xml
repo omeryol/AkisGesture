@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!--
+      Temali ikon katmani (Android 13+ "themed icons").
+      Tek renkli siluet; sistem kendi renk paletiyle boyar. Renkli ikondaki
+      uc akis (sol-ust / sag-ust / alt) ve merkez cekirdek sadeleştirilmiştir.
+    -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 18,31.16 L 40.65,18 L 47.14,48.39 L 51.4,44.93 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 74.06,18 L 90,37.77 L 57.87,45.5 L 61.47,49.64 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 69.62,90 L 38.38,90 L 56.74,60.01 L 51.26,60.01 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 46.5,52.5 a 7.5,7.5 0 1 0 15,0 a 7.5,7.5 0 1 0 -15,0 Z" />
+</vector>

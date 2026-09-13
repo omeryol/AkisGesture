@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.github.omeryol.akisgesture.automation.AutomationGate
 import io.github.omeryol.akisgesture.gesture.GestureConfig
 import io.github.omeryol.akisgesture.gesture.HoldFireMode
 import io.github.omeryol.akisgesture.feedback.FeedbackAnimation
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -182,6 +184,16 @@ class AkisGestureApp : Application() {
         compiledRuleProfilesFlow = ruleProfilesFlow
             .map { profiles -> profiles.mapValues { (_, graph) -> graph.compile() } }
             .stateIn(appScope, SharingStarted.Eagerly, emptyMap())
+
+        // Dış otomasyon giriş noktalarını kayıtlı anahtar durumuyla eşitle.
+        // Uygulama güncellemesi veya yedekten geri yükleme sonrası bileşen durumu
+        // ile ayarın ayrışmasını engeller; hata durumunda kapalı kalır.
+        appScope.launch(Dispatchers.IO) {
+            AutomationGate.applyComponentState(
+                this@AkisGestureApp,
+                AutomationGate.isEnabled(this@AkisGestureApp),
+            )
+        }
 
         // Load rules from DataStore on startup
         appScope.launch(Dispatchers.IO) {
@@ -513,6 +525,12 @@ class AkisGestureApp : Application() {
 
     suspend fun updateAutomationAppsEnabled(enabled: Boolean) {
         settingsDataStore.edit { it[GestureConfig.KEY_AUTOMATION_APPS_ENABLED] = enabled }
+        // Anahtar kapatıldığında dış giriş noktaları bileşen düzeyinde de kapanır;
+        // böylece otomasyon uygulamaları eklentiyi listede görmez ve intent çözemez.
+        // Bileşen durumu yazımı Paket Yöneticisi çağrısıdır; ana iş parçacığı dışında yapılır.
+        withContext(Dispatchers.IO) {
+            AutomationGate.applyComponentState(this@AkisGestureApp, enabled)
+        }
     }
 
     suspend fun updatePauseOnLauncher(enabled: Boolean) {

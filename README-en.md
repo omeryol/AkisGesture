@@ -14,7 +14,18 @@ project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
 > [!TIP]
-> **Recommendation:** For the best stability, advanced in-device component isolation, and latest background resilience improvements, updating to **v1.9.1** (latest release) is recommended.
+> **Recommendation:** For the new curved look of the menus, the refreshed app icon, and the safer automation permission, updating to **v1.9.2** (latest release) is recommended.
+
+## v1.9.2 highlights
+
+- 🌀 **Menus now fan out in a curve:** The ring menu and recent apps are arranged along a smooth arc instead of a straight row. The middle bubble sits furthest forward and the outer ones step back, so the layout looks natural and balanced.
+- 🩹 **Bubbles no longer overlap:** However large you make the bubbles or however small you make the spacing, they never touch. There is always at least 1 dp of room between them, and the spacing adjusts itself as the menu grows.
+- ⚖️ **Symmetry and edge distance:** The menu centres on your finger and slides as a whole instead of hitting the screen edge, and it never sits too close to the trigger edge.
+- 🔐 **The automation permission really switches off:** While it is off, apps such as MacroDroid and Tasker cannot see or start Akış Gesture. While it is on, commands work reliably.
+- 🎨 **New app icon:** A mark that brings the three edge gestures together in the middle; if your phone uses themed icons, the app matches them too.
+
+Signed APK: [Akış Gesture v1.9.2](https://github.com/omeryol/AkisGesture/releases/download/v1.9.2/app-release.apk)
+SHA-256: `6C72BE7BD324FCA26D3C28C0E3855D2758B26BF6703475098D4C8F25FC655808`
 
 ## v1.9.1 highlights
 
@@ -115,6 +126,8 @@ SHA-256: `A140FD22051873EBC56AE9EC062FF7C519D54DBBBE315868A1B625A1BFD107B`
 - App-, orientation-, and system-aware pause conditions
 - Adjustable edge area, thresholds, and sensitivity
 - 15 distinct visual feedback styles, haptics, and optional sound
+- Ring menu and recent-apps strip are laid out on a natural arc with symmetric,
+  non-overlapping spacing that adapts automatically when the icons are enlarged
 - App launching, navigation, media, system, and protected root actions
 - JSON backup and restore for rules and settings
 - Complete Turkish and English interface localization
@@ -149,7 +162,7 @@ version tag and SHA-256 checksum.
 
 ## Automation
 
-Use these broadcast intents to control the Akış service from other apps:
+Use these intents to control the Akış service from other apps:
 
 ```text
 io.github.omeryol.akisgesture.action.START
@@ -157,8 +170,24 @@ io.github.omeryol.akisgesture.action.STOP
 io.github.omeryol.akisgesture.action.TOGGLE
 ```
 
-The automation-app integration and Quick Settings tile use the same safe control
-path. These commands affect only the Akış Gesture service.
+The same names resolve both as broadcasts and as activities, so the target type
+in your automation tool's "Send Intent" step may be Broadcast or Activity. For
+the most reliable result, set the package name (`io.github.omeryol.akisgesture`)
+explicitly: Android can drop implicit broadcasts while the app is in the
+background.
+
+MacroDroid and Tasker list Akış Gesture as a Locale/Tasker plugin (action: Start
+gestures / Stop gestures / Toggle state). Re-editing the plugin preselects the
+currently configured command.
+
+The automation-app integration, the plugin, and the Quick Settings tile all use
+the same safe control path. These commands affect only the Akış Gesture service.
+
+Security switch: while **Allow automation apps** is off in Settings, every
+externally reachable entry point (plugin, broadcast receiver, and the
+start/stop/toggle activities) is disabled at the system level. Automation apps
+then no longer see the plugin and the intents cannot be resolved. If the value
+cannot be read, the safe default is "off".
 
 ## Status and roadmap
 

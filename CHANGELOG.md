@@ -1,6 +1,36 @@
 
 > [!TIP]
-> **Tavsiye:** Gelişmiş güvenlik sıkılaştırmaları, cihaz içi bileşen yalıtımı ve en güncel HyperOS arka plan dayanıklılığı iyileştirmelerinden tam verimle yararlanabilmek için tüm kullanıcılarımızın en güncel sürüme (**v1.9.1**) geçmeleri tavsiye edilir.
+> **Tavsiye:** Yay yerleşimli halka/son uygulamalar menüsü, yeni uygulama simgesi ve otomasyon giriş noktalarında güvenlik sıkılaştırmaları için tüm kullanıcılarımızın en güncel sürüme (**v1.9.2**) geçmeleri tavsiye edilir.
+
+## [1.9.2] - 2026-09-13
+
+### Arayüz & Geometri
+- **Halka ve son uygulamalar yerleşimi yenilendi:** Baloncuklar artık eşit açı adımlı gerçek bir yay üzerine yerleşir; orta öğe içe doğru en derin, kenarlara doğru derinlik tek düze azalır. Dizilim düz bir sıra yerine doğal bir yelpaze oluşturur.
+- **Üst üste binme giderildi (kritik):** Önceki alt sınır yalnızca büyüyen yarıçapı hesaba katıyor, komşu baloncuğun yarıçapını atlıyordu (`yarıçap × 1,29` yerine gereken `yarıçap × 2,29`). Bu yüzden büyük halkalarda aralık azaltılınca boşluk negatife düşüp halkalar birbirine giriyordu. Alt sınır artık `yarıçap × (2 + seçili büyümesi) + boşluk` olarak ölçülür.
+- **Boşluk asla negatif olamaz:** Ölçülen boşluk (`Layout.gap`) için yarıçapa oranlı mutlak bir taban (`ABSOLUTE_GAP_RATIO`) uygulanır; çağıran sıfır boşluk istese bile yüzeyler arasında her zaman pozitif (pratikte en az 1 dp) boşluk kalır. Boyut büyüdükçe aralık dinamik olarak yeniden ölçülür, grup sığmıyorsa yarıçap kırpılır.
+- **Simetri ve sınır mesafesi garantili:** Grup, parmağın kenar konumuna göre ortalanır ve sınıra yaklaşıldığında bir bütün olarak kaydırılır (öğeler tek tek kırpılmaz). Kenar yansımasındaki öğeler eş uzaklıkta kalır ve tetik kenarına olan en küçük mesafe (6 dp + yarıçap) hiçbir ayarda ihlal edilmez.
+- **Tek kaynak geometri:** Çizim (`RingMenuRenderer`), dokunma testi (`GestureEngine`) ve ayarlar önizlemesi (`InteractivePhoneMap`) aynı `RingLayout` hesabını kullanır; görünen yerleşim ile dokunulan alan artık ayrışamaz.
+- **Doğrulama:** `RingLayoutTest`, üç kenar × üç ekran × 2-6 öğe × dört boyut × dört eğrilik matrisinde simetri, üst üste binmeme ve sınır sözleşmesini test eder.
+
+### Görsel Kimlik
+- **Yeni uygulama simgesi:** Üç kenar hareketini ortada tek bir çekirdekte birleştiren yeni simge kullanıma alındı; görsel adaptive icon güvenli alanına oturtuldu, arka plan rengi simgeden örneklenerek dikişsiz hale getirildi ve Android 13+ temalı simgeler için tek renkli (`monochrome`) katman eklendi.
+- **Mağaza görseli güncellendi:** Fastlane metadata simgesi 512×512 tam taşmalı sürümle yenilendi.
+
+### Düzeltmeler
+- **Otomasyon anahtarı artık gerçekten kapatıyor:** "Otomasyon uygulamalarına izin ver" anahtarı kapalıyken dışa açık tüm giriş noktaları (MacroDroid/Tasker eklentisi, `GestureCommandReceiver` ve Başlat/Durdur/Durum değiştir activity'leri) sistem düzeyinde devre dışı bırakılır. Otomasyon uygulaması eklentiyi listede görmez, broadcast ve activity intentleri çözülemez.
+- **Intentler her iki teslim biçiminde çalışıyor:** Komut action'ları yalnızca broadcast olarak değil activity olarak da çözülür; MacroDroid "Intent gönder" adımı Activity hedefiyle de çalışır (önceden "unable to resolve" ile sessizce başarısız oluyordu).
+- **Anahtar denetimi güvenilir hale getirildi:** Komutlar bayat `StateFlow` değeri yerine DataStore'dan doğrudan okunan değerle denetlenir; okunamayan değer "kapalı" sayılır (fail-closed).
+- **Sıkı intent doğrulaması:** Action adları tam eşleşmeyle doğrulanır; bilinmeyen/uyarlanmış action adları ve eklenti paketinde beklenmeyen anahtarlar reddedilir.
+- **Eklenti yeniden düzenleme:** MacroDroid/Tasker eklentisi açıldığında kayıtlı komut işaretli gelir; seçim yapılmadan çıkılırsa yapılandırma iptal edilir.
+
+### Teknik
+- Yeni `automation` paketi: `AutomationCommand` (komut çözümleyici), `LocalePluginProtocol` (eklenti sözleşmesi), `AutomationGate` (yetkili kapı ve bileşen durumu yönetimi).
+- Manifest-kod tutarlılığını doğrulayan birim testleri eklendi (`AutomationCommandTest`, `AutomationManifestTest`).
+- Sürüm `1.9.2`, version code `67`.
+- İmzalı APK: `app-release.apk`.
+- SHA-256: `6C72BE7BD324FCA26D3C28C0E3855D2758B26BF6703475098D4C8F25FC655808`
+
+---
 
 ## [1.9.1] - 2026-09-06
 

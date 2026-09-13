@@ -9,6 +9,7 @@ import io.github.omeryol.akisgesture.action.ActionDispatcher
 import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import io.github.omeryol.akisgesture.feedback.FeedbackView
 import io.github.omeryol.akisgesture.feedback.HapticHelper
+import io.github.omeryol.akisgesture.feedback.RingLayout
 import io.github.omeryol.akisgesture.gesture.model.GestureResult
 import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.toIconKey
@@ -584,42 +585,35 @@ class GestureEngine(
         val density = metrics.density
         val width = metrics.widthPixels.toFloat()
         val height = metrics.heightPixels.toFloat()
-        val span = if (edge == Edge.BOTTOM) height else width
         val configSizeDp = if (isRecent) currentConfig.recentAppsSizeDp else currentConfig.ringSizeDp
         val configInsetDp = if (isRecent) currentConfig.recentAppsInsetDp else currentConfig.ringGroupInsetDp
         val configSpacingDp = if (isRecent) currentConfig.recentAppsSpacingDp else currentConfig.ringGroupSpacingDp
         val configArc = if (isRecent) currentConfig.recentAppsArc else currentConfig.ringArc
 
-        val radius = configSizeDp * currentConfig.iconSize
-        val maxInset = if (edge == Edge.BOTTOM) span * 0.5f else span * 0.9f
-        val inset = (configInsetDp * density).coerceIn(radius * 1.2f, maxInset)
-        val spread = (configSpacingDp * density).coerceAtLeast(36f)
-        val anchor = when (edge) {
-            Edge.LEFT -> inset
-            Edge.RIGHT -> width - inset
-            Edge.BOTTOM -> height - inset
-        }
         val actions = getEdgeActions(edge)
         val count = actions.size.coerceAtLeast(1)
-        val middleLead = spread * 1.45f
-        val m = (count - 1) / 2f
-        val maxDistFromCenter = if (m > 0f) m else 1f
-        val maxBound = if (edge == Edge.BOTTOM) width else height
 
-        val centers = (0 until count).map { i ->
-            val u = if (m > 0f) kotlin.math.abs(i - m) / maxDistFromCenter else 0f
-            val itemLead = middleLead * (1f - configArc.coerceIn(0f, 1f) * (u * u))
-            val deltaEdge = (i - m) * spread
-            val edgePos = (touchAlongEdge + deltaEdge).coerceIn(radius, maxBound - radius)
-            when (edge) {
-                Edge.LEFT -> (anchor + itemLead) to edgePos
-                Edge.RIGHT -> (anchor - itemLead) to edgePos
-                Edge.BOTTOM -> edgePos to (anchor - itemLead)
-            }
-        }
+        // Dokunma testi, çizimle birebir aynı yerleşimi kullanır (tek kaynak:
+        // RingLayout). Aksi hâlde görünen baloncuk ile dokunulan alan ayrışır.
+        val layout = RingLayout.compute(
+            RingLayout.Spec(
+                edge = edge,
+                alongExtent = if (edge == Edge.BOTTOM) width else height,
+                depthExtent = if (edge == Edge.BOTTOM) height else width,
+                touchAlong = touchAlongEdge,
+                count = count,
+                radius = configSizeDp * currentConfig.iconSize,
+                spacing = configSpacingDp * density,
+                baseDepth = configInsetDp * density,
+                arc = configArc,
+                edgeGap = RingLayout.EDGE_GAP_DP * density,
+                minIconGap = RingLayout.MIN_ICON_GAP_DP * density,
+            ),
+        )
+        val centers = layout.items.indices.map { layout.center(it, edge, width, height) }
         // Treat contact with any visible part of the bubble as a hit. The
         // extra margin also covers the selected bubble's animated growth.
-        val hitRadius = radius * hitScale
+        val hitRadius = layout.radius * hitScale
         val hitRadiusSquared = hitRadius * hitRadius
         val nearest = centers.mapIndexed { index, (cx, cy) ->
             val dx = x - cx

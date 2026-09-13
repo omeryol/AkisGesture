@@ -11,9 +11,30 @@ data class VersionHistoryItem(
 object VersionHistoryProvider {
     val HISTORY = listOf(
         VersionHistoryItem(
+            version = "1.9.2",
+            date = "2026-09-13",
+            isCurrent = true,
+            changesTr = listOf(
+                "🌀 Menüler artık yay şeklinde: Halka menüsü ve son uygulamalar düz bir sıra yerine yumuşak bir yay üzerinde dizilir. Ortadaki baloncuk en ileride durur, kenarlara doğru hafifçe geriler; görünüm daha doğal ve dengeli.",
+                "🩹 Baloncuklar artık üst üste binmiyor: Boyutu büyütüp aralığı kıssanız bile baloncuklar birbirine değmez. Aralarında her zaman en az 1 dp boşluk kalır ve aralıklar menü büyüdükçe kendini otomatik ayarlar.",
+                "⚖️ Simetri ve kenar mesafesi: Menü parmağınızın olduğu yere göre ortalanır ve ekran kenarına çarpmadan bir bütün olarak kayar; kenara çok yaklaşmaz.",
+                "🔐 Otomasyon izni gerçekten kapatıyor: İzin kapalıyken MacroDroid, Tasker gibi uygulamalar Akış Gesture'ı göremez ve çalıştıramaz.",
+                "🔗 Otomasyon komutları artık sorunsuz: MacroDroid'de 'Intent gönder' adımı sessizce başarısız olmuyor.",
+                "🎨 Yeni uygulama simgesi: Üç kenar hareketini ortada buluşturan yeni simge; telefonunuz temalı simgeleri kullanıyorsa uygulama da ona uyum sağlar.",
+            ),
+            changesEn = listOf(
+                "🌀 Menus now fan out in a curve: The ring menu and recent apps are arranged along a smooth arc instead of a straight row. The middle bubble sits furthest forward and the outer ones step back, so the layout looks natural and balanced.",
+                "🩹 Bubbles no longer overlap: However large you make the bubbles or however small you make the spacing, they never touch. There is always at least 1 dp of room between them, and the spacing adjusts itself as the menu grows.",
+                "⚖️ Symmetry and edge distance: The menu centres on your finger and slides as a whole instead of hitting the screen edge, and it never sits too close to the trigger edge.",
+                "🔐 The automation permission really switches off: While it is off, apps such as MacroDroid and Tasker cannot see or start Akış Gesture.",
+                "🔗 Automation commands now work reliably: MacroDroid's 'Send Intent' step no longer fails silently.",
+                "🎨 New app icon: A mark that brings the three edge gestures together in the middle; if your phone uses themed icons, the app matches them too.",
+            ),
+        ),
+        VersionHistoryItem(
             version = "1.9.1",
             date = "2026-09-06",
-            isCurrent = true,
+            isCurrent = false,
             changesTr = listOf(
                 "🎯 Kenar Seçimi Hafızası: Hareket ekleme veya düzenleme sonrasında üzerinde çalışılan kenarın (Sol/Alt/Sağ) korunması sağlandı; ekranın sağ kenara dönme sorunu giderildi.",
                 "🛡️ Sade ve Dinamik Koruma Sekmesi: İzinler kartı sadeleştirildi, aktif izinler için pratik durum anahtarları eklendi ve eksik izinler belirgin uyarı kartlarıyla donatıldı.",
@@ -34,7 +55,7 @@ object VersionHistoryProvider {
             date = "2026-09-05",
             isCurrent = false,
             changesTr = listOf(
-                "💡 Tavsiye: Gelişmiş cihaz içi güvenlik yalıtımı ve HyperOS arka plan dayanıklılığı için v1.9.1 sürümüne güncellemeniz önerilir.",
+                "💡 Tavsiye: Gelişmiş cihaz içi güvenlik yalıtımı ve HyperOS arka plan dayanıklılığı için v1.9.2 sürümüne güncellemeniz önerilir.",
                 "🎨 Organik Kenar Animasyonları: Aurora Akışı dokunulmadan korunarak 14 kenar animasyonu (Okyanus, Cıva Damlası, Plazma Alevi, Sis, Güneş Halesi, Yıldız Alanı, Girdap, Yağmur, Rüzgar vb.) pürüzsüz akışkanlar mekaniği ve doğal ışık geçirgenliğiyle sıfırdan yeniden yazıldı.",
                 "📊 Canlı Ana Sayfa & Teşhis Paneli: Canlı nabız göstergeli Hero durum kartı, dinamik kenar rozetleri ve arka plan koruması ile HyperOS optimizasyon rehberini içeren tek dokunuşlu Akıllı Teşhis Paneli.",
                 "📐 19.5:9 Modern Telefon Göstergeleri: Hareketler sayfasındaki önizlemeler modern akıllı telefon oranlarına güncellendi; vektörel neon aydınlatmalı dinamik tetikleyici alanı göstergesi (EdgeZoneVisual) eklendi.",
@@ -42,7 +63,7 @@ object VersionHistoryProvider {
                 "🎨 Kenar Temalı Kart Çerçeveleri: Bölüm kartları ve ayar panelleri ait oldukları kenarın canlı tema rengiyle (Siyan, Macenta, Kehribar) bütünleştirildi.",
             ),
             changesEn = listOf(
-                "💡 Recommendation: Updating to v1.9.1 is recommended for advanced in-device component isolation and HyperOS background resilience.",
+                "💡 Recommendation: Updating to v1.9.2 is recommended for advanced in-device component isolation and HyperOS background resilience.",
                 "🎨 Organic Edge Animations: Completely rebuilt 14 edge animation modules (Ocean, Mercury Teardrop, Plasma Fire, Mist, Solar Corona, Starfield, Vortex, Rain, Wind, etc.) with fluid mechanics and natural luminosity, keeping Aurora untouched.",
                 "📊 Live Home & Smart Diagnostic Hub: Redesigned live hero card with pulse beacon and edge indicators, paired with a unified 1-tap diagnostic health hub and HyperOS optimization guide.",
                 "📐 19.5:9 Vector Phone Previews: Updated edge visualizers to modern smartphone aspect ratios with a razor-sharp vector OLED illustration and active neon trigger tube bloom.",
@@ -55,13 +76,13 @@ object VersionHistoryProvider {
             date = "2026-09-05",
             isCurrent = false,
             changesTr = listOf(
-                "💡 Tavsiye: Gelişmiş güvenlik ve kararlılık iyileştirmeleri için v1.9.1 sürümüne güncellemeniz önerilir.",
+                "💡 Tavsiye: Gelişmiş güvenlik ve kararlılık iyileştirmeleri için v1.9.2 sürümüne güncellemeniz önerilir.",
                 "🌍 8 Yeni Dil Desteği: Rusça (ru), Lehçe (pl), Almanca (de), Fransızca (fr), İtalyanca (it), Vietnamca (vi), Geleneksel Çince (zh-rTW) ve Farsça (fa) eklendi.",
                 "🌐 22 Dilli Arayüz: Ayarlar menüsüne kaydırılabilir ve tüm yerel alfabeleri destekleyen kapsamlı dil seçim diyaloğu entegre edildi.",
                 "📱 Tam Dil Eşleşmesi: Tüm yeni diller 607 anahtarın tamamında ve Android sistem standartlarında yerelleştirildi.",
             ),
             changesEn = listOf(
-                "💡 Recommendation: Updating to v1.9.1 is recommended for latest security hardening and stability improvements.",
+                "💡 Recommendation: Updating to v1.9.2 is recommended for latest security hardening and stability improvements.",
                 "🌍 8 New Languages: Added Russian (ru), Polish (pl), German (de), French (fr), Italian (it), Vietnamese (vi), Traditional Chinese (zh-rTW), and Persian (fa).",
                 "🌐 22 Supported Languages: Integrated a full scrollable language selection dialog in Settings.",
                 "📱 Complete Key Parity: All 607 string keys fully localized with native Android OS and HyperOS terminology.",

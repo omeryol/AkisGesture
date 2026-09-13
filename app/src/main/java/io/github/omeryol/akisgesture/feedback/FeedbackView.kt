@@ -206,6 +206,7 @@ class FeedbackView(context: Context) : View(context) {
             arrowAlpha = arrowAlpha,
         )
         if (ringActive) {
+            val density = resources.displayMetrics.density
             ringMenuRenderer.draw(
                 canvas = canvas,
                 edge = edge,
@@ -214,15 +215,18 @@ class FeedbackView(context: Context) : View(context) {
                 height = height.toFloat(),
                 stretch = stretchDistance,
                 threshold = peakThreshold,
-                extraInsetPx = ringGroupInsetDp * resources.displayMetrics.density,
-                spreadPx = ringGroupSpacingDp * resources.displayMetrics.density,
+                insetPx = ringGroupInsetDp * density,
+                spacingPx = ringGroupSpacingDp * density,
+                // Boyut alanı mevcut davranışı korumak için yarıçap (px) olarak
+                // kullanılır; yerleşim sığmazsa RingLayout yarıçapı kırpar.
+                radiusPx = ringSizeDp * iconSize,
+                arc = ringArc,
+                edgeGapPx = RingLayout.EDGE_GAP_DP * density,
+                minIconGapPx = RingLayout.MIN_ICON_GAP_DP * density,
                 color = feedbackColor,
                 opacity = feedbackOpacity,
                 icons = ringIcons,
                 selectedIndex = ringSelectedIndex,
-                iconScale = iconSize,
-                ringSizeDp = ringSizeDp,
-                ringArc = ringArc,
             )
         } else {
             ringMenuRenderer.resetAnimation()

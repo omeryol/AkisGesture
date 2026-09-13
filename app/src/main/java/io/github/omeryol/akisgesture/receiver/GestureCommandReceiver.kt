@@ -3,9 +3,10 @@ package io.github.omeryol.akisgesture.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import io.github.omeryol.akisgesture.automation.AutomationCommand
+import io.github.omeryol.akisgesture.automation.AutomationGate
+import io.github.omeryol.akisgesture.root.RootResult
 import io.github.omeryol.akisgesture.service.AccessibilityControl
-import io.github.omeryol.akisgesture.AkisGestureApp
 
 /**
  * Otomasyon uygulamaları için Broadcast Receiver.
@@ -16,35 +17,29 @@ import io.github.omeryol.akisgesture.AkisGestureApp
  *
  * Dış otomasyon yalnızca hizmeti başlatabilir, durdurabilir veya durumunu
  * değiştirebilir; başka erişilebilirlik eylemleri çalıştırılamaz.
+ *
+ * Güvenlik: yalnızca ilan edilen action adları kabul edilir ve komut,
+ * işlendiği anda otomasyon anahtarı doğrulanarak uygulanır.
  */
 class GestureCommandReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (!(context.applicationContext as AkisGestureApp).gestureConfigFlow.value.automationAppsEnabled) {
-            return
-        }
-        val action = intent.action ?: return
-        when (action) {
-            ACTION_START, LEGACY_ACTION_START -> enableService(context, true)
-            ACTION_STOP, LEGACY_ACTION_STOP -> enableService(context, false)
-            ACTION_TOGGLE, LEGACY_ACTION_TOGGLE -> {
-                enableService(context, null)
-            }
-        }
-    }
+        // Sıkı action doğrulaması: bilinmeyen veya uydurma action adları yok sayılır.
+        val command = AutomationCommand.fromAction(intent.action) ?: return
 
-    /**
-     * Root varsa erişilebilirlik hizmetini doğrudan açar/kapar.
-     * Root yoksa yalnızca desired state'i kaydeder.
-     * @param enabled true = aç, false = kapat, null = toggle
-     */
-    private fun enableService(context: Context, enabled: Boolean?) {
         val pending = goAsync()
         Thread {
             try {
-                val target = enabled ?: !AccessibilityControl.isEnabled(context)
+                // Anahtar, komutun uygulandığı anda okunur; bayat durum bilgisine
+                // güvenilmez ve varsayılan değer "kapalı"dır.
+                if (!AutomationGate.isEnabledBlocking(context)) return@Thread
+
+                val target = AutomationCommand.targetState(
+                    command,
+                    AccessibilityControl.isEnabled(context),
+                )
                 val result = AccessibilityControl.setEnabled(context, target)
-                if (result is io.github.omeryol.akisgesture.root.RootResult.Failure) {
+                if (result is RootResult.Failure) {
                     // Root kullanılamıyor — en azından desired state'i kaydet
                     AccessibilityControl.setDesired(context, target)
                 }
@@ -53,15 +48,5 @@ class GestureCommandReceiver : BroadcastReceiver() {
                 pending.finish()
             }
         }.start()
-    }
-
-    companion object {
-        const val ACTION_START = "io.github.omeryol.akisgesture.action.START"
-        const val ACTION_STOP = "io.github.omeryol.akisgesture.action.STOP"
-        const val ACTION_TOGGLE = "io.github.omeryol.akisgesture.action.TOGGLE"
-        private const val LOG_TAG = "GestureCommandReceiver"
-        private const val LEGACY_ACTION_START = "com.openswipe.action.START"
-        private const val LEGACY_ACTION_STOP = "com.openswipe.action.STOP"
-        private const val LEGACY_ACTION_TOGGLE = "com.openswipe.action.TOGGLE"
     }
 }

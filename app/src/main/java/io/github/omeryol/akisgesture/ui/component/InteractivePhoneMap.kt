@@ -59,6 +59,7 @@ import io.github.omeryol.akisgesture.model.ActionNode
 import io.github.omeryol.akisgesture.model.GestureRule
 import io.github.omeryol.akisgesture.model.GestureType
 import io.github.omeryol.akisgesture.feedback.ActionBitmapLoader
+import io.github.omeryol.akisgesture.feedback.RingLayout
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 import kotlinx.coroutines.delay
@@ -1110,12 +1111,31 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
         val insetValue = if (isRecent) config.recentAppsInsetDp else config.ringGroupInsetDp
         val count = if (isRecent) config.recentAppsCount.coerceIn(2, 6) else 3
 
-        val ringRadius = (sizeValue * density * 0.22f).coerceIn(13f, 24f)
-        val ringSpacing = (spacingValue * density * 0.22f).coerceIn(ringRadius * 2.15f, ringRadius * 3.7f)
-        val inset = (insetValue * density * 0.20f).coerceIn(ringRadius + 6f, screen.width * 0.30f)
-        val middleLead = ringSpacing * 1.45f
-        val m = (count - 1) / 2f
-        val maxDistFromCenter = if (m > 0f) m else 1f
+        // Önizleme, canlı yerleşimin birebir aynısını kullanır (tek kaynak:
+        // RingLayout); yalnızca mini telefon ölçeğine indirgenir. Böylece ayar
+        // ekranında görülen simetri ve aralıklar cihazdakinin aynısıdır.
+        val previewScale = density * 0.22f
+        val previewGap = 1.6f
+        val layout = RingLayout.compute(
+            RingLayout.Spec(
+                edge = edge,
+                alongExtent = if (edge == Edge.BOTTOM) screen.width else screen.height,
+                depthExtent = if (edge == Edge.BOTTOM) screen.height else screen.width,
+                touchAlong = if (edge == Edge.BOTTOM) {
+                    screen.center.x - screen.left
+                } else {
+                    screen.center.y - screen.top
+                },
+                count = count,
+                radius = sizeValue * previewScale,
+                spacing = spacingValue * previewScale,
+                baseDepth = insetValue * density * 0.20f,
+                arc = arcValue,
+                edgeGap = previewGap,
+                minIconGap = previewGap,
+            ),
+        )
+        val ringRadius = layout.radius
 
         val actions = if (isRecent) {
             List(count) { ActionNode.SwitchLastApp }
@@ -1123,15 +1143,9 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawRingPreviews(
             val values = config.ringActionsFor(edge).take(3)
             values + List(3 - values.size) { ActionNode.NoAction }
         }
-        val centers = (0 until count).map { i ->
-            val u = if (m > 0f) kotlin.math.abs(i - m) / maxDistFromCenter else 0f
-            val itemLead = middleLead * (1f - arcValue.coerceIn(0f, 1f) * (u * u))
-            val delta = (i - m) * ringSpacing
-            when (edge) {
-                Edge.LEFT -> Offset(screen.left + inset + itemLead, screen.center.y + delta)
-                Edge.RIGHT -> Offset(screen.right - inset - itemLead, screen.center.y + delta)
-                Edge.BOTTOM -> Offset(screen.center.x + delta, screen.bottom - inset - itemLead)
-            }
+        val centers = layout.items.indices.map { index ->
+            val (x, y) = layout.center(index, edge, screen.width, screen.height)
+            Offset(screen.left + x, screen.top + y)
         }
         centers.forEachIndexed { index, center ->
             val color = edgeColors.getValue(edge)

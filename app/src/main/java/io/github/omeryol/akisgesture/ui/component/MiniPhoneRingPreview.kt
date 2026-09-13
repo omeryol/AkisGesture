@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import io.github.omeryol.akisgesture.feedback.RingLayout
 import io.github.omeryol.akisgesture.overlay.Edge
 import io.github.omeryol.akisgesture.ui.theme.EdgeUi
 
@@ -228,23 +229,30 @@ fun MiniPhoneRingPreview(
             }
 
             // 7. Render 3 Dock Pods (Arching correctly inward from the edge)
-            val podCount = 3
-            val podRadius = 5.2f
-            val spacing = podRadius * 2.7f
-            val baseInset = podRadius + 3.5f
-            val lead = 4.2f
+            // Kart önizlemesi de canlı yerleşimin birebir aynısını kullanır
+            // (tek kaynak: RingLayout); simetri, üst üste binmeme ve kenar payı
+            // cihazdaki davranışla aynıdır.
+            val desiredPodRadius = 5.2f
+            val podLayout = RingLayout.compute(
+                RingLayout.Spec(
+                    edge = edge,
+                    alongExtent = if (edge == Edge.BOTTOM) screen.width else screen.height,
+                    depthExtent = if (edge == Edge.BOTTOM) screen.height else screen.width,
+                    touchAlong = if (edge == Edge.BOTTOM) cx - screen.left else cy - screen.top,
+                    count = 3,
+                    radius = desiredPodRadius,
+                    spacing = desiredPodRadius * 2.7f,
+                    baseDepth = desiredPodRadius + 3.5f,
+                    arc = 0.92f,
+                    edgeGap = 1f,
+                    minIconGap = 1f,
+                ),
+            )
+            val podRadius = podLayout.radius
 
-            val podCenters = (0 until podCount).map { i ->
-                val m = (podCount - 1) / 2f
-                val u = kotlin.math.abs(i - m)
-                val itemLead = lead * (1f - u * 0.45f)
-                val delta = (i - m) * spacing
-
-                when (edge) {
-                    Edge.LEFT -> Offset(screen.left + baseInset + itemLead, cy + delta)
-                    Edge.RIGHT -> Offset(screen.right - baseInset - itemLead, cy + delta)
-                    Edge.BOTTOM -> Offset(cx + delta, screen.bottom - baseInset - itemLead)
-                }
+            val podCenters = podLayout.items.indices.map { index ->
+                val (x, y) = podLayout.center(index, edge, screen.width, screen.height)
+                Offset(screen.left + x, screen.top + y)
             }
 
             podCenters.forEach { center ->

@@ -106,6 +106,7 @@
                 <action android:name="com.openswipe.action.START" />
                 <action android:name="com.openswipe.action.STOP" />
                 <action android:name="com.openswipe.action.TOGGLE" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
@@ -115,21 +116,39 @@
             android:excludeFromRecents="true"
             android:label="@string/command_start_label"
             android:noHistory="true"
-            android:theme="@style/Theme.AkisGesture" />
+            android:theme="@style/Theme.AkisGesture">
+            <intent-filter>
+                <action android:name="io.github.omeryol.akisgesture.action.START" />
+                <action android:name="com.openswipe.action.START" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".service.StopGestureActivity"
             android:exported="true"
             android:excludeFromRecents="true"
             android:label="@string/command_stop_label"
             android:noHistory="true"
-            android:theme="@style/Theme.AkisGesture" />
+            android:theme="@style/Theme.AkisGesture">
+            <intent-filter>
+                <action android:name="io.github.omeryol.akisgesture.action.STOP" />
+                <action android:name="com.openswipe.action.STOP" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".service.ToggleGestureActivity"
             android:exported="true"
             android:excludeFromRecents="true"
             android:label="@string/command_toggle_label"
             android:noHistory="true"
-            android:theme="@style/Theme.AkisGesture" />
+            android:theme="@style/Theme.AkisGesture">
+            <intent-filter>
+                <action android:name="io.github.omeryol.akisgesture.action.TOGGLE" />
+                <action android:name="com.openswipe.action.TOGGLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".service.MacroDroidPluginActivity"
@@ -137,6 +156,7 @@
             android:label="Akış Gesture">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
@@ -146,6 +166,7 @@
             android:label="Akış Gesture">
             <intent-filter>
                 <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 

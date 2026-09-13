@@ -30,65 +30,50 @@ class RingMenuRenderer {
         height: Float,
         stretch: Float,
         threshold: Float,
-        extraInsetPx: Float,
-        spreadPx: Float,
+        insetPx: Float,
+        spacingPx: Float,
+        radiusPx: Float,
+        arc: Float,
+        edgeGapPx: Float,
+        minIconGapPx: Float,
         color: Int,
         opacity: Float,
         icons: List<Bitmap?>,
         selectedIndex: Int,
-        iconScale: Float,
-        ringSizeDp: Float,
-        ringArc: Float,
     ) {
         if (icons.isEmpty()) return
         val now = SystemClock.uptimeMillis()
         if (appearanceStartedAtMs == 0L) appearanceStartedAtMs = now
-        // Keep the bubbles attached to the finger's inward travel instead of
-        // pinning them to the trigger edge. The small lead offset keeps the
-        // selected bubble visible around the fingertip.
-        val radius = ringSizeDp * iconScale
-        // Use a stable, screen-relative menu position. The finger's actual
-        // inward pixel distance controls reveal only, so the three bubbles
-        // never chase the fingertip or collapse on top of one another.
-        val edgeSpan = when (edge) {
-            Edge.LEFT, Edge.RIGHT -> width
-            Edge.BOTTOM -> height
-        }.coerceAtLeast(1f)
-        val maxInset = if (edge == Edge.BOTTOM) edgeSpan * 0.5f else edgeSpan * 0.9f
-        val menuInset = extraInsetPx.coerceIn(radius * 1.2f, maxInset)
-        val revealEnd = menuInset.coerceAtLeast(threshold + 1f)
-        val progress = ((stretch - threshold) / (revealEnd - threshold)).coerceIn(0f, 1f)
-        val anchor = when (edge) {
-            Edge.LEFT -> menuInset
-            Edge.RIGHT -> width - menuInset
-            Edge.BOTTOM -> height - menuInset
-        }
-        val spread = spreadPx.coerceAtLeast(36f)
-        val middleLead = spread * 1.45f
-        val count = icons.size
-        val m = (count - 1) / 2f
-        val maxDistFromCenter = if (m > 0f) m else 1f
-        val maxBound = if (edge == Edge.BOTTOM) width else height
 
-        val positions = (0 until count).map { i ->
-            val u = if (m > 0f) kotlin.math.abs(i - m) / maxDistFromCenter else 0f
-            val itemLead = middleLead * (1f - ringArc.coerceIn(0f, 1f) * (u * u))
-            val deltaEdge = (i - m) * spread
-            val edgePos = (touch + deltaEdge).coerceIn(radius, maxBound - radius)
-            when (edge) {
-                Edge.LEFT -> (anchor + itemLead) to edgePos
-                Edge.RIGHT -> (anchor - itemLead) to edgePos
-                Edge.BOTTOM -> edgePos to (anchor - itemLead)
-            }
-        }
+        // Yerleşim tek kaynaktan (RingLayout) gelir: kenar boyunca simetri, üst
+        // üste binmeme ve tetik kenarına olan en küçük mesafe orada garanti
+        // edilir. Parmak yalnızca ne kadar içeri girildiğini (reveal) belirler.
+        val layout = RingLayout.compute(
+            RingLayout.Spec(
+                edge = edge,
+                alongExtent = if (edge == Edge.BOTTOM) width else height,
+                depthExtent = if (edge == Edge.BOTTOM) height else width,
+                touchAlong = touch,
+                count = icons.size,
+                radius = radiusPx,
+                spacing = spacingPx,
+                baseDepth = insetPx,
+                arc = arc,
+                edgeGap = edgeGapPx,
+                minIconGap = minIconGapPx,
+            ),
+        )
+        val radius = layout.radius
+        val revealEnd = layout.baseDepth.coerceAtLeast(threshold + 1f)
+        val progress = ((stretch - threshold) / (revealEnd - threshold)).coerceIn(0f, 1f)
         icons.forEachIndexed { index, icon ->
-            val (x, y) = positions[index]
+            val (x, y) = layout.center(index, edge, width, height)
             val selected = index == selectedIndex
             val pulse = if (selected) {
                 val phase = (SystemClock.uptimeMillis() % 720L) / 720f
-                0.05f * ((sin(phase * Math.PI * 2.0) + 1.0) / 2.0).toFloat()
+                RingLayout.SELECTED_PULSE * ((sin(phase * Math.PI * 2.0) + 1.0) / 2.0).toFloat()
             } else 0f
-            val scale = if (selected) 1.24f + pulse else 1f
+            val scale = if (selected) RingLayout.SELECTED_SCALE + pulse else 1f
             val r = radius * scale
             val staggeredStart = appearanceStartedAtMs + index * 45L
             val appearance = ((now - staggeredStart) / 220f).coerceIn(0f, 1f)
