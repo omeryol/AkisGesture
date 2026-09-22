@@ -53,6 +53,11 @@ object ShizukuManager {
         statusListeners.add(listener)
     }
 
+    /** Must be called (e.g. from ViewModel.onCleared) to avoid leaking the caller via the listener closure. */
+    fun removeStatusListener(listener: () -> Unit) {
+        statusListeners.remove(listener)
+    }
+
     private fun notifyStatusChanged() {
         statusListeners.forEach { runCatching { it() } }
     }

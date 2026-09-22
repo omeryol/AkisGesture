@@ -83,7 +83,7 @@ object AccessibilityControl {
 
     suspend fun repairIfNeeded(
         context: Context,
-        serviceConnected: Boolean = GestureAccessibilityService.instance != null,
+        serviceConnected: Boolean = GestureAccessibilityService.instance?.isOverlayHealthy() == true,
         nowMillis: Long = System.currentTimeMillis(),
         repairCooldownMs: Long = AccessibilityHealthPolicy.REPAIR_COOLDOWN_MS,
     ): RootResult {

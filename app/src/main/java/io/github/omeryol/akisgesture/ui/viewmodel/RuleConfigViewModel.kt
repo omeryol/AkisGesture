@@ -196,6 +196,14 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
                 }
                 .collect { graph ->
                     graph ?: return@collect
+                    // settingsDataStore is one shared Preferences file: an unrelated write
+                    // (haptic intensity, edge width, etc. from HomeViewModel/SettingsScreen)
+                    // republishes the whole file and re-triggers this collector. While a
+                    // per-app profile is active, _rules holds that profile's rules — syncing
+                    // from the global "gesture_rules_json" key here would silently clobber
+                    // them, and a subsequent edit would then write the wrong (global) rules
+                    // back into the profile's own storage via applyRules().
+                    if (_activeProfilePackage.value != null) return@collect
                     val normalized = normalizeSections(graph.rules)
                     _rules.value = normalized
                     _appliedRules.value = normalized

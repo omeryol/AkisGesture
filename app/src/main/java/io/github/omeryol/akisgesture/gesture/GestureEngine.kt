@@ -140,6 +140,21 @@ class GestureEngine(
         started = false
     }
 
+    /**
+     * True unless the engine expected at least one edge overlay to be attached to the
+     * WindowManager and none actually attached (e.g. WindowManager silently rejected the
+     * overlay token). A live [detectors] map entry only exists after [OverlayManager.addWindow]
+     * succeeds, so an empty map while overlays are expected means the gesture surface is
+     * not actually usable even though the accessibility service itself is connected.
+     * Being paused (lock screen, keyboard, foreground-app pause) or not yet started counts
+     * as healthy since no overlay is supposed to exist in those states.
+     */
+    fun isOverlayHealthy(): Boolean {
+        if (isPaused() || !started) return true
+        val expectsOverlay = Edge.entries.any { activeRuleSet.hasRulesFor(it) && currentConfig.isEnabled(it) }
+        return !expectsOverlay || detectors.isNotEmpty()
+    }
+
     fun onForegroundAppChanged(packageName: String, adaptiveColor: Int? = null) {
         val oldActiveRuleSet = activeRuleSet
         foregroundPackage = packageName
@@ -246,6 +261,7 @@ class GestureEngine(
         ?.activityInfo?.packageName
 
     private fun clearOverlays() {
+        detectors.values.forEach { it.cancel() }
         overlayManager.removeAll()
         detectors.clear()
         edgeLengths.clear()
@@ -434,6 +450,7 @@ class GestureEngine(
 
     private fun removeEdge(edge: Edge) {
         val tag = "sensor_${edge.name.lowercase()}"
+        detectors[edge]?.cancel()
         overlayManager.removeWindow(tag)
         detectors.remove(edge)
         edgeLengths.remove(edge)

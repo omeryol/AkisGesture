@@ -3,6 +3,7 @@ package io.github.omeryol.akisgesture.ui.viewmodel
 import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
+import io.github.omeryol.akisgesture.shizuku.ShizukuManager
 import androidx.lifecycle.viewModelScope
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -68,16 +69,27 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    init {
-        io.github.omeryol.akisgesture.shizuku.ShizukuManager.init()
-        io.github.omeryol.akisgesture.shizuku.ShizukuManager.addStatusListener {
-            viewModelScope.launch(Dispatchers.Main) {
-                _shizukuStatus.value = io.github.omeryol.akisgesture.shizuku.ShizukuManager.getStatus()
-                checkRootAccess()
-            }
+    // Named so onCleared() can remove exactly this listener. ShizukuManager is a
+    // process-wide singleton with a static listener list; every HomeViewModel instance
+    // (one per nav-graph entry — Home/Settings/action_picker each get their own) that
+    // never unregisters leaves a lambda holding this instance alive forever.
+    private val shizukuStatusListener: () -> Unit = {
+        viewModelScope.launch(Dispatchers.Main) {
+            _shizukuStatus.value = ShizukuManager.getStatus()
+            checkRootAccess()
         }
+    }
+
+    init {
+        ShizukuManager.init()
+        ShizukuManager.addStatusListener(shizukuStatusListener)
         checkRootAccess()
         loadSelectableApps()
+    }
+
+    override fun onCleared() {
+        ShizukuManager.removeStatusListener(shizukuStatusListener)
+        super.onCleared()
     }
 
     fun checkRootAccess() {

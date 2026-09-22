@@ -129,6 +129,17 @@ class EdgeGestureDetector(
         }
     }
 
+    /**
+     * Cancels any pending hold/ring reveal timers without touching the overlay window.
+     * Must be called before this detector is discarded (overlay teardown, edge removal,
+     * config rebuild) — otherwise a scheduled [holdRunnable]/[ringRevealRunnable] can still
+     * fire on the main-thread Handler after the finger has left the screen and the window
+     * is gone, dispatching a stale action from an abandoned touch sequence.
+     */
+    fun cancel() {
+        cancelHold()
+    }
+
     fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> handleDown(event)
@@ -413,7 +424,13 @@ class EdgeGestureDetector(
         val rawDisplacement = inwardDisplacement(dx, dy)
         val dampedDisplacement = GestureThresholds.dampedDisplacement(rawDisplacement, edgeDamping)
 
-        if (dampedDisplacement < swipeThresholdPx * config.hysteresisRatio && !holdFiredOnThreshold) {
+        // Bottom-edge horizontal app-switch swipes are tracked by |dx|, not the
+        // vertical inward displacement (see handleMove's identical lastStretch calc).
+        // Gating on dampedDisplacement alone here made a released horizontal swipe
+        // always read as "below hysteresis" and never reach resolveGestureResult.
+        val releaseDisplacement = if (lastSwitchDirection != null) abs(dx) else dampedDisplacement
+
+        if (releaseDisplacement < swipeThresholdPx * config.hysteresisRatio && !holdFiredOnThreshold) {
             RuntimeDiagnostics.gestureSignal(edge.name, "released_below_hysteresis")
             finishProgress(event)
             reset()

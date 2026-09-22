@@ -77,6 +77,29 @@ class GestureAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+
+        // HyperOS/Android 15 can invoke onServiceConnected() again on the same service
+        // instance without an intervening onUnbind/onDestroy (observed after
+        // AccessibilityControl.rebind() toggles the accessibility service setting).
+        // Without this guard the previous overlayManager/gestureEngine/keepAliveView
+        // would be silently overwritten: their WindowManager views are never removed,
+        // leaving "ghost" overlay windows stuck on screen with no detector able to
+        // reach them anymore. Tear the old state down first (without cancelling
+        // serviceScope, which stays alive for the life of this service instance).
+        if (::gestureEngine.isInitialized) {
+            gestureEngine.stop()
+        }
+        if (::overlayManager.isInitialized) {
+            overlayManager.removeAll()
+        }
+        keepAliveView?.let { view ->
+            try {
+                if (view.windowToken != null) windowManager.removeView(view)
+            } catch (_: Exception) {
+            }
+            keepAliveView = null
+        }
+
         serviceConnectedEpochMs = System.currentTimeMillis()
         instance = this
         RuntimeDiagnostics.serviceConnected()
@@ -252,6 +275,13 @@ class GestureAccessibilityService : AccessibilityService() {
         cleanup("destroy")
         super.onDestroy()
     }
+
+    /**
+     * True when the gesture overlay is actually attached (or intentionally paused) —
+     * not just that the accessibility service connected. A live PID/instance does not
+     * mean gestures work: this checks the real overlay state via [GestureEngine.isOverlayHealthy].
+     */
+    fun isOverlayHealthy(): Boolean = !::gestureEngine.isInitialized || gestureEngine.isOverlayHealthy()
 
     /** Updates the visible edge sensor during map dragging without persisting a setting. */
     fun previewEdgeVerticalRange(edge: io.github.omeryol.akisgesture.overlay.Edge, start: Float, end: Float) {

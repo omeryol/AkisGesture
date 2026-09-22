@@ -115,7 +115,8 @@ class KeepAliveService : Service() {
                         val intervalMs = (config.rootWatchdogIntervalSeconds.coerceAtLeast(15)) * 1_000L
                         delay(intervalMs)
                         // Hızlı yol: Servis zaten bağlı ve sağlıklıysa gereksiz kabuk (shell) işlemi yürütme
-                        if (GestureAccessibilityService.instance == null || !AccessibilityControl.isEnabled(this@KeepAliveService)) {
+                        val instance = GestureAccessibilityService.instance
+                        if (instance == null || !instance.isOverlayHealthy() || !AccessibilityControl.isEnabled(this@KeepAliveService)) {
                             AccessibilityControl.repairIfNeeded(
                                 this@KeepAliveService,
                                 repairCooldownMs = intervalMs / 2,
@@ -148,7 +149,9 @@ class KeepAliveService : Service() {
         healthCheckJob?.cancel()
         healthCheckJob = serviceScope.launch {
             // Hızlı yol (Tier 1): Servis zaten etkin ve bağlıysa 0 ms, 0 işlemci yükü ile geç
-            if (GestureAccessibilityService.instance != null && AccessibilityControl.isEnabled(this@KeepAliveService)) {
+            if (GestureAccessibilityService.instance?.isOverlayHealthy() == true &&
+                AccessibilityControl.isEnabled(this@KeepAliveService)
+            ) {
                 RuntimeDiagnostics.healthCheckEvaluated(source, "healthy_skipped")
                 return@launch
             }
@@ -156,7 +159,9 @@ class KeepAliveService : Service() {
             if (gracePeriodMs > 0) {
                 delay(gracePeriodMs)
             }
-            if (GestureAccessibilityService.instance != null && AccessibilityControl.isEnabled(this@KeepAliveService)) {
+            if (GestureAccessibilityService.instance?.isOverlayHealthy() == true &&
+                AccessibilityControl.isEnabled(this@KeepAliveService)
+            ) {
                 RuntimeDiagnostics.healthCheckEvaluated(source, "healthy_after_grace")
                 return@launch
             }
