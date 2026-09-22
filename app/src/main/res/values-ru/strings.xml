@@ -233,7 +233,9 @@
   <string name="battery_restriction_description">Отключите оптимизацию батареи для бесперебойной фоновой работы.</string>
   <plurals name="gesture_count">
     <item quantity="one">%d жест</item>
-    <item quantity="other">%d жесты</item>
+    <item quantity="few">%d жеста</item>
+    <item quantity="many">%d жестов</item>
+    <item quantity="other">%d жеста</item>
   </plurals>
   <string name="permissions_title">Разрешения</string>
   <string name="permissions_intro">Для корректной работы Akış Gesture необходимы следующие разрешения.</string>

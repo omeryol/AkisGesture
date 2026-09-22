@@ -78,12 +78,12 @@
   <string name="update_dialog_no_notes">Nie podano żadnych informacji o wydaniu.</string>
   <string name="update_dialog_download">Pobierz plik APK</string>
   <string name="about_support">Jest to projekt hobbystyczny i społeczny. Nie gwarantuje się aktualizacji, kompatybilności urządzeń, czasów poprawek ani indywidualnego wsparcia. Powtarzalne raporty o błędach i wkłady są mile widziane.</string>
-  <string name="about_root">Podstawowe gesty nie wymagają rootowania. Akış Gesture działa w 100% bez korzeni; uprawnienia roota są używane tylko do opcjonalnych zaawansowanych działań (niestandardowe polecenia su, natychmiastowa blokada ekranu).</string>
+  <string name="about_root" formatted="false">Podstawowe gesty nie wymagają rootowania. Akış Gesture działa w 100% bez korzeni; uprawnienia roota są używane tylko do opcjonalnych zaawansowanych działań (niestandardowe polecenia su, natychmiastowa blokada ekranu).</string>
   <string name="about_root_title">🔑 Dostęp do roota — tylko dla zaawansowanych użytkowników</string>
   <string name="root_warning_title">⚠️ ROOT ZDECYDOWANIE NIE JEST ZALECANY!</string>
   <string name="root_warning_desc">Rootowanie zagraża bezpieczeństwu urządzenia, unieważnia gwarancję i prawa serwisowe, a jeśli zostanie wykonane nieprawidłowo, może trwale uszkodzić urządzenie. Zwykli użytkownicy nie mają absolutnie potrzeby rootowania swojego urządzenia i zdecydowanie odradzamy to. Ta sekcja istnieje wyłącznie jako informacja dla zaawansowanych użytkowników, którzy mają już zrootowane urządzenie.</string>
   <string name="about_root_not_required_title">✅ Root NIE jest wymagany!</string>
-  <string name="about_root_not_required_desc">Wszystkie podstawowe gesty nawigacyjne (Wstecz, Strona główna, Ostatnie, Uruchom aplikację, Sterowanie multimediami, Zrzut ekranu itp.) działają w 100% bez uprawnień roota za pośrednictwem standardowej usługi dostępności systemu Android.</string>
+  <string name="about_root_not_required_desc" formatted="false">Wszystkie podstawowe gesty nawigacyjne (Wstecz, Strona główna, Ostatnie, Uruchom aplikację, Sterowanie multimediami, Zrzut ekranu itp.) działają w 100% bez uprawnień roota za pośrednictwem standardowej usługi dostępności systemu Android.</string>
   <string name="about_root_features_title">⚡ Co robi root w tej aplikacji? (Fakultatywny)</string>
   <string name="about_root_features_desc">Katalog główny jest używany tylko do opcjonalnej akcji wymuszenia zatrzymania aplikacji na pierwszym planie i do ponownego powiązania wpisu dostępności po nieoczekiwanej awarii systemu. Nigdy nie jest to wymagane w przypadku podstawowych gestów i pozostaje w gestii użytkowników, którzy rozumieją te zmiany na poziomie systemu.</string>
   <string name="about_root_privacy_desc">🛡️ Bezpieczeństwo i prywatność: Nawet jeśli przyznano uprawnienia roota, Akış Gesture nigdy nie przesyła danych przez Internet. Wszystkie ustawienia i reguły pozostają w 100% na Twoim urządzeniu.</string>
@@ -233,7 +233,9 @@
   <string name="battery_restriction_description">Wyłącz optymalizację baterii, aby zapewnić nieprzerwane działanie w tle</string>
   <plurals name="gesture_count">
     <item quantity="one">%d gest</item>
-    <item quantity="other">%d gesty</item>
+    <item quantity="few">%d gesty</item>
+    <item quantity="many">%d gestów</item>
+    <item quantity="other">%d gestu</item>
   </plurals>
   <string name="permissions_title">Uprawnienia</string>
   <string name="permissions_intro">Akış Gesture potrzebuje następujących uprawnień, aby działać poprawnie.</string>

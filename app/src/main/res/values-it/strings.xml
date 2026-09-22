@@ -78,15 +78,15 @@
   <string name="update_dialog_no_notes">Non sono state fornite note di rilascio.</string>
   <string name="update_dialog_download">Scarica l\'APK</string>
   <string name="about_support">Questo è un hobby e un progetto comunitario. Aggiornamenti, compatibilità dei dispositivi, tempi di correzione e supporto individuale non sono garantiti. Segnalazioni di bug e contributi riproducibili sono benvenuti.</string>
-  <string name="about_root">I gesti principali non richiedono root. Akış Gesture funziona al 100% senza radici; l\'autorizzazione root viene utilizzata solo per azioni avanzate opzionali (comandi su personalizzati, blocco schermo istantaneo).</string>
+  <string name="about_root" formatted="false">I gesti principali non richiedono root. Akış Gesture funziona al 100% senza radici; l\'autorizzazione root viene utilizzata solo per azioni avanzate opzionali (comandi su personalizzati, blocco schermo istantaneo).</string>
   <string name="about_root_title">🔑 Accesso root: solo per utenti avanzati</string>
   <string name="root_warning_title">⚠️ IL RADICE NON È FORTEMENTE CONSIGLIATO!</string>
   <string name="root_warning_desc">Il rooting compromette la sicurezza del dispositivo, invalida la garanzia e i diritti di servizio e, se eseguito in modo errato, può bloccare permanentemente il tuo dispositivo. Gli utenti abituali non hanno assolutamente bisogno di eseguire il root del proprio dispositivo e lo sconsigliamo vivamente. Questa sezione esiste esclusivamente come informazione per gli utenti avanzati che dispongono già di un dispositivo rootato.</string>
   <string name="about_root_not_required_title">✅ Il root NON è richiesto!</string>
-  <string name="about_root_not_required_desc">Tutti i gesti di navigazione principali (Indietro, Home, Recenti, Avvia app, Controlli multimediali, Screenshot, ecc.) funzionano al 100% senza root tramite il servizio di accessibilità Android standard.</string>
+  <string name="about_root_not_required_desc" formatted="false">Tutti i gesti di navigazione principali (Indietro, Home, Recenti, Avvia app, Controlli multimediali, Screenshot, ecc.) funzionano al 100% senza root tramite il servizio di accessibilità Android standard.</string>
   <string name="about_root_features_title">⚡ Cosa fa Root in questa app? (Opzionale)</string>
   <string name="about_root_features_desc">Root viene utilizzato solo per l\'azione facoltativa di arresto forzato dell\'app in primo piano e per riassociare la voce di accessibilità dopo un arresto imprevisto del sistema. Non è mai richiesto per i gesti principali e rimane responsabilità degli utenti che comprendono questi cambiamenti a livello di sistema.</string>
-  <string name="about_root_privacy_desc">🛡️ Sicurezza e privacy: anche se viene concesso l\'accesso root, Akış Gesture non trasmette mai dati su Internet. Tutte le tue impostazioni e regole rimangono al 100% sul tuo dispositivo.</string>
+  <string name="about_root_privacy_desc" formatted="false">🛡️ Sicurezza e privacy: anche se viene concesso l\'accesso root, Akış Gesture non trasmette mai dati su Internet. Tutte le tue impostazioni e regole rimangono al 100% sul tuo dispositivo.</string>
   <string name="about_upstream">Akış Gesture si basa sul codice sorgente OpenSwipe con licenza MIT. Gli avvisi sul copyright e sulla licenza di OpenSwipe vengono preservati; Akış Gesture è un progetto indipendente.</string>
   <string name="open_project_repo">Repository GitHub di Akış Gesture</string>
   <string name="open_upstream">Progetto sorgente OpenSwipe</string>
@@ -233,6 +233,7 @@
   <string name="battery_restriction_description">Disabilita l\'ottimizzazione della batteria per il funzionamento in background ininterrotto</string>
   <plurals name="gesture_count">
     <item quantity="one">%d gesto</item>
+    <item quantity="many">%d di gesti</item>
     <item quantity="other">%d gesti</item>
   </plurals>
   <string name="permissions_title">Autorizzazioni</string>

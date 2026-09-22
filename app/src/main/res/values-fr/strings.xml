@@ -78,15 +78,15 @@
   <string name="update_dialog_no_notes">Aucune note de version n\'a été fournie.</string>
   <string name="update_dialog_download">Télécharger l\'APK</string>
   <string name="about_support">Il s\'agit d\'un projet de loisir et communautaire. Les mises à jour, la compatibilité des appareils, les délais de correction et l\'assistance individuelle ne sont pas garantis. Les rapports de bugs reproductibles et les contributions sont les bienvenus.</string>
-  <string name="about_root">Les gestes de base ne nécessitent pas de root. Akış Gesture fonctionne à 100% sans racine ; l\'autorisation root n\'est utilisée que pour les actions avancées facultatives (commandes su personnalisées, verrouillage instantané de l\'écran).</string>
+  <string name="about_root" formatted="false">Les gestes de base ne nécessitent pas de root. Akış Gesture fonctionne à 100% sans racine ; l\'autorisation root n\'est utilisée que pour les actions avancées facultatives (commandes su personnalisées, verrouillage instantané de l\'écran).</string>
   <string name="about_root_title">🔑 Accès racine – Pour les utilisateurs avancés uniquement</string>
   <string name="root_warning_title">⚠️ LA RACINE EST FORTEMENT DÉCONSEILLÉE !</string>
   <string name="root_warning_desc">L\'enracinement compromet la sécurité de l\'appareil, annule la garantie et les droits de service et, s\'il est mal effectué, peut bloquer définitivement votre appareil. Les utilisateurs réguliers n’ont absolument pas besoin de rooter leur appareil et nous le déconseillons fortement. Cette section existe uniquement à titre d\'information pour les utilisateurs avancés qui disposent déjà d\'un appareil rooté.</string>
   <string name="about_root_not_required_title">✅ La racine n\'est PAS requise !</string>
-  <string name="about_root_not_required_desc">Tous les gestes de navigation principaux (Retour, Accueil, Récents, Lancer l\'application, Contrôles multimédias, Capture d\'écran, etc.) fonctionnent à 100 % sans racine via le service d\'accessibilité Android standard.</string>
+  <string name="about_root_not_required_desc" formatted="false">Tous les gestes de navigation principaux (Retour, Accueil, Récents, Lancer l\'application, Contrôles multimédias, Capture d\'écran, etc.) fonctionnent à 100 % sans racine via le service d\'accessibilité Android standard.</string>
   <string name="about_root_features_title">⚡ Que fait Root dans cette application ? (Facultatif)</string>
   <string name="about_root_features_desc">Root est utilisé uniquement pour l’action facultative d’arrêt forcé de l’application de premier plan et pour relier l’entrée d’accessibilité après une chute inattendue du système. Cela n’est jamais requis pour les gestes principaux et reste de la responsabilité des utilisateurs qui comprennent ces changements au niveau du système.</string>
-  <string name="about_root_privacy_desc">🛡️ Sécurité et confidentialité : même si l\'accès root est accordé, Akış Gesture ne transmet jamais de données sur Internet. Tous vos paramètres et règles restent à 100 % sur votre appareil.</string>
+  <string name="about_root_privacy_desc" formatted="false">🛡️ Sécurité et confidentialité : même si l\'accès root est accordé, Akış Gesture ne transmet jamais de données sur Internet. Tous vos paramètres et règles restent à 100 % sur votre appareil.</string>
   <string name="about_upstream">Akış Gesture est basé sur le code source OpenSwipe sous licence MIT. Les avis de droits d\'auteur et de licence OpenSwipe sont préservés ; Akış Gesture est un projet indépendant.</string>
   <string name="open_project_repo">Akış Gesture Dépôt GitHub</string>
   <string name="open_upstream">Projet source OpenSwipe</string>
@@ -233,6 +233,7 @@
   <string name="battery_restriction_description">Désactivez l\'optimisation de la batterie pour un fonctionnement en arrière-plan ininterrompu</string>
   <plurals name="gesture_count">
     <item quantity="one">geste %d</item>
+    <item quantity="many">%d de gestes</item>
     <item quantity="other">%d gestes</item>
   </plurals>
   <string name="permissions_title">Autorisations</string>

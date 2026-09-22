@@ -78,15 +78,15 @@
   <string name="update_dialog_no_notes">Es wurden keine Versionshinweise bereitgestellt.</string>
   <string name="update_dialog_download">APK herunterladen</string>
   <string name="about_support">Dies ist ein Hobby- und Gemeinschaftsprojekt. Updates, Gerätekompatibilität, Reparaturzeiten und individueller Support können nicht garantiert werden. Reproduzierbare Fehlerberichte und Beiträge sind willkommen.</string>
-  <string name="about_root">Für Kerngesten ist kein Root erforderlich. Akış Gesture funktioniert zu 100 % wurzellos; Die Root-Berechtigung wird nur für optionale erweiterte Aktionen (benutzerdefinierte su-Befehle, sofortige Bildschirmsperre) verwendet.</string>
+  <string name="about_root" formatted="false">Für Kerngesten ist kein Root erforderlich. Akış Gesture funktioniert zu 100 % wurzellos; Die Root-Berechtigung wird nur für optionale erweiterte Aktionen (benutzerdefinierte su-Befehle, sofortige Bildschirmsperre) verwendet.</string>
   <string name="about_root_title">🔑 Root-Zugriff – Nur für fortgeschrittene Benutzer</string>
   <string name="root_warning_title">⚠️ ROOT WIRD DRINGEND NICHT EMPFOHLEN!</string>
   <string name="root_warning_desc">Das Rooten beeinträchtigt die Gerätesicherheit, führt zum Erlöschen von Garantie- und Servicerechten und kann, wenn es falsch durchgeführt wird, Ihr Gerät dauerhaft blockieren. Normale Benutzer müssen ihr Gerät absolut nicht rooten und wir raten dringend davon ab. Dieser Abschnitt dient ausschließlich der Information für fortgeschrittene Benutzer, die bereits über ein gerootetes Gerät verfügen.</string>
   <string name="about_root_not_required_title">✅ Root ist NICHT erforderlich!</string>
-  <string name="about_root_not_required_desc">Alle zentralen Navigationsgesten (Zurück, Startseite, Letzte, App starten, Mediensteuerung, Screenshot usw.) funktionieren zu 100 % ohne Root über den standardmäßigen Android-Eingabehilfedienst.</string>
+  <string name="about_root_not_required_desc" formatted="false">Alle zentralen Navigationsgesten (Zurück, Startseite, Letzte, App starten, Mediensteuerung, Screenshot usw.) funktionieren zu 100 % ohne Root über den standardmäßigen Android-Eingabehilfedienst.</string>
   <string name="about_root_features_title">⚡ Was macht Root in dieser App? (Optional)</string>
   <string name="about_root_features_desc">Root wird nur für die optionale Force-Stop-Aktion der Vordergrund-App und zum erneuten Binden des Barrierefreiheitseintrags nach einem unerwarteten Systemabbruch verwendet. Für Kerngesten ist es nie erforderlich und liegt in der Verantwortung von Benutzern, die diese Änderungen auf Systemebene verstehen.</string>
-  <string name="about_root_privacy_desc">🛡️ Sicherheit und Datenschutz: Auch wenn Root-Zugriff gewährt wird, überträgt Akış Gesture niemals Daten über das Internet. Alle Ihre Einstellungen und Regeln bleiben zu 100 % auf Ihrem Gerät.</string>
+  <string name="about_root_privacy_desc" formatted="false">🛡️ Sicherheit und Datenschutz: Auch wenn Root-Zugriff gewährt wird, überträgt Akış Gesture niemals Daten über das Internet. Alle Ihre Einstellungen und Regeln bleiben zu 100 % auf Ihrem Gerät.</string>
   <string name="about_upstream">Akış Gesture basiert auf dem MIT-lizenzierten OpenSwipe-Quellcode. Die Urheberrechts- und Lizenzhinweise von OpenSwipe bleiben erhalten; Akış Gesture ist ein unabhängiges Projekt.</string>
   <string name="open_project_repo">Akış Gesture GitHub-Repository</string>
   <string name="open_upstream">OpenSwipe-Quellprojekt</string>

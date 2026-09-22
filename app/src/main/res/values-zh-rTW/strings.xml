@@ -399,7 +399,7 @@
   <string name="change_profile">更改配置</string>
   <string name="conflict_count">%1$d 個衝突</string>
   <string name="no_rules">沒有規則</string>
-  <string name="edge_areas">%1$d 個邊緣區域</string>
+  <string name="edge_areas">%1$s 區域</string>
   <string name="map_frame">地圖框架</string>
   <string name="templates_subtitle">用於分配手勢的預設模板。</string>
   <string name="general_layout_subtitle">設定手勢使用的佈局。</string>
