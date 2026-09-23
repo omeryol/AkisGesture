@@ -14,7 +14,18 @@ project; attribution and license notices are retained. Its application ID is
 `io.github.omeryol.akisgesture`.
 
 > [!TIP]
-> **Recommendation:** For the new curved look of the menus, the refreshed app icon, and the safer automation permission, updating to **v1.9.2** (latest release) is recommended.
+> **Recommendation:** This release fixes the bottom-edge horizontal app-switch gesture, makes the accessibility service's self-repair far more reliable, and closes several rule/profile data-integrity bugs, so updating to **v1.9.3** (latest release) is recommended.
+
+## v1.9.3 highlights
+
+- 🤏 **Bottom-edge horizontal app switching fixed:** Flat/horizontal swipes are now recognized and dispatched correctly; they used to be silently cancelled.
+- 🛡️ **More reliable accessibility service:** The health check now verifies that the edge sensor windows are actually attached, not just that the service process is alive; automatic repair now genuinely backs off after repeated failures instead of retrying forever at full speed.
+- 🧩 **Rule and profile integrity:** Per-app profile rules can no longer be silently overwritten by an unrelated settings change; re-adding a rule for the same zone now correctly updates it instead of leaving a dead duplicate; app-shortcut and key-code labels now survive restarts and backup restores.
+- 🔁 **More robust automation commands:** Back-to-back on/off triggers from automation apps no longer race each other.
+- 🧹 **Memory leak and ANR risk fixed:** The Shizuku status listener is now cleaned up properly, and the Quick Settings tile no longer blocks the main thread.
+
+Signed APK: [Akış Gesture v1.9.3](https://github.com/omeryol/AkisGesture/releases/download/v1.9.3/app-release.apk)
+SHA-256: `06AF0D8F565AC557071EA6EEB90F5C5A9CE535420D4357A760B96CB07E0ADB00`
 
 ## v1.9.2 highlights
 

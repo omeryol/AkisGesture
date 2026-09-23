@@ -14,7 +14,18 @@ tabanından başlamıştır; kaynak atfı ve lisans bildirimleri korunur. Uygula
 paket adı `io.github.omeryol.akisgesture`dir.
 
 > [!TIP]
-> **Önemli Tavsiye:** Menülerin yeni yay görünümü, yeni uygulama simgesi ve otomasyon izninin daha güvenli çalışması için **v1.9.2** (en güncel sürüm) kullanmanız tavsiye edilir.
+> **Önemli Tavsiye:** Alt kenardan uygulama değiştirme, erişilebilirlik servisinin kendini onarma güvenilirliği ve kural/profil bütünlüğünde önemli düzeltmeler içerdiği için **v1.9.3** (en güncel sürüm) kullanmanız tavsiye edilir.
+
+## v1.9.3 öne çıkanlar
+
+- 🤏 **Alt kenardan yatay uygulama değiştirme düzeltildi:** Düz/yatay kaydırmalar artık doğru tanınıp uygulanıyor; önceden sessizce iptal oluyordu.
+- 🛡️ **Erişilebilirlik servisi daha güvenilir:** Sağlık kontrolü artık kenar algılama pencerelerinin gerçekten ekrana eklenip eklenmediğini doğruluyor; otomatik onarım art arda başarısız olduğunda artık gerçekten yavaşlıyor.
+- 🧩 **Kural ve profil bütünlüğü:** Uygulama profili kuralları artık alakasız bir ayar değişikliğiyle ezilmiyor; aynı bölgeye ikinci kural eklerken artık doğru şekilde güncelleniyor; kısayol/tuş etiketleri yeniden başlatma ve yedek geri yüklemede korunuyor.
+- 🔁 **Otomasyon komutları daha sağlam:** Ardışık aç/kapat tetiklemeleri artık çakışmıyor.
+- 🧹 **Bellek sızıntısı ve ANR riski giderildi:** Shizuku durum dinleyicisi düzgün temizleniyor; hızlı ayarlar kutucuğu artık ana iş parçacığını bloklamıyor.
+
+İmzalı APK: [Akış Gesture v1.9.3](https://github.com/omeryol/AkisGesture/releases/download/v1.9.3/app-release.apk)
+SHA-256: `06AF0D8F565AC557071EA6EEB90F5C5A9CE535420D4357A760B96CB07E0ADB00`
 
 ## v1.9.2 öne çıkanlar
 

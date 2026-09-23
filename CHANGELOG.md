@@ -1,6 +1,39 @@
 
 > [!TIP]
-> **Tavsiye:** Yay yerleşimli halka/son uygulamalar menüsü, yeni uygulama simgesi ve otomasyon giriş noktalarında güvenlik sıkılaştırmaları için tüm kullanıcılarımızın en güncel sürüme (**v1.9.2**) geçmeleri tavsiye edilir.
+> **Tavsiye:** Alt kenardan uygulama değiştirme, erişilebilirlik servisinin kendini onarma güvenilirliği ve kural/profil bütünlüğünde önemli düzeltmeler içerdiği için tüm kullanıcılarımızın en güncel sürüme (**v1.9.3**) geçmeleri tavsiye edilir.
+
+## [1.9.3] - 2026-09-23
+
+### Hareketler
+- **Alt kenardan yatay uygulama değiştirme düzeltildi (kritik):** Parmak kalktığında yalnızca dikey mesafe kontrol ediliyordu; düz/yatay bir kaydırma her zaman "eşik altı" sayılıp sessizce iptal oluyordu. Artık yatay geçiş hareketleri de doğru şekilde tanınıp uygulanıyor.
+- **Kenar başına dokunma modu karışıklığı giderildi:** Aynı kenarda farklı bölgelere "anında tetikle" (dokun) ve "kaydırarak tetikle" modları atanabiliyorsa, artık her bölge kendi moduyla çalışır; bir bölgeye atanan mod komşu bölgeyi artık etkilemiyor.
+- **İptal edilen hareketin sessizce dirilmesi engellendi:** Bir L-hareketi eşiği geçtikten sonra parmak geri çekilip hareket iptal olduysa, parmak ekrandan kalkmadan tekrar içeri itildiğinde artık aksiyon tetiklenmiyor.
+
+### Erişilebilirlik & Kararlılık
+- **Sağlık kontrolü artık gerçek durumu yansıtıyor:** Erişilebilirlik servisinin canlı olması tek başına yeterli sayılmıyor; kenar algılama pencerelerinin fiilen ekrana eklenip eklenmediği ayrıca doğrulanıyor.
+- **Yeniden bağlanmada hayalet pencere sorunu giderildi:** Sistemin erişilebilirlik bağlantısını arka arkaya yeniden kurduğu durumlarda eski algılama pencereleri artık düzgün temizleniyor.
+- **Otomatik onarım artık gerçekten sınırlı:** Art arda başarısız onarım denemelerinden sonra deneme sıklığı belirgin şekilde azaltılıyor (30 dakikaya kadar); önceden sınır teorik olarak vardı ama pratikte hiç devreye girmiyordu.
+- **Bekleyen hareket zamanlayıcıları artık iptal ediliyor:** Ekran kilidi veya yapılandırma değişikliği sırasında parmak ekrandayken bekleyen "basılı tut" hareketleri, pencere kaldırıldığında artık gecikmeli olarak tetiklenmiyor.
+- **Root komutları artık kullanıcı 0'ı hedefliyor:** Erişilebilirlik servisiyle ilgili tüm root komutları açıkça `--user 0` belirtiyor.
+
+### Kurallar & Profiller
+- **Uygulama profili kuralları artık ezilmiyor:** Bir uygulama profili düzenlenirken alakasız bir ayar değişikliği yapıldığında, profile özel kurallar artık genel kurallarla değiştirilmiyor.
+- **Aynı bölgeye ikinci kural eklerken artık üzerine yazılıyor:** Bir bölgenin tetikleme modu değiştirildiğinde eski kural sessizce "ölü" kalmıyor, doğru şekilde güncelleniyor.
+- **Kısayol ve tuş etiketleri artık kalıcı:** Uygulama kısayolu veya özel tuş kodu atanan kurallar, uygulama yeniden başlatıldığında veya yedek geri yüklendiğinde doğru etiketle gösteriliyor.
+
+### Otomasyon
+- **Ardışık aç/kapat komutları artık güvenilir:** Neredeyse eşzamanlı iki otomasyon tetiklemesi (MacroDroid/Tasker/broadcast) artık aynı bayat durumu okuyup çakışmıyor.
+
+### Diğer
+- **Bellek sızıntısı giderildi:** Ana ekran görünümü her yeniden oluşturulduğunda Shizuku durum dinleyicisi artık düzgün temizleniyor.
+- **Kilitlenme riski azaltıldı:** Hızlı ayarlar kutucuğu artık erişilebilirlik durumunu ana iş parçacığında değil arka planda okuyor.
+- **Yedek geri yükleme diyaloğu artık ekran döndürmede kaybolmuyor.**
+- Çok sayıda çeviri dosyasında (`values-pl`, `values-fr`, `values-it`, `values-de`, `values-ru`, `values-zh-rCN`, `values-zh-rTW`) format dizesi ve çoğul biçim hataları düzeltildi; bir tanesi gerçek bir çökme riskiydi.
+
+### Teknik
+- Sürüm `1.9.3`, version code `68`.
+- İmzalı APK: `app-release.apk`.
+- SHA-256: `06AF0D8F565AC557071EA6EEB90F5C5A9CE535420D4357A760B96CB07E0ADB00`
 
 ## [1.9.2] - 2026-09-13
 
