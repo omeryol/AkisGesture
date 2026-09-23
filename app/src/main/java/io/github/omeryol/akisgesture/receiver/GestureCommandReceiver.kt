@@ -34,11 +34,7 @@ class GestureCommandReceiver : BroadcastReceiver() {
                 // güvenilmez ve varsayılan değer "kapalı"dır.
                 if (!AutomationGate.isEnabledBlocking(context)) return@Thread
 
-                val target = AutomationCommand.targetState(
-                    command,
-                    AccessibilityControl.isEnabled(context),
-                )
-                val result = AccessibilityControl.setEnabled(context, target)
+                val (target, result) = AccessibilityControl.applyAutomationCommand(context, command)
                 if (result is RootResult.Failure) {
                     // Root kullanılamıyor — en azından desired state'i kaydet
                     AccessibilityControl.setDesired(context, target)

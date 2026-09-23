@@ -114,7 +114,9 @@ class KeepAliveService : Service() {
                     while (true) {
                         val intervalMs = (config.rootWatchdogIntervalSeconds.coerceAtLeast(15)) * 1_000L
                         delay(intervalMs)
-                        // Hızlı yol: Servis zaten bağlı ve sağlıklıysa gereksiz kabuk (shell) işlemi yürütme
+                        // Hızlı yol: Servis zaten bağlı ve sağlıklıysa gereksiz kabuk (shell) işlemi yürütme.
+                        // Deneme sayacı ve art arda başarısızlıkta soğuma genişletmesi
+                        // AccessibilityControl.repairIfNeeded() içinde kalıcı olarak tutulur.
                         val instance = GestureAccessibilityService.instance
                         if (instance == null || !instance.isOverlayHealthy() || !AccessibilityControl.isEnabled(this@KeepAliveService)) {
                             AccessibilityControl.repairIfNeeded(

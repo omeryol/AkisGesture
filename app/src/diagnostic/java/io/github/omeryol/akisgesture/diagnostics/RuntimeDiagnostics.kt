@@ -127,6 +127,14 @@ object RuntimeDiagnostics {
         record("service", "interrupted")
     }
 
+    /**
+     * Kritik olmayan ancak izlenmesi gereken uyarıları kaydeder.
+     * Örneğin sessizce yutulmuş overlay/servis başlatma hataları.
+     */
+    fun logWarning(component: String, event: String, details: Map<String, String> = emptyMap()) {
+        record("warning", "${component}/${event}", details)
+    }
+
     fun healthCheckEvaluated(trigger: String, decision: String, details: Map<String, String> = emptyMap()) {
         record("health_check", decision, buildMap {
             put("trigger", trigger)

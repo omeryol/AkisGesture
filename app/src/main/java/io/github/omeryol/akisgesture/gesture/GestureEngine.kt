@@ -549,7 +549,6 @@ class GestureEngine(
             sensorLength = sensorLength,
         )
         val touchSlop = ViewConfiguration.get(overlayManager.context).scaledTouchSlop
-        val edgeTriggerMode = activeRuleSet.triggerModeFor(edge)
 
         return EdgeGestureDetector(
             edge = edge,
@@ -558,10 +557,13 @@ class GestureEngine(
             swipeThresholdPx = perEdgeThresholdPx,
             lSwipeThresholdPx = lSwipeThresholdPx,
             onGestureResult = { result -> handleGestureResult(result) },
-            triggerMode = edgeTriggerMode,
-            onReplayTap = if (edgeTriggerMode == TriggerMode.SWIPE) { x, y ->
+            triggerModeAt = { touchPx ->
+                if (sensorLength <= 0f) TriggerMode.TOUCH
+                else activeRuleSet.quickSwipeTriggerModeFor(edge, (touchPx / sensorLength).coerceIn(0f, 1f))
+            },
+            onReplayTap = { x, y ->
                 GestureAccessibilityService.instance?.dispatchTap(x, y)
-            } else null,
+            },
             onProgress = ::handleGestureProgress,
             hasHoldActionAt = { touchPx ->
                 if (sensorLength <= 0f) false

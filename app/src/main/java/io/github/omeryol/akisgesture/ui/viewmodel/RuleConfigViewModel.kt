@@ -223,11 +223,16 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
     fun addRule(trigger: TriggerNode, action: ActionNode, triggerMode: TriggerMode = TriggerMode.SWIPE) {
         if (action is ActionNode.NoAction) return
         val current = _rules.value.toMutableList()
+        // triggerMode kasıtlı olarak eşleştirmeden hariç: aynı (edge, section, gestureType)
+        // için ikinci bir triggerMode ile çağrı gelirse bu fiziksel olarak aynı jestin
+        // tetikleme şeklini değiştirmek demektir, ayrı bir kural değil. Eskiden triggerMode
+        // da eşleşme şartına dahildi; bu da aynı bölgede iki kural birikmesine ve
+        // derlenmiş tabloda ikincisinin hiç eşleşmeyen "ölü" bir girdi olmasına yol açıyordu.
         val existingIndex = current.indexOfFirst {
-            it.trigger.edge == trigger.edge && it.trigger.section == trigger.section && it.trigger.gestureType == trigger.gestureType && it.triggerMode == triggerMode
+            it.trigger.edge == trigger.edge && it.trigger.section == trigger.section && it.trigger.gestureType == trigger.gestureType
         }
         if (existingIndex >= 0) {
-            current[existingIndex] = current[existingIndex].copy(action = action, enabled = true)
+            current[existingIndex] = current[existingIndex].copy(action = action, enabled = true, triggerMode = triggerMode)
         } else {
             current.add(
                 GestureRule(
@@ -258,11 +263,13 @@ class RuleConfigViewModel(application: Application) : AndroidViewModel(applicati
 
         fun setAction(type: GestureType, action: ActionNode?) {
             if (action == null || action is ActionNode.NoAction) return
+            // bkz. addRule(): triggerMode eşleşme şartına dahil değil, aynı fiziksel
+            // bölge/jest-tipi için tek bir kural olması gerekir.
             val existingIndex = current.indexOfFirst {
-                it.trigger.edge == edge && it.trigger.section == section && it.trigger.gestureType == type && it.triggerMode == triggerMode
+                it.trigger.edge == edge && it.trigger.section == section && it.trigger.gestureType == type
             }
             if (existingIndex >= 0) {
-                current[existingIndex] = current[existingIndex].copy(action = action, enabled = true)
+                current[existingIndex] = current[existingIndex].copy(action = action, enabled = true, triggerMode = triggerMode)
             } else {
                 current.add(
                     GestureRule(

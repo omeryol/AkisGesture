@@ -64,6 +64,7 @@ object GestureTracker {
         )
     }
 
+    @Synchronized
     fun recordGesture(context: Context, edge: Edge, gestureType: GestureType) {
         val p = prefs ?: context.applicationContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).also { prefs = it }
 

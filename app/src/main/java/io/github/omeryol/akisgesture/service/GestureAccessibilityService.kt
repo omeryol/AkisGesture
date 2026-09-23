@@ -142,7 +142,13 @@ class GestureAccessibilityService : AccessibilityService() {
             ContextCompat.startForegroundService(
                 this, Intent(this, KeepAliveService::class.java)
             )
-        } catch (_: Exception) { /* Sessiz işle */ }
+        } catch (e: Exception) {
+            RuntimeDiagnostics.logWarning(
+                "onServiceConnected",
+                "keepalive_start_failed",
+                mapOf("error" to (e.message ?: e.javaClass.simpleName)),
+            )
+        }
 
         // 1x1px saydam overlay penceresi ekle
         try {
@@ -161,7 +167,14 @@ class GestureAccessibilityService : AccessibilityService() {
                 x = 0; y = 0
             }
             windowManager.addView(keepAliveView, keepAliveParams)
-        } catch (_: Exception) { /* Overlay eklenemezse devam et */ }
+        } catch (e: Exception) {
+            // HyperOS/MIUI'de overlay token bazen henüz hazır olmayabilir.
+            RuntimeDiagnostics.logWarning(
+                "onServiceConnected",
+                "keepalive_overlay_add_failed",
+                mapOf("error" to (e.message ?: e.javaClass.simpleName)),
+            )
+        }
 
         // HyperOS/Android 15 can call onServiceConnected before the accessibility
         // overlay token is fully registered. Starting on the next main-loop turn
@@ -305,7 +318,13 @@ class GestureAccessibilityService : AccessibilityService() {
         keepAliveView?.let { view ->
             try {
                 if (view.windowToken != null) windowManager.removeView(view)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                RuntimeDiagnostics.logWarning(
+                    "cleanup",
+                    "keepalive_overlay_remove_failed",
+                    mapOf("reason" to reason, "error" to (e.message ?: e.javaClass.simpleName)),
+                )
+            }
             keepAliveView = null
         }
 

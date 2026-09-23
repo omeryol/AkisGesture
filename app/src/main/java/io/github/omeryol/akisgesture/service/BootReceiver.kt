@@ -26,13 +26,26 @@ class BootReceiver : BroadcastReceiver() {
             context.startService(serviceIntent)
         }
 
+        // goAsync() limiti yaklaşık 60 sn; repairIfNeeded() içindeki rebind() zinciri
+        // uzadığında bu limiti aşabilir ve OEM'lerde uyarıya yol açabilir.
+        // KeepAliveService zaten başlatıldı ve scheduleHealthCheck() ile onarımı kendisi
+        // üstleniyor. Burada sadece Android'in doğal bağlama süresine kısa bir tolerans
+        // tanımak yeterli — ağır onarım işini KeepAliveService'e bırak.
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Paket güncellemesi ve açılışta Android'in normal erişilebilirlik
                 // bağlama sürecini tamamlamasına izin ver.
                 delay(5_000)
-                AccessibilityControl.repairIfNeeded(context.applicationContext)
+                // Servis bağlantısını kontrol et; bağlanmadıysa KeepAliveService
+                // kendi scheduleHealthCheck() mekanizmasıyla devralır.
+                // goAsync()'in 60 sn limitini korumak için burada uzun onarım YAPMA.
+                if (GestureAccessibilityService.instance == null) {
+                    AccessibilityControl.repairIfNeeded(
+                        context.applicationContext,
+                        repairCooldownMs = 10_000L,
+                    )
+                }
             } finally {
                 pendingResult.finish()
             }

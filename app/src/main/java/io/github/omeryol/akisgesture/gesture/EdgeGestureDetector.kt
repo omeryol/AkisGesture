@@ -27,7 +27,8 @@ class EdgeGestureDetector(
     private val swipeThresholdPx: Float,
     private val lSwipeThresholdPx: Float,
     private val onGestureResult: (GestureResult) -> Unit,
-    private val triggerMode: TriggerMode = TriggerMode.TOUCH,
+    /** Resolves the QUICK_SWIPE trigger mode for a touch at the given along-edge px. */
+    private val triggerModeAt: (Float) -> TriggerMode = { TriggerMode.TOUCH },
     private val onReplayTap: ((Float, Float) -> Unit)? = null,
     private val onProgress: (GestureProgress) -> Unit = {},
     private val hasHoldActionAt: (Float) -> Boolean = { true },
@@ -62,6 +63,8 @@ class EdgeGestureDetector(
     private var lastSwitchDirection: SwipeDirection? = null
     private var wasArmed = false
     private var maxDampedDisplacement = 0f
+    /** TriggerMode resolved for the current touch sequence at handleDown() time. */
+    private var activeTriggerMode: TriggerMode = TriggerMode.TOUCH
 
     private val edgeDamping: Float get() = config.dampingFor(edge)
 
@@ -154,8 +157,6 @@ class EdgeGestureDetector(
     }
 
     private fun handleDown(event: MotionEvent) {
-        state = if (triggerMode == TriggerMode.SWIPE) GestureState.AWAITING_DIRECTION else GestureState.TRACKING
-
         touchState.apply {
             downX = event.rawX
             downY = event.rawY
@@ -163,6 +164,12 @@ class EdgeGestureDetector(
             prevY = event.rawY
             downTime = System.currentTimeMillis()
         }
+
+        // Her kenar tek bir sabit triggerMode'a değil, dokunulan bölgenin kendi
+        // QUICK_SWIPE kuralına göre çözümlenir — aksi halde aynı kenarda farklı
+        // triggerMode'lu bölgeler birbirini sessizce eziyordu.
+        activeTriggerMode = triggerModeAt(initialTouchCoord())
+        state = if (activeTriggerMode == TriggerMode.SWIPE) GestureState.AWAITING_DIRECTION else GestureState.TRACKING
 
         lSwipeDetector.onDown()
         lastTouchAlongEdge = touchCoord(event)
@@ -226,6 +233,10 @@ class EdgeGestureDetector(
 
         touchState.prevX = event.rawX
         touchState.prevY = event.rawY
+
+        // CANCELLED durumundayken lSwipeDetector ve diğer işlemler devam etmemeli.
+        // Parmak içeri geri itilirse state'in DETECTED'a sessizce geri dönmesini önler.
+        if (state == GestureState.CANCELLED) return
 
         val currentInward = inwardDisplacement(dx, dy).coerceAtLeast(0f)
         val dampedDisplacement = GestureThresholds.dampedDisplacement(currentInward, edgeDamping)
@@ -410,7 +421,7 @@ class EdgeGestureDetector(
         }
 
         // Replay tap in SWIPE mode if no swipe occurred
-        if (triggerMode == TriggerMode.SWIPE) {
+        if (activeTriggerMode == TriggerMode.SWIPE) {
             if (state == GestureState.AWAITING_DIRECTION || state == GestureState.REJECTED) {
                 onReplayTap?.invoke(touchState.downX, touchState.downY)
                 finishProgress(event)

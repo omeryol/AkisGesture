@@ -5,6 +5,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams
 import android.util.Log
+import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 
 class OverlayManager(
     val context: Context,
@@ -30,7 +31,13 @@ class OverlayManager(
                 if (window.view.windowToken != null) {
                     windowManager.removeView(window.view)
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                RuntimeDiagnostics.logWarning(
+                    "OverlayManager",
+                    "remove_window_failed",
+                    mapOf("tag" to tag, "error" to (e.message ?: e.javaClass.simpleName)),
+                )
+            }
         }
     }
 
@@ -38,7 +45,13 @@ class OverlayManager(
         windows[tag]?.let { window ->
             try {
                 windowManager.updateViewLayout(window.view, window.params)
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                RuntimeDiagnostics.logWarning(
+                    "OverlayManager",
+                    "update_window_failed",
+                    mapOf("tag" to tag, "error" to (e.message ?: e.javaClass.simpleName)),
+                )
+            }
         }
     }
 

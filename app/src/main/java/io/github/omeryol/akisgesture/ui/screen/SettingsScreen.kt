@@ -81,6 +81,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -165,7 +166,11 @@ fun SettingsScreen(
     }
 
     var showAppPicker by remember { mutableStateOf(false) }
-    var pendingImportJson by remember { mutableStateOf<String?>(null) }
+    // rememberSaveable: kullanıcı bir yedek dosyası seçtikten sonra onay diyaloğu
+    // açıkken ekran döndürülürse (MainActivity configChanges tanımlamıyor, Activity
+    // yeniden kuruluyor), düz remember ile bu state sessizce kaybolur ve kullanıcı
+    // dosya seçme adımını baştan yapmak zorunda kalır.
+    var pendingImportJson by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedEdge by remember { mutableStateOf(Edge.LEFT) }
     var selectedSection by remember(initialSection) { mutableStateOf(initialSection.coerceIn(0, 5)) }
     LaunchedEffect(isPrivilegedAvailable) {

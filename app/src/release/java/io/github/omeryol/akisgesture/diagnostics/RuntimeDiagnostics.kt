@@ -15,6 +15,7 @@ object RuntimeDiagnostics {
         uptimeMs: Long = 0L,
     ) = Unit
     fun serviceInterrupted() = Unit
+    fun logWarning(component: String, event: String, details: Map<String, String> = emptyMap()) = Unit
     fun healthCheckEvaluated(trigger: String, decision: String, details: Map<String, String> = emptyMap()) = Unit
     fun recordHistoricalExitReasons(context: Context) = Unit
     fun getLastDisconnectSummary(context: Context): String? = null

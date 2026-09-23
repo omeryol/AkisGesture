@@ -31,8 +31,22 @@ object RuleSerializer {
 
             val actionObj = JSONObject()
             actionObj.put("id", rule.action.id)
-            if (rule.action is ActionNode.LaunchApp) {
-                actionObj.put("appName", rule.action.appName)
+            when (val action = rule.action) {
+                is ActionNode.LaunchApp -> {
+                    actionObj.put("appName", action.appName)
+                }
+                is ActionNode.AppShortcut -> {
+                    // shortcutLabel ve shortcutId JSON'da saklanmazsa yeniden
+                    // başlatmada/yedek yüklemesinde UI etiketi bozuluyordu.
+                    actionObj.put("shortcutLabel", action.shortcutLabel)
+                    actionObj.put("shortcutId", action.shortcutId)
+                }
+                is ActionNode.SendKeyCode -> {
+                    // keyLabel JSON'da saklanmazsa UI etiketi "Tuş: <kod>" yerine
+                    // sadece sayı gösteriyordu.
+                    actionObj.put("keyLabel", action.keyLabel)
+                }
+                else -> Unit
             }
             ruleObj.put("action", actionObj)
             ruleObj.put("enabled", rule.enabled)
@@ -66,12 +80,35 @@ object RuleSerializer {
 
             val actionObj = ruleObj.getJSONObject("action")
             val actionId = actionObj.getString("id")
-            val action = if (actionId.startsWith("launch_app:")) {
-                val pkg = actionId.removePrefix("launch_app:")
-                val appName = actionObj.optString("appName", pkg)
-                ActionNode.LaunchApp(pkg, appName)
-            } else {
-                ActionNode.fromId(actionId) ?: ActionNode.NoAction
+            val action = when {
+                actionId.startsWith("launch_app:") -> {
+                    val pkg = actionId.removePrefix("launch_app:")
+                    val appName = actionObj.optString("appName", pkg)
+                    ActionNode.LaunchApp(pkg, appName)
+                }
+                actionId.startsWith("app_shortcut:") -> {
+                    val parts = actionId.removePrefix("app_shortcut:").split(":", limit = 2)
+                    if (parts.size == 2) {
+                        val pkg = parts[0]
+                        val shortcutId = parts[1]
+                        // shortcutLabel JSON'dan okunur; yoksa shortcutId kullanılır
+                        val shortcutLabel = actionObj.optString("shortcutLabel", shortcutId)
+                        ActionNode.AppShortcut(pkg, shortcutId, shortcutLabel)
+                    } else {
+                        ActionNode.NoAction
+                    }
+                }
+                actionId.startsWith("keycode:") -> {
+                    val code = actionId.removePrefix("keycode:").toIntOrNull()
+                    if (code != null) {
+                        // keyLabel JSON'dan okunur; yoksa kod numarası kullanılır
+                        val keyLabel = actionObj.optString("keyLabel", code.toString())
+                        ActionNode.SendKeyCode(code, keyLabel)
+                    } else {
+                        ActionNode.NoAction
+                    }
+                }
+                else -> ActionNode.fromId(actionId) ?: ActionNode.NoAction
             }
 
             val enabled = ruleObj.optBoolean("enabled", true)

@@ -20,9 +20,10 @@ class GestureTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val enable = !AccessibilityControl.isEnabled(this)
-        updateTileState(enable)
+        // isEnabled() ve setEnabled() ikisi de root/Shizuku'ya düşebilir — ana thread'de ANR yaratır.
         Thread {
+            val enable = !AccessibilityControl.isEnabled(this)
+            Handler(Looper.getMainLooper()).post { updateTileState(enable) }
             when (AccessibilityControl.setEnabled(this, enable)) {
                 RootResult.Success -> {
                     sendBroadcast(Intent(ACTION_TILE_STATE_CHANGED).setPackage(packageName))
@@ -50,7 +51,12 @@ class GestureTileService : TileService() {
     }
 
     private fun refresh() {
-        updateTileState(AccessibilityControl.isEnabled(this))
+        // isEnabled() içeride root/Shizuku kabuk komutuna düşebilir (4–9 sn blok).
+        // Ana thread'de çağrılırsa ANR üretir — arka plan thread'inde çalıştır.
+        Thread {
+            val enabled = AccessibilityControl.isEnabled(this)
+            Handler(Looper.getMainLooper()).post { updateTileState(enabled) }
+        }.start()
     }
 
     private fun updateTileState(enabled: Boolean) {

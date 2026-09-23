@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
+import io.github.omeryol.akisgesture.automation.AutomationCommand
 import io.github.omeryol.akisgesture.root.RootResult
 import io.github.omeryol.akisgesture.diagnostics.RuntimeDiagnostics
 import kotlinx.coroutines.delay
@@ -13,6 +14,7 @@ object AccessibilityControl {
     private const val PREFS = "gesture_service_control"
     private const val KEY_DESIRED = "desired_enabled"
     private const val KEY_LAST_REPAIR = "last_repair_ms"
+    private const val KEY_REPAIR_ATTEMPTS = "repair_attempt_count"
 
     fun isDesired(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -31,6 +33,23 @@ object AccessibilityControl {
         return services.split(':').any { it.isNotBlank() && sameComponent(it, component) }
     }
 
+    /**
+     * Otomasyon giriş noktalarının (broadcast receiver, command activity'leri,
+     * MacroDroid eklentisi) ortak, atomik giriş noktası. Mevcut durumu okuma ve
+     * hedef durumu hesaplayıp yazma tek kilit altında yapılır; aksi halde iki
+     * neredeyse eşzamanlı TOGGLE tetiklemesi aynı bayat durumu okuyup aynı hedefi
+     * uygulayabilir (klasik TOCTOU), bu da beklenen "aç/kapat" davranışını bozar.
+     *
+     * @return hesaplanan hedef durum ve uygulama sonucu — çağıran, hedefi kendi
+     *   `setDesired` yedek mantığında yeniden (ve olası bir yarışla) hesaplamak
+     *   zorunda kalmaz.
+     */
+    @Synchronized
+    fun applyAutomationCommand(context: Context, command: AutomationCommand.Command): Pair<Boolean, RootResult> {
+        val target = AutomationCommand.targetState(command, isEnabled(context))
+        return target to setEnabled(context, target)
+    }
+
     private fun getEnabledServicesString(context: Context): String? {
         val resolverSetting = runCatching {
             android.provider.Settings.Secure.getString(
@@ -41,10 +60,11 @@ object AccessibilityControl {
         if (resolverSetting != null) {
             return resolverSetting
         }
-        val current = runRoot("settings get secure enabled_accessibility_services")
+        val current = runRoot("settings --user 0 get secure enabled_accessibility_services")
         return if (current is CommandResult.Success) current.output else null
     }
 
+    @Synchronized
     fun setEnabled(context: Context, enabled: Boolean): RootResult {
         val component = componentName(context)
         val watchdogEnabled = (context.applicationContext as? io.github.omeryol.akisgesture.AkisGestureApp)
@@ -62,7 +82,7 @@ object AccessibilityControl {
         if (enabled) services += component
         val safeValue = services.joinToString(":")
         val write = runRoot(
-            "settings put secure enabled_accessibility_services '$safeValue'",
+            "settings --user 0 put secure enabled_accessibility_services '$safeValue'",
         )
         if (write !is CommandResult.Success) {
             return RootResult.Failure("Erişilebilirlik durumu değiştirilemedi")
@@ -70,7 +90,7 @@ object AccessibilityControl {
         if (isEnabled(context) != enabled) {
             return RootResult.Failure("Accessibility setting could not be verified")
         }
-        if (enabled) runRoot("settings put secure accessibility_enabled 1")
+        if (enabled) runRoot("settings --user 0 put secure accessibility_enabled 1")
         // With the watchdog enabled, an in-app stop is treated as a temporary
         // interruption. Keep the guard service alive so it can restore the
         // accessibility entry at the configured interval.
@@ -81,20 +101,31 @@ object AccessibilityControl {
         return RootResult.Success
     }
 
+    /**
+     * Onarım gerekiyorsa dener; art arda [maxRepairAttempts] başarısızlıktan sonra
+     * soğuma süresini [AccessibilityHealthPolicy.EXTENDED_COOLDOWN_MS]'e genişleterek
+     * deneme sıklığını düşürür (kalıcı olarak durdurmaz — sınırsız hızlı tekrar ile
+     * kalıcı kilitlenme arasında bir denge). Deneme sayacı [PREFS] içinde kalıcıdır,
+     * bu yüzden çağıranın coroutine/yaşam döngüsü yeniden başlasa bile korunur.
+     */
     suspend fun repairIfNeeded(
         context: Context,
         serviceConnected: Boolean = GestureAccessibilityService.instance?.isOverlayHealthy() == true,
         nowMillis: Long = System.currentTimeMillis(),
         repairCooldownMs: Long = AccessibilityHealthPolicy.REPAIR_COOLDOWN_MS,
+        maxRepairAttempts: Int = AccessibilityHealthPolicy.MAX_REPAIR_ATTEMPTS,
     ): RootResult {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val lastRepair = prefs.getLong(KEY_LAST_REPAIR, 0L)
+        val attemptCount = prefs.getInt(KEY_REPAIR_ATTEMPTS, 0)
+        val capped = maxRepairAttempts > 0 && attemptCount >= maxRepairAttempts
+        val effectiveCooldownMs = if (capped) AccessibilityHealthPolicy.EXTENDED_COOLDOWN_MS else repairCooldownMs
         val action = AccessibilityHealthPolicy.decide(
             desired = isDesired(context),
             settingEnabled = isEnabled(context),
             serviceConnected = serviceConnected,
             millisSinceLastRepair = nowMillis - lastRepair,
-            repairCooldownMs = repairCooldownMs,
+            repairCooldownMs = effectiveCooldownMs,
         )
         if (action == AccessibilityHealthPolicy.Action.NONE) return RootResult.Success
         prefs.edit().putLong(KEY_LAST_REPAIR, nowMillis).apply()
@@ -102,6 +133,15 @@ object AccessibilityControl {
             AccessibilityHealthPolicy.Action.ENABLE_SETTING -> setEnabled(context, true)
             AccessibilityHealthPolicy.Action.REBIND_SERVICE -> rebind(context)
             AccessibilityHealthPolicy.Action.NONE -> RootResult.Success
+        }
+        val newAttemptCount = if (result is RootResult.Success) 0 else attemptCount + 1
+        prefs.edit().putInt(KEY_REPAIR_ATTEMPTS, newAttemptCount).apply()
+        if (newAttemptCount == maxRepairAttempts) {
+            RuntimeDiagnostics.logWarning(
+                "repairIfNeeded",
+                "max_repair_attempts_reached",
+                mapOf("attempts" to newAttemptCount.toString()),
+            )
         }
         RuntimeDiagnostics.repairFinished(action.name, result)
         return result
@@ -111,7 +151,7 @@ object AccessibilityControl {
         val component = componentName(context)
         // Modern Android (10+): Doğrudan shell servisi üzerinden başlatmayı dene (en hızlı ve temiz yöntem)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val cmdResult = runRoot("cmd accessibility start-service $component")
+            val cmdResult = runRoot("cmd accessibility start-service --user 0 $component")
             if (cmdResult is CommandResult.Success) {
                 delay(300)
                 if (GestureAccessibilityService.instance != null) {
@@ -139,7 +179,7 @@ object AccessibilityControl {
         if (!isEnabled(context)) {
             return RootResult.Failure("Accessibility rebind could not be verified")
         }
-        runRoot("settings put secure accessibility_enabled 1")
+        runRoot("settings --user 0 put secure accessibility_enabled 1")
         return RootResult.Success
     }
 
@@ -147,7 +187,7 @@ object AccessibilityControl {
         val validServices = services.filter { it.isNotBlank() && isValidComponentName(it) }
         val safeValue = validServices.joinToString(":")
         return runRoot(
-            "settings put secure enabled_accessibility_services '$safeValue'",
+            "settings --user 0 put secure enabled_accessibility_services '$safeValue'",
         ) is CommandResult.Success
     }
 

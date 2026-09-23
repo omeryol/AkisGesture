@@ -109,11 +109,7 @@ class MacroDroidPluginReceiver : BroadcastReceiver() {
         Thread {
             try {
                 if (!AutomationGate.isEnabledBlocking(context)) return@Thread
-                val target = AutomationCommand.targetState(
-                    command,
-                    AccessibilityControl.isEnabled(context),
-                )
-                AccessibilityControl.setEnabled(context, target)
+                AccessibilityControl.applyAutomationCommand(context, command)
             } catch (_: Exception) {
             } finally {
                 pending.finish()

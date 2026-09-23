@@ -47,11 +47,7 @@ abstract class GestureCommandActivity : Activity() {
         Thread {
             try {
                 if (AutomationGate.isEnabledBlocking(this)) {
-                    val target = AutomationCommand.targetState(
-                        command,
-                        AccessibilityControl.isEnabled(this),
-                    )
-                    AccessibilityControl.setEnabled(this, target)
+                    AccessibilityControl.applyAutomationCommand(this, command)
                 }
             } catch (_: Exception) {
             } finally {
